@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Companies House - Limited Partnerships API",
-    "description": "An API to allow to the registration, transition and update of limited partnerships",
+    "description": "An API to allow the registration, transition and update of limited partnerships",
     "version": "1.0.0"
   },
   "host": "api.companieshouse.gov.uk",
