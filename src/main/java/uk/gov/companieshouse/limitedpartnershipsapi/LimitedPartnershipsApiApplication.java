@@ -8,7 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 public class LimitedPartnershipsApiApplication {
     public static final String APP_NAMESPACE = "limited-partnerships-api";
     public static void main(String[] args) {
-        ApiLogger.debug("Starting Limited Partnerships Api");
+        ApiLogger.debug("Starting Limited Partnerships API");
         SpringApplication.run(LimitedPartnershipsApiApplication.class, args);
     }
 }
