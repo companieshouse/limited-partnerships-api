@@ -12,7 +12,7 @@
     }
   ],
   "paths": {
-    "/transactions/{transaction_id}/limited_partnership/partnership": {
+    "/transactions/{transaction_id}/limited-partnership/partnership": {
       "post": {
         "tags": [
           "Limited Partnerships"
@@ -42,7 +42,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited_partnership/partnership/{filing_resource_id}": {
+    "/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}": {
       "patch": {
         "tags": [
           "Limited Partnerships"
@@ -81,7 +81,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited_partnership/{filing_resource_id}": {
+    "/transactions/{transaction_id}/limited-partnership/{filing_resource_id}": {
       "get": {
         "tags": [
           "Limited Partnerships"
@@ -117,7 +117,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited_partnership/{filing_resource_id}/validation_status": {
+    "/transactions/{transaction_id}/limited-partnership/{filing_resource_id}/validation_status": {
       "get": {
         "tags": [
           "Limited Partnerships"
@@ -153,7 +153,7 @@
         }
       }
     },
-    "/private/transactions/{transaction_id}/limited_partnership/{filing_resource_id}/filings": {
+    "/private/transactions/{transaction_id}/limited-partnership/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "Filings"
@@ -189,7 +189,7 @@
         }
       }
     },
-    "/limited-partnerships": {
+    "/limited-partnership/healthcheck": {
       "post": {
         "summary": "Create an limited partnerships registration submission",
         "produces": [
