@@ -12,6 +12,183 @@
     }
   ],
   "paths": {
+    "/transactions/{transaction_id}/limited_partnership/partnership": {
+      "post": {
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "summary": "Create an limited partnerships registration submission",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Limited partnerships submission has been successfully created."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/limited_partnership/partnership/{filing_resource_id}": {
+      "patch": {
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "summary": "Update a limited partnerships submission.",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Limited partnerships submission has been updated."
+          },
+          "400": {
+            "description": "Supplied transaction does not relate to the supplied OE id"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Submission not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/limited_partnership/{filing_resource_id}": {
+      "get": {
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "summary": "Retrieve saved limited partnerships submission data.",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Individual limited partnerships submission."
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Submission not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/limited_partnership/{filing_resource_id}/validation_status": {
+      "get": {
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "summary": "Verify that the specified limited partnerships submission is valid.",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The specified limited partnerships submission is valid."
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Submission not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/private/transactions/{transaction_id}/limited_partnership/{filing_resource_id}/filings": {
+      "get": {
+        "tags": [
+          "Filings"
+        ],
+        "summary": "Gets filing data ready to send to CHIPS",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filing data"
+          },
+          "400": {
+            "description": "A provided url id failed validation"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Submission not found"
+          }
+        }
+      }
+    },
     "/limited-partnerships": {
       "post": {
         "summary": "Create an limited partnerships registration submission",
