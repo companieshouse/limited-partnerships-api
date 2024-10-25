@@ -1,0 +1,32 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Companies House - Limited Partnerships API",
+    "description": "An API to allow the registration, transition and update of limited partnerships",
+    "version": "1.0.0"
+  },
+  "host": "api.companieshouse.gov.uk",
+  "tags": [
+    {
+      "name": "Limited Partnerships"
+    }
+  ],
+  "paths": {
+    "/limited-partnership/healthcheck": {
+      "get": {
+        "summary": "Health check URL returns 200 if service is running",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request has been received"
+          }
+        }
+      }
+    }
+  }
+}
