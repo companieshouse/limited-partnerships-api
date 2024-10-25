@@ -13,7 +13,7 @@
   ],
   "paths": {
     "/limited-partnership/healthcheck": {
-      "post": {
+      "get": {
         "summary": "Create an limited partnerships registration submission",
         "produces": [
           "application/json"
