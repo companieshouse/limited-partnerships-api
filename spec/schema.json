@@ -14,7 +14,7 @@
   "paths": {
     "/limited-partnership/healthcheck": {
       "get": {
-        "summary": "Create an limited partnerships registration submission",
+        "summary": "Health check URL returns 200 if service is running",
         "produces": [
           "application/json"
         ],
