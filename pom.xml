@@ -15,6 +15,7 @@
         <spring-boot-dependencies.version>3.3.4</spring-boot-dependencies.version>
         <spring-boot-maven-plugin.version>3.3.4</spring-boot-maven-plugin.version>
         <structured-logging.version>3.0.20</structured-logging.version>
+         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -67,6 +68,22 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
+                <configuration>
+                    <container>
+                        <expandClasspathDependencies>true</expandClasspathDependencies>
+                    </container>
+                    <from>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21:latest</image>
+                    </from>
+                    <to>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/local/limited-partnerships-api:latest</image>
+                    </to>
+                </configuration>
             </plugin>
         </plugins>
     </build>
