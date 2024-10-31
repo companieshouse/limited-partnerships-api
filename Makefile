@@ -1,5 +1,5 @@
 artifact_name       := limited-partnerships-api
-version             := "unversioned"
+version             := "1.0-SNAPSHOT"
 
 .PHONY: all
 all: build
