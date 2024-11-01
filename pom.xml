@@ -23,7 +23,6 @@
         <spring-boot-maven-plugin.version>3.3.4</spring-boot-maven-plugin.version>
         <structured-logging.version>3.0.20</structured-logging.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
-        <log4j.version>2.23.1</log4j.version>
     </properties>
 
     <profiles>
