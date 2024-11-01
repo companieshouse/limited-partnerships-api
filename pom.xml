@@ -108,6 +108,15 @@
                     </to>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>6.5.0</version>
+                <configuration>
+                    <suppressionFile>${project.basedir}/suppress.xml</suppressionFile>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
