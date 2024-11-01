@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class ApiLogger {
 
+    private ApiLogger() {}
+
     private static final Logger LOGGER =
             LoggerFactory.getLogger(LimitedPartnershipsApiApplication.APP_NAMESPACE);
 
@@ -32,6 +34,10 @@ public class ApiLogger {
         LOGGER.infoContext(context, message, null);
     }
 
+    public static void infoContext(String context, String message, Map<String, Object> dataMap) {
+        LOGGER.infoContext(context, message, cloneMapData(dataMap));
+    }
+
     public static void errorContext(String context, Exception e) {
         LOGGER.errorContext(context, e, null);
     }
@@ -43,7 +49,6 @@ public class ApiLogger {
     public static void errorContext(String context, String message, Exception e, Map<String, Object> dataMap) {
         LOGGER.errorContext(context, message, e, cloneMapData(dataMap));
     }
-
     /**
      * The Companies House logging implementation modifies the data map content which means that
      * if the same data map is used for subsequent calls any new message that might be passed in

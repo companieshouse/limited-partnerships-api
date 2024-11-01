@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ApiLoggerTest {
+class ApiLoggerTest {
 
     private static final String CONTEXT = "CONTEXT";
     private static final String TEST_MESSAGE = "TEST";
@@ -41,7 +41,7 @@ public class ApiLoggerTest {
 
     @Test
     void testInfoContextLoggingDoesNotModifyLogMap() {
-        ApiLogger.infoContext(CONTEXT, TEST_MESSAGE);
+        ApiLogger.infoContext(CONTEXT, TEST_MESSAGE, logMap);
 
         assertEquals(1, logMap.size());
         assertEquals(LOG_MAP_VALUE, logMap.get(LOG_MAP_KEY));
