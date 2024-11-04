@@ -49,6 +49,7 @@ public class ApiLogger {
     public static void errorContext(String context, String message, Exception e, Map<String, Object> dataMap) {
         LOGGER.errorContext(context, message, e, cloneMapData(dataMap));
     }
+
     /**
      * The Companies House logging implementation modifies the data map content which means that
      * if the same data map is used for subsequent calls any new message that might be passed in
