@@ -8,7 +8,7 @@
 
 ### Work checklist
 
-
+* [ ] Tests added where applicable
 * [ ] Bug fix
 * [ ] New feature
 * [ ] Breaking change
