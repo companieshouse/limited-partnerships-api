@@ -23,14 +23,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
-        addLoggingInterceptor(registry);
-    }
-
-    /**
-     * Interceptor that logs all calls to endpoints
-     * @param registry The spring interceptor registry
-     */
-    private void addLoggingInterceptor(InterceptorRegistry registry) {
         registry.addInterceptor(loggingInterceptor);
     }
 }
