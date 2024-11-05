@@ -22,6 +22,7 @@
         <spring-boot-dependencies.version>3.3.4</spring-boot-dependencies.version>
         <spring-boot-maven-plugin.version>3.3.4</spring-boot-maven-plugin.version>
         <structured-logging.version>3.0.20</structured-logging.version>
+        <log4j.version>2.24.1</log4j.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
     </properties>
 
@@ -36,6 +37,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${log4j.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -60,7 +68,6 @@
             <version>${structured-logging.version}</version>
         </dependency>
 
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -74,6 +81,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

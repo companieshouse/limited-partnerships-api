@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class ApiLogger {
 
+    private ApiLogger() {}
+
     private static final Logger LOGGER =
             LoggerFactory.getLogger(LimitedPartnershipsApiApplication.APP_NAMESPACE);
 
@@ -30,6 +32,10 @@ public class ApiLogger {
 
     public static void infoContext(String context, String message) {
         LOGGER.infoContext(context, message, null);
+    }
+
+    public static void infoContext(String context, String message, Map<String, Object> dataMap) {
+        LOGGER.infoContext(context, message, cloneMapData(dataMap));
     }
 
     public static void errorContext(String context, Exception e) {
