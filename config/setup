@@ -1,0 +1,12 @@
+#!/bin/bash
+
+full_path=$(realpath $0)
+dir_path=$(dirname $full_path)
+
+# The google-java-format version must match the one used in the pom.xml file
+version="1.24.0"
+
+cp $dir_path/google-java-format-$version-all-deps.jar $dir_path/../.git/hooks/
+cp $dir_path/pre-commit $dir_path/../.git/hooks/
+
+echo "Set up done!" >&2
