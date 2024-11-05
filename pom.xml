@@ -24,6 +24,7 @@
         <structured-logging.version>3.0.20</structured-logging.version>
         <log4j.version>2.24.1</log4j.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
+        <google-java-format.version>1.24.0</google-java-format.version>
     </properties>
 
     <profiles>
@@ -66,6 +67,11 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>structured-logging</artifactId>
             <version>${structured-logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.googlejavaformat</groupId>
+            <artifactId>google-java-format</artifactId>
+            <version>${google-java-format.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
@@ -112,7 +118,8 @@
                         <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21:latest</image>
                     </from>
                     <to>
-                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/local/limited-partnerships-api:latest</image>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/local/limited-partnerships-api:latest
+                        </image>
                     </to>
                 </configuration>
             </plugin>
