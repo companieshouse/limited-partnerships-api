@@ -80,6 +80,7 @@ module "ecs-service" {
   use_capacity_provider              = var.use_capacity_provider
   use_fargate                        = var.use_fargate
   fargate_subnets                    = local.application_subnet_ids
+  read_only_root_filesystem          = false
 
   # Cloudwatch
   cloudwatch_alarms_enabled = var.cloudwatch_alarms_enabled
@@ -99,4 +100,7 @@ module "ecs-service" {
   eric_port                 = local.eric_port
   eric_environment_filename = local.eric_environment_filename
   eric_secrets              = local.eric_secrets
+
+  depends_on = [module.secrets]
+
 }
