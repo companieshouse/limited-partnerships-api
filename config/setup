@@ -6,7 +6,10 @@ dir_path=$(dirname $full_path)
 version=$(mvn help:evaluate -Dexpression=google-java-format.version -q -DforceStdout)
 jar_file="$dir_path/google-java-format-$version-all-deps.jar"
 
+wget -O $jar_file https://github.com/google/google-java-format/releases/download/v$version/google-java-format-$version-all-deps.jar
+
 cp $jar_file $dir_path/../.git/hooks/
+rm $jar_file
 cp $dir_path/pre-commit $dir_path/../.git/hooks/
 
 echo "Set up done!" >&2
