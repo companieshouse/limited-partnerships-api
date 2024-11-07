@@ -64,6 +64,8 @@ module "ecs-service" {
   docker_repo       = local.docker_repo
   container_version = var.limited_partnerships_api_version
   container_port    = local.container_port
+  volumes         = [ { "name": "tmp" } ]
+  mount_points    = [ {  "sourceVolume": "tmp",  "containerPath": "/tmp",  "readOnly": false  } ]
 
   # Service configuration
   service_name                       = local.service_name
@@ -80,7 +82,6 @@ module "ecs-service" {
   use_capacity_provider              = var.use_capacity_provider
   use_fargate                        = var.use_fargate
   fargate_subnets                    = local.application_subnet_ids
-  read_only_root_filesystem          = false
 
   # Cloudwatch
   cloudwatch_alarms_enabled = var.cloudwatch_alarms_enabled
