@@ -1,0 +1,5 @@
+app_name: limited-partnerships-api
+group: api
+weight: 100
+routes:
+  1: ^/transactions/(.*)/limited-partnerships/*
