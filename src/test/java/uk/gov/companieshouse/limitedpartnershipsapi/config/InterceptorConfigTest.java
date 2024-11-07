@@ -8,11 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import uk.gov.companieshouse.api.interceptor.CRUDAuthenticationInterceptor;
-import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
-import uk.gov.companieshouse.api.interceptor.UserAuthenticationInterceptor;
+import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
-
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -32,6 +29,9 @@ class InterceptorConfigTest {
     @Mock
     private LoggingInterceptor loggingInterceptor;
 
+    @Mock
+    private CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor;
+
     @InjectMocks
     private InterceptorConfig interceptorConfig;
 
@@ -44,9 +44,8 @@ class InterceptorConfigTest {
         InOrder inOrder = inOrder(interceptorRegistry, interceptorRegistration);
         inOrder.verify(interceptorRegistry).addInterceptor(loggingInterceptor);
 
-        inOrder.verify(interceptorRegistry).addInterceptor(any(CRUDAuthenticationInterceptor.class));
-        inOrder.verify(interceptorRegistry).addInterceptor(any(UserAuthenticationInterceptor.class));
+        inOrder.verify(interceptorRegistry).addInterceptor(customUserAuthenticationInterceptor);
 
-        verify(interceptorRegistry, times(3)).addInterceptor(any());
+        verify(interceptorRegistry, times(2)).addInterceptor(any());
     }
 }
