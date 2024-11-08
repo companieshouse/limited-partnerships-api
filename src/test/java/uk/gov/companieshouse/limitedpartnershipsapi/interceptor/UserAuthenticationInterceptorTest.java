@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.interceoptor;
+package uk.gov.companieshouse.limitedpartnershipsapi.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,7 +11,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import uk.gov.companieshouse.api.util.security.Permission;
 import uk.gov.companieshouse.api.util.security.SecurityConstants;
 import uk.gov.companieshouse.api.util.security.TokenPermissions;
-import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -61,7 +60,7 @@ class UserAuthenticationInterceptorTest {
     }
 
     @Test
-    void testtokenPermissionIsSkippedAndInterceptorReturnsTrueWhenAnApiKeyIsUsed() {
+    void tesTokenPermissionIsSkippedAndInterceptorReturnsTrueWhenAnApiKeyIsUsed() {
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
         Object mockHandler = new Object();
 
