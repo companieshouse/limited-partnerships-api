@@ -22,7 +22,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_
 @ExtendWith(MockitoExtension.class)
 class UserAuthenticationInterceptorTest {
 
-    private static final String TX_ID = "12345678";
     private static final String REQ_ID = "43hj5jh345";
     private static final String TOKEN_PERMISSIONS = "token_permissions";
     public static final String ERIC_IDENTITY_TYPE = "ERIC-Identity-Type";
