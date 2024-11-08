@@ -25,6 +25,7 @@ public class CustomUserAuthenticationInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        // TokenPermissions should have been set up in the request by TokenPermissionsInterceptor
         final var tokenPermissions = getTokenPermissions(request)
                 .orElseThrow(() -> new IllegalStateException("UserAuthenticationInterceptor - TokenPermissions object not present in request"));
 
