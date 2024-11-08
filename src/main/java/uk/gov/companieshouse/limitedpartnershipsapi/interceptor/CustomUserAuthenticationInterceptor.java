@@ -26,7 +26,7 @@ public class CustomUserAuthenticationInterceptor implements HandlerInterceptor {
         }
 
         // TokenPermissions should have been set up in the request by TokenPermissionsInterceptor
-        final var tokenPermissions = getTokenPermissions(request)
+        final var tokenPermissions = AuthorisationUtil.getTokenPermissions(request)
                 .orElseThrow(() -> new IllegalStateException("UserAuthenticationInterceptor - TokenPermissions object not present in request"));
 
         boolean hasCompanyIncorporationCreatePermission = tokenPermissions.hasPermission(Permission.Key.COMPANY_INCORPORATION, Permission.Value.CREATE);
@@ -53,9 +53,5 @@ public class CustomUserAuthenticationInterceptor implements HandlerInterceptor {
             return true;
         }
         return false;
-    }
-
-    protected Optional<TokenPermissions> getTokenPermissions(HttpServletRequest request) {
-        return AuthorisationUtil.getTokenPermissions(request);
     }
 }
