@@ -7,11 +7,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.companieshouse.api.util.security.AuthorisationUtil;
 import uk.gov.companieshouse.api.util.security.Permission;
 import uk.gov.companieshouse.api.util.security.SecurityConstants;
-import uk.gov.companieshouse.api.util.security.TokenPermissions;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.HashMap;
-import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 
