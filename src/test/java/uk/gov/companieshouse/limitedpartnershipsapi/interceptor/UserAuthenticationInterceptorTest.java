@@ -60,7 +60,7 @@ class UserAuthenticationInterceptorTest {
     }
 
     @Test
-    void tesTokenPermissionIsSkippedAndInterceptorReturnsTrueWhenAnApiKeyIsUsed() {
+    void testTokenPermissionIsSkippedAndInterceptorReturnsTrueWhenAnApiKeyIsUsed() {
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
         Object mockHandler = new Object();
 
