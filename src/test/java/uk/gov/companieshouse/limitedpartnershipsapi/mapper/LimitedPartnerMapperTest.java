@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
@@ -11,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LimitedPartnerMapperTest {
 
-    @Autowired
+    @InjectMocks
     LimitedPartnershipMapper mapper;
 
     @Test
-    public void givenDtoToDao_whenMaps_thenCorrect() {
+    public void givenDto_whenMapsToDao_thenCorrect() {
         // given
         LimitedPartnershipSubmissionDto source = new LimitedPartnershipSubmissionDto();
         DataDto sourceData = new DataDto();

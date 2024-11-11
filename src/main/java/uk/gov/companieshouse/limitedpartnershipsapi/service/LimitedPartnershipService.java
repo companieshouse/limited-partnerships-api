@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Service
 public class LimitedPartnershipService {
 
-    @Autowired
     private final LimitedPartnershipMapper mapper;
     private final LimitedPartnershipSubmissionsRepository repository;
 
@@ -24,11 +23,8 @@ public class LimitedPartnershipService {
     }
 
     public String createLimitedPartnership(LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto, String requestId) {
-
         ApiLogger.debug("Called createLimitedPartnership(...)");
-        // TODO remove this test code
-        repository.deleteAll();
-        //
+
         LimitedPartnershipSubmissionDao dao = mapper.dtoToDao(limitedPartnershipSubmissionDto);
         dao.setCreatedAt(LocalDateTime.now());
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
