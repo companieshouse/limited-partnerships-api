@@ -1,19 +1,14 @@
 package uk.gov.companieshouse.limitedpartnershipsapi;
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.TimeZone;
 
 @SpringBootApplication
 public class LimitedPartnershipsApiApplication {
-
-    @Autowired
-    private LimitedPartnershipService service;
 
     public static final String APP_NAMESPACE = "limited-partnerships-api";
     public static void main(String[] args) {
