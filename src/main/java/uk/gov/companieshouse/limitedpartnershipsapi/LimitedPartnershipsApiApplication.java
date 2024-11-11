@@ -13,7 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import java.util.TimeZone;
 
 @SpringBootApplication
-public class LimitedPartnershipsApiApplication implements CommandLineRunner {
+public class LimitedPartnershipsApiApplication {
 
     @Autowired
     private LimitedPartnershipService service;
@@ -29,18 +29,5 @@ public class LimitedPartnershipsApiApplication implements CommandLineRunner {
         // This is to prevent times being out of time by an hour during British Summer Time in MongoDB
         // MongoDB stores UTC datetime, and LocalDate doesn't contain timezone
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
-        DataDto data = new DataDto();
-        data.setPartnershipName("Joe Bloggs");
-        data.setNameEnding("Limited Partnership");
-
-        LimitedPartnershipSubmissionDto dto = new LimitedPartnershipSubmissionDto();
-        dto.setData(data);
-        ApiLogger.debug("Persisting LP");
-        String id = service.createLimitedPartnership(dto, "12345");
-        ApiLogger.debug("Persisted LP: " + id);
     }
 }
