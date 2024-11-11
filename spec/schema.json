@@ -1,14 +1,13 @@
 {
-  "openapi": "3.0.1",
+  "swagger": "2.0",
   "info": {
     "title": "Companies House - Limited Partnerships API",
     "description": "An API to allow the registration, transition and update of Limited Partnerships",
     "version": "1.0.0"
   },
-  "servers": [
-    {
-      "url": "https://api.companieshouse.gov.uk/"
-    }
+  "host": "api.companieshouse.gov.uk",
+  "schemes": [
+    "https"
   ],
   "tags": [
     {
@@ -27,20 +26,14 @@
             "name": "transaction_id",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "type": "string"
           }
         ],
         "responses": {
           "201": {
             "description": "Limited Partnership Submission has been successfully created.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LimitedPartnershipSubmissionCreatedResponse"
-                }
-              }
+            "schema": {
+              "$ref": "#/definitions/LimitedPartnershipSubmissionCreatedResponse"
             }
           },
           "400": {
@@ -64,26 +57,20 @@
         "responses": {
           "200": {
             "description": "Request has been received",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
+            "schema": {
+              "type": "object"
             }
           }
         }
       }
     }
   },
-  "components": {
-    "schemas": {
-      "LimitedPartnershipSubmissionCreatedResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
+  "definitions": {
+    "LimitedPartnershipSubmissionCreatedResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
         }
       }
     }
