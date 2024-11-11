@@ -20,7 +20,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot-dependencies.version>3.3.4</spring-boot-dependencies.version>
-        <spring-boot-maven-plugin.version>3.3.4</spring-boot-maven-plugin.version>
+        <spring-boot-maven-plugin.version>3.3.5</spring-boot-maven-plugin.version>
         <api-sdk-java.version>6.0.21</api-sdk-java.version>
         <structured-logging.version>3.0.20</structured-logging.version>
         <log4j.version>2.24.1</log4j.version>
