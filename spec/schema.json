@@ -1,29 +1,88 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.1",
   "info": {
     "title": "Companies House - Limited Partnerships API",
-    "description": "An API to allow the registration, transition and update of limited partnerships",
+    "description": "An API to allow the registration, transition and update of Limited Partnerships",
     "version": "1.0.0"
   },
-  "host": "api.companieshouse.gov.uk",
+  "servers": [
+    {
+      "url": "https://api.companieshouse.gov.uk/"
+    }
+  ],
   "tags": [
     {
       "name": "Limited Partnerships"
     }
   ],
   "paths": {
+    "/transactions/{transaction_id}/limited-partnership/partnership": {
+      "post": {
+        "tags": [
+          "Limited Partnership"
+        ],
+        "summary": "Create a Limited Partnership submission",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Limited Partnership Submission has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LimitedPartnershipSubmissionCreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/limited-partnership/healthcheck": {
       "get": {
         "summary": "Health check URL returns 200 if service is running",
-        "produces": [
-          "application/json"
-        ],
         "tags": [
-          "Limited Partnerships"
+          "Limited Partnership"
         ],
         "responses": {
           "200": {
-            "description": "Request has been received"
+            "description": "Request has been received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LimitedPartnershipSubmissionCreatedResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
           }
         }
       }
