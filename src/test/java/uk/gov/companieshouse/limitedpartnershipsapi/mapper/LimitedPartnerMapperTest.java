@@ -28,7 +28,7 @@ public class LimitedPartnerMapperTest {
 
         // then
         DataDao destinationData = destination.getData();
-        assertEquals(destinationData.getPartnershipName(), sourceData.getPartnershipName());
-        assertEquals(destinationData.getNameEnding(), sourceData.getNameEnding());
+        assertEquals(sourceData.getPartnershipName(), destinationData.getPartnershipName());
+        assertEquals(sourceData.getNameEnding(), destinationData.getNameEnding());
     }
 }
