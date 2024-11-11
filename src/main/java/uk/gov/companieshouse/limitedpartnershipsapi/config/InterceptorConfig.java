@@ -11,7 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingIntercept
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
 
-    static final String TRANSACTIONS = "/transactions/**";
+    static final String PARTNERSHIP = "/transactions/**/partnership**";
 
     private final LoggingInterceptor loggingInterceptor;
 
@@ -32,8 +32,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(loggingInterceptor);
         registry.addInterceptor(new TokenPermissionsInterceptor())
-                .addPathPatterns(TRANSACTIONS);
+                .addPathPatterns(PARTNERSHIP);
         registry.addInterceptor(customUserAuthenticationInterceptor)
-                .addPathPatterns(TRANSACTIONS);
+                .addPathPatterns(PARTNERSHIP);
     }
 }

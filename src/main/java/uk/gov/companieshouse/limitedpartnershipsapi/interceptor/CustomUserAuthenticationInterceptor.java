@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.companieshouse.api.util.security.AuthorisationUtil;
 import uk.gov.companieshouse.api.util.security.Permission;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 
+@Component
 public class CustomUserAuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
