@@ -11,7 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingIntercept
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
 
-    static final String PARTNERSHIP = "/transactions/**/partnership**";
+    private static final String PARTNERSHIP = "/transactions/**/partnership**";
 
     private final LoggingInterceptor loggingInterceptor;
 
