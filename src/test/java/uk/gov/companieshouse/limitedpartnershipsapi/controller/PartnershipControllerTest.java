@@ -5,32 +5,34 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletRequest;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 class PartnershipControllerTest {
 
     private static final String REQUEST_ID = "5346336";
     private static final String USER_ID = "rjg736k791";
+    private static final String SUBMISSION_ID = "ABC123ABC456";
 
     @InjectMocks
     private PartnershipController partnershipController;
 
     @Mock
-    private MockHttpServletRequest mockHttpServletRequest;
+    private LimitedPartnershipService limitedPartnershipService;
 
     private LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto;
 
@@ -39,38 +41,44 @@ class PartnershipControllerTest {
         DataDto data = new DataDto();
         limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
         limitedPartnershipSubmissionDto.setData(data);
-
-        mockHttpServletRequest = new MockHttpServletRequest();
     }
 
     @Test
     void testCreatePartnership() {
+        when(limitedPartnershipService.createLimitedPartnership(
+                any(LimitedPartnershipSubmissionDto.class),
+                eq(REQUEST_ID),
+                eq(USER_ID)))
+                .thenReturn(SUBMISSION_ID);
+
         var response = partnershipController.createPartnership(
                 limitedPartnershipSubmissionDto,
                 REQUEST_ID,
-                USER_ID,
-                mockHttpServletRequest);
+                USER_ID);
 
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
-        assertEquals("/transactions/12321123/limited-partnership/partnership/3235233232", responseHeaderLocation);
+        assertEquals(
+                String.format(URL_GET_PARTNERSHIP, 12321123, SUBMISSION_ID),
+                responseHeaderLocation);
         LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
         assert responseBody != null;
-        assertEquals("3235233232", responseBody.getId());
+        assertEquals(SUBMISSION_ID, responseBody.getId());
     }
 
     @Test
     void testCreatePartnershipInternalServerError() {
-        try (MockedStatic<ApiLogger> logger = Mockito.mockStatic(ApiLogger.class)) {
-            logger.when(() -> ApiLogger.infoContext(Mockito.anyString(), Mockito.anyString(), Mockito.anyMap())).thenThrow(new RuntimeException());
+        when(limitedPartnershipService.createLimitedPartnership(
+                any(LimitedPartnershipSubmissionDto.class),
+                eq(REQUEST_ID),
+                eq(USER_ID)))
+                .thenThrow(new RuntimeException());
 
-            var response = partnershipController.createPartnership(
-                    limitedPartnershipSubmissionDto,
-                    REQUEST_ID,
-                    USER_ID,
-                    mockHttpServletRequest);
+        var response = partnershipController.createPartnership(
+                limitedPartnershipSubmissionDto,
+                REQUEST_ID,
+                USER_ID);
 
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
-        }
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
     }
 }
