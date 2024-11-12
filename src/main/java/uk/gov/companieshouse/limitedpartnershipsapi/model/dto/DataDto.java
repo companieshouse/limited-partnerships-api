@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -12,7 +13,7 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
-    private String nameEnding;
+    private PartnershipNameEnding nameEnding;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -22,11 +23,11 @@ public class DataDto {
         this.partnershipName = partnershipName;
     }
 
-    public String getNameEnding() {
+    public PartnershipNameEnding getNameEnding() {
         return nameEnding;
     }
 
-    public void setNameEnding(String nameEnding) {
+    public void setNameEnding(PartnershipNameEnding nameEnding) {
         this.nameEnding = nameEnding;
     }
 }
