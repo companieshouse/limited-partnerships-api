@@ -16,7 +16,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class LimitedPartnershipServiceTest {
 
-    public static final String SUBMISSION_ID = "abc-123";
+    private static final String USER_ID = "xbJf0l";
+    private static final String SUBMISSION_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
     @InjectMocks
@@ -38,7 +39,7 @@ public class LimitedPartnershipServiceTest {
         when(repository.insert(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDao);
 
         // when
-        String submissionId = service.createLimitedPartnership(limitedPartnershipSubmissionDto, REQUEST_ID);
+        String submissionId = service.createLimitedPartnership(limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID);
 
         //then
         verify(mapper, times(1)).dtoToDao(limitedPartnershipSubmissionDto);

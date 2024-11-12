@@ -17,9 +17,6 @@ public interface LimitedPartnershipMapper {
 
   LimitedPartnershipSubmissionDao dtoToDao(LimitedPartnershipSubmissionDto dto);
 
-  DataDao mapData(DataDto dataDto);
-
-
   default String mapPartnershipNameEndingToString(PartnershipNameEnding nameEnding){
     return nameEnding.getDescription();
   }

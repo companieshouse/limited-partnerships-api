@@ -15,6 +15,9 @@ public class LimitedPartnershipSubmissionDao {
     @Field("created_at")
     private LocalDateTime createdAt;
 
+    @Field("created_by_user_id")
+    private String userId;
+
     @Field("data")
     private DataDao data;
 
@@ -40,5 +43,13 @@ public class LimitedPartnershipSubmissionDao {
 
     public void setData(DataDao data) {
         this.data = data;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

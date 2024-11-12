@@ -22,11 +22,12 @@ public class LimitedPartnershipService {
         this.repository = repository;
     }
 
-    public String createLimitedPartnership(LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto, String requestId) {
+    public String createLimitedPartnership(LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto, String requestId, String userId) {
         ApiLogger.debug("Called createLimitedPartnership(...)");
 
         LimitedPartnershipSubmissionDao dao = mapper.dtoToDao(limitedPartnershipSubmissionDto);
         dao.setCreatedAt(LocalDateTime.now());
+        dao.setUserId(userId);
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
         ApiLogger.infoContext(requestId, String.format("Limited Partnership Submission created with limited-partnership submission id: %s", insertedSubmission.getId()));
 
