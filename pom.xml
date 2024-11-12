@@ -26,7 +26,7 @@
         <structured-logging.version>3.0.20</structured-logging.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <log4j.version>2.24.1</log4j.version>
-        <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
+        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
         <api-security-java.version>2.0.8</api-security-java.version>
     </properties>
 
