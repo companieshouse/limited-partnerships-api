@@ -27,7 +27,7 @@ public class CustomUserAuthenticationInterceptor implements HandlerInterceptor {
 
         // TokenPermissions should have been set up in the request by TokenPermissionsInterceptor
         final var tokenPermissions = AuthorisationUtil.getTokenPermissions(request)
-                .orElseThrow(() -> new IllegalStateException("UserAuthenticationInterceptor - TokenPermissions object not present in request"));
+                .orElseThrow(() -> new IllegalStateException("CustomUserAuthenticationInterceptor - TokenPermissions object not present in request"));
 
         boolean hasCompanyIncorporationCreatePermission = tokenPermissions.hasPermission(Permission.Key.COMPANY_INCORPORATION, Permission.Value.CREATE);
 
@@ -36,11 +36,11 @@ public class CustomUserAuthenticationInterceptor implements HandlerInterceptor {
         authInfoMap.put("has_company_incorporation_create_permission", hasCompanyIncorporationCreatePermission);
 
         if (hasCompanyIncorporationCreatePermission) {
-            ApiLogger.debugContext(reqId, "UserAuthenticationInterceptor authorised with company_incorporation=create permission",
+            ApiLogger.debugContext(reqId, "CustomUserAuthenticationInterceptor authorised with company_incorporation=create permission",
                     authInfoMap);
             return true;
         }
-        ApiLogger.infoContext(reqId, "UserAuthenticationInterceptor unauthorised", authInfoMap);
+        ApiLogger.infoContext(reqId, "CustomUserAuthenticationInterceptor unauthorised", authInfoMap);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         return false;
     }
@@ -49,7 +49,7 @@ public class CustomUserAuthenticationInterceptor implements HandlerInterceptor {
         var logMap = new HashMap<String, Object>();
 
         if (SecurityConstants.API_KEY_IDENTITY_TYPE.equals(AuthorisationUtil.getAuthorisedIdentityType(request))) {
-            ApiLogger.debugContext(reqId, "UserAuthenticationInterceptor skipping token permission checks for api key request", logMap);
+            ApiLogger.debugContext(reqId, "CustomUserAuthenticationInterceptor skipping token permission checks for api key request", logMap);
             return true;
         }
         return false;

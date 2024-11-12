@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 
 @ExtendWith(MockitoExtension.class)
-class UserAuthenticationInterceptorTest {
+class CustomUserAuthenticationInterceptorTest {
 
     private static final String REQ_ID = "43hj5jh345";
     private static final String TOKEN_PERMISSIONS = "token_permissions";
