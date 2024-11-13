@@ -48,8 +48,8 @@ public class PartnershipController {
 
             var submissionId = limitedPartnershipService.createLimitedPartnership(limitedPartnershipSubmissionDto, requestId, userId);
 
-            URI location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
-            LimitedPartnershipSubmissionCreatedResponseDto response = new LimitedPartnershipSubmissionCreatedResponseDto();
+            var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
+            var response = new LimitedPartnershipSubmissionCreatedResponseDto();
             response.setId(submissionId);
 
             return ResponseEntity.created(location).body(response);
