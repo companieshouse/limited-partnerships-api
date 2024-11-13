@@ -27,6 +27,7 @@
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <log4j.version>2.24.1</log4j.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
+        <api-security-java.version>2.0.8</api-security-java.version>
     </properties>
 
     <profiles>
@@ -78,6 +79,17 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-sdk-java</artifactId>
             <version>${api-sdk-java.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-security-java</artifactId>
+            <version>${api-security-java.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -95,11 +107,6 @@
             <groupId>org.sonarsource.scanner.maven</groupId>
             <artifactId>sonar-maven-plugin</artifactId>
             <version>${sonar-maven-plugin.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
