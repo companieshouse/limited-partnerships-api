@@ -16,15 +16,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import java.net.URI;
 import java.util.HashMap;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ENDPOINT_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
-@RequestMapping(ENDPOINT_PARTNERSHIP)
+@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/partnership")
 public class PartnershipController {
+
+    static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
 
     private final LimitedPartnershipService limitedPartnershipService;
 
@@ -49,8 +49,7 @@ public class PartnershipController {
             var submissionId = limitedPartnershipService.createLimitedPartnership(limitedPartnershipSubmissionDto, requestId, userId);
 
             var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
-            var response = new LimitedPartnershipSubmissionCreatedResponseDto();
-            response.setId(submissionId);
+            var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
 
             return ResponseEntity.created(location).body(response);
         } catch (Exception e) {
