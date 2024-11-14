@@ -16,7 +16,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import java.net.URI;
 import java.util.HashMap;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_IDENTITY;
+import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
