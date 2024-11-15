@@ -9,10 +9,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Locale;
 
 @Service
 public class LimitedPartnershipService {
 
+    private static final String PARTNERSHIP_URI_PATTERN = "/transactions/%s/limited_partnership/partnership/%s";
     private final LimitedPartnershipMapper mapper;
     private final LimitedPartnershipSubmissionsRepository repository;
 
@@ -28,9 +31,26 @@ public class LimitedPartnershipService {
         LimitedPartnershipSubmissionDao dao = mapper.dtoToDao(limitedPartnershipSubmissionDto);
         dao.setCreatedAt(LocalDateTime.now());
         dao.setUserId(userId);
-        LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
-        ApiLogger.infoContext(requestId, String.format("Limited Partnership Submission created with limited-partnership submission id: %s", insertedSubmission.getId()));
 
-        return insertedSubmission.getId();
+        LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
+        String submissionId = insertedSubmission.getId();
+
+        //TODO get transaction from controller
+        String transactionId = "213123";
+        updateSubmissionWithMetaData(transactionId, submissionId, dao);
+
+        ApiLogger.infoContext(requestId, String.format("Limited Partnership Submission created with limited-partnership submission id: %s", submissionId));
+
+        return submissionId;
+    }
+
+    private void updateSubmissionWithMetaData(String transactionId, String submissionId, LimitedPartnershipSubmissionDao dao) {
+        final String submissionUri = getSubmissionUri(transactionId, submissionId);
+        dao.setLinks(Collections.singletonMap("self", submissionUri));
+        repository.save(dao);
+    }
+
+    private String getSubmissionUri(String transactionId, String submissionId) {
+        return String.format(PARTNERSHIP_URI_PATTERN, transactionId, submissionId);
     }
 }
