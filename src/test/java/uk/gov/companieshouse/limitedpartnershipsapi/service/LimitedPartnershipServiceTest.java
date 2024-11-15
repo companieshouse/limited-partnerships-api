@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class LimitedPartnershipServiceTest {
+class LimitedPartnershipServiceTest {
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
@@ -30,7 +30,7 @@ public class LimitedPartnershipServiceTest {
     private LimitedPartnershipSubmissionsRepository repository;
 
     @Test
-    public void givenDto_whenCreateLP_thenLPCreatedWithSubmissionId() {
+    void givenDto_whenCreateLP_thenLPCreatedWithSubmissionId() {
         // given
         LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
         LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
