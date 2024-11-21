@@ -44,8 +44,8 @@ class InterceptorConfigTest {
         interceptorConfig.addInterceptors(interceptorRegistry);
 
         InOrder inOrder = inOrder(interceptorRegistry, interceptorRegistration);
-        inOrder.verify(interceptorRegistry).addInterceptor(any(TransactionInterceptor.class));
         inOrder.verify(interceptorRegistry).addInterceptor(loggingInterceptor);
+        inOrder.verify(interceptorRegistry).addInterceptor(any(TransactionInterceptor.class));
         inOrder.verify(interceptorRegistry).addInterceptor(any(TokenPermissionsInterceptor.class));
         inOrder.verify(interceptorRegistry).addInterceptor(customUserAuthenticationInterceptor);
 

@@ -16,7 +16,7 @@
     }
   ],
   "paths": {
-    "/transactions/{transaction_id}/limited-partnership/partnership": {
+    "/transactions/{transactionId}/limited-partnership/partnership": {
       "post": {
         "tags": [
           "Limited Partnership"
@@ -24,7 +24,7 @@
         "summary": "Create a Limited Partnership submission",
         "parameters": [
           {
-            "name": "transaction_id",
+            "name": "transactionId",
             "in": "path",
             "required": true,
             "schema": {

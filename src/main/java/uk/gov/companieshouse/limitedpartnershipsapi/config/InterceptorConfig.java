@@ -34,9 +34,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
+        registry.addInterceptor(loggingInterceptor);
         registry.addInterceptor(transactionInterceptor())
                 .addPathPatterns(FILINGS, TRANSACTIONS);
-        registry.addInterceptor(loggingInterceptor);
         registry.addInterceptor(new TokenPermissionsInterceptor())
                 .addPathPatterns(PARTNERSHIP);
         registry.addInterceptor(customUserAuthenticationInterceptor)
