@@ -13,7 +13,7 @@ public enum PartnershipNameEnding {
 
     PartnershipNameEnding(String description) {
         this.description = description;
-    };
+    }
 
     public String getDescription() {
         return description;
