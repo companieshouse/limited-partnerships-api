@@ -9,4 +9,6 @@ public class Constants {
 
     // URL path parameters
     public static final String URL_PARAM_TRANSACTION_ID = "transactionId";
+
+    public static final String TRANSACTION_KEY = "transaction";
 }
