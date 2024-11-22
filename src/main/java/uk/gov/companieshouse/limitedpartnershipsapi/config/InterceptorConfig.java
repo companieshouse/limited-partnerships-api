@@ -10,6 +10,8 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.LimitedPartnershipsApiApplication.APP_NAMESPACE;
+
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
 
@@ -45,6 +47,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Bean
     public TransactionInterceptor transactionInterceptor() {
-        return new TransactionInterceptor();
+        return new TransactionInterceptor(APP_NAMESPACE);
     }
 }
