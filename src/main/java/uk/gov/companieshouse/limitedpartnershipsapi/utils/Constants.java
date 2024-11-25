@@ -8,5 +8,7 @@ public class Constants {
     public static final String ERIC_REQUEST_ID_KEY = "X-Request-Id";
 
     // URL path parameters
-    public static final String URL_PARAM_TRANSACTION_ID = "transaction_id";
+    public static final String URL_PARAM_TRANSACTION_ID = "transactionId";
+
+    public static final String TRANSACTION_KEY = "transaction";
 }
