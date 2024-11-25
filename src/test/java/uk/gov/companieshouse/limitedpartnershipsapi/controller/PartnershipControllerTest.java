@@ -6,17 +6,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.controller.PartnershipController.URL_GET_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 class PartnershipControllerTest {
@@ -61,16 +66,14 @@ class PartnershipControllerTest {
                 REQUEST_ID,
                 USER_ID);
 
-        // TODO Uncomment and get test working again
-//        assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
-//        var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
-//        assertEquals(
-//                String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID),
-//                responseHeaderLocation);
-//        LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
-//        assert responseBody != null;
-//        assertEquals(SUBMISSION_ID, responseBody.id());
-
+        assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
+        var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
+        assertEquals(
+                String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID),
+                responseHeaderLocation);
+        LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
+        assert responseBody != null;
+        assertEquals(SUBMISSION_ID, responseBody.id());
     }
 
     @Test
