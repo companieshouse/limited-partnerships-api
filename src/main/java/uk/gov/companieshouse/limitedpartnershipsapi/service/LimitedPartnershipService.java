@@ -7,8 +7,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class LimitedPartnershipService {
@@ -22,12 +25,19 @@ public class LimitedPartnershipService {
         this.repository = repository;
     }
 
-    public String createLimitedPartnership(LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto, String requestId, String userId) {
+    public String createLimitedPartnership(Transaction transaction, LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto, String requestId, String userId) {
         ApiLogger.debug("Called createLimitedPartnership(...)");
 
         LimitedPartnershipSubmissionDao dao = mapper.dtoToDao(limitedPartnershipSubmissionDto);
         dao.setCreatedAt(LocalDateTime.now());
         dao.setUserId(userId);
+
+        // Create the self-link
+        String selfLink = String.format("/transactions/%s/limited-partnership-submissions/%s", transaction.getId(), dao.getId());
+        Map<String, String> links = new HashMap<>();
+        links.put("self", selfLink);
+        dao.setLinks(links);
+
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
         ApiLogger.infoContext(requestId, String.format("Limited Partnership Submission created with limited-partnership submission id: %s", insertedSubmission.getId()));
 

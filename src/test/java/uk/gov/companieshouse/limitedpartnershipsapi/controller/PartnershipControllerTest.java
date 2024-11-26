@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
@@ -46,6 +48,7 @@ class PartnershipControllerTest {
     @Test
     void testCreatePartnership() {
         when(limitedPartnershipService.createLimitedPartnership(
+                any(Transaction.class),
                 any(LimitedPartnershipSubmissionDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))
@@ -69,6 +72,7 @@ class PartnershipControllerTest {
     @Test
     void testCreatePartnershipInternalServerError() {
         when(limitedPartnershipService.createLimitedPartnership(
+                any(Transaction.class),
                 any(LimitedPartnershipSubmissionDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))

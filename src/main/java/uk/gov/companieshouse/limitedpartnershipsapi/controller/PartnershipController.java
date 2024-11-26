@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -42,11 +44,12 @@ public class PartnershipController {
         var transactionId = 12321123;
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        Transaction transaction = new Transaction();
 
         try {
             ApiLogger.infoContext(requestId, "Calling service to create Partnership Submission", logMap);
 
-            var submissionId = limitedPartnershipService.createLimitedPartnership(limitedPartnershipSubmissionDto, requestId, userId);
+            var submissionId = limitedPartnershipService.createLimitedPartnership(transaction,limitedPartnershipSubmissionDto, requestId, userId);
 
             var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
             var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
