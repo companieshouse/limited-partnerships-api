@@ -19,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -85,6 +86,11 @@ class TransactionServiceTest {
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
 
-        transactionService.updateTransaction(transaction, LOGGING_CONTEXT);
+        try {
+            transactionService.updateTransaction(transaction, LOGGING_CONTEXT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Should not throw exception");
+        }
     }
 }

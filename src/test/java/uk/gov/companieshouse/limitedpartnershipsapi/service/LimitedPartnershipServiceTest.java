@@ -53,7 +53,7 @@ public class LimitedPartnershipServiceTest {
     private ArgumentCaptor<Transaction> transactionApiCaptor;
 
     @Test
-    public void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws ServiceException {
+    void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws ServiceException {
         // given
         LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
         LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
@@ -81,7 +81,7 @@ public class LimitedPartnershipServiceTest {
     }
 
     @Test
-    public void givenTransactionAlreadyAssociatedWithAnLP_whenCreateLP_thenServiceExceptionThrown() throws ServiceException {
+    void givenTransactionAlreadyAssociatedWithAnLP_whenCreateLP_thenServiceExceptionThrown() throws ServiceException {
         // given
         LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
 
