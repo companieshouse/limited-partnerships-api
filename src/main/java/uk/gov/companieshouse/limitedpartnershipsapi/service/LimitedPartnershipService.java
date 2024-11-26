@@ -68,16 +68,15 @@ public class LimitedPartnershipService {
 
     private Resource createLimitedPartnershipTransactionResource(String submissionUri) {
         var limitedPartnershipResource = new Resource();
-        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
 
-        // TODO These will be needed later. Will probably delete for now
-//        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-//        linksMap.put("costs", submissionUri + COSTS_URI_SUFFIX);
+        // TODO Add 'validation status' and 'cost' links here later
 
         limitedPartnershipResource.setLinks(linksMap);
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+
         return limitedPartnershipResource;
     }
 
@@ -91,7 +90,6 @@ public class LimitedPartnershipService {
                                                               Resource limitedPartnershipResource,
                                                               String loggingContext) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipSubmissionDto.getData().getPartnershipName());
-
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
         transactionService.updateTransaction(transaction, loggingContext);
