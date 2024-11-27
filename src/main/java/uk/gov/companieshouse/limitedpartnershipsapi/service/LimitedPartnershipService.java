@@ -33,7 +33,7 @@ public class LimitedPartnershipService {
         dao.setUserId(userId);
 
         // Create the self-link
-        String selfLink = String.format("/transactions/%s/limited-partnership-submissions/%s", transaction.getId(), dao.getId());
+        String selfLink = String.format("/transactions/{transaction_id}/limited_partnership/partnership/{filing_resource_id}", transaction.getId(), dao.getId());
         Map<String, String> links = new HashMap<>();
         links.put("self", selfLink);
         dao.setLinks(links);

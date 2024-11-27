@@ -8,8 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+
+
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
@@ -29,12 +30,16 @@ class PartnershipControllerTest {
     private static final String REQUEST_ID = "5346336";
     private static final String USER_ID = "rjg736k791";
     private static final String SUBMISSION_ID = "ABC123ABC456";
+    private static final String TRANSACTION_ID = "12321123";
 
     @InjectMocks
     private PartnershipController partnershipController;
 
     @Mock
     private LimitedPartnershipService limitedPartnershipService;
+
+    @Mock
+    private Transaction transaction;
 
     private LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto;
 
@@ -54,7 +59,10 @@ class PartnershipControllerTest {
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
 
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+
         var response = partnershipController.createPartnership(
+                transaction,
                 limitedPartnershipSubmissionDto,
                 REQUEST_ID,
                 USER_ID);
@@ -62,7 +70,7 @@ class PartnershipControllerTest {
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
         assertEquals(
-                String.format(URL_GET_PARTNERSHIP, 12321123, SUBMISSION_ID),
+                String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
         LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
         assert responseBody != null;
@@ -79,6 +87,7 @@ class PartnershipControllerTest {
                 .thenThrow(new RuntimeException());
 
         var response = partnershipController.createPartnership(
+                transaction,
                 limitedPartnershipSubmissionDto,
                 REQUEST_ID,
                 USER_ID);
