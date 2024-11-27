@@ -35,7 +35,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
 
         // Create the self-link
-        var selfLink = String.format("/transactions/%s/limited_partnership/partnership/%s", transaction.getId(), dao.getId());
+        var selfLink = String.format("/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}", transaction.getId(), dao.getId());
         var links = new HashMap<String, String>();
         links.put("self", selfLink);
         dao.setLinks(links);
