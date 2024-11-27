@@ -11,7 +11,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.Map;
+
 
 @Service
 public class LimitedPartnershipService {
@@ -43,7 +43,7 @@ public class LimitedPartnershipService {
 
         var infoMessage = String.format("Limited Partnership Submission created with limited-partnership submission id: %s", insertedSubmission.getId());
         ApiLogger.infoContext(requestId, infoMessage);
-        
+
         return insertedSubmission.getId();
     }
 }
