@@ -30,6 +30,7 @@
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
         <api-security-java.version>2.0.8</api-security-java.version>
         <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
+        <encoder.version>1.3.1</encoder.version>
     </properties>
 
     <profiles>
@@ -103,6 +104,11 @@
             <artifactId>mapstruct</artifactId>
             <version>${org.mapstruct.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+            <version>${encoder.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -164,7 +170,8 @@
                         <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21:latest</image>
                     </from>
                     <to>
-                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/local/limited-partnerships-api:latest</image>
+                        <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/local/limited-partnerships-api:latest
+                        </image>
                     </to>
                 </configuration>
             </plugin>

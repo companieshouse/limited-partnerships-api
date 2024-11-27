@@ -83,7 +83,7 @@ class PartnershipControllerTest {
                 any(LimitedPartnershipSubmissionDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))
-                .thenThrow(new RuntimeException());
+                .thenThrow(new ServiceException("TEST"));
 
         var response = partnershipController.createPartnership(
                 transaction,
