@@ -48,16 +48,16 @@ public class PartnershipController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            ApiLogger.infoContext(requestId, "Calling service to create Partnership Submission", logMap);
+            ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership Submission", logMap);
 
-            var submissionId = limitedPartnershipService.createLimitedPartnership(limitedPartnershipSubmissionDto, requestId, userId);
+            var submissionId = limitedPartnershipService.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, requestId, userId);
 
             var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
             var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
 
             return ResponseEntity.created(location).body(response);
         } catch (Exception e) {
-            ApiLogger.errorContext(requestId, "Error Creating Limited Partnership Submission", e, logMap);
+            ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
