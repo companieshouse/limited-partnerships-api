@@ -32,13 +32,15 @@ public class LimitedPartnershipService {
         dao.setCreatedAt(LocalDateTime.now());
         dao.setUserId(userId);
 
+        LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
+
         // Create the self-link
         String selfLink = String.format("/transactions/{transaction_id}/limited_partnership/partnership/{filing_resource_id}", transaction.getId(), dao.getId());
         Map<String, String> links = new HashMap<>();
         links.put("self", selfLink);
         dao.setLinks(links);
 
-        LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
+        
         ApiLogger.infoContext(requestId, String.format("Limited Partnership Submission created with limited-partnership submission id: %s", insertedSubmission.getId()));
 
         return insertedSubmission.getId();

@@ -48,7 +48,7 @@ public class PartnershipController {
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        Transaction transaction = new Transaction();
+        
 
         try {
             ApiLogger.infoContext(requestId, "Calling service to create Partnership Submission", logMap);
