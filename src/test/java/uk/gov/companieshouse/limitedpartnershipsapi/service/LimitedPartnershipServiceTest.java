@@ -26,7 +26,7 @@ public class LimitedPartnershipServiceTest {
     private static final String SUBMISSION_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
-    private static final String SELF_LINK = String.format("/transactions/{transaction_id}/limited_partnership/partnership/{filing_resource_id}", TRANSACTION_ID, SUBMISSION_ID);
+    private static final String SELF_LINK = String.format("/transactions/txn-456/limited_partnership/partnership/abc-123", TRANSACTION_ID, SUBMISSION_ID);
 
 
     @InjectMocks
