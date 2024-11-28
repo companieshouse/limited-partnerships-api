@@ -19,6 +19,7 @@ import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SUBMISSION_URI_PATTERN;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 
 @Service
 public class LimitedPartnershipService {
@@ -61,6 +62,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
 
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
+        updateLimitedPartnershipubmissionWithMetaData(insertedSubmission, submissionUri); 
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri);
@@ -110,5 +112,11 @@ public class LimitedPartnershipService {
                     resourceEntry -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resourceEntry.getValue().getKind()));
         }
         return false;
+    }
+
+    private void updateLimitedPartnershipubmissionWithMetaData(LimitedPartnershipSubmissionDao submission,
+                                                              String submissionUri) {
+        submission.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
+        repository.save(submission);
     }
 }

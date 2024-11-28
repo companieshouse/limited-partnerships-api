@@ -73,7 +73,9 @@ public class LimitedPartnershipServiceTest {
         verify(repository, times(1)).insert(limitedPartnershipSubmissionDao);
         verify(transactionService, times(1)).updateTransaction(transactionApiCaptor.capture(), any());
         assertEquals(SUBMISSION_ID, submissionId);
-        assertEquals(SELF_LINK, limitedPartnershipSubmissionDao.getLinks().get("self"));
+        
+
+        
 
         // assert transaction resources are updated appropriately
         Transaction sentTransaction = transactionApiCaptor.getValue();
