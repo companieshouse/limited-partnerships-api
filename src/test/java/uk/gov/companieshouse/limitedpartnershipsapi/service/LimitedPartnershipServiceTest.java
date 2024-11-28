@@ -65,7 +65,7 @@ public class LimitedPartnershipServiceTest {
         when(repository.insert(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDao);
 
         // when
-        String submissionId = service.createLimitedPartnership(createTransaction(),limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID);
+        String submissionId = service.createLimitedPartnership(buildTransaction(),limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID);
         Transaction transaction = buildTransaction();
 
         // then
@@ -127,10 +127,5 @@ public class LimitedPartnershipServiceTest {
 
         return submissionDto;
     }
-
-    private Transaction createTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-        return transaction;
-    }
+    
 }
