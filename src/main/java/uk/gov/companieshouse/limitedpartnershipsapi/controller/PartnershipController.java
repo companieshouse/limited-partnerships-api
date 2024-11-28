@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -50,16 +50,16 @@ public class PartnershipController {
         
 
         try {
-            ApiLogger.infoContext(requestId, "Calling service to create Partnership Submission", logMap);
+            ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership Submission", logMap);
 
-            var submissionId = limitedPartnershipService.createLimitedPartnership(transaction,limitedPartnershipSubmissionDto, requestId, userId);
+            var submissionId = limitedPartnershipService.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, requestId, userId);
 
             var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
             var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
 
             return ResponseEntity.created(location).body(response);
-        } catch (Exception e) {
-            ApiLogger.errorContext(requestId, "Error Creating Limited Partnership Submission", e, logMap);
+        } catch (ServiceException e) {
+            ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -9,8 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-
-
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
@@ -51,7 +50,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testCreatePartnership() {
+    void testCreatePartnership() throws ServiceException {
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
                 any(LimitedPartnershipSubmissionDto.class),
@@ -78,13 +77,13 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testCreatePartnershipInternalServerError() {
+    void testCreatePartnershipInternalServerError() throws ServiceException {
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
                 any(LimitedPartnershipSubmissionDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))
-                .thenThrow(new RuntimeException());
+                .thenThrow(new ServiceException("TEST"));
 
         var response = partnershipController.createPartnership(
                 transaction,
