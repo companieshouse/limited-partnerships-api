@@ -29,8 +29,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
-import java.time.LocalDateTime;
-
 @ExtendWith(MockitoExtension.class)
 public class LimitedPartnershipServiceTest {
 
@@ -38,8 +36,7 @@ public class LimitedPartnershipServiceTest {
     private static final String SUBMISSION_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
-    private static final String SELF_LINK = String.format("/transactions/%s/limited-partnership/partnership/%s", TRANSACTION_ID, SUBMISSION_ID);
-
+   
     @InjectMocks
     private LimitedPartnershipService service;
 
@@ -54,6 +51,9 @@ public class LimitedPartnershipServiceTest {
 
     @Captor
     private ArgumentCaptor<Transaction> transactionApiCaptor;
+
+    @Captor
+    private ArgumentCaptor<LimitedPartnershipSubmissionDao> captor = ArgumentCaptor.forClass(LimitedPartnershipSubmissionDao.class);
 
     @Test
     void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws ServiceException {
@@ -72,10 +72,9 @@ public class LimitedPartnershipServiceTest {
         verify(mapper, times(1)).dtoToDao(limitedPartnershipSubmissionDto);
         verify(repository, times(1)).insert(limitedPartnershipSubmissionDao);
         verify(transactionService, times(1)).updateTransaction(transactionApiCaptor.capture(), any());
+        verify(repository, times(1)).save(limitedPartnershipSubmissionDao);
+        verify(repository, times(1)).save(captor.capture());
         assertEquals(SUBMISSION_ID, submissionId);
-        
-
-        
 
         // assert transaction resources are updated appropriately
         Transaction sentTransaction = transactionApiCaptor.getValue();
@@ -110,11 +109,6 @@ public class LimitedPartnershipServiceTest {
     private LimitedPartnershipSubmissionDao createDao() {
         LimitedPartnershipSubmissionDao dao = new LimitedPartnershipSubmissionDao();
         dao.setId(SUBMISSION_ID);
-        dao.setCreatedAt(LocalDateTime.now());
-        dao.setUserId(USER_ID);
-        Map<String, String> links = new HashMap<>();
-        links.put("self", SELF_LINK);
-        dao.setLinks(links);
         return dao;
     }
 

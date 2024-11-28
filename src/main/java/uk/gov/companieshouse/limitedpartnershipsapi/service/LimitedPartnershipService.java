@@ -55,7 +55,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
 
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
-        updateLimitedPartnershipubmissionWithMetaData(insertedSubmission, submissionUri); 
+        updateLimitedPartnershipSubmissionWithSelfLink(insertedSubmission, submissionUri); 
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri);
@@ -107,7 +107,7 @@ public class LimitedPartnershipService {
         return false;
     }
 
-    private void updateLimitedPartnershipubmissionWithMetaData(LimitedPartnershipSubmissionDao submission,
+    private void updateLimitedPartnershipSubmissionWithSelfLink(LimitedPartnershipSubmissionDao submission,
                                                               String submissionUri) {
         submission.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(submission);
