@@ -1,7 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model;
 
-public enum PartnershipNameEnding {
+import com.fasterxml.jackson.annotation.JsonCreator;
 
+public enum PartnershipNameEnding {
     LIMITED_PARTNERSHIP("Limited Partnership"),
     LP("LP"),
     L_DOT_P_DOT("L.P."),
@@ -19,12 +20,14 @@ public enum PartnershipNameEnding {
         return description;
     }
 
+    @JsonCreator
     public static PartnershipNameEnding fromDescription(String description) {
         for (PartnershipNameEnding nameEnding : PartnershipNameEnding.values()) {
             if (nameEnding.getDescription().equalsIgnoreCase(description)) {
                 return nameEnding;
             }
         }
-        throw new IllegalArgumentException("No PartnershipNameEnding constant with description " + description);
+        throw new IllegalArgumentException(
+                "No PartnershipNameEnding constant with description " + description);
     }
 }
