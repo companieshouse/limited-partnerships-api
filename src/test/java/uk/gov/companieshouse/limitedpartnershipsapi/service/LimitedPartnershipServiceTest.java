@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
-public class LimitedPartnershipServiceTest {
+class LimitedPartnershipServiceTest {
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
