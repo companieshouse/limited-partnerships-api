@@ -65,8 +65,9 @@ public class LimitedPartnershipServiceTest {
         when(mapper.dtoToDao(limitedPartnershipSubmissionDto)).thenReturn(limitedPartnershipSubmissionDao);
         when(repository.insert(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDao);
 
-        // when
         Transaction transaction = buildTransaction();
+        
+        // when
         String submissionId = service.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID);
 
         // then
