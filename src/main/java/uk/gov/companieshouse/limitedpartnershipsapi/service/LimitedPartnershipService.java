@@ -106,7 +106,7 @@ public class LimitedPartnershipService {
         return false;
     }
 
-    private void updateLimitedPartnershipSubmissionWithSelfLink(LimitedPartnershipSubmissionDao submission,
+    void updateLimitedPartnershipSubmissionWithSelfLink(LimitedPartnershipSubmissionDao submission,
                                                               String submissionUri) {
         submission.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(submission);

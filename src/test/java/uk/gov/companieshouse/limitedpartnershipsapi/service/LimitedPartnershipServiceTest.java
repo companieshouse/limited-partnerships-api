@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ public class LimitedPartnershipServiceTest {
     private static final String SUBMISSION_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
+    private static final String LINK_SELF = "self";
    
     @InjectMocks
     private LimitedPartnershipService service;
@@ -53,7 +55,7 @@ public class LimitedPartnershipServiceTest {
     private ArgumentCaptor<Transaction> transactionApiCaptor;
 
     @Captor
-    private ArgumentCaptor<LimitedPartnershipSubmissionDao> captor = ArgumentCaptor.forClass(LimitedPartnershipSubmissionDao.class);
+    private ArgumentCaptor<LimitedPartnershipSubmissionDao> submissionCaptor;
 
     @Test
     void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws ServiceException {
@@ -65,22 +67,20 @@ public class LimitedPartnershipServiceTest {
         when(repository.insert(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDao);
 
         // when
-        String submissionId = service.createLimitedPartnership(buildTransaction(),limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID);
         Transaction transaction = buildTransaction();
-
+        String submissionId = service.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID);
+                
         // then
         verify(mapper, times(1)).dtoToDao(limitedPartnershipSubmissionDto);
         verify(repository, times(1)).insert(limitedPartnershipSubmissionDao);
         verify(transactionService, times(1)).updateTransaction(transactionApiCaptor.capture(), any());
-        verify(repository, times(1)).save(limitedPartnershipSubmissionDao);
-        verify(repository, times(1)).save(captor.capture());
         assertEquals(SUBMISSION_ID, submissionId);
 
         // assert transaction resources are updated appropriately
         Transaction sentTransaction = transactionApiCaptor.getValue();
         assertEquals(limitedPartnershipSubmissionDto.getData().getPartnershipName(), sentTransaction.getCompanyName());
-        assertNull(sentTransaction.getCompanyNumber());
-        String submissionUri = String.format("/transactions/%s/limited-partnership/%s", transaction.getId(), limitedPartnershipSubmissionDao.getId());
+        assertNull(sentTransaction.getCompanyNumber());  
+        String submissionUri = String.format("/transactions/%s/limited-partnership/%s", transaction.getId(), limitedPartnershipSubmissionDao.getId());      
         assertEquals(submissionUri, sentTransaction.getResources().get(submissionUri).getLinks().get("resource"));
     }
 
@@ -99,6 +99,29 @@ public class LimitedPartnershipServiceTest {
         // when + then
         assertThrows(ServiceException.class, () -> service.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID));
     }
+
+    @Test
+    public void testUpdateLimitedPartnershipSubmissionWithSelfLink() {
+        //Given
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        
+        // When
+        Transaction transaction = buildTransaction();
+        LimitedPartnershipSubmissionDao submission = new LimitedPartnershipSubmissionDao();
+        String submissionUri = String.format("/transactions/%s/limited-partnership/%s", transaction.getId(), limitedPartnershipSubmissionDao.getId());
+                
+        service.updateLimitedPartnershipSubmissionWithSelfLink(submission, submissionUri);
+
+        //then
+        ArgumentCaptor<LimitedPartnershipSubmissionDao> submissionCaptor = ArgumentCaptor.forClass(LimitedPartnershipSubmissionDao.class);
+        verify(repository).save(submissionCaptor.capture());
+        LimitedPartnershipSubmissionDao capturedSubmission = submissionCaptor.getValue();
+        Map<String, String> capturedLinks = capturedSubmission.getLinks();
+        Map<String, String> expectedLinks = Collections.singletonMap(LINK_SELF, submissionUri);
+        assertEquals(expectedLinks, capturedLinks);
+        
+    }
+
 
     private Transaction buildTransaction() {
         Transaction transaction = new Transaction();
