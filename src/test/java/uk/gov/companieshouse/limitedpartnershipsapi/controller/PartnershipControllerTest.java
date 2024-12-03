@@ -48,6 +48,7 @@ class PartnershipControllerTest {
         limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
         limitedPartnershipSubmissionDto.setData(data);
     }
+
     @Test
     void testCreatePartnership() throws ServiceException {
         when(limitedPartnershipService.createLimitedPartnership(
