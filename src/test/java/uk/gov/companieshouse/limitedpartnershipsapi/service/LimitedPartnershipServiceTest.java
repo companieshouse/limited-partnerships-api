@@ -125,5 +125,4 @@ public class LimitedPartnershipServiceTest {
 
         return submissionDto;
     }
-
 }
