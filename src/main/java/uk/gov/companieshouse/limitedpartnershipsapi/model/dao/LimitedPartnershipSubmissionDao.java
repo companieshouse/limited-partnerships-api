@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Document(collection = "limited_partnership_submissions")
 public class LimitedPartnershipSubmissionDao {
@@ -20,6 +21,9 @@ public class LimitedPartnershipSubmissionDao {
 
     @Field("data")
     private DataDao data;
+
+    @Field("links")
+    private Map<String, String> links;
 
     public String getId() {
         return id;
@@ -51,5 +55,13 @@ public class LimitedPartnershipSubmissionDao {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Map<String, String> getLinks() {
+        return links;
+    }
+
+    public void setLinks(Map<String, String> links) {
+        this.links = links;
     }
 }

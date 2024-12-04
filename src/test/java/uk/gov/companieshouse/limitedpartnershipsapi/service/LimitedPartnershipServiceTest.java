@@ -35,7 +35,8 @@ class LimitedPartnershipServiceTest {
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String TRANSACTION_ID = "12321123";
+    private static final String TRANSACTION_ID = "txn-456";
+    private static final String LINK_SELF = "self";
 
     @InjectMocks
     private LimitedPartnershipService service;
@@ -52,6 +53,9 @@ class LimitedPartnershipServiceTest {
     @Captor
     private ArgumentCaptor<Transaction> transactionApiCaptor;
 
+    @Captor
+    private ArgumentCaptor<LimitedPartnershipSubmissionDao> submissionCaptor;
+
     @Test
     void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws ServiceException {
         // given
@@ -62,13 +66,14 @@ class LimitedPartnershipServiceTest {
         when(repository.insert(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDao);
 
         Transaction transaction = buildTransaction();
-
+        
         // when
         String submissionId = service.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID);
 
         // then
         verify(mapper, times(1)).dtoToDao(limitedPartnershipSubmissionDto);
         verify(repository, times(1)).insert(limitedPartnershipSubmissionDao);
+        verify(repository, times(1)).save(submissionCaptor.capture());
         verify(transactionService, times(1)).updateTransaction(transactionApiCaptor.capture(), any());
         assertEquals(SUBMISSION_ID, submissionId);
 
@@ -78,6 +83,10 @@ class LimitedPartnershipServiceTest {
         assertNull(sentTransaction.getCompanyNumber());
         String submissionUri = String.format("/transactions/%s/limited-partnership/%s", transaction.getId(), limitedPartnershipSubmissionDao.getId());
         assertEquals(submissionUri, sentTransaction.getResources().get(submissionUri).getLinks().get("resource"));
+        // assert dao submission self link is correct
+        LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
+        String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
+        assertEquals(submissionUri, sentSubmissionUri);
     }
 
     @Test
