@@ -71,14 +71,11 @@ public class LimitedPartnershipService {
         return insertedSubmission.getId();
     }
 
-    public void updateLimitedPartnership(Transaction transaction,
-                                         String submissionId,
+    public void updateLimitedPartnership(String submissionId,
                                          DataType type,
-                                         Map<String, Object> data
-    ) throws ServiceException {
+                                         Map<String, Object> data) throws ServiceException {
 
-        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = repository.findById(submissionId).orElse(null);
-        ;
+        var limitedPartnershipSubmissionDao = repository.findById(submissionId).orElse(null);
 
         if (limitedPartnershipSubmissionDao == null) {
             throw new ServiceException(String.format(

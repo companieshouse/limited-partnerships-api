@@ -86,10 +86,10 @@ public class PartnershipController {
 
         try {
             String type = (String) body.get("type");
-            DataType datType = DataType.valueOf(type.toUpperCase());
+            var dataType = DataType.valueOf(type.toUpperCase());
             final Map<String, Object> data = extractData(body);
 
-            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, datType, data);
+            limitedPartnershipService.updateLimitedPartnership(submissionId, dataType, data);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ServiceException e) {
@@ -100,7 +100,7 @@ public class PartnershipController {
 
     private static Map<String, Object> extractData(Map<String, Object> body) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(body.get("data"));
+        var json = ow.writeValueAsString(body.get("data"));
 
         return new ObjectMapper().readValue(json, Map.class);
     }
