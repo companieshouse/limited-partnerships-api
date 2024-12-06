@@ -1,8 +1,13 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -18,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -62,4 +69,42 @@ public class PartnershipController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    private static Map<String, Object> extractData(Map<String, Object> body) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(body.get("data"));
+
+        return new ObjectMapper().readValue(json, Map.class);
+    }
+
+    @PatchMapping("/{submission_id}")
+    public ResponseEntity<Object> updatePartnership(
+            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @PathVariable("submission_id") String submissionId,
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+            @RequestHeader(value = ERIC_IDENTITY) String userId
+    ) throws JsonProcessingException {
+
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<String, Object>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+
+        try {
+
+            DataType type = DataType.valueOf(body.get("type").toString().toUpperCase());
+            final Map<String, Object> data = extractData(body);
+
+            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, type, data);
+
+            var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
+            var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
+
+            return ResponseEntity.created(location).body(response);
+        } catch (ServiceException e) {
+            ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

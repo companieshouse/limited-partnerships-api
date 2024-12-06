@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -92,5 +94,32 @@ class PartnershipControllerTest {
                 USER_ID);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdatePartnership() throws ServiceException, JsonProcessingException {
+
+        HashMap<String, Object> body = new HashMap<String, Object>();
+        body.put("type", "email");
+        HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("email", "test@email.com");
+        body.put("data", data);
+
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+
+        var response = partnershipController.updatePartnership(
+                transaction,
+                SUBMISSION_ID,
+                body,
+                REQUEST_ID,
+                USER_ID);
+
+        assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
+        var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
+        assertEquals(
+                String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID),
+                responseHeaderLocation);
+        LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
+        assert responseBody != null;
     }
 }
