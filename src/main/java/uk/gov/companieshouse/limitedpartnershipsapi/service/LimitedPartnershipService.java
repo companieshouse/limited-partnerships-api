@@ -7,8 +7,8 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -85,13 +85,14 @@ public class LimitedPartnershipService {
                     "Submission with id %s not found", submissionId));
         }
 
-        LimitedPartnershipBuilder limitedPartnershipBuilder = new LimitedPartnershipBuilder(mapper, limitedPartnershipSubmissionDao);
-        limitedPartnershipBuilder.withData(type, data);
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = limitedPartnershipBuilder.getDto();
+        if (type == DataType.EMAIL) {
+            DataDao dataDao = limitedPartnershipSubmissionDao.getData();
 
-        LimitedPartnershipSubmissionDao dao = mapper.dtoToDao(limitedPartnershipSubmissionDto);
+            String email = (String) data.get("email");
+            dataDao.setEmail(email);
 
-        repository.save(dao);
+            repository.save(limitedPartnershipSubmissionDao);
+        }
     }
 
     private Resource createLimitedPartnershipTransactionResource(String submissionUri) {

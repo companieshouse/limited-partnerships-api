@@ -97,7 +97,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testUpdatePartnership() throws ServiceException, JsonProcessingException {
+    void testUpdatePartnership() throws JsonProcessingException {
 
         HashMap<String, Object> body = new HashMap<String, Object>();
         body.put("type", "email");
@@ -114,12 +114,6 @@ class PartnershipControllerTest {
                 REQUEST_ID,
                 USER_ID);
 
-        assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
-        var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
-        assertEquals(
-                String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID),
-                responseHeaderLocation);
-        LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
-        assert responseBody != null;
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
     }
 }

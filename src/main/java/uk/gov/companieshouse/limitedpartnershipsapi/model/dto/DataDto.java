@@ -16,7 +16,7 @@ public class DataDto {
     private PartnershipNameEnding nameEnding;
 
     @JsonProperty("email")
-    private PartnershipNameEnding email;
+    private String email;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -34,11 +34,11 @@ public class DataDto {
         this.nameEnding = nameEnding;
     }
 
-    public PartnershipNameEnding getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(PartnershipNameEnding email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 }

@@ -29,6 +29,7 @@ import java.util.Map;
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_SUBMISSION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
@@ -70,41 +71,38 @@ public class PartnershipController {
         }
     }
 
-    private static Map<String, Object> extractData(Map<String, Object> body) throws JsonProcessingException {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(body.get("data"));
-
-        return new ObjectMapper().readValue(json, Map.class);
-    }
-
-    @PatchMapping("/{submission_id}")
+    @PatchMapping("/{" + URL_PARAM_SUBMISSION_ID + "}")
     public ResponseEntity<Object> updatePartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable("submission_id") String submissionId,
+            @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
             @RequestBody Map<String, Object> body,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId
     ) throws JsonProcessingException {
 
         String transactionId = transaction.getId();
-        HashMap<String, Object> logMap = new HashMap<String, Object>();
+        HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-
-            DataType type = DataType.valueOf(body.get("type").toString().toUpperCase());
+            String type = (String) body.get("type");
+            DataType datType = DataType.valueOf(type.toUpperCase());
             final Map<String, Object> data = extractData(body);
 
-            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, type, data);
+            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, datType, data);
 
-            var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
-            var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
-
-            return ResponseEntity.created(location).body(response);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private static Map<String, Object> extractData(Map<String, Object> body) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(body.get("data"));
+
+        return new ObjectMapper().readValue(json, Map.class);
     }
 
 }
