@@ -10,7 +10,7 @@ public class DataDao {
     @Field("name_ending")
     private String nameEnding;
 
-    @Field("email")
+    @Field("registered_email_address")
     private String email;
 
     public String getPartnershipName() {
