@@ -11,7 +11,9 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
@@ -19,6 +21,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -103,6 +106,30 @@ class LimitedPartnershipServiceTest {
 
         // when + then
         assertThrows(ServiceException.class, () -> service.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID));
+    }
+
+    @Test
+    void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException {
+        // given
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        var dataDao = new DataDao();
+        dataDao.setPartnershipName("Asset Strippers");
+        dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
+        limitedPartnershipSubmissionDao.setData(dataDao);
+
+        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+        Transaction transaction = buildTransaction();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", "test@email.com");
+
+        // when
+        service.updateLimitedPartnership(transaction, SUBMISSION_ID, DataType.EMAIL, data);
+
+        // then
+        verify(repository, times(1)).findById(limitedPartnershipSubmissionDao.getId());
+        verify(repository, times(1)).save(submissionCaptor.capture());
     }
 
     private Transaction buildTransaction() {
