@@ -7,7 +7,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
@@ -83,7 +82,7 @@ public class LimitedPartnershipService {
         }
 
         if (type == DataType.EMAIL) {
-            DataDao dataDao = limitedPartnershipSubmissionDao.get().getData();
+            var dataDao = limitedPartnershipSubmissionDao.get().getData();
 
             String email = (String) data.get("email");
             dataDao.setEmail(email);
