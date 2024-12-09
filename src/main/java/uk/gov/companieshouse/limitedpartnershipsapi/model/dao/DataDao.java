@@ -10,6 +10,9 @@ public class DataDao {
     @Field("name_ending")
     private String nameEnding;
 
+    @Field("registered_email_address")
+    private String email;
+
     public String getPartnershipName() {
         return partnershipName;
     }
@@ -24,5 +27,13 @@ public class DataDao {
 
     public void setNameEnding(String nameEnding) {
         this.nameEnding = nameEnding;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

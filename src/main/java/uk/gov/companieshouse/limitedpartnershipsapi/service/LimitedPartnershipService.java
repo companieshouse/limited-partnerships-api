@@ -6,6 +6,7 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
@@ -17,8 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SUBMISSION_URI_PATTERN;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SUBMISSION_URI_PATTERN;
 
 @Service
 public class LimitedPartnershipService {
@@ -67,6 +68,27 @@ public class LimitedPartnershipService {
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission created with id: %s", insertedSubmission.getId()));
 
         return insertedSubmission.getId();
+    }
+
+    public void updateLimitedPartnership(String submissionId,
+                                         DataType type,
+                                         Map<String, Object> data) throws ServiceException {
+
+        var limitedPartnershipSubmissionDao = repository.findById(submissionId);
+
+        if (limitedPartnershipSubmissionDao.isEmpty()) {
+            throw new ServiceException(String.format(
+                    "Submission with id %s not found", submissionId));
+        }
+
+        if (type == DataType.EMAIL) {
+            var dataDao = limitedPartnershipSubmissionDao.get().getData();
+
+            String email = (String) data.get("email");
+            dataDao.setEmail(email);
+
+            repository.save(limitedPartnershipSubmissionDao.get());
+        }
     }
 
     private Resource createLimitedPartnershipTransactionResource(String submissionUri) {
