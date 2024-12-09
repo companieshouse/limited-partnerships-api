@@ -75,20 +75,20 @@ public class LimitedPartnershipService {
                                          DataType type,
                                          Map<String, Object> data) throws ServiceException {
 
-        var limitedPartnershipSubmissionDao = repository.findById(submissionId).orElse(null);
+        var limitedPartnershipSubmissionDao = repository.findById(submissionId);
 
-        if (limitedPartnershipSubmissionDao == null) {
+        if (limitedPartnershipSubmissionDao.isEmpty()) {
             throw new ServiceException(String.format(
                     "Submission with id %s not found", submissionId));
         }
 
         if (type == DataType.EMAIL) {
-            DataDao dataDao = limitedPartnershipSubmissionDao.getData();
+            DataDao dataDao = limitedPartnershipSubmissionDao.get().getData();
 
             String email = (String) data.get("email");
             dataDao.setEmail(email);
 
-            repository.save(limitedPartnershipSubmissionDao);
+            repository.save(limitedPartnershipSubmissionDao.get());
         }
     }
 

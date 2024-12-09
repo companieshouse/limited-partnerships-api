@@ -119,17 +119,27 @@ class LimitedPartnershipServiceTest {
 
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
-        Transaction transaction = buildTransaction();
-
         Map<String, Object> data = new HashMap<>();
         data.put("email", "test@email.com");
 
         // when
-        service.updateLimitedPartnership(transaction, SUBMISSION_ID, DataType.EMAIL, data);
+        service.updateLimitedPartnership(SUBMISSION_ID, DataType.EMAIL, data);
 
         // then
         verify(repository, times(1)).findById(limitedPartnershipSubmissionDao.getId());
         verify(repository, times(1)).save(submissionCaptor.capture());
+    }
+
+    @Test
+    void givenWrongSubmissionId_whenUpdateLP_thenServiceExceptionThrown() throws ServiceException {
+        // given
+        when(repository.findById("wrong-id")).thenReturn(Optional.empty());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", "test@email.com");
+
+        // when + then
+        assertThrows(ServiceException.class, () -> service.updateLimitedPartnership("wrong-id", DataType.EMAIL, data));
     }
 
     private Transaction buildTransaction() {
