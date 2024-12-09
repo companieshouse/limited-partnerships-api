@@ -78,7 +78,7 @@ public class PartnershipController {
             @RequestBody Map<String, Object> body,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId
-    ) throws JsonProcessingException {
+    ) {
 
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
