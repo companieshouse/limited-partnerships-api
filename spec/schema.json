@@ -78,7 +78,10 @@
           {
             "name": "body",
             "in": "body",
-            "required": true
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LimitedPartnershipSubmissionUpdate"
+            }
           }
         ],
         "responses": {
@@ -124,6 +127,21 @@
       "properties": {
         "data": {
           "$ref": "#/definitions/Data"
+        }
+      }
+    },
+    "LimitedPartnershipSubmissionUpdate": {
+      "type": "object",
+      "required": [
+        "type",
+        "data"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
         }
       }
     },
