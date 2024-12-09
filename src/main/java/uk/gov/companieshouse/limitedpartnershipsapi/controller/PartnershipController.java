@@ -93,7 +93,7 @@ public class PartnershipController {
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (JsonProcessingException | ServiceException e) {
-            ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
+            ApiLogger.errorContext(requestId, "Error updating Limited Partnership submission", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
