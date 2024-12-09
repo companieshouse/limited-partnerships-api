@@ -56,6 +56,47 @@
         }
       }
     },
+    "/transactions/{transactionId}/limited-partnership/partnership/{submissionId}": {
+      "patch": {
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "summary": "Update a Limited Partnership submission",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "submissionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Limited Partnership Submission has been successfully updated."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/limited-partnership/healthcheck": {
       "get": {
         "summary": "Health check URL returns 200 if service is running",
