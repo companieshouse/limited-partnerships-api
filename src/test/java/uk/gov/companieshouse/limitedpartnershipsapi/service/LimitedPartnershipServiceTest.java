@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -7,6 +11,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.jackson.nullable.JsonNullableModule;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -16,7 +21,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.PatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 
 import java.util.HashMap;
@@ -142,6 +149,26 @@ class LimitedPartnershipServiceTest {
         assertThrows(ServiceException.class, () -> service.updateLimitedPartnership("wrong-id", DataType.EMAIL, data));
     }
 
+    @Test
+    void testObjectMapper() throws JsonMappingException {
+        LimitedPartnershipSubmissionDto mongoDto = createDto();
+
+        LimitedPartnershipPatchDto incomingPatchDto = createPatchDto();
+
+        System.out.println("BEFORE ***** " + mongoDto.getData().getEmail());
+        System.out.println("BEFORE ***** " + mongoDto.getData().getPartnershipName());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.registerModule(new JsonNullableModule());
+        mapper.updateValue(mongoDto.getData(), incomingPatchDto.getData());
+
+        System.out.println("***** " + mongoDto.getData().getEmail());
+        System.out.println("***** " + mongoDto.getData().getPartnershipName());
+
+    }
+
     private Transaction buildTransaction() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
@@ -159,6 +186,16 @@ class LimitedPartnershipServiceTest {
         var dataDto = new DataDto();
         dataDto.setPartnershipName("Asset Strippers");
         dataDto.setNameEnding(PartnershipNameEnding.LP);
+        submissionDto.setData(dataDto);
+
+        return submissionDto;
+    }
+
+    private LimitedPartnershipPatchDto createPatchDto() {
+        var submissionDto = new LimitedPartnershipPatchDto();
+        var dataDto = new PatchDto();
+        dataDto.setEmail("test@test.com");
+        dataDto.setPartnershipName(Optional.of(""));
         submissionDto.setData(dataDto);
 
         return submissionDto;
