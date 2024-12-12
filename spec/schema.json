@@ -154,6 +154,10 @@
         "name_ending": {
           "type": "string",
           "enum": ["Limited Partnership", "LP", "L.P.", "Partneriaeth Cyfyngedig", "PC", "P.C."]
+        },
+        "partnership_type": {
+          "type": "string",
+          "enum": ["LP", "PFLP", "SLP", "SPFLP"]
         }
       }
     },
