@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 
 public class DataDao {
 
@@ -12,6 +13,9 @@ public class DataDao {
 
     @Field("registered_email_address")
     private String email;
+
+    @Field("partnership_type")
+    private PartnershipType partnershipType;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -35,5 +39,13 @@ public class DataDao {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public PartnershipType getPartnershipType() {
+        return partnershipType;
+    }
+
+    public void setPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
     }
 }
