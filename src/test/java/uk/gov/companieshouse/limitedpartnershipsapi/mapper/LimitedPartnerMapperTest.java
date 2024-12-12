@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
@@ -23,6 +24,7 @@ class LimitedPartnerMapperTest {
         DataDto sourceData = new DataDto();
         sourceData.setPartnershipName("Joe Bloggs");
         sourceData.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
+        sourceData.setPartnershipType(PartnershipType.LP);
         source.setData(sourceData);
 
         // when
@@ -32,6 +34,7 @@ class LimitedPartnerMapperTest {
         DataDao destinationData = destination.getData();
         assertEquals(sourceData.getPartnershipName(), destinationData.getPartnershipName());
         assertEquals(sourceData.getNameEnding().getDescription(), destinationData.getNameEnding());
+        assertEquals(sourceData.getPartnershipType(), destinationData.getPartnershipType());
     }
 
     @Test
