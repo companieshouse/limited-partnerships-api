@@ -2,24 +2,21 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.openapitools.jackson.nullable.JsonNullable;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PatchDto {
 
     @JsonProperty("partnership_name")
-    private String partnershipName;
+    private JsonNullable<String> partnershipName;
 
-    public String getPartnershipName() {
-        if (partnershipName == null) {
-            return null;
-        }
-
+    public JsonNullable<String> getPartnershipName() {
         return partnershipName;
 
     }
 
-    public void setPartnershipName(String partnershipName) {
+    public void setPartnershipName(JsonNullable<String> partnershipName) {
         this.partnershipName = partnershipName;
     }
 
