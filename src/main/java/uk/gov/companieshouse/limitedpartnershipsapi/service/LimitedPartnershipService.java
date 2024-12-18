@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -143,7 +142,7 @@ public class LimitedPartnershipService {
     public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction, String submissionId) {
         // TODO add some logging
         String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
-        if (!transactionUtils.isTransactionLinkedToOverseasEntitySubmission(transaction, submissionUri)) {
+        if (!transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
         }

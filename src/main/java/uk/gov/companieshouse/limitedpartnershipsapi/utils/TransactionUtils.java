@@ -12,7 +12,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 @Component
 public class TransactionUtils {
 
-    public boolean isTransactionLinkedToOverseasEntitySubmission(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
+    public boolean isTransactionLinkedToLimitedPartnershipSubmission(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
         if (StringUtils.isBlank(limitedPartnershipSubmissionSelfLink)) {
             return false;
         }
