@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -132,5 +134,14 @@ public class LimitedPartnershipService {
                                                               String submissionUri) {
         submission.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(submission);
+    }
+
+    public LimitedPartnershipSubmissionDto getLimitedPartnership(String submissionId) {
+        var submission = repository.findById(submissionId);
+        if(submission.isPresent()){
+            return mapper.daoToDto(submission.get());
+        } else {
+           throw new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId));
+        }
     }
 }

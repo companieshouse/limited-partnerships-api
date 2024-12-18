@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
@@ -140,6 +141,33 @@ class LimitedPartnershipServiceTest {
 
         // when + then
         assertThrows(ServiceException.class, () -> service.updateLimitedPartnership("wrong-id", DataType.EMAIL, data));
+    }
+
+    @Test
+    void giveSubmissionId_whenGetLp_ThenLPRetrieved(){
+        // given
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+
+        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
+
+        // when
+        LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(SUBMISSION_ID);
+
+        // then
+        verify(repository, times(1)).findById(limitedPartnershipSubmissionDao.getId());
+        verify(mapper, times(1)).daoToDto(limitedPartnershipSubmissionDao);
+        assertEquals(limitedPartnershipSubmissionDto.getData(), retrievedDto.getData());
+    }
+
+    @Test
+    void giveInvalidSubmissionId_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+        // given
+        when(repository.findById("wrong-id")).thenReturn(Optional.empty());
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership("wrong-id"));
     }
 
     private Transaction buildTransaction() {
