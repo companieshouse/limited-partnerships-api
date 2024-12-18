@@ -105,7 +105,7 @@ public class PartnershipController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            LimitedPartnershipSubmissionDto dto = limitedPartnershipService.getLimitedPartnership(submissionId);
+            LimitedPartnershipSubmissionDto dto = limitedPartnershipService.getLimitedPartnership(transaction, submissionId);
             return ResponseEntity.ok().body(dto);
         } catch (ResourceNotFoundException e){
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);

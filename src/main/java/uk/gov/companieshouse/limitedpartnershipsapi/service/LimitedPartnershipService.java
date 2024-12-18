@@ -12,6 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -29,14 +30,17 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipMapper mapper;
     private final LimitedPartnershipSubmissionsRepository repository;
     private final TransactionService transactionService;
+    private final TransactionUtils transactionUtils;
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
                                      LimitedPartnershipSubmissionsRepository repository,
-                                     TransactionService transactionService) {
+                                     TransactionService transactionService,
+                                     TransactionUtils transactionUtils) {
         this.mapper = mapper;
         this.repository = repository;
         this.transactionService = transactionService;
+        this.transactionUtils = transactionUtils;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -136,7 +140,14 @@ public class LimitedPartnershipService {
         repository.save(submission);
     }
 
-    public LimitedPartnershipSubmissionDto getLimitedPartnership(String submissionId) {
+    public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction, String submissionId) {
+        // TODO add some logging
+        String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
+        if (!transactionUtils.isTransactionLinkedToOverseasEntitySubmission(transaction, submissionUri)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
+        }
+
         var submission = repository.findById(submissionId);
         if(submission.isPresent()){
             return mapper.daoToDto(submission.get());
