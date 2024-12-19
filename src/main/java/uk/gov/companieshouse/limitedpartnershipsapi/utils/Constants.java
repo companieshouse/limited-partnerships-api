@@ -22,4 +22,5 @@ public class Constants {
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
 
     public static final String LINK_SELF = "self";
+    public static final String LINK_RESOURCE = "resource";
 }

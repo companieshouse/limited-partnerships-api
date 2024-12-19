@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
@@ -140,5 +141,46 @@ class PartnershipControllerTest {
                 USER_ID);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetPartnership() throws ResourceNotFoundException {
+        // given
+        LimitedPartnershipSubmissionDto dto = createDto();
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(dto);
+
+        // when
+        var response = partnershipController.getPartnership(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertEquals(dto, response.getBody());
+    }
+
+    @Test
+    void testGetPartnershipReturnsStatusNotFound() throws ResourceNotFoundException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));
+
+        // when
+        var response = partnershipController.getPartnership(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertEquals(null, response.getBody());
+    }
+
+    private LimitedPartnershipSubmissionDto createDto() {
+        return new LimitedPartnershipSubmissionDto();
     }
 }
