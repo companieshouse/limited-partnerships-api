@@ -21,7 +21,7 @@ import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SUBMISSION_URI_PATTERN;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @Service
 public class LimitedPartnershipService {
@@ -111,7 +111,7 @@ public class LimitedPartnershipService {
     }
 
     private String getSubmissionUri(String transactionId, String submissionId) {
-        return String.format(SUBMISSION_URI_PATTERN, transactionId, submissionId);
+        return String.format(URL_GET_PARTNERSHIP, transactionId, submissionId);
     }
 
     private void updateTransactionWithLinksAndPartnershipName(Transaction transaction,
