@@ -149,7 +149,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void giveSubmissionId_whenGetLp_ThenLPRetrieved(){
+    void giveSubmissionId_whenGetLp_ThenLPRetrieved() throws ResourceNotFoundException {
         // given
         LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
         LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();

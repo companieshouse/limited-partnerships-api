@@ -139,8 +139,7 @@ public class LimitedPartnershipService {
         repository.save(submission);
     }
 
-    public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction, String submissionId) {
-        // TODO add some logging
+    public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException{
         String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
         if (!transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
@@ -148,10 +147,7 @@ public class LimitedPartnershipService {
         }
 
         var submission = repository.findById(submissionId);
-        if(submission.isPresent()){
-            return mapper.daoToDto(submission.get());
-        } else {
-           throw new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId));
-        }
+        LimitedPartnershipSubmissionDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
+        return mapper.daoToDto(submissionDao);
     }
 }

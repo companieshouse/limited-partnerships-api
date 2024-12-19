@@ -35,7 +35,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
-@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership")
+@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/partnership")
 public class PartnershipController {
 
     static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
@@ -47,7 +47,7 @@ public class PartnershipController {
         this.limitedPartnershipService = limitedPartnershipService;
     }
 
-    @PostMapping("/partnership")
+    @PostMapping
     public ResponseEntity<Object> createPartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @RequestBody LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto,
@@ -73,7 +73,7 @@ public class PartnershipController {
         }
     }
 
-    @PatchMapping("/partnership/{" + URL_PARAM_SUBMISSION_ID + "}")
+    @PatchMapping("/{" + URL_PARAM_SUBMISSION_ID + "}")
     public ResponseEntity<Object> updatePartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
@@ -100,7 +100,7 @@ public class PartnershipController {
         }
     }
 
-    @GetMapping("/{" +URL_PARAM_SUBMISSION_ID + "}")
+    @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}")
     public ResponseEntity<Object> getPartnership(
         @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
         @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
@@ -126,6 +126,4 @@ public class PartnershipController {
 
         return new ObjectMapper().readValue(json, Map.class);
     }
-
-
 }
