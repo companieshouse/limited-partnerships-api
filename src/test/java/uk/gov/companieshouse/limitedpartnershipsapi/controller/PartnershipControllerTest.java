@@ -95,6 +95,50 @@ class PartnershipControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
     }
 
+//    @Test
+//    void testUpdatePartnership() throws JsonProcessingException {
+//        HashMap<String, Object> body = new HashMap<String, Object>();
+//        body.put("type", "email");
+//        HashMap<String, Object> data = new HashMap<String, Object>();
+//        data.put("email", "test@email.com");
+//        body.put("data", data);
+//
+//        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+//
+//        var response = partnershipController.updatePartnership(
+//                transaction,
+//                SUBMISSION_ID,
+//                body,
+//                REQUEST_ID,
+//                USER_ID);
+//
+//        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+//    }
+//
+//    @Test
+//    void testUpdatePartnershipInternalServerError() throws ServiceException, JsonProcessingException {
+//        HashMap<String, Object> body = new HashMap<String, Object>();
+//        body.put("type", "email");
+//        HashMap<String, Object> data = new HashMap<String, Object>();
+//        data.put("email", "test@email.com");
+//        body.put("data", data);
+//
+//        doThrow(new ServiceException(String.format(
+//                "Submission with id %s not found", SUBMISSION_ID))).when(limitedPartnershipService).updateLimitedPartnership(
+//                SUBMISSION_ID,
+//                DataType.EMAIL,
+//                data);
+//
+//        var response = partnershipController.updatePartnership(
+//                transaction,
+//                SUBMISSION_ID,
+//                body,
+//                REQUEST_ID,
+//                USER_ID);
+//
+//        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+//    }
+
     @Test
     void testGetPartnership() throws ResourceNotFoundException {
         // given
@@ -135,48 +179,4 @@ class PartnershipControllerTest {
     private LimitedPartnershipSubmissionDto createDto() {
         return new LimitedPartnershipSubmissionDto();
     }
-
-//    @Test
-//    void testUpdatePartnership() throws JsonProcessingException {
-//        HashMap<String, Object> body = new HashMap<String, Object>();
-//        body.put("type", "email");
-//        HashMap<String, Object> data = new HashMap<String, Object>();
-//        data.put("email", "test@email.com");
-//        body.put("data", data);
-//
-//        when(transaction.getId()).thenReturn(TRANSACTION_ID);
-//
-//        var response = partnershipController.updatePartnership(
-//                transaction,
-//                SUBMISSION_ID,
-//                body,
-//                REQUEST_ID,
-//                USER_ID);
-//
-//        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
-//    }
-
-//    @Test
-//    void testUpdatePartnershipInternalServerError() throws ServiceException, JsonProcessingException {
-//        HashMap<String, Object> body = new HashMap<String, Object>();
-//        body.put("type", "email");
-//        HashMap<String, Object> data = new HashMap<String, Object>();
-//        data.put("email", "test@email.com");
-//        body.put("data", data);
-//
-//        doThrow(new ServiceException(String.format(
-//                "Submission with id %s not found", SUBMISSION_ID))).when(limitedPartnershipService).updateLimitedPartnership(
-//                SUBMISSION_ID,
-//                DataType.EMAIL,
-//                data);
-//
-//        var response = partnershipController.updatePartnership(
-//                transaction,
-//                SUBMISSION_ID,
-//                body,
-//                REQUEST_ID,
-//                USER_ID);
-//
-//        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
-//    }
 }
