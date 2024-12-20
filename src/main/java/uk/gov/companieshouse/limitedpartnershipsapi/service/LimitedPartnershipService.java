@@ -6,8 +6,9 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -25,14 +26,17 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SUBMI
 public class LimitedPartnershipService {
 
     private final LimitedPartnershipMapper mapper;
+    private final LimitedPartnershipPatchMapper patchMapper;
     private final LimitedPartnershipSubmissionsRepository repository;
     private final TransactionService transactionService;
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
+                                     LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipSubmissionsRepository repository,
                                      TransactionService transactionService) {
         this.mapper = mapper;
+        this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
     }
@@ -50,12 +54,12 @@ public class LimitedPartnershipService {
 
         LimitedPartnershipSubmissionDao dao = mapper.dtoToDao(limitedPartnershipSubmissionDto);
         dao.setCreatedAt(LocalDateTime.now());
-        dao.setUserId(userId);
+        dao.setCreatedBy(userId);
 
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
 
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
-        updateLimitedPartnershipSubmissionWithSelfLink(insertedSubmission, submissionUri); 
+        updateLimitedPartnershipSubmissionWithSelfLink(insertedSubmission, submissionUri);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri);
@@ -70,25 +74,42 @@ public class LimitedPartnershipService {
         return insertedSubmission.getId();
     }
 
-    public void updateLimitedPartnership(String submissionId,
-                                         DataType type,
-                                         Map<String, Object> data) throws ServiceException {
+    public void updateLimitedPartnership(Transaction transaction,
+                                         String submissionId,
+                                         LimitedPartnershipPatchDto limitedPartnershipPatchDto,
+                                         String requestId,
+                                         String userId) throws ServiceException {
 
-        var limitedPartnershipSubmissionDao = repository.findById(submissionId);
+        var optionalLimitedPartnershipSubmissionDaoBeforePatch = repository.findById(submissionId);
 
-        if (limitedPartnershipSubmissionDao.isEmpty()) {
-            throw new ServiceException(String.format(
-                    "Submission with id %s not found", submissionId));
+        if (optionalLimitedPartnershipSubmissionDaoBeforePatch.isEmpty()) {
+            throw new ServiceException(String.format("Submission with id %s not found", submissionId));
         }
 
-        if (type == DataType.EMAIL) {
-            var dataDao = limitedPartnershipSubmissionDao.get().getData();
+        var limitedPartnershipSubmissionDaoBeforePatch = optionalLimitedPartnershipSubmissionDaoBeforePatch.get();
+        var limitedPartnershipSubmissionDto = mapper.daoToDto(limitedPartnershipSubmissionDaoBeforePatch);
 
-            String email = (String) data.get("email");
-            dataDao.setEmail(email);
+        patchMapper.update(limitedPartnershipPatchDto, limitedPartnershipSubmissionDto.getData());
 
-            repository.save(limitedPartnershipSubmissionDao.get());
-        }
+        var limitedPartnershipSubmissionDaoAfterPatch = mapper.dtoToDao(limitedPartnershipSubmissionDto);
+
+        // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
+        limitedPartnershipSubmissionDaoAfterPatch.setId(submissionId);
+        limitedPartnershipSubmissionDaoAfterPatch.setCreatedAt(limitedPartnershipSubmissionDaoBeforePatch.getCreatedAt());
+        limitedPartnershipSubmissionDaoAfterPatch.setCreatedBy(limitedPartnershipSubmissionDaoBeforePatch.getCreatedBy());
+        limitedPartnershipSubmissionDaoAfterPatch.setLinks(limitedPartnershipSubmissionDaoBeforePatch.getLinks());
+
+        // And set new 'last updated' audit details
+        limitedPartnershipSubmissionDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
+        limitedPartnershipSubmissionDaoAfterPatch.setUpdatedBy(userId);
+
+        // Update the transaction in case the partnership name has changed as a result of this patch
+        transaction.setCompanyName(limitedPartnershipSubmissionDto.getData().getPartnershipName());
+        transactionService.updateTransaction(transaction, requestId);
+
+        ApiLogger.infoContext(requestId, String.format("Limited Partnership submission updated with id: %s", submissionId));
+
+        repository.save(limitedPartnershipSubmissionDaoAfterPatch);
     }
 
     private Resource createLimitedPartnershipTransactionResource(String submissionUri) {
@@ -129,7 +150,7 @@ public class LimitedPartnershipService {
     }
 
     private void updateLimitedPartnershipSubmissionWithSelfLink(LimitedPartnershipSubmissionDao submission,
-                                                              String submissionUri) {
+                                                                String submissionUri) {
         submission.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(submission);
     }
