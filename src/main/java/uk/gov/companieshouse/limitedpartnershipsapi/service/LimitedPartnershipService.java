@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
@@ -12,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -20,7 +22,7 @@ import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SUBMISSION_URI_PATTERN;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @Service
 public class LimitedPartnershipService {
@@ -29,16 +31,19 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipPatchMapper patchMapper;
     private final LimitedPartnershipSubmissionsRepository repository;
     private final TransactionService transactionService;
+    private final TransactionUtils transactionUtils;
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
                                      LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipSubmissionsRepository repository,
-                                     TransactionService transactionService) {
+                                     TransactionService transactionService,
+                                     TransactionUtils transactionUtils) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
+        this.transactionUtils = transactionUtils;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -126,7 +131,7 @@ public class LimitedPartnershipService {
     }
 
     private String getSubmissionUri(String transactionId, String submissionId) {
-        return String.format(SUBMISSION_URI_PATTERN, transactionId, submissionId);
+        return String.format(URL_GET_PARTNERSHIP, transactionId, submissionId);
     }
 
     private void updateTransactionWithLinksAndPartnershipName(Transaction transaction,
@@ -152,5 +157,17 @@ public class LimitedPartnershipService {
                                                                 String submissionUri) {
         submission.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(submission);
+    }
+
+    public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException {
+        String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
+        if (!transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, submissionUri)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
+        }
+
+        var submission = repository.findById(submissionId);
+        LimitedPartnershipSubmissionDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
+        return mapper.daoToDto(submissionDao);
     }
 }
