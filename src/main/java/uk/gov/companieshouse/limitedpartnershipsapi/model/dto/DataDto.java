@@ -31,8 +31,8 @@ public class DataDto {
         this.partnershipName = partnershipName;
     }
 
-    public PartnershipNameEnding getNameEnding() {
-        return nameEnding;
+    public String getNameEnding() {
+        return nameEnding.getDescription();
     }
 
     public void setNameEnding(PartnershipNameEnding nameEnding) {
