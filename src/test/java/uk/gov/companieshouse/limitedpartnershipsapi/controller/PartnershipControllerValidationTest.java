@@ -39,6 +39,7 @@ public class PartnershipControllerValidationTest {
     @MockBean
     private ApiClientServiceImpl apiClientServiceImpl;
 
+
     @Disabled("This test is disabled as work is in progress")
     @Test
     void testCreatePartnershipShouldReturnBadRequestErrorIfPartnershipNameIsLessThan1Character() throws Exception {
@@ -58,4 +59,6 @@ public class PartnershipControllerValidationTest {
                         .content(body))
                 .andExpect(status().isBadRequest());
     }
+
+
 }
