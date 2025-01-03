@@ -4,14 +4,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.owasp.encoder.Encode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 
@@ -43,5 +48,22 @@ public class GlobalExceptionHandler {
 
     private String truncate(String input) {
         return StringUtils.truncate(input, truncationLength);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException exception) {
+
+        List<FieldError> errors = exception.getBindingResult().getFieldErrors();
+
+        Map<String, String> errorFields = new HashMap<>();
+
+        for (FieldError error : errors) {
+            errorFields.put(error.getField(), error.getDefaultMessage());
+        }
+
+        Map<String, Map<String, String>> errorResponse = new HashMap<>();
+        errorResponse.put("errors", errorFields);
+
+        return new ResponseEntity<>(errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 }
