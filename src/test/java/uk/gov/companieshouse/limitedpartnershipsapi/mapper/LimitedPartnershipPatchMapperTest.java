@@ -92,7 +92,7 @@ class LimitedPartnershipPatchMapperTest {
     private DataDto createMongoDto() {
         DataDto mongoDto = new DataDto();
         mongoDto.setPartnershipName("Asset Strippers");
-        mongoDto.setNameEnding(PartnershipNameEnding.LP);
+        mongoDto.setNameEnding(PartnershipNameEnding.L_DOT_P_DOT);
         mongoDto.setPartnershipType(PartnershipType.PFLP);
 
         return mongoDto;
@@ -100,7 +100,7 @@ class LimitedPartnershipPatchMapperTest {
 
     private void checkExpectedFieldValues(DataDto mongoDto, String expectedPartnershipName) {
         assertEquals(expectedPartnershipName, mongoDto.getPartnershipName());
-        assertEquals(PartnershipNameEnding.LP, mongoDto.getNameEnding());
+        assertEquals(PartnershipNameEnding.L_DOT_P_DOT.getDescription(), mongoDto.getNameEnding());
         assertEquals(PartnershipType.PFLP, mongoDto.getPartnershipType());
         assertEquals("test@test.com", mongoDto.getEmail());
     }
