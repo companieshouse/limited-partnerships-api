@@ -11,7 +11,7 @@ public class JacksonConfig {
 
     @Bean
     Jackson2ObjectMapperBuilder objectMapperBuilder() {
-        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        var builder = new Jackson2ObjectMapperBuilder();
         builder.serializationInclusion(JsonInclude.Include.ALWAYS)
                 .modulesToInstall(new JsonNullableModule());
         return builder;

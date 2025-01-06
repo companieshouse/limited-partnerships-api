@@ -98,22 +98,31 @@ public class LimitedPartnershipService {
         var lpSubmissionDaoAfterPatch = mapper.dtoToDao(lpSubmissionDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
-        lpSubmissionDaoAfterPatch.setId(submissionId);
-        lpSubmissionDaoAfterPatch.setCreatedAt(lpSubmissionDaoBeforePatch.getCreatedAt());
-        lpSubmissionDaoAfterPatch.setCreatedBy(lpSubmissionDaoBeforePatch.getCreatedBy());
-        lpSubmissionDaoAfterPatch.setLinks(lpSubmissionDaoBeforePatch.getLinks());
+        copyMetaDataForUpdate(submissionId, lpSubmissionDaoBeforePatch, lpSubmissionDaoAfterPatch);
 
         // And set new 'last updated' audit details
-        lpSubmissionDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
-        lpSubmissionDaoAfterPatch.setUpdatedBy(userId);
+        setAuditDetailsForUpdate(userId, lpSubmissionDaoAfterPatch);
 
         // Finally, update the transaction in case the partnership name has changed as a result of this patch
-        transaction.setCompanyName(lpSubmissionDto.getData().getPartnershipName());
-        transactionService.updateTransaction(transaction, requestId);
+        updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName()); //lpSubmissionDto.getData().getPartnershipName());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission updated with id: %s", submissionId));
 
         repository.save(lpSubmissionDaoAfterPatch);
+    }
+
+    private void copyMetaDataForUpdate(String submissionId,
+                                       LimitedPartnershipSubmissionDao lpSubmissionDaoBeforePatch,
+                                       LimitedPartnershipSubmissionDao lpSubmissionDaoAfterPatch) {
+        lpSubmissionDaoAfterPatch.setId(submissionId);
+        lpSubmissionDaoAfterPatch.setCreatedAt(lpSubmissionDaoBeforePatch.getCreatedAt());
+        lpSubmissionDaoAfterPatch.setCreatedBy(lpSubmissionDaoBeforePatch.getCreatedBy());
+        lpSubmissionDaoAfterPatch.setLinks(lpSubmissionDaoBeforePatch.getLinks());
+    }
+
+    private void setAuditDetailsForUpdate(String userId, LimitedPartnershipSubmissionDao lpSubmissionDaoAfterPatch) {
+        lpSubmissionDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
+        lpSubmissionDaoAfterPatch.setUpdatedBy(userId);
     }
 
     private Resource createLimitedPartnershipTransactionResource(String submissionUri) {
@@ -132,6 +141,13 @@ public class LimitedPartnershipService {
 
     private String getSubmissionUri(String transactionId, String submissionId) {
         return String.format(URL_GET_PARTNERSHIP, transactionId, submissionId);
+    }
+
+    private void updateTransactionWithPartnershipName(Transaction transaction,
+                                                      String requestId,
+                                                      String partnershipName) throws ServiceException {
+        transaction.setCompanyName(partnershipName);
+        transactionService.updateTransaction(transaction, requestId);
     }
 
     private void updateTransactionWithLinksAndPartnershipName(Transaction transaction,

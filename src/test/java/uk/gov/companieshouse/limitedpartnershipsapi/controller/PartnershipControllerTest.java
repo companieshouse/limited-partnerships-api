@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -21,6 +22,9 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
@@ -52,6 +56,7 @@ class PartnershipControllerTest {
 
     @Test
     void testCreatePartnership() throws ServiceException {
+        // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
                 any(LimitedPartnershipSubmissionDto.class),
@@ -61,12 +66,14 @@ class PartnershipControllerTest {
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
 
+        // when
         var response = partnershipController.createPartnership(
                 transaction,
                 limitedPartnershipSubmissionDto,
                 REQUEST_ID,
                 USER_ID);
 
+        // then
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
         assertEquals(
@@ -79,6 +86,7 @@ class PartnershipControllerTest {
 
     @Test
     void testCreatePartnershipInternalServerError() throws ServiceException {
+        // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
                 any(LimitedPartnershipSubmissionDto.class),
@@ -86,65 +94,73 @@ class PartnershipControllerTest {
                 eq(USER_ID)))
                 .thenThrow(new ServiceException("TEST"));
 
+        // when
         var response = partnershipController.createPartnership(
                 transaction,
                 limitedPartnershipSubmissionDto,
                 REQUEST_ID,
                 USER_ID);
 
+        // then
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
     }
 
-//    @Test
-//    void testUpdatePartnership() throws JsonProcessingException {
-//        HashMap<String, Object> body = new HashMap<String, Object>();
-//        body.put("type", "email");
-//        HashMap<String, Object> data = new HashMap<String, Object>();
-//        data.put("email", "test@email.com");
-//        body.put("data", data);
-//
-//        when(transaction.getId()).thenReturn(TRANSACTION_ID);
-//
-//        var response = partnershipController.updatePartnership(
-//                transaction,
-//                SUBMISSION_ID,
-//                body,
-//                REQUEST_ID,
-//                USER_ID);
-//
-//        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
-//    }
-//
-//    @Test
-//    void testUpdatePartnershipInternalServerError() throws ServiceException, JsonProcessingException {
-//        HashMap<String, Object> body = new HashMap<String, Object>();
-//        body.put("type", "email");
-//        HashMap<String, Object> data = new HashMap<String, Object>();
-//        data.put("email", "test@email.com");
-//        body.put("data", data);
-//
-//        doThrow(new ServiceException(String.format(
-//                "Submission with id %s not found", SUBMISSION_ID))).when(limitedPartnershipService).updateLimitedPartnership(
-//                SUBMISSION_ID,
-//                DataType.EMAIL,
-//                data);
-//
-//        var response = partnershipController.updatePartnership(
-//                transaction,
-//                SUBMISSION_ID,
-//                body,
-//                REQUEST_ID,
-//                USER_ID);
-//
-//        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
-//    }
+    @Test
+    void testUpdatePartnership() throws ServiceException {
+        // given
+        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+
+        // when
+        var response = partnershipController.updatePartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        verify(limitedPartnershipService, times(1)).updateLimitedPartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+    }
+
+    @Test
+    void testUpdatePartnershipInternalServerError() throws ServiceException {
+        // given
+        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+
+        doThrow(new ServiceException(String.format("Submission with id %s not found", SUBMISSION_ID)))
+                .when(limitedPartnershipService).updateLimitedPartnership(
+                        transaction,
+                        SUBMISSION_ID,
+                        limitedPartnershipPatchDto,
+                        REQUEST_ID,
+                        USER_ID);
+
+        // when
+        var response = partnershipController.updatePartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+    }
 
     @Test
     void testGetPartnership() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDto dto = createDto();
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(dto);
+        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(limitedPartnershipSubmissionDto);
 
         // when
         var response = partnershipController.getPartnership(
@@ -155,7 +171,7 @@ class PartnershipControllerTest {
 
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
-        assertEquals(dto, response.getBody());
+        assertEquals(limitedPartnershipSubmissionDto, response.getBody());
     }
 
     @Test
@@ -174,9 +190,5 @@ class PartnershipControllerTest {
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
         assertEquals(null, response.getBody());
-    }
-
-    private LimitedPartnershipSubmissionDto createDto() {
-        return new LimitedPartnershipSubmissionDto();
     }
 }

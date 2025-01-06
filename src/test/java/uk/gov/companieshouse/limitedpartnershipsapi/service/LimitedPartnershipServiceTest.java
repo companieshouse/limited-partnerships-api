@@ -12,9 +12,12 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
@@ -48,6 +51,9 @@ class LimitedPartnershipServiceTest {
 
     @Mock
     private LimitedPartnershipMapper mapper;
+
+    @Mock
+    private LimitedPartnershipPatchMapper patchMapper;
 
     @Mock
     private LimitedPartnershipSubmissionsRepository repository;
@@ -113,39 +119,59 @@ class LimitedPartnershipServiceTest {
         assertThrows(ServiceException.class, () -> service.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, REQUEST_ID, USER_ID));
     }
 
-//    @Test
-//    void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException {
-//        // given
-//        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
-//        var dataDao = new DataDao();
-//        dataDao.setPartnershipName("Asset Strippers");
-//        dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
-//        limitedPartnershipSubmissionDao.setData(dataDao);
-//
-//        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
-//
-//        Map<String, Object> data = new HashMap<>();
-//        data.put("email", "test@email.com");
-//
-//        // when
-//        service.updateLimitedPartnership(SUBMISSION_ID, DataType.EMAIL, data);
-//
-//        // then
-//        verify(repository, times(1)).findById(limitedPartnershipSubmissionDao.getId());
-//        verify(repository, times(1)).save(submissionCaptor.capture());
-//    }
+    @Test
+    void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException {
+        // given
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        var dataDao = new DataDao();
+        dataDao.setPartnershipName("Asset Strippers");
+        dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
+        limitedPartnershipSubmissionDao.setData(dataDao);
+        limitedPartnershipSubmissionDao.setCreatedBy("5fd36577288e");
 
-//    @Test
-//    void givenWrongSubmissionId_whenUpdateLP_thenServiceExceptionThrown() throws ServiceException {
-//        // given
-//        when(repository.findById("wrong-id")).thenReturn(Optional.empty());
-//
-//        Map<String, Object> data = new HashMap<>();
-//        data.put("email", "test@email.com");
-//
-//        // when + then
-//        assertThrows(ServiceException.class, () -> service.updateLimitedPartnership("wrong-id", DataType.EMAIL, data));
-//    }
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
+
+        Transaction transaction = buildTransaction();
+        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+
+        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDaoAfterPatch = createDao();
+        when(mapper.dtoToDao(limitedPartnershipSubmissionDto)).thenReturn(limitedPartnershipSubmissionDaoAfterPatch);
+
+        // when
+        service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+        // then
+        verify(repository, times(1)).findById(SUBMISSION_ID);
+        verify(repository, times(1)).save(submissionCaptor.capture());
+
+        LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
+        assertEquals("5fd36577288e", sentSubmission.getCreatedBy());
+        assertEquals(USER_ID, sentSubmission.getUpdatedBy());
+
+        verify(transactionService, times(1)).updateTransaction(transactionApiCaptor.capture(), any());
+
+        // assert transaction resources are updated appropriately
+        Transaction sentTransaction = transactionApiCaptor.getValue();
+        assertEquals("Asset Adders", transaction.getCompanyName());
+    }
+
+    @Test
+    void givenWrongSubmissionId_whenUpdateLP_thenServiceExceptionThrown() throws ServiceException {
+        // given
+        when(repository.findById("wrong-id")).thenReturn(Optional.empty());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", "test@email.com");
+
+        Transaction transaction = buildTransaction();
+        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+
+        // when + then
+        assertThrows(ServiceException.class, () -> service.updateLimitedPartnership(
+                transaction, "wrong-id", limitedPartnershipPatchDto, REQUEST_ID, USER_ID));
+    }
 
     @Test
     void giveSubmissionId_whenGetLp_ThenLPRetrieved() throws ResourceNotFoundException {
@@ -197,6 +223,9 @@ class LimitedPartnershipServiceTest {
     private LimitedPartnershipSubmissionDao createDao() {
         LimitedPartnershipSubmissionDao dao = new LimitedPartnershipSubmissionDao();
         dao.setId(SUBMISSION_ID);
+        DataDao dataDao = new DataDao();
+        dataDao.setPartnershipName("Asset Adders");
+        dao.setData(dataDao);
         return dao;
     }
 
