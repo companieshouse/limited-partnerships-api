@@ -87,7 +87,7 @@ public class LimitedPartnershipService {
         var optionalLpSubmissionDaoBeforePatch = repository.findById(submissionId);
 
         if (optionalLpSubmissionDaoBeforePatch.isEmpty()) {
-            throw new ServiceException(String.format("Submission with id %s not found", submissionId));
+            throw new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId));
         }
 
         var lpSubmissionDaoBeforePatch = optionalLpSubmissionDaoBeforePatch.get();
@@ -104,7 +104,7 @@ public class LimitedPartnershipService {
         setAuditDetailsForUpdate(userId, lpSubmissionDaoAfterPatch);
 
         // Finally, update the transaction in case the partnership name has changed as a result of this patch
-        updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName()); //lpSubmissionDto.getData().getPartnershipName());
+        updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission updated with id: %s", submissionId));
 

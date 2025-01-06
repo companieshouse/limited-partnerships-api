@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,13 +38,18 @@ class LimitedPartnershipPatchMapperTest {
         assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getPartnershipName());
     }
 
-    @Test
-    void testMapStructMappingWhenEmailValueSentAndNameUnchanged() throws JsonProcessingException {
-
-        // Field NOT present in the JSON - no update:
-
+    @ParameterizedTest
+    @CsvSource(value = {
+            // Field NOT present in the JSON - no update:
+            "{\"email\":\"test@test.com\"}$ Asset Strippers",
+            // Field IS present in the JSON - set the new string value:
+            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\"}$ Asset Adders",
+            // Field IS present in the JSON with value null - set to null:
+            "{\"partnership_name\":null, \"email\":\"test@test.com\"}$ NULL"
+    }, delimiter = '$')
+    void testMapStructMappingWhenEmailValueSentAndNameUnchanged(String incomingJson, String expectedPartnershipName)
+            throws JsonProcessingException {
         // Given
-        String incomingJson = "{\"email\":\"test@test.com\"}";
         LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);
 
         DataDto mongoDto = createMongoDto();
@@ -51,43 +58,7 @@ class LimitedPartnershipPatchMapperTest {
         patchMapper.update(patchDto, mongoDto);
 
         // Then
-        checkExpectedFieldValues(mongoDto, "Asset Strippers");
-    }
-
-    @Test
-    void testMapStructMappingWhenEmailValueSentAndNameChanged() throws JsonProcessingException {
-
-        // Field IS present in the JSON - set the new string value:
-
-        // Given
-        String incomingJson = "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\"}";
-        LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);
-
-        DataDto mongoDto = createMongoDto();
-
-        // When
-        patchMapper.update(patchDto, mongoDto);
-
-        // Then
-        checkExpectedFieldValues(mongoDto, "Asset Adders");
-    }
-
-    @Test
-    void testMapStructMappingWhenEmailValueSentAndNameSetToNull() throws JsonProcessingException {
-
-        // Field IS present in the JSON with value null - set to null:
-
-        // Given
-        String incomingJson = "{\"partnership_name\":null, \"email\":\"test@test.com\"}";
-        LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);
-
-        DataDto mongoDto = createMongoDto();
-
-        // When
-        patchMapper.update(patchDto, mongoDto);
-
-        // Then
-        checkExpectedFieldValues(mongoDto, null);
+        checkExpectedFieldValues(mongoDto, expectedPartnershipName.equals("NULL") ? null : expectedPartnershipName);
     }
 
     @Test

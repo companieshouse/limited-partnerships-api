@@ -120,6 +120,17 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
+    void giveInvalidSubmissionId_whenUpdateLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+        // given
+        Transaction transaction = buildTransaction();
+        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        when(repository.findById("wrong-id")).thenReturn(Optional.empty());
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.updateLimitedPartnership(transaction, "wrong-id", limitedPartnershipPatchDto, REQUEST_ID, USER_ID));
+    }
+
+    @Test
     void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException {
         // given
         LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
