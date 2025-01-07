@@ -158,6 +158,31 @@ class PartnershipControllerTest {
     }
 
     @Test
+    void testNotFoundReturnedWhenUpdatePartnershipFailsToFindResource() throws ServiceException {
+        // given
+        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        doThrow(new ResourceNotFoundException("error"))
+                .when(limitedPartnershipService).updateLimitedPartnership(
+                        transaction,
+                        SUBMISSION_ID,
+                        limitedPartnershipPatchDto,
+                        REQUEST_ID,
+                        USER_ID);
+
+        // when
+        var response = partnershipController.updatePartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+
+    @Test
     void testGetPartnershipIsSuccessful() throws ResourceNotFoundException {
         // given
         DataDto dataDto = new DataDto();
