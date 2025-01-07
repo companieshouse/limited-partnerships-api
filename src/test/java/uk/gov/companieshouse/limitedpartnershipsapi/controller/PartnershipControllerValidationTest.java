@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {PartnershipController.class})
 @WebMvcTest(controllers = {PartnershipController.class})
-public class PartnershipControllerValidationTest {
+class PartnershipControllerValidationTest {
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
