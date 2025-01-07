@@ -6,6 +6,7 @@ import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class LimitedPartnershipSubmissionDtoValidationTest {
     @Test
     void testCreatePartnershipShouldNotReturnError() {
 
-        uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto();
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
         DataDto dto = new DataDto();
 
         dto.setPartnershipName("Test name");
@@ -35,7 +36,7 @@ public class LimitedPartnershipSubmissionDtoValidationTest {
 
         limitedPartnershipSubmissionDto.setData(dto);
 
-        Set<ConstraintViolation<uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
+        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
 
         assertTrue(violations.isEmpty());
     }
@@ -43,7 +44,7 @@ public class LimitedPartnershipSubmissionDtoValidationTest {
     @Test
     void testCreatePartnershipShouldReturnBadRequestErrorIfPartnershipNameIsMoreThan160Character() {
 
-        uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto();
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
         DataDto dto = new DataDto();
 
         String longString161Characters = "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk";
@@ -55,7 +56,7 @@ public class LimitedPartnershipSubmissionDtoValidationTest {
 
         limitedPartnershipSubmissionDto.setData(dto);
 
-        Set<ConstraintViolation<uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
+        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
 
         assertFalse(violations.isEmpty());
         assertThat(violations).hasSize(3);
