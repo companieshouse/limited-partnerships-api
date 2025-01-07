@@ -10,7 +10,8 @@ public class NameSizeValidator implements ConstraintValidator<NameSize, DataDto>
             throw new IllegalArgumentException("@NameSize only applies to DataDto object");
         }
 
-        return object.getPartnershipName().length() + object.getNameEnding().length() <= DataDto.NAME_MAX_SIZE;
+        String name = String.format("%s %s", object.getPartnershipName(), object.getNameEnding());
 
+        return name.length() <= DataDto.NAME_MAX_SIZE;
     }
 }
