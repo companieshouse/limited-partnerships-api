@@ -161,11 +161,7 @@ class LimitedPartnershipServiceTest {
         assertEquals("5fd36577288e", sentSubmission.getCreatedBy());
         assertEquals(USER_ID, sentSubmission.getUpdatedBy());
 
-        verify(transactionService, times(1)).updateTransaction(transactionApiCaptor.capture(), any());
-
-        // assert transaction resources are updated appropriately
-        Transaction sentTransaction = transactionApiCaptor.getValue();
-        assertEquals("Asset Adders", transaction.getCompanyName());
+        verify(transactionService, times(1)).updateTransactionWithPartnershipName(transaction, REQUEST_ID, "Asset Adders");
     }
 
     @Test

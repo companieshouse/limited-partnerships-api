@@ -55,7 +55,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testCreatePartnership() throws ServiceException {
+    void testCreatePartnershipIsSuccessful() throws ServiceException {
         // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
@@ -85,7 +85,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testCreatePartnershipInternalServerError() throws ServiceException {
+    void testInternalServerErrorReturnedWhenCreatePartnershipFails() throws ServiceException {
         // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
@@ -106,7 +106,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testUpdatePartnership() throws ServiceException {
+    void testUpdatePartnershipIsSuccessful() throws ServiceException {
         // given
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
 
@@ -132,7 +132,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testUpdatePartnershipInternalServerError() throws ServiceException {
+    void testInternalServerErrorReturnedWhenUpdatePartnershipFails() throws ServiceException {
         // given
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
 
@@ -157,7 +157,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testGetPartnership() throws ResourceNotFoundException {
+    void testGetPartnershipIsSuccessful() throws ResourceNotFoundException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(limitedPartnershipSubmissionDto);
@@ -175,7 +175,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testGetPartnershipReturnsStatusNotFound() throws ResourceNotFoundException {
+    void testNotFoundReturnedWhenGetPartnershipFailsToFindResource() throws ResourceNotFoundException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));

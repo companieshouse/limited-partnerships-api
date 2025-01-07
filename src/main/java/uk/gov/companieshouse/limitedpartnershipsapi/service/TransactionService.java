@@ -43,4 +43,11 @@ public class TransactionService {
             throw new ServiceException(message, e);
         }
     }
+
+    public void updateTransactionWithPartnershipName(Transaction transaction,
+                                                     String requestId,
+                                                     String partnershipName) throws ServiceException {
+        transaction.setCompanyName(partnershipName);
+        updateTransaction(transaction, requestId);
+    }
 }

@@ -100,11 +100,10 @@ public class LimitedPartnershipService {
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
         copyMetaDataForUpdate(submissionId, lpSubmissionDaoBeforePatch, lpSubmissionDaoAfterPatch);
 
-        // And set new 'last updated' audit details
         setAuditDetailsForUpdate(userId, lpSubmissionDaoAfterPatch);
 
-        // Finally, update the transaction in case the partnership name has changed as a result of this patch
-        updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName());
+        // Finally, update the transaction in case the partnership name has changed as a result of this patch request
+        transactionService.updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission updated with id: %s", submissionId));
 
@@ -141,13 +140,6 @@ public class LimitedPartnershipService {
 
     private String getSubmissionUri(String transactionId, String submissionId) {
         return String.format(URL_GET_PARTNERSHIP, transactionId, submissionId);
-    }
-
-    private void updateTransactionWithPartnershipName(Transaction transaction,
-                                                      String requestId,
-                                                      String partnershipName) throws ServiceException {
-        transaction.setCompanyName(partnershipName);
-        transactionService.updateTransaction(transaction, requestId);
     }
 
     private void updateTransactionWithLinksAndPartnershipName(Transaction transaction,

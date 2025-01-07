@@ -84,6 +84,9 @@ public class PartnershipController {
             limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, limitedPartnershipPatchDto, requestId, userId);
 
             return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+            return ResponseEntity.notFound().build();
         } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, "Error updating Limited Partnership submission", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
