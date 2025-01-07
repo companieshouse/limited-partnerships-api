@@ -15,7 +15,7 @@ public class NameSizeValidator implements ConstraintValidator<NameSize, DataDto>
 
         DataDto dataDto = (DataDto) object;
 
-        return dataDto.getPartnershipName().length() + dataDto.getNameEnding().length() <= 160;
+        return dataDto.getPartnershipName().length() + dataDto.getNameEnding().length() <= DataDto.MAX_SIZE;
 
     }
 }

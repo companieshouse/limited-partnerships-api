@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,7 +13,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NameSize {
-    String message() default "Max length 'data.partnership_name + data.name_ending' is 160 characters";
+    String message() default "Max length 'data.partnership_name + data.name_ending' is " + DataDto.MAX_SIZE + " characters";
 
     Class<?>[] groups() default {};
 

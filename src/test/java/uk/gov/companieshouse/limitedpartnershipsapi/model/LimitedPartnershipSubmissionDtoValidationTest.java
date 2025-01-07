@@ -63,8 +63,8 @@ public class LimitedPartnershipSubmissionDtoValidationTest {
         assertThat(violations)
                 .extracting(ConstraintViolation::getMessage)
                 .containsExactlyInAnyOrder(
-                        "Max length 'data.partnership_name + data.name_ending' is 160 characters",
-                        "partnership_name must be less than 160",
+                        String.format("Max length 'data.partnership_name + data.name_ending' is %s characters", DataDto.MAX_SIZE),
+                        String.format("partnership_name must be less than %s", DataDto.MAX_SIZE),
                         "must be a well-formed email address");
     }
 
