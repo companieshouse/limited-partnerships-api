@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -146,9 +147,13 @@ class PartnershipControllerTest {
     @Test
     void testGetPartnership() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDto dto = createDto();
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipName("Test name");
+        limitedPartnershipSubmissionDto.setData(dataDto);
+
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(dto);
+        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(limitedPartnershipSubmissionDto);
 
         // when
         var response = partnershipController.getPartnership(
@@ -159,7 +164,9 @@ class PartnershipControllerTest {
 
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
-        assertEquals(dto, response.getBody());
+        assertEquals(limitedPartnershipSubmissionDto, response.getBody());
+        assertEquals("Test name", limitedPartnershipSubmissionDto.getData().getPartnershipName());
+        assertNull(limitedPartnershipSubmissionDto.getData().getNameEnding());
     }
 
     @Test
@@ -177,7 +184,7 @@ class PartnershipControllerTest {
 
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
-        assertEquals(null, response.getBody());
+        assertNull(response.getBody());
     }
 
     private LimitedPartnershipSubmissionDto createDto() {

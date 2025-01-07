@@ -12,13 +12,13 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @NameSize
 public class DataDto {
-    public static final int MIN_SIZE = 1;
-    public static final int MAX_SIZE = 160;
+    public static final int NAME_MIN_SIZE = 1;
+    public static final int NAME_MAX_SIZE = 160;
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-    @Size(min = MIN_SIZE, message = "partnership_name must be greater than {min}")
-    @Size(max = MAX_SIZE, message = "partnership_name must be less than {max}")
+    @Size(min = NAME_MIN_SIZE, message = "partnership_name must be greater than {min}")
+    @Size(max = NAME_MAX_SIZE, message = "partnership_name must be less than {max}")
     private String partnershipName;
 
     @JsonInclude(NON_NULL)
