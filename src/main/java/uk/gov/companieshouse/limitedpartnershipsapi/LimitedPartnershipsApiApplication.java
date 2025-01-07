@@ -18,7 +18,7 @@ public class LimitedPartnershipsApiApplication {
     @PostConstruct
     public void init() {
         // This is to prevent times being out of time by an hour during British Summer Time in MongoDB
-        // MongoDB stores UTC datetime, and LocalDate doesn't contain timezone
+        // MongoDB stores UTC datetime, and LocalDate does not contain timezone
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 }

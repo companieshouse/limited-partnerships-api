@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -159,6 +160,10 @@ class PartnershipControllerTest {
     @Test
     void testGetPartnershipIsSuccessful() throws ResourceNotFoundException {
         // given
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipName("Test name");
+        limitedPartnershipSubmissionDto.setData(dataDto);
+
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(limitedPartnershipSubmissionDto);
 
@@ -172,6 +177,8 @@ class PartnershipControllerTest {
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         assertEquals(limitedPartnershipSubmissionDto, response.getBody());
+        assertEquals("Test name", limitedPartnershipSubmissionDto.getData().getPartnershipName());
+        assertNull(limitedPartnershipSubmissionDto.getData().getNameEnding());
     }
 
     @Test
@@ -189,6 +196,6 @@ class PartnershipControllerTest {
 
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
-        assertEquals(null, response.getBody());
+        assertNull(response.getBody());
     }
 }

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class PartnershipController {
     @PostMapping
     public ResponseEntity<Object> createPartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @RequestBody LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto,
+            @Valid @RequestBody LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId) {
 
