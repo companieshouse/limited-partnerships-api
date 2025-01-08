@@ -93,4 +93,17 @@ class TransactionServiceTest {
             fail("Should not throw exception");
         }
     }
+
+    @Test
+    void testUpdatingATransactionNameIsSuccessful() throws IOException, URIValidationException {
+        when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
+        when(apiPatchResponse.getStatusCode()).thenReturn(204);
+
+        try {
+            transactionService.updateTransactionWithPartnershipName(transaction, "New name", LOGGING_CONTEXT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Should not throw exception");
+        }
+    }
 }

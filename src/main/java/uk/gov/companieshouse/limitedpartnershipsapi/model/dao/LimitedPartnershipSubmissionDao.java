@@ -17,7 +17,13 @@ public class LimitedPartnershipSubmissionDao {
     private LocalDateTime createdAt;
 
     @Field("created_by_user_id")
-    private String userId;
+    private String createdBy;
+
+    @Field("updated_at")
+    private LocalDateTime updatedAt;
+
+    @Field("updated_by_user_id")
+    private String updatedBy;
 
     @Field("data")
     private DataDao data;
@@ -49,12 +55,28 @@ public class LimitedPartnershipSubmissionDao {
         this.data = data;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     public Map<String, String> getLinks() {

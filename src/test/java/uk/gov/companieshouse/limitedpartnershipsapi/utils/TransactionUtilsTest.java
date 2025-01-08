@@ -24,10 +24,10 @@ public class TransactionUtilsTest {
     @Mock
     private Transaction transaction;
 
-    private final TransactionUtils  transactionUtils = new TransactionUtils();
+    private final TransactionUtils transactionUtils = new TransactionUtils();
 
     @Test
-    void givenLimitedPartnerSelfLinkIsBlank_thenReturnFalse(){
+    void givenLimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
         // when
         var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, "");
         // then
@@ -35,7 +35,7 @@ public class TransactionUtilsTest {
     }
 
     @Test
-    void givenLimitedPartnerSelfLinkIsNull_thenReturnFalse(){
+    void givenLimitedPartnerSelfLinkIsNull_thenReturnFalse() {
         // given
         when(transaction.getResources()).thenReturn(null);
         // when
@@ -46,7 +46,7 @@ public class TransactionUtilsTest {
 
 
     @Test
-    void givenTransactionIsNotLinkedToLimitedPartnership_thenReturnFalse(){
+    void givenTransactionIsNotLinkedToLimitedPartnership_thenReturnFalse() {
         // given
         Map<String, Resource> transactionResources = new HashMap<>();
         Resource limitedPartnershipResource = new Resource();
@@ -64,7 +64,7 @@ public class TransactionUtilsTest {
     }
 
     @Test
-    void givenTransactionLinkedToLimitedPartnership_thenReturnTrue(){
+    void givenTransactionLinkedToLimitedPartnership_thenReturnTrue() {
         // given
         Map<String, Resource> transactionResources = new HashMap<>();
         Resource limitedPartnershipResource = new Resource();

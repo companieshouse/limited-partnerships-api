@@ -1,8 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.DataType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -27,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Map;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -77,24 +73,22 @@ public class PartnershipController {
     public ResponseEntity<Object> updatePartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @RequestBody Map<String, Object> body,
+            @RequestBody LimitedPartnershipPatchDto limitedPartnershipPatchDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId
-    ) {
+            @RequestHeader(value = ERIC_IDENTITY) String userId) {
 
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            String type = (String) body.get("type");
-            var dataType = DataType.valueOf(type.toUpperCase());
-            final Map<String, Object> data = extractData(body);
-
-            limitedPartnershipService.updateLimitedPartnership(submissionId, dataType, data);
+            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, limitedPartnershipPatchDto, requestId, userId);
 
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (JsonProcessingException | ServiceException e) {
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+            return ResponseEntity.notFound().build();
+        } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, "Error updating Limited Partnership submission", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -102,11 +96,11 @@ public class PartnershipController {
 
     @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}")
     public ResponseEntity<Object> getPartnership(
-        @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-        @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-        @RequestHeader(value = ERIC_IDENTITY) String userId
-    ){
+            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+            @RequestHeader(value = ERIC_IDENTITY) String userId
+    ) {
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
@@ -114,16 +108,9 @@ public class PartnershipController {
         try {
             LimitedPartnershipSubmissionDto dto = limitedPartnershipService.getLimitedPartnership(transaction, submissionId);
             return ResponseEntity.ok().body(dto);
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         }
-    }
-
-    private static Map<String, Object> extractData(Map<String, Object> body) throws JsonProcessingException {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        var json = ow.writeValueAsString(body.get("data"));
-
-        return new ObjectMapper().readValue(json, Map.class);
     }
 }
