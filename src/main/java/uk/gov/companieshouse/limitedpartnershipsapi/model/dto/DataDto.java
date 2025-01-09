@@ -17,8 +17,8 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-    @Size(min = NAME_MIN_SIZE, message = "partnership_name must be greater than {min}")
-    @Size(max = NAME_MAX_SIZE, message = "partnership_name must be less than {max}")
+    @Size(min = NAME_MIN_SIZE, message = "partnership name must be greater than {min}")
+    @Size(max = NAME_MAX_SIZE, message = "partnership name must be less than {max}")
     private String partnershipName;
 
     @JsonInclude(NON_NULL)

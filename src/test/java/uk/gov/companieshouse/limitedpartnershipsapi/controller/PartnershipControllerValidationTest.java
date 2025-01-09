@@ -19,10 +19,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -47,7 +50,6 @@ class PartnershipControllerValidationTest {
 
     @MockBean
     private LimitedPartnershipService service;
-
 
     @BeforeEach
     void setUp() {
@@ -79,6 +81,7 @@ class PartnershipControllerValidationTest {
 
         mockMvc.perform(post("/transactions/863851-951242-143528/limited-partnership/partnership")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -100,10 +103,46 @@ class PartnershipControllerValidationTest {
 
         mockMvc.perform(post("/transactions/863851-951242-143528/limited-partnership/partnership")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void testUpdatePartnershipShouldReturn200() throws Exception {
+
+        LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        limitedPartnershipPatchDto.setEmail("test@email.com");
+
+        String body = objectMapper.writeValueAsString(limitedPartnershipPatchDto);
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdatePartnershipShouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
+
+        LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        limitedPartnershipPatchDto.setEmail("test@email.");
+
+        String body = objectMapper.writeValueAsString(limitedPartnershipPatchDto);
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

@@ -73,7 +73,7 @@ public class PartnershipController {
     public ResponseEntity<Object> updatePartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @RequestBody LimitedPartnershipPatchDto limitedPartnershipPatchDto,
+            @Valid @RequestBody LimitedPartnershipPatchDto limitedPartnershipPatchDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId) {
 
