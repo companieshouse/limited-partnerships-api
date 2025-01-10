@@ -50,7 +50,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException exception) {
+    public ResponseEntity<Map<String, Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException exception, WebRequest webRequest) {
+        var context = webRequest.getHeader(ERIC_REQUEST_ID_KEY);
 
         List<FieldError> errors = exception.getBindingResult().getFieldErrors();
 
@@ -62,6 +63,8 @@ public class GlobalExceptionHandler {
 
         Map<String, Map<String, String>> errorResponse = new HashMap<>();
         errorResponse.put("errors", errorFields);
+
+        ApiLogger.errorContext(context, errorResponse.toString(), null);
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
