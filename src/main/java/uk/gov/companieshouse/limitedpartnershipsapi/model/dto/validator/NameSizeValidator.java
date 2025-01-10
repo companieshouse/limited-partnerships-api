@@ -22,7 +22,7 @@ public class NameSizeValidator implements ConstraintValidator<NameSize, Object> 
             return true;
         }
 
-        String name = String.format("%s %s", partnershipName, nameEnding);
+        var name = String.format("%s %s", partnershipName, nameEnding);
         return name.length() <= DataDto.NAME_MAX_SIZE;
     }
 }
