@@ -1,52 +1,58 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.openapitools.jackson.nullable.JsonNullable;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
 
+@NameSize
 public class LimitedPartnershipPatchDto {
     @JsonProperty("partnership_name")
-    private JsonNullable<String> partnershipName;
+    @Size(min = DataDto.NAME_MIN_SIZE, message = DataDto.NAME_MIN_SIZE_MESSAGE)
+    @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    private String partnershipName;
 
     @JsonProperty("name_ending")
-    private JsonNullable<PartnershipNameEnding> nameEnding;
+    private PartnershipNameEnding nameEnding;
 
     @JsonProperty("email")
-    private JsonNullable<String> email;
+    @Email
+    private String email;
 
     @JsonProperty("partnership_type")
-    private JsonNullable<PartnershipType> partnershipType;
+    private PartnershipType partnershipType;
 
-    public JsonNullable<String> getPartnershipName() {
+    public String getPartnershipName() {
         return partnershipName;
     }
 
-    public void setPartnershipName(JsonNullable<String> partnershipName) {
+    public void setPartnershipName(String partnershipName) {
         this.partnershipName = partnershipName;
     }
 
-    public JsonNullable<PartnershipNameEnding> getNameEnding() {
+    public PartnershipNameEnding getNameEnding() {
         return nameEnding;
     }
 
-    public void setNameEnding(JsonNullable<PartnershipNameEnding> nameEnding) {
+    public void setNameEnding(PartnershipNameEnding nameEnding) {
         this.nameEnding = nameEnding;
     }
 
-    public JsonNullable<String> getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(JsonNullable<String> email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public JsonNullable<PartnershipType> getPartnershipType() {
+    public PartnershipType getPartnershipType() {
         return partnershipType;
     }
 
-    public void setPartnershipType(JsonNullable<PartnershipType> partnershipType) {
+    public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
     }
 }

@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NameSize {
-    String message() default "Max length 'data.partnership_name + data.name_ending' is " + DataDto.NAME_MAX_SIZE + " characters";
+    String message() default "Max length 'partnership name + name ending' is " + DataDto.NAME_MAX_SIZE + " characters";
 
     Class<?>[] groups() default {};
 

@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +23,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -47,7 +50,6 @@ class PartnershipControllerValidationTest {
 
     @MockBean
     private LimitedPartnershipService service;
-
 
     @BeforeEach
     void setUp() {
@@ -79,6 +81,7 @@ class PartnershipControllerValidationTest {
 
         mockMvc.perform(post("/transactions/863851-951242-143528/limited-partnership/partnership")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -100,10 +103,67 @@ class PartnershipControllerValidationTest {
 
         mockMvc.perform(post("/transactions/863851-951242-143528/limited-partnership/partnership")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void testUpdatePartnershipShouldReturn200() throws Exception {
+        String body = "{\"email\":\"test@email.com\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdatePartnershipShouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
+        String body = "{\"email\":\"test@email.\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdatePartnershipShouldReturn200IfNameSizeIsCorrect() throws Exception {
+        String body = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
+        String longName = StringUtils.repeat("A", 160);
+        String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

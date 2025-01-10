@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
@@ -31,9 +30,9 @@ class LimitedPartnershipPatchMapperTest {
 
     @Test
     void testObjectMapperCanHandleJsonNullableFields() throws JsonProcessingException {
-        assertEquals(JsonNullable.of("some description"), mapper.readValue("{\"partnership_name\":\"some description\"}",
+        assertEquals("some description", mapper.readValue("{\"partnership_name\":\"some description\"}",
                 LimitedPartnershipPatchDto.class).getPartnershipName());
-        assertEquals(JsonNullable.of(null), mapper.readValue("{\"partnership_name\":null}",
+        assertNull(mapper.readValue("{\"partnership_name\":null}",
                 LimitedPartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getPartnershipName());
     }
@@ -41,13 +40,11 @@ class LimitedPartnershipPatchMapperTest {
     @ParameterizedTest
     @CsvSource(value = {
             // Field NOT present in the JSON - no update:
-            "{\"email\":\"test@test.com\"}$ Asset Strippers",
+            "{\"email\":\"test@test.com\"}$ Asset Strippers $ test@test.com",
             // Field IS present in the JSON - set the new string value:
-            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\"}$ Asset Adders",
-            // Field IS present in the JSON with value null - set to null:
-            "{\"partnership_name\":null, \"email\":\"test@test.com\"}$ NULL"
+            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\"}$ Asset Adders $ test@test.com"
     }, delimiter = '$')
-    void testMapStructMappingWhenEmailValueSentAndNameUnchanged(String incomingJson, String expectedPartnershipName)
+    void testMapStructMappingWhenEmailValueSentAndNameUnchanged(String incomingJson, String expectedPartnershipName, String expectedEmail)
             throws JsonProcessingException {
         // Given
         LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);
@@ -58,35 +55,7 @@ class LimitedPartnershipPatchMapperTest {
         patchMapper.update(patchDto, mongoDto);
 
         // Then
-        checkExpectedFieldValues(mongoDto, expectedPartnershipName.equals("NULL") ? null : expectedPartnershipName);
-    }
-
-    @Test
-    void testMapStructMappingWhenEmailValueSentAndNameSetToUndefined() {
-
-        // Field IS present in the JSON with value undefined - no update:
-
-        // Given
-
-        /* Need to create the patch DTO a bit differently, as this doesn't work::
-
-             String incomingJson = "{\"partnership_name\":undefined, \"email\":\"test@test.com\"}";
-             PatchDto patchDto = mapper.readValue(incomingJson, PatchDto.class);
-
-           Error - "JsonParseException: Unrecognized token 'undefined'")
-         */
-
-        LimitedPartnershipPatchDto patchDto = new LimitedPartnershipPatchDto();
-        patchDto.setPartnershipName(JsonNullable.undefined());
-        patchDto.setEmail(JsonNullable.of("test@test.com"));
-
-        DataDto mongoDto = createMongoDto();
-
-        // When
-        patchMapper.update(patchDto, mongoDto);
-
-        // Then
-        checkExpectedFieldValues(mongoDto, "Asset Strippers");
+        checkExpectedFieldValues(mongoDto, expectedPartnershipName, expectedEmail);
     }
 
     private DataDto createMongoDto() {
@@ -98,10 +67,10 @@ class LimitedPartnershipPatchMapperTest {
         return mongoDto;
     }
 
-    private void checkExpectedFieldValues(DataDto mongoDto, String expectedPartnershipName) {
+    private void checkExpectedFieldValues(DataDto mongoDto, String expectedPartnershipName, String expectedEmail) {
         assertEquals(expectedPartnershipName, mongoDto.getPartnershipName());
         assertEquals(PartnershipNameEnding.L_DOT_P_DOT.getDescription(), mongoDto.getNameEnding());
         assertEquals(PartnershipType.PFLP, mongoDto.getPartnershipType());
-        assertEquals("test@test.com", mongoDto.getEmail());
+        assertEquals(expectedEmail, mongoDto.getEmail());
     }
 }
