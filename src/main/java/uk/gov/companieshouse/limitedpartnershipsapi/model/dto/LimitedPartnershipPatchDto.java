@@ -9,12 +9,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize
 
 @NameSize
 public class LimitedPartnershipPatchDto {
-    public static final int NAME_MIN_SIZE = 1;
-    public static final int NAME_MAX_SIZE = 160;
-
     @JsonProperty("partnership_name")
-    @Size(min = NAME_MIN_SIZE, message = "partnership name must be greater than {min}")
-    @Size(max = NAME_MAX_SIZE, message = "partnership name must be less than {max}")
+    @Size(min = DataDto.NAME_MIN_SIZE, message = DataDto.NAME_MIN_SIZE_MESSAGE)
+    @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
     private String partnershipName;
 
     @JsonProperty("name_ending")
