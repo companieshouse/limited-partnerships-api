@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
 
+@NameSize
 public class LimitedPartnershipPatchDto {
     public static final int NAME_MIN_SIZE = 1;
     public static final int NAME_MAX_SIZE = 160;

@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
@@ -112,11 +111,7 @@ class PartnershipControllerValidationTest {
 
     @Test
     void testUpdatePartnershipShouldReturn200() throws Exception {
-
-        LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-        limitedPartnershipPatchDto.setEmail("test@email.com");
-
-        String body = objectMapper.writeValueAsString(limitedPartnershipPatchDto);
+        String body = "{\"email\":\"test@email.com\"}";
 
         mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,11 +125,35 @@ class PartnershipControllerValidationTest {
 
     @Test
     void testUpdatePartnershipShouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
+        String body = "{\"email\":\"test@email.\"}";
 
-        LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-        limitedPartnershipPatchDto.setEmail("test@email.");
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 
-        String body = objectMapper.writeValueAsString(limitedPartnershipPatchDto);
+    @Test
+    void testUpdatePartnershipShouldReturn200IfNameSizeIsCorrect() throws Exception {
+        String body = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
+        String body = "{\"partnership_name\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"name_ending\":\"Limited Partnership\"}";
 
         mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
                         .contentType(MediaType.APPLICATION_JSON)
