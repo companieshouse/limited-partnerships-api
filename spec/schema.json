@@ -15,7 +15,95 @@
     }
   ],
   "paths": {
-    "/transactions/{transactionId}/limited-partnership/partnership": {
+    "/transactions/{transaction_id}/incorporation/limited-partnership": {
+      "post": {
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "summary": "Create a Limited Partnership incorporation",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LimitedPartnershipIncorporationPost"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Limited Partnership Incorporation has been successfully created.",
+            "schema": {
+              "$ref": "#/definitions/CreatedResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/incorporation/limited-partnership/{filing_resource_id}": {
+      "get": {
+        "tags": [
+          "Limited Partnerships"
+        ],
+        "summary": "Get a Limited Partnership incorporation",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "include_sub_resources",
+            "in": "query",
+            "required": true,
+            "type": "boolean",
+            "description": "Whether to include sub-resources or not"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/LimitedPartnershipIncorporationGetResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+
+    "/transactions/{transaction_id}/limited-partnership/partnership": {
       "post": {
         "tags": [
           "Limited Partnerships"
@@ -23,7 +111,7 @@
         "summary": "Create a Limited Partnership submission",
         "parameters": [
           {
-            "name": "transactionId",
+            "name": "transaction_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -41,7 +129,7 @@
           "201": {
             "description": "Limited Partnership Submission has been successfully created.",
             "schema": {
-              "$ref": "#/definitions/LimitedPartnershipSubmissionCreatedResponse"
+              "$ref": "#/definitions/CreatedResponse"
             }
           },
           "400": {
@@ -56,7 +144,7 @@
         }
       }
     },
-    "/transactions/{transactionId}/limited-partnership/partnership/{submissionId}": {
+    "/transactions/{transaction_id}/limited-partnership/partnership/{submission_id}": {
       "patch": {
         "tags": [
           "Limited Partnerships"
@@ -64,13 +152,13 @@
         "summary": "Update a Limited Partnership submission",
         "parameters": [
           {
-            "name": "transactionId",
+            "name": "transaction_id",
             "in": "path",
             "required": true,
             "type": "string"
           },
           {
-            "name": "submissionId",
+            "name": "submission_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -118,12 +206,76 @@
     }
   },
   "definitions": {
+    "LimitedPartnershipIncorporationPost" : {
+      "type": "object",
+      "required": [
+        "etag",
+        "kind"
+      ],
+      "properties": {
+        "etag": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        }
+      }
+    },
+    "LimitedPartnershipIncorporationGetResponse" : {
+      "type": "object",
+      "required": [
+        "etag",
+        "kind"
+      ],
+      "properties": {
+        "etag": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "sub_resources": {
+          "type": "object",
+          "properties": {
+            "general_partners": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "limited_partners": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "partnership": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "LimitedPartnershipSubmission": {
       "type": "object",
       "required": [
         "data"
       ],
-
       "properties": {
         "data": {
           "$ref": "#/definitions/Data"
@@ -161,7 +313,7 @@
         }
       }
     },
-    "LimitedPartnershipSubmissionCreatedResponse": {
+    "CreatedResponse": {
       "type": "object",
       "properties": {
         "id": {
