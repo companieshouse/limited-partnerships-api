@@ -23,7 +23,7 @@ public class LimitedPartnershipIncorporationService {
     }
 
     public String createIncorporationType(String userId, String transaction) {
-        LimitedPartnershipIncorporationDao dao = new LimitedPartnershipIncorporationDao();
+        var dao = new LimitedPartnershipIncorporationDao();
         dao.getData().setKind(LIMITED_PARTNERSHIP_REGISTRATION_KIND);
         // TODO set etag
         dao.setCreatedAt(LocalDateTime.now());

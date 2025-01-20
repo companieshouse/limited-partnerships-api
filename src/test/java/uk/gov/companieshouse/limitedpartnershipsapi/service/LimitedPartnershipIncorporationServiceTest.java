@@ -20,7 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class LimitedPartnershipIncorporationServiceTest {
+class LimitedPartnershipIncorporationServiceTest {
 
     @InjectMocks
     LimitedPartnershipIncorporationService incorporationService;
@@ -36,7 +36,7 @@ public class LimitedPartnershipIncorporationServiceTest {
     private static final String TRANSACTION_ID = "12321123";
 
     @Test
-    public void testCreateIncorporationTypeIsSuccessful() {
+    void testCreateIncorporationTypeIsSuccessful() {
         // given
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);

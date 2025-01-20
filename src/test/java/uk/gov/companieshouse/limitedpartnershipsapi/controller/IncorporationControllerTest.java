@@ -20,7 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 
 @ExtendWith(MockitoExtension.class)
-public class IncorporationControllerTest {
+class IncorporationControllerTest {
 
     @InjectMocks
     IncorporationController incorporationController;
@@ -40,8 +40,8 @@ public class IncorporationControllerTest {
     void testCreateIncorporationIsSuccessful() throws ServiceException {
         // given
         when(incorporationService.createIncorporationType(
-                eq(USER_ID),
-                eq(TRANSACTION_ID)))
+                USER_ID,
+                TRANSACTION_ID))
                 .thenReturn(SUBMISSION_ID);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
