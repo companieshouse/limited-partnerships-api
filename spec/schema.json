@@ -82,9 +82,6 @@
               "$ref": "#/definitions/LimitedPartnershipIncorporationGetResponse"
             }
           },
-          "400": {
-            "description": "Bad Request"
-          },
           "401": {
             "description": "Unauthorised"
           },
@@ -164,9 +161,6 @@
             "schema": {
               "$ref": "#/definitions/LimitedPartnershipSubmission"
             }
-          },
-          "400": {
-            "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorised"
