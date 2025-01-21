@@ -16,7 +16,6 @@ public class LimitedPartnershipIncorporationService {
     public static final String LIMITED_PARTNERSHIP_REGISTRATION_KIND = "limited-partnership-registration";
     private final LimitedPartnershipIncorporationRepository repository;
 
-    @Autowired
     public LimitedPartnershipIncorporationService(
             LimitedPartnershipIncorporationRepository repository) {
         this.repository = repository;
