@@ -281,32 +281,18 @@
             "general_partners": {
               "type": "array",
               "items": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  }
-                }
+                "type": "object"
               }
             },
             "limited_partners": {
               "type": "array",
               "items": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  }
-                }
+                "type": "object"
               }
             },
             "partnership": {
-              "type": "array",
-              "items": {
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  }
-                }
-              }
+              "type": "object",
+              "$ref": "#/definitions/LimitedPartnershipSubmission"
             }
           }
         }
