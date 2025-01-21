@@ -27,14 +27,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/LimitedPartnershipIncorporationPost"
-            }
           }
         ],
         "responses": {
@@ -209,21 +201,6 @@
     }
   },
   "definitions": {
-    "LimitedPartnershipIncorporationPost" : {
-      "type": "object",
-      "required": [
-        "etag",
-        "kind"
-      ],
-      "properties": {
-        "etag": {
-          "type": "string"
-        },
-        "kind": {
-          "type": "string"
-        }
-      }
-    },
     "LimitedPartnershipIncorporationGetResponse" : {
       "type": "object",
       "required": [
