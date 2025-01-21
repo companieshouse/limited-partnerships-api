@@ -39,7 +39,7 @@ class IncorporationControllerTest {
     @Test
     void testCreateIncorporationIsSuccessful() throws ServiceException {
         // given
-        when(incorporationService.createIncorporationType(
+        when(incorporationService.createIncorporation(
                 USER_ID,
                 TRANSACTION_ID))
                 .thenReturn(SUBMISSION_ID);

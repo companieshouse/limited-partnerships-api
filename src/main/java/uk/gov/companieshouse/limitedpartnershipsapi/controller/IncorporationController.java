@@ -42,7 +42,7 @@ public class IncorporationController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership Incorporation", logMap);
 
-        String submissionId = incorporationService.createIncorporationType(userId, transactionId);
+        String submissionId = incorporationService.createIncorporation(userId, transactionId);
         var location = URI.create(String.format(URL_GET_INCORPORATION, transactionId, submissionId));
         var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
         return ResponseEntity.created(location).body(response);

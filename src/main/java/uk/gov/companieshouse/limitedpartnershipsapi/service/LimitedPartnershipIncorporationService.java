@@ -5,7 +5,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
@@ -21,7 +20,7 @@ public class LimitedPartnershipIncorporationService {
         this.repository = repository;
     }
 
-    public String createIncorporationType(String userId, String transaction) {
+    public String createIncorporation(String userId, String transaction) {
         var dao = new LimitedPartnershipIncorporationDao();
         dao.getData().setKind(LIMITED_PARTNERSHIP_REGISTRATION_KIND);
         // TODO set etag

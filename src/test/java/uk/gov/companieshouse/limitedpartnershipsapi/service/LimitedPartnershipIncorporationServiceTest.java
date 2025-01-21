@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,13 +35,13 @@ class LimitedPartnershipIncorporationServiceTest {
     private static final String TRANSACTION_ID = "12321123";
 
     @Test
-    void testCreateIncorporationTypeIsSuccessful() {
+    void testCreateIncorporationIsSuccessful() {
         // given
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
 
         // when
-        var submissionId = incorporationService.createIncorporationType(USER_ID, TRANSACTION_ID);
+        var submissionId = incorporationService.createIncorporation(USER_ID, TRANSACTION_ID);
 
         // then
         verify(repository, times(1)).insert(incorporationCaptor.capture());

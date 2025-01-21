@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "limited_partnership_submissions")
+@Document(collection = "limited_partnership_incorporations")
 public class LimitedPartnershipIncorporationDao {
     @Id
     private String id;
