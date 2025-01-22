@@ -40,8 +40,8 @@ class IncorporationControllerTest {
     void testCreateIncorporationIsSuccessful() throws ServiceException {
         // given
         when(incorporationService.createIncorporation(
-                USER_ID,
-                TRANSACTION_ID))
+                transaction, REQUEST_ID, USER_ID
+        ))
                 .thenReturn(SUBMISSION_ID);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
