@@ -60,6 +60,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipSubmissionDao dao = mapper.dtoToDao(limitedPartnershipSubmissionDto);
         dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
+        dao.setTransactionId(transaction.getId());
 
         LimitedPartnershipSubmissionDao insertedSubmission = repository.insert(dao);
 
@@ -176,6 +177,24 @@ public class LimitedPartnershipService {
 
         var submission = repository.findById(submissionId);
         LimitedPartnershipSubmissionDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
+        return mapper.daoToDto(submissionDao);
+    }
+
+    public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction)
+            throws ServiceException, ResourceNotFoundException {
+        if (!transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
+        }
+
+        var submissions = repository.findByTransactionId(transaction.getId());
+
+        if (submissions.size() > 1) {
+            throw new ServiceException(String.format("More than one limited partership found for transaction id %s", transaction.getId()));
+        }
+
+        LimitedPartnershipSubmissionDao submissionDao = submissions.getFirst();
+
         return mapper.daoToDto(submissionDao);
     }
 }

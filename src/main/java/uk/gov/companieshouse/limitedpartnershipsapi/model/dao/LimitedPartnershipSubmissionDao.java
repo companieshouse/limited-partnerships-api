@@ -25,6 +25,9 @@ public class LimitedPartnershipSubmissionDao {
     @Field("updated_by_user_id")
     private String updatedBy;
 
+    @Field("transaction_id")
+    private String transactionId;
+
     @Field("data")
     private DataDao data;
 
@@ -45,6 +48,14 @@ public class LimitedPartnershipSubmissionDao {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public DataDao getData() {

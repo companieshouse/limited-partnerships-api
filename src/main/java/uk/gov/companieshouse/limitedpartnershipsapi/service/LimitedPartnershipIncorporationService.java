@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.IncorporationSubResourcesDto;
@@ -14,9 +14,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Map;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
@@ -62,7 +60,7 @@ public class LimitedPartnershipIncorporationService {
 
     public LimitedPartnershipIncorporationDto getIncorporation(Transaction transaction,
                                                                String filingResourceId,
-                                                               boolean includeSubResources) throws ResourceNotFoundException {
+                                                               boolean includeSubResources) throws ServiceException {
         String submissionUri = getSubmissionUri(transaction.getId(), filingResourceId);
         if (!transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
@@ -77,28 +75,16 @@ public class LimitedPartnershipIncorporationService {
         if (includeSubResources) {
             IncorporationSubResourcesDto subResourcesDto = new IncorporationSubResourcesDto();
 
-            Resource partnershipResource = transaction.getResources().values().stream()
-                    .filter(resource -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resource.getKind()))
-                    .findFirst()
-                    .orElseThrow(() -> new ResourceNotFoundException(String.format(
-                            "Incorporation id: %s does not have a partnership resource associated with the transaction", filingResourceId)));
+            // TODO Set collections of actual General Partners and Limited Partners once implemented
+            subResourcesDto.setGeneralPartners(new ArrayList<>);
+            subResourcesDto.setLimitedPartners(new ArrayList<>);
 
-            Map.Entry<String, String> linkEntry = partnershipResource.getLinks().entrySet().stream()
-                    .filter(entry -> entry.getKey().equals("resource"))
-                    .findFirst()
-                    .orElseThrow(() -> new ResourceNotFoundException(String.format(
-                            "Incorporation id: %s does not have a partnership resource with a 'resource' link within the transaction", filingResourceId)));
+            LimitedPartnershipSubmissionDto partnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
 
-            String link = linkEntry.getValue();
-            String submissionId = link.substring(link.lastIndexOf('/') + 1);
-
-            System.out.println("\n\n*** pship sub id = " + submissionId + " *** \n\n");
-
-            LimitedPartnershipSubmissionDto partnershipDto = limitedPartnershipService.getLimitedPartnership(transaction, submissionId);
             subResourcesDto.setPartnership(partnershipDto);
+
             incorporationDto.setSubResources(subResourcesDto);
 
-            // TODO Add collections of General Partners and Limited Partners once implemented
         }
 
         return incorporationDto;
