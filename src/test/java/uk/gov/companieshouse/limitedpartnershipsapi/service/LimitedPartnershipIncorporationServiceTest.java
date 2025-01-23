@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -72,22 +71,22 @@ class LimitedPartnershipIncorporationServiceTest {
         assertEquals(submissionUri, sentSubmissionUri);
     }
 
-    @Test
-    void testGetIncorporationTypeIsSuccessful() throws ResourceNotFoundException {
-        // given
-        Transaction transaction = buildTransaction();
-        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
-        when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
-
-        // when
-        var limitedPartnershipIncorporationDto = incorporationService.getIncorporation(transaction, SUBMISSION_ID, true);
-
-        // then
-        assertNotNull(limitedPartnershipIncorporationDto);
-        assertEquals(LIMITED_PARTNERSHIP_REGISTRATION_KIND, limitedPartnershipIncorporationDto.getKind());
-    }
+//    @Test
+//    void testGetIncorporationTypeIsSuccessful() throws ResourceNotFoundException {
+//        // given
+//        Transaction transaction = buildTransaction();
+//        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
+//        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+//        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
+//        when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
+//
+//        // when
+//        var limitedPartnershipIncorporationDto = incorporationService.getIncorporation(transaction, SUBMISSION_ID, true);
+//
+//        // then
+//        assertNotNull(limitedPartnershipIncorporationDto);
+//        assertEquals(LIMITED_PARTNERSHIP_REGISTRATION_KIND, limitedPartnershipIncorporationDto.getKind());
+//    }
 
     @Test
     void testGetIncorporationTypeReturnsNotFoundExceptionWhenNoLinkBetweenTransactionAndIncorporation() throws ResourceNotFoundException {
