@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
@@ -49,10 +51,16 @@ public class IncorporationController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership Incorporation", logMap);
 
-        String submissionId = incorporationService.createIncorporation(userId, transactionId);
-        var location = URI.create(String.format(URL_GET_INCORPORATION, transactionId, submissionId));
-        var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
-        return ResponseEntity.created(location).body(response);
+        try {
+            String submissionId = incorporationService.createIncorporation(transaction, requestId,
+                    userId);
+            var location = URI.create(String.format(URL_GET_INCORPORATION, transactionId, submissionId));
+            var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
+            return ResponseEntity.created(location).body(response);
+        } catch (ServiceException e) {
+            ApiLogger.errorContext(requestId, "Error creating Limited Partnership incorporation", e, logMap);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{" + URL_PARAM_FILING_RESOURCE_ID + "}")

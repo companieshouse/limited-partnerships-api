@@ -22,6 +22,7 @@ public class Constants {
     public static final String URL_GET_INCORPORATION = "/transactions/%s/incorporation/limited-partnership/%s";
 
     // Filings
+    public static final String FILING_KIND_REGISTRATION = "limited-partnership-registration";
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
 
     public static final String LINK_SELF = "self";
