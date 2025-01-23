@@ -10,6 +10,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,6 +18,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.IncorporationDataDao;
@@ -25,7 +27,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 
 @ExtendWith(MockitoExtension.class)
 class LimitedPartnershipIncorporationServiceTest {
-
 
     @InjectMocks
     LimitedPartnershipIncorporationService incorporationService;
@@ -67,17 +68,14 @@ class LimitedPartnershipIncorporationServiceTest {
         String submissionUri = String.format(URL_GET_INCORPORATION, TRANSACTION_ID, submissionId);
         String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
         assertEquals(submissionUri, sentSubmissionUri);
-
     }
 
     private LimitedPartnershipIncorporationDao createLimitedPartnershipIncorporationDao() {
-        IncorporationDataDao data = new IncorporationDataDao.Builder()
-                .setKind(FILING_KIND_REGISTRATION)
-                .build();
-        LimitedPartnershipIncorporationDao dao = new LimitedPartnershipIncorporationDao.Builder()
-                .setData(data)
-                .build();
+        var dao = new LimitedPartnershipIncorporationDao();
         dao.setId(SUBMISSION_ID);
+        dao.getData().setKind(FILING_KIND_REGISTRATION);
+        dao.setCreatedAt(LocalDateTime.now());
+
         return dao;
     }
 

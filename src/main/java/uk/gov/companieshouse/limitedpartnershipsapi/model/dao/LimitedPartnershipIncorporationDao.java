@@ -29,16 +29,6 @@ public class LimitedPartnershipIncorporationDao {
     @Field("links")
     private Map<String, String> links;
 
-    public LimitedPartnershipIncorporationDao() {
-        // used by Spring MongoDB
-    }
-
-    public LimitedPartnershipIncorporationDao(Builder builder) {
-        this.createdAt = builder.createdAt;
-        this.createdBy = builder.createdBy;
-        this.data = builder.data;
-    }
-
     public String getId() {
         return id;
     }
@@ -79,7 +69,12 @@ public class LimitedPartnershipIncorporationDao {
         this.updatedBy = updatedBy;
     }
 
-    public IncorporationDataDao getData() { return data; }
+    public IncorporationDataDao getData() {
+        if (data == null) {
+            data = new IncorporationDataDao();
+        }
+        return data;
+    }
 
     public void setData(IncorporationDataDao data) {
         this.data = data;
@@ -91,31 +86,5 @@ public class LimitedPartnershipIncorporationDao {
 
     public void setLinks(Map<String, String> links) {
         this.links = links;
-    }
-
-    public static class Builder {
-
-        private LocalDateTime createdAt;
-        private String createdBy;
-        private IncorporationDataDao data;
-
-        public Builder setCreatedAt(LocalDateTime createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public Builder setCreatedBy(String createdBy) {
-            this.createdBy = createdBy;
-            return this;
-        }
-
-        public Builder setData(IncorporationDataDao data) {
-            this.data = data;
-            return this;
-        }
-
-        public LimitedPartnershipIncorporationDao build() {
-            return new LimitedPartnershipIncorporationDao(this);
-        }
     }
 }

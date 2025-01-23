@@ -33,15 +33,12 @@ public class LimitedPartnershipIncorporationService {
 
     public String createIncorporation(Transaction transaction, String requestId, String userId)
             throws ServiceException {
-        var incorporationDataDao = new IncorporationDataDao.Builder()
-                .setKind(FILING_KIND_REGISTRATION)
-                .setEtag(GenerateEtagUtil.generateEtag())
-                .build();
-        var dao = new LimitedPartnershipIncorporationDao.Builder()
-                .setCreatedAt(LocalDateTime.now())
-                .setCreatedBy(userId)
-                .setData(incorporationDataDao)
-                .build();
+        var dao = new LimitedPartnershipIncorporationDao();
+        dao.getData().setKind(FILING_KIND_REGISTRATION);
+        dao.getData().setEtag(GenerateEtagUtil.generateEtag());
+        dao.setCreatedAt(LocalDateTime.now());
+        dao.setCreatedBy(userId);
+
         LimitedPartnershipIncorporationDao insertedIncorporation = repository.insert(dao);
 
         String incorporationUri = getSubmissionUri(transaction.getId(), insertedIncorporation.getId());
