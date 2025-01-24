@@ -1,13 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -15,6 +7,15 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 
 @Service
@@ -39,6 +40,8 @@ public class LimitedPartnershipIncorporationService {
         dao.setCreatedBy(userId);
 
         LimitedPartnershipIncorporationDao insertedIncorporation = repository.insert(dao);
+
+        transaction.setFilingMode(FILING_KIND_REGISTRATION);
 
         String incorporationUri = getSubmissionUri(transaction.getId(), insertedIncorporation.getId());
         updateIncorporationTypeWithSelfLink(dao, incorporationUri);
