@@ -88,6 +88,8 @@ class LimitedPartnershipIncorporationServiceTest {
         String submissionUri = String.format(URL_GET_INCORPORATION, TRANSACTION_ID, submissionId);
         String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
         assertEquals(submissionUri, sentSubmissionUri);
+
+        assertEquals(FILING_KIND_REGISTRATION, transaction.getFilingMode());
     }
 
     @Test

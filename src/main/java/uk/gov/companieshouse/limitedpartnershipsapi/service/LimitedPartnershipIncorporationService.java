@@ -59,6 +59,8 @@ public class LimitedPartnershipIncorporationService {
 
         LimitedPartnershipIncorporationDao insertedIncorporation = repository.insert(dao);
 
+        transaction.setFilingMode(FILING_KIND_REGISTRATION);
+
         String incorporationUri = getSubmissionUri(transaction.getId(), insertedIncorporation.getId());
         updateIncorporationTypeWithSelfLink(dao, incorporationUri);
 
