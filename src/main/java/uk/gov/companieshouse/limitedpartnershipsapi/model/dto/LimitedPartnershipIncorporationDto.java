@@ -1,13 +1,13 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.dao;
+package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
-import org.springframework.data.mongodb.core.mapping.Field;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class IncorporationDataDao {
+public class LimitedPartnershipIncorporationDto {
 
-    @Field("kind")
+    @JsonProperty("kind")
     private String kind;
 
-    @Field("etag")
+    @JsonProperty("etag")
     private String etag;
 
     public String getKind() {
@@ -25,5 +25,4 @@ public class IncorporationDataDao {
     public void setEtag(String etag) {
         this.etag = etag;
     }
-
 }
