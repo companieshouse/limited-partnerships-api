@@ -188,7 +188,9 @@ public class LimitedPartnershipService {
 
         var submissions = repository.findByTransactionId(transaction.getId());
 
-        if (submissions.size() > 1) {
+        if (submissions.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("No limited partnership found for transaction id %s", transaction.getId()));
+        } else if (submissions.size() > 1) {
             throw new ServiceException(String.format("More than one limited partnership found for transaction id %s", transaction.getId()));
         }
 

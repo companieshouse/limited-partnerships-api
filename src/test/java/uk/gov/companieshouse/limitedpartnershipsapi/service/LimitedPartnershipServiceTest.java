@@ -22,7 +22,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -219,6 +221,61 @@ class LimitedPartnershipServiceTest {
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction, SUBMISSION_ID));
+    }
+
+    @Test
+    void givenTransactionId_whenGetLp_ThenLPRetrieved() throws ServiceException {
+        // given
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        Transaction transaction = buildTransaction();
+
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
+        when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
+
+        // when
+        LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(transaction);
+
+        // then
+        verify(repository, times(1)).findByTransactionId(transaction.getId());
+        verify(mapper, times(1)).daoToDto(limitedPartnershipSubmissionDao);
+        assertEquals(limitedPartnershipSubmissionDto.getData(), retrievedDto.getData());
+    }
+
+    @Test
+    void givenInvalidTransactionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
+        // given
+        Transaction transaction = buildTransaction();
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(Collections.emptyList());
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction));
+    }
+
+    @Test
+    void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+        // given
+        Transaction transaction = buildTransaction();
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(false);
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction));
+    }
+
+    @Test
+    void givenTransactionIdHasMultipleLpSubmissions_whenGetLp_ThenServiceExceptionThrown() throws ResourceNotFoundException {
+        // given
+        Transaction transaction = buildTransaction();
+        LimitedPartnershipSubmissionDao lpDao1 = createDao();
+        LimitedPartnershipSubmissionDao lpDao2 = createDao();
+
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao1, lpDao2));
+
+        // when + then
+        assertThrows(ServiceException.class, () -> service.getLimitedPartnership(transaction));
     }
 
     private Transaction buildTransaction() {
