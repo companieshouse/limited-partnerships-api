@@ -7,8 +7,8 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import java.util.Objects;
 import java.util.Optional;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService.LIMITED_PARTNERSHIP_REGISTRATION_KIND;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
 @Component
@@ -31,7 +31,7 @@ public class TransactionUtils {
     }
 
     public boolean isTransactionLinkedToLimitedPartnershipIncorporation(Transaction transaction, String limitedPartnershipIncorporationSelfLink) {
-        return doChecks(transaction, limitedPartnershipIncorporationSelfLink, LIMITED_PARTNERSHIP_REGISTRATION_KIND);
+        return doChecks(transaction, limitedPartnershipIncorporationSelfLink, FILING_KIND_REGISTRATION);
     }
 
     private boolean doChecks(Transaction transaction, String selfLink, String kind) {

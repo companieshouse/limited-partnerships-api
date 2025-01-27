@@ -13,7 +13,7 @@ public interface LimitedPartnershipIncorporationMapper {
 
     LimitedPartnershipIncorporationMapper INSTANCE = Mappers.getMapper(LimitedPartnershipIncorporationMapper.class);
 
-    // TODO Map etag
     @Mapping(target = "kind", source = "dao.data.kind")
+    @Mapping(target = "etag", source = "dao.data.etag")
     LimitedPartnershipIncorporationDto daoToDto(LimitedPartnershipIncorporationDao dao);
 }

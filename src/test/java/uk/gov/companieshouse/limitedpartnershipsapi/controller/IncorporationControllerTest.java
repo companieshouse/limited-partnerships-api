@@ -19,7 +19,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService.LIMITED_PARTNERSHIP_REGISTRATION_KIND;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,8 +43,8 @@ class IncorporationControllerTest {
     void testCreateIncorporationIsSuccessful() throws ServiceException {
         // given
         when(incorporationService.createIncorporation(
-                USER_ID,
-                TRANSACTION_ID))
+                transaction, REQUEST_ID, USER_ID
+        ))
                 .thenReturn(SUBMISSION_ID);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
@@ -67,11 +67,11 @@ class IncorporationControllerTest {
     }
 
     @Test
-    void testGetIncorporationIsSuccessful() throws ResourceNotFoundException {
+    void testGetIncorporationIsSuccessful() throws ServiceException {
         // given
         LimitedPartnershipIncorporationDto limitedPartnershipIncorporationDto = new LimitedPartnershipIncorporationDto();
 
-        limitedPartnershipIncorporationDto.setKind(LIMITED_PARTNERSHIP_REGISTRATION_KIND);
+        limitedPartnershipIncorporationDto.setKind(FILING_KIND_REGISTRATION);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenReturn(limitedPartnershipIncorporationDto);
@@ -86,11 +86,11 @@ class IncorporationControllerTest {
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         assertEquals(limitedPartnershipIncorporationDto, response.getBody());
-        assertEquals(LIMITED_PARTNERSHIP_REGISTRATION_KIND, limitedPartnershipIncorporationDto.getKind());
+        assertEquals(FILING_KIND_REGISTRATION, limitedPartnershipIncorporationDto.getKind());
     }
 
     @Test
-    void testNotFoundReturnedWhenGetIncorporationFailsToFindResource() throws ResourceNotFoundException {
+    void testNotFoundReturnedWhenGetIncorporationFailsToFindResource() throws ServiceException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenThrow(new ResourceNotFoundException("error"));
@@ -104,6 +104,24 @@ class IncorporationControllerTest {
 
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testInternalServerErrorReturnedWhenGetIncorporationFailsWithServiceException() throws ServiceException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenThrow(new ServiceException("error"));
+
+        // when
+        var response = incorporationController.getIncorporation(
+                transaction,
+                SUBMISSION_ID,
+                true,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
         assertNull(response.getBody());
     }
 }

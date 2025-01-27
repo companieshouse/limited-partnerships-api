@@ -10,6 +10,9 @@ public class LimitedPartnershipIncorporationDto {
     @JsonProperty("kind")
     private String kind;
 
+    @JsonProperty("etag")
+    private String etag;
+
     @JsonInclude(NON_NULL)
     @JsonProperty("sub_resources")
     private IncorporationSubResourcesDto subResources;
@@ -20,6 +23,14 @@ public class LimitedPartnershipIncorporationDto {
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public String getEtag() {
+        return etag;
+    }
+
+    public void setEtag(String etag) {
+        this.etag = etag;
     }
 
     public IncorporationSubResourcesDto getSubResources() {

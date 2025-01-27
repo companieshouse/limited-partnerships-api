@@ -99,7 +99,7 @@ public class LimitedPartnershipService {
         var lpSubmissionDaoAfterPatch = mapper.dtoToDao(lpSubmissionDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
-        copyMetaDataForUpdate(submissionId, lpSubmissionDaoBeforePatch, lpSubmissionDaoAfterPatch);
+        copyMetaDataForUpdate(lpSubmissionDaoBeforePatch, lpSubmissionDaoAfterPatch);
 
         setAuditDetailsForUpdate(userId, lpSubmissionDaoAfterPatch);
 
@@ -111,13 +111,13 @@ public class LimitedPartnershipService {
         repository.save(lpSubmissionDaoAfterPatch);
     }
 
-    private void copyMetaDataForUpdate(String submissionId,
-                                       LimitedPartnershipSubmissionDao lpSubmissionDaoBeforePatch,
+    private void copyMetaDataForUpdate(LimitedPartnershipSubmissionDao lpSubmissionDaoBeforePatch,
                                        LimitedPartnershipSubmissionDao lpSubmissionDaoAfterPatch) {
-        lpSubmissionDaoAfterPatch.setId(submissionId);
+        lpSubmissionDaoAfterPatch.setId(lpSubmissionDaoBeforePatch.getId());
         lpSubmissionDaoAfterPatch.setCreatedAt(lpSubmissionDaoBeforePatch.getCreatedAt());
         lpSubmissionDaoAfterPatch.setCreatedBy(lpSubmissionDaoBeforePatch.getCreatedBy());
         lpSubmissionDaoAfterPatch.setLinks(lpSubmissionDaoBeforePatch.getLinks());
+        lpSubmissionDaoAfterPatch.setTransactionId(lpSubmissionDaoBeforePatch.getTransactionId());
     }
 
     private void setAuditDetailsForUpdate(String userId, LimitedPartnershipSubmissionDao lpSubmissionDaoAfterPatch) {
@@ -180,8 +180,7 @@ public class LimitedPartnershipService {
         return mapper.daoToDto(submissionDao);
     }
 
-    public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction)
-            throws ServiceException, ResourceNotFoundException {
+    public LimitedPartnershipSubmissionDto getLimitedPartnership(Transaction transaction) throws ServiceException {
         if (!transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
@@ -190,7 +189,7 @@ public class LimitedPartnershipService {
         var submissions = repository.findByTransactionId(transaction.getId());
 
         if (submissions.size() > 1) {
-            throw new ServiceException(String.format("More than one limited partership found for transaction id %s", transaction.getId()));
+            throw new ServiceException(String.format("More than one limited partnership found for transaction id %s", transaction.getId()));
         }
 
         LimitedPartnershipSubmissionDao submissionDao = submissions.getFirst();
