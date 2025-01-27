@@ -107,7 +107,7 @@ public class LimitedPartnershipIncorporationService {
         LimitedPartnershipIncorporationDto incorporationDto = mapper.daoToDto(incorporationDao);
 
         if (includeSubResources) {
-            IncorporationSubResourcesDto subResourcesDto = new IncorporationSubResourcesDto();
+            var subResourcesDto = new IncorporationSubResourcesDto();
 
             // TODO Set collections of actual General Partners and Limited Partners once implemented
             subResourcesDto.setGeneralPartners(new ArrayList<>());

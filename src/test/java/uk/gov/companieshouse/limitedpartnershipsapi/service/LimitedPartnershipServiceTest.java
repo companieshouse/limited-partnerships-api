@@ -230,7 +230,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
 
@@ -247,7 +247,7 @@ class LimitedPartnershipServiceTest {
     void givenInvalidTransactionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(Collections.emptyList());
 
         // when + then
@@ -258,7 +258,7 @@ class LimitedPartnershipServiceTest {
     void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(false);
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction));
@@ -271,7 +271,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipSubmissionDao lpDao1 = createDao();
         LimitedPartnershipSubmissionDao lpDao2 = createDao();
 
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao1, lpDao2));
 
         // when + then
