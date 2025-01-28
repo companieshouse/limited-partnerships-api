@@ -384,7 +384,11 @@
           "type": "object",
           "properties": {
             "limited_partner_type": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "Person",
+                "Legal Entity"
+              ]
             }
           }
         }
