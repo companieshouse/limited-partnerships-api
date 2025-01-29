@@ -67,7 +67,7 @@ public class IncorporationController {
     public ResponseEntity<Object> getIncorporation(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String filingResourceId,
-            @RequestParam(value = "include_sub_resources", required = true) boolean includeSubResources,
+            @RequestParam(value = "include_sub_resources", required = false) boolean includeSubResources,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId
     ) {
         var transactionId = transaction.getId();
@@ -81,6 +81,9 @@ public class IncorporationController {
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
+        } catch (ServiceException se) {
+            ApiLogger.errorContext(requestId, "Error getting a Limited Partnership Incorporation", se, logMap);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
