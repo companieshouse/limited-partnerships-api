@@ -11,14 +11,23 @@
   ],
   "tags": [
     {
+      "name": "Incorporation"
+    },
+    {
       "name": "Limited Partnerships"
+    },
+    {
+      "name": "Limited Partner"
+    },
+    {
+      "name": "Healthcheck"
     }
   ],
   "paths": {
     "/transactions/{transaction_id}/incorporation/limited-partnership": {
       "post": {
         "tags": [
-          "Limited Partnerships"
+          "Incorporation"
         ],
         "summary": "Create a Limited Partnership incorporation",
         "parameters": [
@@ -51,7 +60,7 @@
     "/transactions/{transaction_id}/incorporation/limited-partnership/{filing_resource_id}": {
       "get": {
         "tags": [
-          "Limited Partnerships"
+          "Incorporation"
         ],
         "summary": "Get a Limited Partnership incorporation",
         "parameters": [
@@ -216,11 +225,52 @@
         }
       }
     },
+    "/transactions/{transaction_id}/limited-partnership/limited-partner" : {
+      "post": {
+        "tags": [
+          "Limited Partner"
+        ],
+        "summary": "Create a Limited Partner submission",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LimitedPartnerSubmission"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Limited Partner Submission has been successfully created.",
+            "schema": {
+              "$ref": "#/definitions/CreatedResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/limited-partnership/healthcheck": {
       "get": {
         "summary": "Health check URL returns 200 if service is running",
         "tags": [
-          "Limited Partnerships"
+          "Healthcheck"
         ],
         "responses": {
           "200": {
@@ -321,6 +371,26 @@
         },
         "data": {
           "type": "object"
+        }
+      }
+    },
+    "LimitedPartnerSubmission": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "limited_partner_type": {
+              "type": "string",
+              "enum": [
+                "Person",
+                "Legal Entity"
+              ]
+            }
+          }
         }
       }
     },
