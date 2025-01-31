@@ -18,6 +18,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private static final String TRANSACTIONS = "/transactions/**";
     private static final String FILINGS = "/private/**/filings";
     private static final String PARTNERSHIP = TRANSACTIONS + "/partnership";
+    private static final String INCORPORATION = TRANSACTIONS + "/incorporation/**";
 
     private final LoggingInterceptor loggingInterceptor;
 
@@ -38,9 +39,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(loggingInterceptor);
         registry.addInterceptor(new TokenPermissionsInterceptor())
-                .addPathPatterns(PARTNERSHIP);
+                .addPathPatterns(INCORPORATION, PARTNERSHIP);
         registry.addInterceptor(customUserAuthenticationInterceptor)
-                .addPathPatterns(PARTNERSHIP);
+                .addPathPatterns(INCORPORATION, PARTNERSHIP);
         registry.addInterceptor(transactionInterceptor())
                 .addPathPatterns(FILINGS, TRANSACTIONS);
     }
