@@ -17,8 +17,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTIONS = "/transactions/**";
     private static final String FILINGS = "/private/**/filings";
-    private static final String PARTNERSHIP = TRANSACTIONS + "/partnership";
     private static final String INCORPORATION = TRANSACTIONS + "/incorporation/**";
+    private static final String PARTNERSHIP = TRANSACTIONS + "/partnership";
 
     private final LoggingInterceptor loggingInterceptor;
 
