@@ -24,6 +24,11 @@ public class LimitedPartnershipPatchDto {
     @JsonProperty("partnership_type")
     private PartnershipType partnershipType;
 
+    @JsonProperty("jurisdiction")
+    @uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.Jurisdiction
+    private Jurisdiction jurisdiction;
+
+
     public String getPartnershipName() {
         return partnershipName;
     }
@@ -54,5 +59,13 @@ public class LimitedPartnershipPatchDto {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public Jurisdiction getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public void setJurisdiction(Jurisdiction jurisdiction) {
+        this.jurisdiction = jurisdiction;
     }
 }

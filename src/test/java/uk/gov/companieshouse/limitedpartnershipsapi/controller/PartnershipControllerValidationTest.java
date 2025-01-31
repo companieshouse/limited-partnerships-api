@@ -166,4 +166,32 @@ class PartnershipControllerValidationTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void testUpdatePartnershipShouldReturn200IfJurisdictionIsValid() throws Exception {
+        String body = "{\"jurisdiction\":\"Scotland\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdatePartnershipShouldReturnBadRequestErrorIfJurisdictionIsInvalid() throws Exception {
+        String body = "{\"jurisdiction\":\"Croatia\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }

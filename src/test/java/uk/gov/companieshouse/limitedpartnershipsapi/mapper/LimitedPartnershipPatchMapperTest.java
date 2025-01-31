@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,12 +40,17 @@ class LimitedPartnershipPatchMapperTest {
 
     @ParameterizedTest
     @CsvSource(value = {
-            // Field NOT present in the JSON - no update:
-            "{\"email\":\"test@test.com\"}$ Asset Strippers $ test@test.com",
-            // Field IS present in the JSON - set the new string value:
-            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\"}$ Asset Adders $ test@test.com"
+            // Fields NOT present in the JSON - no update:
+            "{\"email\":\"test@test.com\"}$ Asset Strippers $ test@test.com $ Scotland",
+            // Fields ARE present in the JSON - set the new string value:
+            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\"}$ Asset Adders $ test@test.com $ Scotland",
+            // Jurisdiction field is invalid in the JSON - set the 'Unknown' value:
+            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Mongolia\"}$ Asset Adders $ test@test.com $ Unknown"
     }, delimiter = '$')
-    void testMapStructMappingWhenEmailValueSentAndNameUnchanged(String incomingJson, String expectedPartnershipName, String expectedEmail)
+    void testMapStructMappingWhenEmailValueSentAndNameUnchanged(String incomingJson,
+                                                                String expectedPartnershipName,
+                                                                String expectedEmail,
+                                                                String expectedJurisdiction)
             throws JsonProcessingException {
         // Given
         LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);
@@ -55,7 +61,7 @@ class LimitedPartnershipPatchMapperTest {
         patchMapper.update(patchDto, mongoDto);
 
         // Then
-        checkExpectedFieldValues(mongoDto, expectedPartnershipName, expectedEmail);
+        checkExpectedFieldValues(mongoDto, expectedPartnershipName, expectedEmail, expectedJurisdiction);
     }
 
     private DataDto createMongoDto() {
@@ -63,14 +69,19 @@ class LimitedPartnershipPatchMapperTest {
         mongoDto.setPartnershipName("Asset Strippers");
         mongoDto.setNameEnding(PartnershipNameEnding.L_DOT_P_DOT);
         mongoDto.setPartnershipType(PartnershipType.PFLP);
+        mongoDto.setJurisdiction(Jurisdiction.SCOTLAND);
 
         return mongoDto;
     }
 
-    private void checkExpectedFieldValues(DataDto mongoDto, String expectedPartnershipName, String expectedEmail) {
+    private void checkExpectedFieldValues(DataDto mongoDto,
+                                          String expectedPartnershipName,
+                                          String expectedEmail,
+                                          String expectedJurisdiction) {
         assertEquals(expectedPartnershipName, mongoDto.getPartnershipName());
         assertEquals(PartnershipNameEnding.L_DOT_P_DOT.getDescription(), mongoDto.getNameEnding());
         assertEquals(PartnershipType.PFLP, mongoDto.getPartnershipType());
         assertEquals(expectedEmail, mongoDto.getEmail());
+        assertEquals(expectedJurisdiction, mongoDto.getJurisdiction());
     }
 }
