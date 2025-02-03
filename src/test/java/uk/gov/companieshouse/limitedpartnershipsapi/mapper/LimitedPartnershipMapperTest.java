@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LimitedPartnershipMapperTest {
@@ -94,5 +95,15 @@ class LimitedPartnershipMapperTest {
         Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
         // then
         assertEquals(Jurisdiction.UNKNOWN.getDescription(), destinationData.getDescription());
+    }
+
+    @Test
+    void givenNullJurisdiction_whenMapsToEnum_thenNullReturned() {
+        // given
+        String invalidJurisdiction = null;
+        // when
+        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
+        // then
+        assertNull(destinationData);
     }
 }
