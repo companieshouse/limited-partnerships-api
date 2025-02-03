@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidJurisdiction;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -37,7 +38,7 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("jurisdiction")
-    @uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.Jurisdiction
+    @ValidJurisdiction
     private Jurisdiction jurisdiction;
 
 

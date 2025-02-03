@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidJurisdiction;
 
 @NameSize
 public class LimitedPartnershipPatchDto {
@@ -25,7 +26,7 @@ public class LimitedPartnershipPatchDto {
     private PartnershipType partnershipType;
 
     @JsonProperty("jurisdiction")
-    @uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.Jurisdiction
+    @ValidJurisdiction
     private Jurisdiction jurisdiction;
 
 

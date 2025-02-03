@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = JurisdictionValidator.class)
 @Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Jurisdiction {
+public @interface ValidJurisdiction {
     String message() default "Jurisdiction must be valid";
 
     Class<?>[] groups() default {};

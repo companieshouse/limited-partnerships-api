@@ -23,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @SpringBootTest
 class LimitedPartnershipPatchMapperTest {
 
+    private static final String JSON_WITH_MISSING_FIELDS = "{\"email\":\"test@test.com\"}";
+    private static final String JSON_WITH_VALID_FIELDS_ALL_PRESENT = "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\"}";
+    private static final String JSON_WITH_INVALID_JURISDICTION = "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Mongolia\"}";
+
+
     @Autowired
     private ObjectMapper mapper;
 
@@ -41,16 +46,16 @@ class LimitedPartnershipPatchMapperTest {
     @ParameterizedTest
     @CsvSource(value = {
             // Fields NOT present in the JSON - no update:
-            "{\"email\":\"test@test.com\"}$ Asset Strippers $ test@test.com $ Scotland",
+            JSON_WITH_MISSING_FIELDS + "$ Asset Strippers $ test@test.com $ Scotland",
             // Fields ARE present in the JSON - set the new string value:
-            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\"}$ Asset Adders $ test@test.com $ Scotland",
+            JSON_WITH_VALID_FIELDS_ALL_PRESENT + "$ Asset Adders $ test@test.com $ Scotland",
             // Jurisdiction field is invalid in the JSON - set the 'Unknown' value:
-            "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Mongolia\"}$ Asset Adders $ test@test.com $ Unknown"
+            JSON_WITH_INVALID_JURISDICTION + "$ Asset Adders $ test@test.com $ Unknown"
     }, delimiter = '$')
-    void testMapStructMappingWhenEmailValueSentAndNameUnchanged(String incomingJson,
-                                                                String expectedPartnershipName,
-                                                                String expectedEmail,
-                                                                String expectedJurisdiction)
+    void testMappingWhenEmailValueSentAndNameUnchanged(String incomingJson,
+                                                       String expectedPartnershipName,
+                                                       String expectedEmail,
+                                                       String expectedJurisdiction)
             throws JsonProcessingException {
         // Given
         LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);

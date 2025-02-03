@@ -44,7 +44,7 @@ class LimitedPartnershipSubmissionDtoValidationTest {
     }
 
     @Test
-    void testCreatePartnershipShouldReturnBadRequestErrorIfJurisdictionIsInvalid() {
+    void testCreatePartnershipWithInvalidJurisdictionReturnsErrors() {
 
         LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
         DataDto dto = new DataDto();

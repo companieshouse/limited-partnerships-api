@@ -25,7 +25,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -120,7 +119,8 @@ class PartnershipControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
+                // Uncomment the following line and also use in other tests if wishing to debug responses and behaviour
+                // .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -134,7 +134,6 @@ class PartnershipControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
@@ -148,7 +147,6 @@ class PartnershipControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -163,12 +161,11 @@ class PartnershipControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testUpdatePartnershipShouldReturn200IfJurisdictionIsValid() throws Exception {
+    void testUpdatePartnershipWithAValidJurisdictionShouldReturn200() throws Exception {
         String body = "{\"jurisdiction\":\"Scotland\"}";
 
         mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
@@ -177,12 +174,24 @@ class PartnershipControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    void testUpdatePartnershipShouldReturnBadRequestErrorIfJurisdictionIsInvalid() throws Exception {
+    void testUpdatePartnershipWithANullJurisdictionShouldReturn200() throws Exception {
+        String body = "{\"jurisdiction\":null}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testUpdatePartnershipWithAnInvalidJurisdictionShouldReturn400() throws Exception {
         String body = "{\"jurisdiction\":\"Croatia\"}";
 
         mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
@@ -191,7 +200,6 @@ class PartnershipControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 }
