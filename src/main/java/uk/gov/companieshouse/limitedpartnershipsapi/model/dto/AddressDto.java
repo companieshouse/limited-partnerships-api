@@ -10,6 +10,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_S
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
 
 public class AddressDto {
+
     @JsonProperty("address_line_1")
     @Size(min = MIN_SIZE, message = "address_line_1 " + MIN_SIZE_MESSAGE)
     @Size(max = MAX_SIZE, message = "address_line_1 " + MAX_SIZE_MESSAGE)
@@ -42,4 +43,60 @@ public class AddressDto {
     @JsonProperty("region")
     @Size(max = MAX_SIZE, message = "region " + MAX_SIZE_MESSAGE)
     private String region;
+
+    public String getAddressLine1() {
+        return addressLine1;
+    }
+
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    public void setAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getLocality() {
+        return locality;
+    }
+
+    public void setLocality(String locality) {
+        this.locality = locality;
+    }
+
+    public String getPremises() {
+        return premises;
+    }
+
+    public void setPremises(String premises) {
+        this.premises = premises;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
 }

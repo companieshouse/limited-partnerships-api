@@ -26,7 +26,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -187,7 +186,6 @@ class PartnershipControllerValidationTest {
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
-                        .andDo(print())
                         .andExpect(status().isOk());
             }
 

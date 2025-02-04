@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
@@ -35,6 +36,10 @@ public class DataDto {
     @JsonProperty("partnership_type")
     private PartnershipType partnershipType;
 
+    @JsonProperty("registered_office_address")
+    @Valid
+    private AddressDto registeredOfficeAddress;
+
     public String getPartnershipName() {
         return partnershipName;
     }
@@ -65,5 +70,13 @@ public class DataDto {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public AddressDto getRegisteredOfficeAddress() {
+        return registeredOfficeAddress;
+    }
+
+    public void setRegisteredOfficeAddress(AddressDto registeredOfficeAddress) {
+        this.registeredOfficeAddress = registeredOfficeAddress;
     }
 }

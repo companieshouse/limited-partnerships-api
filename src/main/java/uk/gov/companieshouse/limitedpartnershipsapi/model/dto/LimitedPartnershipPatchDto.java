@@ -60,4 +60,12 @@ public class LimitedPartnershipPatchDto {
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
     }
+
+    public AddressDto getRegisteredOfficeAddress() {
+        return registeredOfficeAddress;
+    }
+
+    public void setRegisteredOfficeAddress(AddressDto registeredOfficeAddress) {
+        this.registeredOfficeAddress = registeredOfficeAddress;
+    }
 }
