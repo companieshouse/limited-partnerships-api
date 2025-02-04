@@ -11,9 +11,12 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.IncorporationDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -22,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -52,6 +56,9 @@ class LimitedPartnershipIncorporationServiceTest {
 
     @Mock
     private LimitedPartnershipIncorporationMapper mapper;
+
+    @Mock
+    private LimitedPartnershipService limitedPartnershipService;
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
@@ -86,7 +93,7 @@ class LimitedPartnershipIncorporationServiceTest {
     }
 
     @Test
-    void testGetIncorporationTypeIsSuccessful() throws ResourceNotFoundException {
+    void testGetIncorporationTypeWithoutSubResourcesIsSuccessful() throws ServiceException {
         // given
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
@@ -95,11 +102,34 @@ class LimitedPartnershipIncorporationServiceTest {
         when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
 
         // when
+        var limitedPartnershipIncorporationDto = incorporationService.getIncorporation(transaction, SUBMISSION_ID, false);
+
+        // then
+        assertNotNull(limitedPartnershipIncorporationDto);
+        assertEquals(FILING_KIND_REGISTRATION, limitedPartnershipIncorporationDto.getKind());
+        assertNull(limitedPartnershipIncorporationDto.getSubResources());
+    }
+
+    @Test
+    void testGetIncorporationTypeWithSubResourcesIsSuccessful() throws ServiceException {
+        // given
+        Transaction transaction = buildTransaction();
+        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createLimitedPartnershipSubmissionDto();
+        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
+        when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipSubmissionDto);
+
+        // when
         var limitedPartnershipIncorporationDto = incorporationService.getIncorporation(transaction, SUBMISSION_ID, true);
 
         // then
         assertNotNull(limitedPartnershipIncorporationDto);
         assertEquals(FILING_KIND_REGISTRATION, limitedPartnershipIncorporationDto.getKind());
+        assertNotNull(limitedPartnershipIncorporationDto.getSubResources());
+        assertNotNull(limitedPartnershipIncorporationDto.getSubResources().getPartnership());
+        assertEquals(limitedPartnershipSubmissionDto.getData(), limitedPartnershipIncorporationDto.getSubResources().getPartnership().getData());
     }
 
     @Test
@@ -144,5 +174,15 @@ class LimitedPartnershipIncorporationServiceTest {
         LimitedPartnershipIncorporationDto dto = new LimitedPartnershipIncorporationDto();
         dto.setKind(FILING_KIND_REGISTRATION);
         return dto;
+    }
+
+    private LimitedPartnershipSubmissionDto createLimitedPartnershipSubmissionDto() {
+        var submissionDto = new LimitedPartnershipSubmissionDto();
+        var dataDto = new DataDto();
+        dataDto.setPartnershipName("Asset Strippers");
+        dataDto.setNameEnding(PartnershipNameEnding.LP);
+        submissionDto.setData(dataDto);
+
+        return submissionDto;
     }
 }

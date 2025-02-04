@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +44,6 @@ public class TransactionUtilsTest {
         // then
         assertFalse(result);
     }
-
 
     @Test
     void givenTransactionIsNotLinkedToLimitedPartnership_thenReturnFalse() {
@@ -78,5 +78,41 @@ public class TransactionUtilsTest {
         var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
         // then
         assertTrue(result);
+    }
+
+    @Test
+    void givenTransactionHasALimitedPartnership_thenReturnTrue() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
+        when(transaction.getResources()).thenReturn(transactionResources);
+        // when
+        var result = transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction);
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void givenTransactionHasALimitedPartnershipCalledWithNullTransaction_thenReturnFalse() {
+        // when
+        var result = transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(null);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionHasALimitedPartnershipNotFound_thenReturnFalse() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(FILING_KIND_REGISTRATION);
+        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
+        when(transaction.getResources()).thenReturn(transactionResources);
+        // when
+        var result = transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction);
+        // then
+        assertFalse(result);
     }
 }

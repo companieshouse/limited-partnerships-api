@@ -67,7 +67,7 @@ class IncorporationControllerTest {
     }
 
     @Test
-    void testGetIncorporationIsSuccessful() throws ResourceNotFoundException {
+    void testGetIncorporationIsSuccessful() throws ServiceException {
         // given
         LimitedPartnershipIncorporationDto limitedPartnershipIncorporationDto = new LimitedPartnershipIncorporationDto();
 
@@ -90,7 +90,7 @@ class IncorporationControllerTest {
     }
 
     @Test
-    void testNotFoundReturnedWhenGetIncorporationFailsToFindResource() throws ResourceNotFoundException {
+    void testNotFoundReturnedWhenGetIncorporationFailsToFindResource() throws ServiceException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenThrow(new ResourceNotFoundException("error"));
@@ -104,6 +104,24 @@ class IncorporationControllerTest {
 
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testInternalServerErrorReturnedWhenGetIncorporationFailsWithServiceException() throws ServiceException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenThrow(new ServiceException("error"));
+
+        // when
+        var response = incorporationController.getIncorporation(
+                transaction,
+                SUBMISSION_ID,
+                true,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
         assertNull(response.getBody());
     }
 }

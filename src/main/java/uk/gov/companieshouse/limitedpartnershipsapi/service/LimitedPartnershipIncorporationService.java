@@ -8,11 +8,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +27,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @Service
 public class LimitedPartnershipIncorporationService {
 
+    private LimitedPartnershipService limitedPartnershipService;
+
     private final LimitedPartnershipIncorporationRepository repository;
     private final TransactionService transactionService;
 
@@ -32,10 +37,12 @@ public class LimitedPartnershipIncorporationService {
     private final TransactionUtils transactionUtils;
 
     public LimitedPartnershipIncorporationService(
+            LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
             TransactionUtils transactionUtils,
             TransactionService transactionService) {
+        this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
         this.mapper = mapper;
         this.transactionUtils = transactionUtils;
@@ -87,21 +94,33 @@ public class LimitedPartnershipIncorporationService {
 
     public LimitedPartnershipIncorporationDto getIncorporation(Transaction transaction,
                                                                String filingResourceId,
-                                                               boolean includeSubResources) throws ResourceNotFoundException {
+                                                               boolean includeSubResources) throws ServiceException {
         String submissionUri = getSubmissionUri(transaction.getId(), filingResourceId);
         if (!transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches incorporation id: %s", transaction.getId(), filingResourceId));
         }
 
-        var submission = repository.findById(filingResourceId);
-        LimitedPartnershipIncorporationDao incorporationDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", filingResourceId)));
+        var incorporation = repository.findById(filingResourceId);
+        LimitedPartnershipIncorporationDao incorporationDao = incorporation.orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", filingResourceId)));
 
-        // TODO Use value of 'includeSubResources' to retrieve further LP data, if set to 'true'
+        LimitedPartnershipIncorporationDto incorporationDto = mapper.daoToDto(incorporationDao);
 
-        return mapper.daoToDto(incorporationDao);
+        if (includeSubResources) {
+            var subResourcesDto = new IncorporationSubResourcesDto();
+
+            // TODO Set collections of actual General Partners and Limited Partners once implemented
+            subResourcesDto.setGeneralPartners(new ArrayList<>());
+            subResourcesDto.setLimitedPartners(new ArrayList<>());
+
+            LimitedPartnershipSubmissionDto partnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+            subResourcesDto.setPartnership(partnershipDto);
+
+            incorporationDto.setSubResources(subResourcesDto);
+        }
+
+        return incorporationDto;
     }
-
 
     private void updateIncorporationTypeWithSelfLink(LimitedPartnershipIncorporationDao incorporationDao,
                                                      String submissionUri) {

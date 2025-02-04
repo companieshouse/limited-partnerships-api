@@ -9,7 +9,7 @@ locals {
   docker_repo                = "limited-partnerships-api"
   kms_alias                  = "alias/${var.aws_profile}/environment-services-kms"
   lb_listener_rule_priority  = 23
-  lb_listener_paths          = ["/transactions/*/limited-partnership/*", "/limited-partnership/healthcheck"]
+  lb_listener_paths          = ["/transactions/*/limited-partnership*", "/limited-partnership/healthcheck"]
   healthcheck_path           = "/limited-partnership/healthcheck" #healthcheck path for limited-partnerships-api
   healthcheck_matcher        = "200"
   vpc_name                   = local.service_secrets["vpc_name"]

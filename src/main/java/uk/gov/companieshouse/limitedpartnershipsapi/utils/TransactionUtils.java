@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
@@ -16,6 +17,18 @@ public class TransactionUtils {
 
     public boolean isTransactionLinkedToLimitedPartnershipSubmission(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
         return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
+    }
+
+    public boolean doesTransactionHaveALimitedPartnershipSubmission(Transaction transaction) {
+        if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
+            return false;
+        }
+
+        Optional<?> optionalEntry = transaction.getResources().entrySet().stream()
+                .filter(resource -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resource.getValue().getKind()))
+                .findFirst();
+
+        return optionalEntry.isPresent();
     }
 
     public boolean isTransactionLinkedToLimitedPartnershipIncorporation(Transaction transaction, String limitedPartnershipIncorporationSelfLink) {
