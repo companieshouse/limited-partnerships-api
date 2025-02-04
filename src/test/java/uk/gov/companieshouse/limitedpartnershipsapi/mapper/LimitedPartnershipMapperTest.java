@@ -2,12 +2,12 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

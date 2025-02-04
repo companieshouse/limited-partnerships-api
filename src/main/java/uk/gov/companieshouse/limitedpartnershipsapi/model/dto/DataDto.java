@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
