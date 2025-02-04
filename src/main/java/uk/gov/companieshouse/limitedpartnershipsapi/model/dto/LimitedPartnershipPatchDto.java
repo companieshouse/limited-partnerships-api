@@ -3,9 +3,11 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidJurisdiction;
 
 @NameSize
 public class LimitedPartnershipPatchDto {
@@ -23,6 +25,11 @@ public class LimitedPartnershipPatchDto {
 
     @JsonProperty("partnership_type")
     private PartnershipType partnershipType;
+
+    @JsonProperty("jurisdiction")
+    @ValidJurisdiction
+    private Jurisdiction jurisdiction;
+
 
     public String getPartnershipName() {
         return partnershipName;
@@ -54,5 +61,13 @@ public class LimitedPartnershipPatchDto {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public Jurisdiction getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public void setJurisdiction(Jurisdiction jurisdiction) {
+        this.jurisdiction = jurisdiction;
     }
 }

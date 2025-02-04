@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidJurisdiction;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -34,6 +36,12 @@ public class DataDto {
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_type")
     private PartnershipType partnershipType;
+
+    @JsonInclude(NON_NULL)
+    @JsonProperty("jurisdiction")
+    @ValidJurisdiction
+    private Jurisdiction jurisdiction;
+
 
     public String getPartnershipName() {
         return partnershipName;
@@ -65,5 +73,13 @@ public class DataDto {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public String getJurisdiction() {
+        return jurisdiction != null ? jurisdiction.getDescription() : null;
+    }
+
+    public void setJurisdiction(Jurisdiction jurisdiction) {
+        this.jurisdiction = jurisdiction;
     }
 }
