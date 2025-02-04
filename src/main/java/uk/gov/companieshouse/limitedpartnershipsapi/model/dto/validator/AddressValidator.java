@@ -10,8 +10,8 @@ public class AddressValidator implements ConstraintValidator<ValidAddress, Addre
             return true;
         }
 
-        if (address.getAddressLine1() != null || address.getCountry() != null || address.getLocality() != null || address.getPremises() != null) {
-            return address.getAddressLine1() != null && address.getCountry() != null && address.getLocality() != null && address.getPremises() != null;
+        if (address.getPostalCode() != null || address.getAddressLine1() != null || address.getCountry() != null || address.getLocality() != null || address.getPremises() != null) {
+            return address.getPostalCode() != null && address.getAddressLine1() != null && address.getCountry() != null && address.getLocality() != null && address.getPremises() != null;
         }
 
         return true;

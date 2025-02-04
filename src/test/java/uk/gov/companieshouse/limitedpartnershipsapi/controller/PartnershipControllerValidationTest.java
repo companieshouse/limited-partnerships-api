@@ -233,7 +233,7 @@ class PartnershipControllerValidationTest {
 
             @Test
             void shouldReturn400IfPostCodeIsEmpty() throws Exception {
-                String body = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                String body = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -246,7 +246,7 @@ class PartnershipControllerValidationTest {
 
             @Test
             void shouldReturn400IfPostCodeIsNotCorrect() throws Exception {
-                String body = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                String body = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -259,7 +259,7 @@ class PartnershipControllerValidationTest {
 
             @Test
             void shouldReturn400IfAddressLine1IsTooShort() throws Exception {
-                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -273,7 +273,7 @@ class PartnershipControllerValidationTest {
             @Test
             void shouldReturn400IfAddressLine1IsTooLong() throws Exception {
                 String longAddressLine1 = StringUtils.repeat("A", 51);
-                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -288,7 +288,7 @@ class PartnershipControllerValidationTest {
             class MissingField {
                 @Test
                 void shouldReturn400IfPostCodeIsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                    String body = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                     mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -301,7 +301,7 @@ class PartnershipControllerValidationTest {
 
                 @Test
                 void shouldReturn400IfPremisesIsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                     mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -314,7 +314,7 @@ class PartnershipControllerValidationTest {
 
                 @Test
                 void shouldReturn400IfAddressLine1IsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                     mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -340,7 +340,7 @@ class PartnershipControllerValidationTest {
 
                 @Test
                 void shouldReturn400IfCountryIsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\"}}";
+                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
 
                     mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                     .contentType(MediaType.APPLICATION_JSON)
