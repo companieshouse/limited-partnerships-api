@@ -3,12 +3,14 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidAddress;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
 
+@ValidAddress
 public class AddressDto {
 
     @JsonProperty("address_line_1")

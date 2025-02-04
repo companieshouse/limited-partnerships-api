@@ -220,7 +220,7 @@ class PartnershipControllerValidationTest {
         class RegisteredOfficeAddress {
             @Test
             void shouldReturn200() throws Exception {
-                String body = "{\"registered_office_address\":{\"postcode\":\"ST6 3LJ\",\"premise\":\"2\",\"addressLine1\":\"DUNCALF STREET\",\"addressLine2\":\"\",\"postTown\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -232,7 +232,7 @@ class PartnershipControllerValidationTest {
             }
 
             @Test
-            void shouldReturn400IfPostCodeIsMissing() throws Exception {
+            void shouldReturn400IfPostCodeIsEmpty() throws Exception {
                 String body = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
@@ -282,6 +282,74 @@ class PartnershipControllerValidationTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest());
+            }
+
+            @Nested
+            class MissingField {
+                @Test
+                void shouldReturn400IfPostCodeIsMissing() throws Exception {
+                    String body = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+
+                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding("utf-8")
+                                    .headers(httpHeaders)
+                                    .requestAttr("transaction", transaction)
+                                    .content(body))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Test
+                void shouldReturn400IfPremisesIsMissing() throws Exception {
+                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+
+                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding("utf-8")
+                                    .headers(httpHeaders)
+                                    .requestAttr("transaction", transaction)
+                                    .content(body))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Test
+                void shouldReturn400IfAddressLine1IsMissing() throws Exception {
+                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+
+                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding("utf-8")
+                                    .headers(httpHeaders)
+                                    .requestAttr("transaction", transaction)
+                                    .content(body))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Test
+                void shouldReturn400IfRegionIsMissing() throws Exception {
+                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
+
+                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding("utf-8")
+                                    .headers(httpHeaders)
+                                    .requestAttr("transaction", transaction)
+                                    .content(body))
+                            .andExpect(status().isBadRequest());
+                }
+
+                @Test
+                void shouldReturn400IfCountryIsMissing() throws Exception {
+                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"region\":\"STOKE-ON-TRENT\"}}";
+
+                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding("utf-8")
+                                    .headers(httpHeaders)
+                                    .requestAttr("transaction", transaction)
+                                    .content(body))
+                            .andExpect(status().isBadRequest());
+                }
             }
         }
     }
