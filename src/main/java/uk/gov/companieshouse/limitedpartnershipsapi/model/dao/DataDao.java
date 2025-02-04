@@ -17,6 +17,9 @@ public class DataDao {
     @Field("partnership_type")
     private PartnershipType partnershipType;
 
+    @Field("jurisdiction")
+    private String jurisdiction;
+
     @Field("registered_office_address")
     private AddressDao registeredOfficeAddress;
 
@@ -50,6 +53,14 @@ public class DataDao {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public String getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public void setJurisdiction(String jurisdiction) {
+        this.jurisdiction = jurisdiction;
     }
 
     public AddressDao getRegisteredOfficeAddress() {

@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
@@ -11,18 +12,25 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnership
 @Mapper(componentModel = "spring")
 public interface LimitedPartnershipMapper {
 
-  LimitedPartnershipMapper INSTANCE = Mappers.getMapper(LimitedPartnershipMapper.class);
+    LimitedPartnershipMapper INSTANCE = Mappers.getMapper(LimitedPartnershipMapper.class);
 
-  LimitedPartnershipSubmissionDao dtoToDao(LimitedPartnershipSubmissionDto dto);
+    LimitedPartnershipSubmissionDao dtoToDao(LimitedPartnershipSubmissionDto dto);
 
-  LimitedPartnershipSubmissionDto daoToDto(LimitedPartnershipSubmissionDao dao);
+    LimitedPartnershipSubmissionDto daoToDto(LimitedPartnershipSubmissionDao dao);
 
-  default String mapPartnershipNameEndingToString(PartnershipNameEnding nameEnding){
-    return nameEnding.getDescription();
-  }
+    default String mapPartnershipNameEndingToString(PartnershipNameEnding nameEnding) {
+        return nameEnding.getDescription();
+    }
 
-  default PartnershipNameEnding mapPartnershipNameEndingToEnum(String nameEnding){
-    return nameEnding != null ? PartnershipNameEnding.fromDescription(nameEnding) : null;
-  }
+    default PartnershipNameEnding mapPartnershipNameEndingToEnum(String nameEnding) {
+        return nameEnding != null ? PartnershipNameEnding.fromDescription(nameEnding) : null;
+    }
 
+    default String mapJurisdictionToString(Jurisdiction jurisdiction) {
+        return jurisdiction.getDescription();
+    }
+
+    default Jurisdiction mapJurisdictionToEnum(String jurisdiction) {
+        return jurisdiction != null ? Jurisdiction.fromDescription(jurisdiction) : null;
+    }
 }

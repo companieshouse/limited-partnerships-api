@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,8 +35,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
 
+
     static String postUrl = "/transactions/863851-951242-143528/limited-partnership/partnership";
     static String patchUrl = postUrl + "/93702824-9062-4c63-a694-716acffccdd5";
+
+    private static final String JSON_WITH_VALID_EMAIL_ADDRESS = "{\"email\":\"test@email.com\"}";
+    private static final String JSON_WITH_VALID_PARTNERSHIP_NAME = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
+    private static final String JSON_WITH_VALID_JURISDICTION = "{\"jurisdiction\":\"Scotland\"}";
+    private static final String JSON_WITH_VALID_NULL_JURISDICTION = "{\"jurisdiction\":null}";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -116,9 +124,43 @@ class PartnershipControllerValidationTest {
         }
     }
 
+    @Test
+    void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
+        String longName = StringUtils.repeat("A", 160);
+        String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testUpdatePartnershipWithAnInvalidJurisdictionShouldReturn400() throws Exception {
+        String body = "{\"jurisdiction\":\"Croatia\"}";
+
+        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
     @Nested
     class UpdatePartnership {
-        @Test
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                JSON_WITH_VALID_EMAIL_ADDRESS,
+                JSON_WITH_VALID_PARTNERSHIP_NAME,
+                JSON_WITH_VALID_JURISDICTION,
+                JSON_WITH_VALID_NULL_JURISDICTION
+        })
         void shouldReturn200() throws Exception {
             String body = "{\"email\":\"test@email.com\"}";
 
