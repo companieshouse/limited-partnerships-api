@@ -27,4 +27,10 @@ public class Constants {
 
     public static final String LINK_SELF = "self";
     public static final String LINK_RESOURCE = "resource";
+
+    // Validation rules
+    public static final int MIN_SIZE = 1;
+    public static final String MIN_SIZE_MESSAGE = "must be greater than {min}";
+    public static final int MAX_SIZE = 50;
+    public static final String MAX_SIZE_MESSAGE = "must be less than {max}";
 }

@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
@@ -23,6 +24,10 @@ public class LimitedPartnershipPatchDto {
 
     @JsonProperty("partnership_type")
     private PartnershipType partnershipType;
+
+    @JsonProperty("registered_office_address")
+    @Valid
+    private AddressDto registeredOfficeAddress;
 
     public String getPartnershipName() {
         return partnershipName;
