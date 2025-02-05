@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,10 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
 
-    private static final String JSON_WITH_VALID_EMAIL_ADDRESS = "{\"email\":\"test@email.com\"}";
-    private static final String JSON_WITH_VALID_PARTNERSHIP_NAME = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
-    private static final String JSON_WITH_VALID_JURISDICTION = "{\"jurisdiction\":\"Scotland\"}";
-    private static final String JSON_WITH_VALID_NULL_JURISDICTION = "{\"jurisdiction\":null}";
+
+    static String postUrl = "/transactions/863851-951242-143528/limited-partnership/partnership";
+    static String patchUrl = postUrl + "/93702824-9062-4c63-a694-716acffccdd5";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -72,107 +72,235 @@ class PartnershipControllerValidationTest {
 
     }
 
-    @Test
-    void testCreatePartnershipShouldReturn201() throws Exception {
+    @Nested
+    class CreatePartnership {
+        @Test
+        void shouldReturn201() throws Exception {
+            LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+            DataDto dto = new DataDto();
 
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
-        DataDto dto = new DataDto();
+            dto.setPartnershipName("test name");
+            dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
+            dto.setPartnershipType(PartnershipType.LP);
+            limitedPartnershipSubmissionDto.setData(dto);
 
-        dto.setPartnershipName("test name");
-        dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
-        dto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipSubmissionDto.setData(dto);
+            String body = objectMapper.writeValueAsString(limitedPartnershipSubmissionDto);
 
-        String body = objectMapper.writeValueAsString(limitedPartnershipSubmissionDto);
+            mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isCreated());
+        }
 
-        mockMvc.perform(post("/transactions/863851-951242-143528/limited-partnership/partnership")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                .andExpect(status().isCreated());
+        @Test
+        void shouldReturnBadRequestErrorIfPartnershipNameIsLessThan1Character() throws Exception {
+            LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+
+            DataDto dto = new DataDto();
+            dto.setPartnershipName("");
+            dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
+            dto.setPartnershipType(PartnershipType.LP);
+            limitedPartnershipSubmissionDto.setData(dto);
+
+            String body = objectMapper.writeValueAsString(limitedPartnershipSubmissionDto);
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
     }
 
-    @Test
-    void testCreatePartnershipShouldReturnBadRequestErrorIfPartnershipNameIsLessThan1Character() throws Exception {
+    @Nested
+    class UpdatePartnership {
+        private static final String JSON_WITH_VALID_PARTNERSHIP_NAME = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
+        private static final String JSON_WITH_VALID_JURISDICTION = "{\"jurisdiction\":\"Scotland\"}";
+        private static final String JSON_WITH_VALID_NULL_JURISDICTION = "{\"jurisdiction\":null}";
 
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+        @ParameterizedTest
+        @ValueSource(strings = {
+                JSON_WITH_VALID_PARTNERSHIP_NAME,
+                JSON_WITH_VALID_JURISDICTION,
+                JSON_WITH_VALID_NULL_JURISDICTION
+        })
+        void shouldReturn200(String body) throws Exception {
+            mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isOk());
+        }
 
-        DataDto dto = new DataDto();
-        dto.setPartnershipName("");
-        dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
-        dto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipSubmissionDto.setData(dto);
+        @Nested
+        class Email {
+            @Test
+            void shouldReturn200() throws Exception {
+                String body = "{\"email\":\"test@email.com\"}";
 
-        String body = objectMapper.writeValueAsString(limitedPartnershipSubmissionDto);
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isOk());
+            }
 
-        mockMvc.perform(post("/transactions/863851-951242-143528/limited-partnership/partnership")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                .andExpect(status().isBadRequest());
-    }
+            @Test
+            void shouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
+                String body = "{\"email\":\"test@email.\"}";
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-            JSON_WITH_VALID_EMAIL_ADDRESS,
-            JSON_WITH_VALID_PARTNERSHIP_NAME,
-            JSON_WITH_VALID_JURISDICTION,
-            JSON_WITH_VALID_NULL_JURISDICTION
-    })
-    void testUpdatePartnershipShouldReturn200(String body) throws Exception {
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
+        }
 
-        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                // Uncomment the following line and also use in other tests if wishing to debug responses and behaviour
-                // .andDo(print())
-                .andExpect(status().isOk());
-    }
+        @Nested
+        class NameSize {
+            @Test
+            void shouldReturn200IfNameSizeIsCorrect() throws Exception {
+                String body = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
 
-    @Test
-    void testUpdatePartnershipShouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
-        String body = "{\"email\":\"test@email.\"}";
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isOk());
+            }
 
-        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                .andExpect(status().isBadRequest());
-    }
+            @Test
+            void shouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
+                String longName = StringUtils.repeat("A", 160);
+                String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
 
-    @Test
-    void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
-        String longName = StringUtils.repeat("A", 160);
-        String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
 
-        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                .andExpect(status().isBadRequest());
-    }
+            @Test
+            void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
+                String longName = StringUtils.repeat("A", 160);
+                String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
 
-    @Test
-    void testUpdatePartnershipWithAnInvalidJurisdictionShouldReturn400() throws Exception {
-        String body = "{\"jurisdiction\":\"Croatia\"}";
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
+        }
 
-        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                .andExpect(status().isBadRequest());
+        @Nested
+        class Jurisdiction {
+            @Test
+            void testUpdatePartnershipWithAnInvalidJurisdictionShouldReturn400() throws Exception {
+                String body = "{\"jurisdiction\":\"Croatia\"}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
+        }
+
+        @Nested
+        class RegisteredOfficeAddress {
+            private static final String JSON_POSTCODE_EMPTY = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_POSTCODE_NOT_CORRECT = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_ADDRESS_LINE_1_TOO_SHORT = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+
+            private static final String JSON_MISSING_POSTCODE = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_PREMISES = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_ADDRESS_LINE_1 = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_LOCALITY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_COUNTRY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
+
+            @Test
+            void shouldReturn200() throws Exception {
+                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isOk());
+            }
+
+
+            @Test
+            void shouldReturn400IfAddressLine1IsTooLong() throws Exception {
+                String longAddressLine1 = StringUtils.repeat("A", 51);
+                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {
+                    JSON_POSTCODE_EMPTY,
+                    JSON_POSTCODE_NOT_CORRECT,
+                    JSON_ADDRESS_LINE_1_TOO_SHORT
+            })
+            void shouldReturn400IfFieldIncorrect(String body) throws Exception {
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {
+                    JSON_MISSING_POSTCODE,
+                    JSON_MISSING_PREMISES,
+                    JSON_MISSING_ADDRESS_LINE_1,
+                    JSON_MISSING_LOCALITY,
+                    JSON_MISSING_COUNTRY
+            })
+            void shouldReturn400IfRequiredFieldIsMissing(String body) throws Exception {
+                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .characterEncoding("utf-8")
+                                    .headers(httpHeaders)
+                                    .requestAttr("transaction", transaction)
+                                    .content(body))
+                            .andExpect(status().isBadRequest());
+            }
+        }
     }
 }
