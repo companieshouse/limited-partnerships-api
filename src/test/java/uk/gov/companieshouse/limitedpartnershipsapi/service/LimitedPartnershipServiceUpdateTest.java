@@ -28,7 +28,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
@@ -109,8 +108,8 @@ class LimitedPartnershipServiceUpdateTest {
                 service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
-                verify(repository, times(1)).findById(SUBMISSION_ID);
-                verify(repository, times(1)).save(submissionCaptor.capture());
+                verify(repository).findById(SUBMISSION_ID);
+                verify(repository).save(submissionCaptor.capture());
 
                 LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
                 assertEquals("5fd36577288e", sentSubmission.getCreatedBy());
@@ -133,7 +132,7 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository, times(1)).findById(limitedPartnershipSubmissionDao.getId());
+                verify(repository).findById(limitedPartnershipSubmissionDao.getId());
                 assertEquals("Asset Strippers Updated", retrievedDto.getData().getPartnershipName());
             }
         }
@@ -166,8 +165,8 @@ class LimitedPartnershipServiceUpdateTest {
                 service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
-                verify(repository, times(1)).findById(SUBMISSION_ID);
-                verify(repository, times(1)).save(submissionCaptor.capture());
+                verify(repository).findById(SUBMISSION_ID);
+                verify(repository).save(submissionCaptor.capture());
 
                 LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
 
@@ -199,7 +198,7 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository, times(1)).findById(limitedPartnershipSubmissionDao.getId());
+                verify(repository).findById(limitedPartnershipSubmissionDao.getId());
 
                 assertEquals("DUNCALF STREET", retrievedDto.getData().getRegisteredOfficeAddress().getAddressLine1());
                 assertEquals("GB-ENG", retrievedDto.getData().getRegisteredOfficeAddress().getCountry());
