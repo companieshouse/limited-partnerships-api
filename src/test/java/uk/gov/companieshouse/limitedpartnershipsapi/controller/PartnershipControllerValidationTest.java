@@ -39,11 +39,6 @@ class PartnershipControllerValidationTest {
     static String postUrl = "/transactions/863851-951242-143528/limited-partnership/partnership";
     static String patchUrl = postUrl + "/93702824-9062-4c63-a694-716acffccdd5";
 
-    private static final String JSON_WITH_VALID_EMAIL_ADDRESS = "{\"email\":\"test@email.com\"}";
-    private static final String JSON_WITH_VALID_PARTNERSHIP_NAME = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
-    private static final String JSON_WITH_VALID_JURISDICTION = "{\"jurisdiction\":\"Scotland\"}";
-    private static final String JSON_WITH_VALID_NULL_JURISDICTION = "{\"jurisdiction\":null}";
-
     private HttpHeaders httpHeaders;
     private Transaction transaction;
 
@@ -81,7 +76,6 @@ class PartnershipControllerValidationTest {
     class CreatePartnership {
         @Test
         void shouldReturn201() throws Exception {
-
             LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
             DataDto dto = new DataDto();
 
@@ -103,7 +97,6 @@ class PartnershipControllerValidationTest {
 
         @Test
         void shouldReturnBadRequestErrorIfPartnershipNameIsLessThan1Character() throws Exception {
-
             LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
 
             DataDto dto = new DataDto();
@@ -124,46 +117,19 @@ class PartnershipControllerValidationTest {
         }
     }
 
-    @Test
-    void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
-        String longName = StringUtils.repeat("A", 160);
-        String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
-
-        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testUpdatePartnershipWithAnInvalidJurisdictionShouldReturn400() throws Exception {
-        String body = "{\"jurisdiction\":\"Croatia\"}";
-
-        mockMvc.perform(patch("/transactions/863851-951242-143528/limited-partnership/partnership/93702824-9062-4c63-a694-716acffccdd5")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                        .content(body))
-                .andExpect(status().isBadRequest());
-    }
-
     @Nested
     class UpdatePartnership {
+        private static final String JSON_WITH_VALID_PARTNERSHIP_NAME = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
+        private static final String JSON_WITH_VALID_JURISDICTION = "{\"jurisdiction\":\"Scotland\"}";
+        private static final String JSON_WITH_VALID_NULL_JURISDICTION = "{\"jurisdiction\":null}";
 
         @ParameterizedTest
         @ValueSource(strings = {
-                JSON_WITH_VALID_EMAIL_ADDRESS,
                 JSON_WITH_VALID_PARTNERSHIP_NAME,
                 JSON_WITH_VALID_JURISDICTION,
                 JSON_WITH_VALID_NULL_JURISDICTION
         })
-        void shouldReturn200() throws Exception {
-            String body = "{\"email\":\"test@email.com\"}";
-
+        void shouldReturn200(String body) throws Exception {
             mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
@@ -173,17 +139,33 @@ class PartnershipControllerValidationTest {
                     .andExpect(status().isOk());
         }
 
-        @Test
-        void shouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
-            String body = "{\"email\":\"test@email.\"}";
+        @Nested
+        class Email {
+            @Test
+            void shouldReturn200() throws Exception {
+                String body = "{\"email\":\"test@email.com\"}";
 
-            mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction)
-                            .content(body))
-                    .andExpect(status().isBadRequest());
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isOk());
+            }
+
+            @Test
+            void shouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
+                String body = "{\"email\":\"test@email.\"}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
         }
 
         @Nested
@@ -214,10 +196,50 @@ class PartnershipControllerValidationTest {
                                 .content(body))
                         .andExpect(status().isBadRequest());
             }
+
+            @Test
+            void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
+                String longName = StringUtils.repeat("A", 160);
+                String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
+        }
+
+        @Nested
+        class Jurisdiction {
+            @Test
+            void testUpdatePartnershipWithAnInvalidJurisdictionShouldReturn400() throws Exception {
+                String body = "{\"jurisdiction\":\"Croatia\"}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
         }
 
         @Nested
         class RegisteredOfficeAddress {
+            private static final String JSON_POSTCODE_EMPTY = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_POSTCODE_NOT_CORRECT = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_ADDRESS_LINE_1_TOO_SHORT = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+
+            private static final String JSON_MISSING_POSTCODE = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_PREMISES = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_ADDRESS_LINE_1 = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_LOCALITY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_MISSING_COUNTRY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
+
             @Test
             void shouldReturn200() throws Exception {
                 String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
@@ -231,44 +253,6 @@ class PartnershipControllerValidationTest {
                         .andExpect(status().isOk());
             }
 
-            @Test
-            void shouldReturn400IfPostCodeIsEmpty() throws Exception {
-                String body = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(body))
-                        .andExpect(status().isBadRequest());
-            }
-
-            @Test
-            void shouldReturn400IfPostCodeIsNotCorrect() throws Exception {
-                String body = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(body))
-                        .andExpect(status().isBadRequest());
-            }
-
-            @Test
-            void shouldReturn400IfAddressLine1IsTooShort() throws Exception {
-                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(body))
-                        .andExpect(status().isBadRequest());
-            }
 
             @Test
             void shouldReturn400IfAddressLine1IsTooLong() throws Exception {
@@ -284,12 +268,31 @@ class PartnershipControllerValidationTest {
                         .andExpect(status().isBadRequest());
             }
 
-            @Nested
-            class MissingField {
-                @Test
-                void shouldReturn400IfPostCodeIsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            @ParameterizedTest
+            @ValueSource(strings = {
+                    JSON_POSTCODE_EMPTY,
+                    JSON_POSTCODE_NOT_CORRECT,
+                    JSON_ADDRESS_LINE_1_TOO_SHORT
+            })
+            void shouldReturn400IfFieldIncorrect(String body) throws Exception {
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
 
+            @ParameterizedTest
+            @ValueSource(strings = {
+                    JSON_MISSING_POSTCODE,
+                    JSON_MISSING_PREMISES,
+                    JSON_MISSING_ADDRESS_LINE_1,
+                    JSON_MISSING_LOCALITY,
+                    JSON_MISSING_COUNTRY
+            })
+            void shouldReturn400IfRequiredFieldIsMissing(String body) throws Exception {
                     mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .characterEncoding("utf-8")
@@ -297,59 +300,6 @@ class PartnershipControllerValidationTest {
                                     .requestAttr("transaction", transaction)
                                     .content(body))
                             .andExpect(status().isBadRequest());
-                }
-
-                @Test
-                void shouldReturn400IfPremisesIsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-
-                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .characterEncoding("utf-8")
-                                    .headers(httpHeaders)
-                                    .requestAttr("transaction", transaction)
-                                    .content(body))
-                            .andExpect(status().isBadRequest());
-                }
-
-                @Test
-                void shouldReturn400IfAddressLine1IsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-
-                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .characterEncoding("utf-8")
-                                    .headers(httpHeaders)
-                                    .requestAttr("transaction", transaction)
-                                    .content(body))
-                            .andExpect(status().isBadRequest());
-                }
-
-                @Test
-                void shouldReturn400IfRegionIsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
-
-                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .characterEncoding("utf-8")
-                                    .headers(httpHeaders)
-                                    .requestAttr("transaction", transaction)
-                                    .content(body))
-                            .andExpect(status().isBadRequest());
-                }
-
-                @Test
-                void shouldReturn400IfCountryIsMissing() throws Exception {
-                    String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
-
-                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .characterEncoding("utf-8")
-                                    .headers(httpHeaders)
-                                    .requestAttr("transaction", transaction)
-                                    .content(body))
-                            .andExpect(status().isBadRequest());
-                }
             }
         }
     }

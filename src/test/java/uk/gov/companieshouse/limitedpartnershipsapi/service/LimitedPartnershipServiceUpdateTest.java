@@ -85,7 +85,7 @@ class LimitedPartnershipServiceUpdateTest {
     public class updateLimitedPartnership {
 
         @Nested
-        public class updatePartnershipName {
+        class updatePartnershipName {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
@@ -139,7 +139,7 @@ class LimitedPartnershipServiceUpdateTest {
         }
 
         @Nested
-        public class updateRegisteredOfficeAddress {
+        class updateRegisteredOfficeAddress {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
