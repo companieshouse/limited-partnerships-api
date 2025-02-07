@@ -28,6 +28,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -224,7 +225,8 @@ class PartnershipControllerValidationTest {
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("errors.jurisdiction").value("Jurisdiction must be valid"));
             }
         }
 
@@ -300,6 +302,43 @@ class PartnershipControllerValidationTest {
                                     .requestAttr("transaction", transaction)
                                     .content(body))
                             .andExpect(status().isBadRequest());
+            }
+        }
+
+        @Nested
+        class Term {
+            private static final String JSON_TERM_DECIDED = "{\"term\":\"decided\"}";
+            private static final String JSON_TERM_DISSOLVED = "{\"term\":\"dissolved\"}";
+            private static final String JSON_TERM_NONE = "{\"term\":\"none\"}";
+
+            @ParameterizedTest
+            @ValueSource(strings = {
+                    JSON_TERM_DECIDED,
+                    JSON_TERM_DISSOLVED,
+                    JSON_TERM_NONE,
+            })
+            void shouldReturn200(String body) throws Exception {
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isOk());
+            }
+
+            @Test
+            void shouldReturn400IfTermIncorrect() throws Exception {
+                String body = "{\"term\":\"wrong-term\"}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("errors.term").value("Term must be valid"));
             }
         }
     }

@@ -9,7 +9,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidJurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -40,7 +40,7 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("jurisdiction")
-    @ValidJurisdiction
+    @ValidEnum(message = "Jurisdiction must be valid")
     private Jurisdiction jurisdiction;
 
     @JsonProperty("registered_office_address")
