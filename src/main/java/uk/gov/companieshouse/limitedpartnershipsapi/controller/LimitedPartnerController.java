@@ -1,15 +1,18 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -37,6 +40,7 @@ public class LimitedPartnerController {
     @PostMapping
     public ResponseEntity<Object> createLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @Valid @RequestBody LimitedPartnerDto limitedPartnerDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId) {
 
@@ -46,7 +50,7 @@ public class LimitedPartnerController {
         ApiLogger.infoContext(requestId, "Create a Limited Partner submission", logMap);
 
         try {
-            String submissionId = limitedpartnerService.createLimitedPartner(transaction, requestId,
+            String submissionId = limitedpartnerService.createLimitedPartner(transaction, limitedPartnerDto, requestId,
                     userId);
             var location = URI.create(String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId));
             var response = new LimitedPartnerSubmissionCreatedResponseDto(submissionId);

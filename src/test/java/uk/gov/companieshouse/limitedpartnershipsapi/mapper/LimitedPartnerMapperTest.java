@@ -1,30 +1,38 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class LimitedPartnerMapperTest {
 
     @Test
-    void givenDao_whenMapsToDto_thenCorrect() {
+    void givenPartnerTypeEnum_whenMapsToString_thenCorrect() {
         // given
-        final String eTag = "eTag";
-        LimitedPartnerDao source = new LimitedPartnerDao();
-        LimitedPartnerDataDao sourceData = new LimitedPartnerDataDao();
-        sourceData.setKind(FILING_KIND_LIMITED_PARTNER);
-        sourceData.setEtag(eTag);
-        source.setData(sourceData);
-
+        LimitedPartnerType sourceData = LimitedPartnerType.person;
         // when
-        LimitedPartnerDto destination = LimitedPartnerMapper.INSTANCE.daoToDto(source);
-
+        String destinationData = LimitedPartnerMapper.INSTANCE.mapPartnerTypeToString(sourceData);
         // then
-        assertEquals(FILING_KIND_LIMITED_PARTNER, destination.getKind());
-        assertEquals(eTag, destination.getEtag());
+        assertEquals(sourceData.getDescription(), destinationData);
+    }
+
+    @Test
+    void givenPartnerTypeString_whenMapsToENum_thenCorrect() {
+        // given
+        String sourceData = LimitedPartnerType.person.getDescription();
+        // when
+        LimitedPartnerType destinationData = LimitedPartnerMapper.INSTANCE.mapPartnerTypeToEnum(sourceData);
+        // then
+        assertEquals(sourceData, destinationData.getDescription());
+    }
+
+    @Test
+    void givenInvalidPartnerTypeString_whenMapsToEnum_thenIllegalArgumentException() {
+        // given
+        String invalidPartnerType = "Invalid Partner Type";
+        // then
+        assertThrows(IllegalArgumentException.class, () -> LimitedPartnerMapper.INSTANCE.mapPartnerTypeToEnum(invalidPartnerType));
     }
 }
