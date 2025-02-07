@@ -307,9 +307,9 @@ class PartnershipControllerValidationTest {
 
         @Nested
         class Term {
-            private static final String JSON_TERM_DECIDED = "{\"term\":\"decided\"}";
-            private static final String JSON_TERM_DISSOLVED = "{\"term\":\"dissolved\"}";
-            private static final String JSON_TERM_NONE = "{\"term\":\"none\"}";
+            private static final String JSON_TERM_DECIDED = "{\"term\":\"BY_AGREEMENT\"}";
+            private static final String JSON_TERM_DISSOLVED = "{\"term\":\"UNTIL_DISSOLUTION\"}";
+            private static final String JSON_TERM_NONE = "{\"term\":\"NONE\"}";
 
             @ParameterizedTest
             @ValueSource(strings = {

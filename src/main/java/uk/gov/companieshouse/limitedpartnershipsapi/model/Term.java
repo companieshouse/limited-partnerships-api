@@ -4,30 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum Term {
-    DECIDED("decided"),
-    DISSOLVED("dissolved"),
-    NONE("none"),
+    BY_AGREEMENT,
+    UNTIL_DISSOLUTION,
+    NONE,
     @JsonEnumDefaultValue
-    UNKNOWN("Unknown");
-
-    private final String description;
-
-    Term(String description) {
-        this.description = description;
-    }
+    UNKNOWN;
 
     @JsonCreator
-    public static Term fromDescription(String description) {
+    public static Term fromName(String name) {
         for (Term term : Term.values()) {
-            if (term.getDescription().equalsIgnoreCase(description)) {
+            if (term.name().equals(name)) {
                 return term;
             }
         }
 
         return Term.UNKNOWN;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Term;
 
 public class DataDao {
 
@@ -22,6 +23,9 @@ public class DataDao {
 
     @Field("registered_office_address")
     private AddressDao registeredOfficeAddress;
+
+    @Field("term")
+    private Term term;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -69,5 +73,13 @@ public class DataDao {
 
     public void setRegisteredOfficeAddress(AddressDao registeredOfficeAddress) {
         this.registeredOfficeAddress = registeredOfficeAddress;
+    }
+
+    public Term getTerm() {
+        return term;
+    }
+
+    public void setTerm(Term term) {
+        this.term = term;
     }
 }
