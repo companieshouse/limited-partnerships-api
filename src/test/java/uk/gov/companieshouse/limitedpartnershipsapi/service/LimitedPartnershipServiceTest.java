@@ -13,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
@@ -139,6 +140,7 @@ class LimitedPartnershipServiceTest {
         var dataDao = new DataDao();
         dataDao.setPartnershipName("Asset Strippers");
         dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
+        dataDao.setJurisdiction("Scotland");
         limitedPartnershipSubmissionDao.setData(dataDao);
         limitedPartnershipSubmissionDao.setCreatedBy("5fd36577288e");
 
@@ -289,6 +291,7 @@ class LimitedPartnershipServiceTest {
         dao.setId(SUBMISSION_ID);
         DataDao dataDao = new DataDao();
         dataDao.setPartnershipName("Asset Adders");
+        dataDao.setJurisdiction("Scotland");
         dao.setData(dataDao);
         return dao;
     }
@@ -298,6 +301,7 @@ class LimitedPartnershipServiceTest {
         var dataDto = new DataDto();
         dataDto.setPartnershipName("Asset Strippers");
         dataDto.setNameEnding(PartnershipNameEnding.LP);
+        dataDto.setJurisdiction(Jurisdiction.SCOTLAND);
         submissionDto.setData(dataDto);
 
         return submissionDto;

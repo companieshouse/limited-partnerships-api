@@ -33,12 +33,36 @@ class LimitedPartnershipSubmissionDtoValidationTest {
         dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
         dto.setPartnershipType(PartnershipType.LP);
         dto.setEmail("test@email.com");
+        dto.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES);
 
         limitedPartnershipSubmissionDto.setData(dto);
 
         Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
 
         assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void testCreatePartnershipWithInvalidJurisdictionReturnsErrors() {
+
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+        DataDto dto = new DataDto();
+
+        dto.setPartnershipName("Test name");
+        dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
+        dto.setPartnershipType(PartnershipType.LP);
+        dto.setEmail("test@email.com");
+        dto.setJurisdiction(Jurisdiction.UNKNOWN);
+
+        limitedPartnershipSubmissionDto.setData(dto);
+
+        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
+
+        assertFalse(violations.isEmpty());
+        assertThat(violations).hasSize(1);
+        assertThat(violations)
+                .extracting(ConstraintViolation::getMessage)
+                .containsExactlyInAnyOrder("Jurisdiction must be valid");
     }
 
     @Test

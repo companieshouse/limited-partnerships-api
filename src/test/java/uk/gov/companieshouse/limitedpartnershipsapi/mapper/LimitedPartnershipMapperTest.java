@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
@@ -10,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LimitedPartnershipMapperTest {
@@ -48,7 +50,7 @@ class LimitedPartnershipMapperTest {
     }
 
     @Test
-    void givenNameEndingString_whenMapsToENum_thenCorrect() {
+    void givenNameEndingString_whenMapsToEnum_thenCorrect() {
         // given
         String sourceData = PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription();
         // when
@@ -63,5 +65,45 @@ class LimitedPartnershipMapperTest {
         String invalidNameEnding = "Invalid Name Ending";
         // then
         assertThrows(IllegalArgumentException.class, () -> LimitedPartnershipMapper.INSTANCE.mapPartnershipNameEndingToEnum(invalidNameEnding));
+    }
+
+    @Test
+    void givenJurisdictionEnum_whenMapsToString_thenCorrect() {
+        // given
+        Jurisdiction sourceData = Jurisdiction.ENGLAND_AND_WALES;
+        // when
+        String destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToString(sourceData);
+        // then
+        assertEquals(sourceData.getDescription(), destinationData);
+    }
+
+    @Test
+    void givenJurisdictionString_whenMapsToEnum_thenCorrect() {
+        // given
+        String sourceData = Jurisdiction.NORTHERN_IRELAND.getDescription();
+        // when
+        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(sourceData);
+        // then
+        assertEquals(sourceData, destinationData.getDescription());
+    }
+
+    @Test
+    void givenInvalidJurisdictionString_whenMapsToEnum_thenUnknownReturned() {
+        // given
+        String invalidJurisdiction = "Invalid Jurisdiction";
+        // when
+        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
+        // then
+        assertEquals(Jurisdiction.UNKNOWN.getDescription(), destinationData.getDescription());
+    }
+
+    @Test
+    void givenNullJurisdiction_whenMapsToEnum_thenNullReturned() {
+        // given
+        String invalidJurisdiction = null;
+        // when
+        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
+        // then
+        assertNull(destinationData);
     }
 }
