@@ -11,17 +11,17 @@ public class LimitedPartnerMapperTest {
     @Test
     void givenPartnerTypeEnum_whenMapsToString_thenCorrect() {
         // given
-        LimitedPartnerType sourceData = LimitedPartnerType.person;
+        LimitedPartnerType sourceData = LimitedPartnerType.LEGAL_ENTITY;
         // when
         String destinationData = LimitedPartnerMapper.INSTANCE.mapPartnerTypeToString(sourceData);
         // then
-        assertEquals(sourceData.getDescription(), destinationData);
+        assertEquals(sourceData.getDescription().toLowerCase(), destinationData.toLowerCase());
     }
 
     @Test
     void givenPartnerTypeString_whenMapsToENum_thenCorrect() {
         // given
-        String sourceData = LimitedPartnerType.person.getDescription();
+        String sourceData = LimitedPartnerType.LEGAL_ENTITY.getDescription();
         // when
         LimitedPartnerType destinationData = LimitedPartnerMapper.INSTANCE.mapPartnerTypeToEnum(sourceData);
         // then

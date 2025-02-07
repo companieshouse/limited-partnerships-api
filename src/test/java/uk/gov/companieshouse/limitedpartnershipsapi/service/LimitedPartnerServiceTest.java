@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
@@ -19,6 +20,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -77,11 +81,21 @@ public class LimitedPartnerServiceTest {
         assertEquals(USER_ID, sentSubmission.getCreatedBy());
         assertEquals(FILING_KIND_LIMITED_PARTNER, sentSubmission.getData().getKind());
         assertEquals(SUBMISSION_ID, submissionId);
-        assertEquals(LimitedPartnerType.person, sentSubmission.getData().getPartnerType());
+        assertEquals(LimitedPartnerType.LEGAL_ENTITY, sentSubmission.getData().getPartnerType());
 
         // Assert self link
         String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
+
+    @Test
+    void giveSubmissionIdAndTransactionIdDoNotMatch_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+        // given
+        Transaction transaction = buildTransaction();
+        when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(false);
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartner(transaction, SUBMISSION_ID));
     }
 
     private LimitedPartnerDto createDto() {
@@ -95,7 +109,7 @@ public class LimitedPartnerServiceTest {
     private LimitedPartnerDao createDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
         LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
-        dataDao.setPartnerType(LimitedPartnerType.person);
+        dataDao.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
         dao.setData(dataDao);
         return dao;
     }

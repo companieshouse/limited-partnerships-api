@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-@Document(collection = "lp_limited_partners")
+@Document(collection = "limited_partners ")
 public class LimitedPartnerDao {
     @Id
     private String id;
@@ -29,6 +29,9 @@ public class LimitedPartnerDao {
 
     @Field("links")
     private Map<String, String> links;
+
+    @Field("transaction_id")
+    private String transactionId;
 
     public String getId() {
         return id;
@@ -87,5 +90,13 @@ public class LimitedPartnerDao {
 
     public void setLinks(Map<String, String> links) {
         this.links = links;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 }

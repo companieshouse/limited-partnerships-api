@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
 public class Constants {
-
     // Request header names
     public static final String ERIC_REQUEST_ID_KEY = "X-Request-Id";
     // URL path parameters

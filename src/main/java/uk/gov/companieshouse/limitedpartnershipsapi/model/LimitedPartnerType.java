@@ -3,7 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum LimitedPartnerType {
-    person("person"),
+    PERSON("person"),
     LEGAL_ENTITY("legal_entity");
 
     private final String description;
