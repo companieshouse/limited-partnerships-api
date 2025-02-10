@@ -48,10 +48,7 @@ public class LimitedPartnerService {
         transaction.setFilingMode(FILING_KIND_LIMITED_PARTNER);
 
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
-        var limitedPartnerResource = createLimitedPartnerTransactionResource(submissionUri);
-
         updateLimitedPartnerTypeWithSelfLink(dao, submissionUri);
-        // updateTransactionWithLinks(transaction, requestId, submissionUri, limitedPartnerResource, requestId);
 
         return insertedSubmission.getId();
     }
