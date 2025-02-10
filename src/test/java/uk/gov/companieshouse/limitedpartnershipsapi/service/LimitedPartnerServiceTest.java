@@ -34,7 +34,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
-public class LimitedPartnerServiceTest {
+class LimitedPartnerServiceTest {
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
@@ -214,6 +214,14 @@ public class LimitedPartnerServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId("transaction-id");
         return transaction;
+    }
+
+    private boolean hasExistingLimitedPartnerSubmission(Transaction transaction) {
+        if (transaction.getResources() != null) {
+            return transaction.getResources().entrySet().stream().anyMatch(
+                    resourceEntry -> FILING_KIND_LIMITED_PARTNER.equals(resourceEntry.getValue().getKind()));
+        }
+        return false;
     }
 
 }

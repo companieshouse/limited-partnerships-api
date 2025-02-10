@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
-public class LimitedPartnerControllerTest {
+class LimitedPartnerControllerTest {
     private static final String REQUEST_ID = "5346336";
     private static final String USER_ID = "rjg736k791";
     private static final String SUBMISSION_ID = "ABC123ABC456";

@@ -41,6 +41,12 @@ public class LimitedPartnerService {
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException {
+
+        if (hasExistingLimitedPartnerSubmission(transaction)) {
+            throw new ServiceException(String.format(
+                    "The transaction with id %s already has a Limited Partnership submission associated with it", transaction.getId()));
+        }
+
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         dao.getData().setKind(FILING_KIND_LIMITED_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
@@ -117,8 +123,6 @@ public class LimitedPartnerService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
 
-        // TODO Add 'validation status' and 'cost' links here later
-
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
 
@@ -127,5 +131,13 @@ public class LimitedPartnerService {
 
     private String getSubmissionUri(String transactionId, String submissionId) {
         return String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId);
+    }
+
+    private boolean hasExistingLimitedPartnerSubmission(Transaction transaction) {
+        if (transaction.getResources() != null) {
+            return transaction.getResources().entrySet().stream().anyMatch(
+                    resourceEntry -> FILING_KIND_LIMITED_PARTNER.equals(resourceEntry.getValue().getKind()));
+        }
+        return false;
     }
 }
