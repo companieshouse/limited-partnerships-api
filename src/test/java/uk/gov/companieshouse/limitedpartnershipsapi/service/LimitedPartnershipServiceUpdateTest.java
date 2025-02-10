@@ -14,6 +14,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
@@ -205,6 +206,56 @@ class LimitedPartnershipServiceUpdateTest {
                 assertEquals("STOKE-ON-TRENT", retrievedDto.getData().getRegisteredOfficeAddress().getLocality());
                 assertEquals("ST6 3LJ", retrievedDto.getData().getRegisteredOfficeAddress().getPostalCode());
                 assertEquals("2", retrievedDto.getData().getRegisteredOfficeAddress().getPremises());
+            }
+        }
+
+        @Nested
+        class UpdateTerm {
+            @Test
+            void shouldUpdateTheDao() throws ServiceException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+
+                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+                limitedPartnershipPatchDto.setTerm(Term.BY_AGREEMENT);
+
+                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+                // dao registered office address is null before mapping/update
+                assertNull(limitedPartnershipSubmissionDao.getData().getTerm());
+
+                // when
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+                // then
+                verify(repository).findById(SUBMISSION_ID);
+                verify(repository).save(submissionCaptor.capture());
+
+                LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
+
+                assertEquals(Term.BY_AGREEMENT, sentSubmission.getData().getTerm());
+            }
+
+            @Test
+            void shouldReturnDtoContainingRegisteredOfficeAddress() throws ResourceNotFoundException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+                limitedPartnershipSubmissionDao.getData().setTerm(Term.BY_AGREEMENT);
+
+                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+                // when
+                LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+
+                // then
+                verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+
+                assertEquals(Term.BY_AGREEMENT, retrievedDto.getData().getTerm());
+
             }
         }
     }

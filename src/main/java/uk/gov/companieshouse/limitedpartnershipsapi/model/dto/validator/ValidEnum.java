@@ -8,11 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = JurisdictionValidator.class)
+@Constraint(validatedBy = EnumValidator.class)
 @Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidJurisdiction {
-    String message() default "Jurisdiction must be valid";
+public @interface ValidEnum {
+    String message() default "Enum must be valid";
 
     Class<?>[] groups() default {};
 
