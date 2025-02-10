@@ -40,7 +40,7 @@ public class LimitedPartnerService {
         this.transactionUtils = transactionUtils;
     }
 
-    public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) {
+    public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException {
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         dao.getData().setKind(FILING_KIND_LIMITED_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
@@ -107,7 +107,7 @@ public class LimitedPartnerService {
                                                           Resource limitedPartnerResource,
                                                           String loggingContext) {
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
-        ApiLogger.infoContext(requestId, String.format("Updating transaction with submissionUri:: %s", submissionUri, loggingContext));
+        ApiLogger.infoContext(requestId, String.format("Updating transaction with submissionUri:: %s", loggingContext));
 
     }
 
