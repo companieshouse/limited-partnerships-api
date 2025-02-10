@@ -35,12 +35,6 @@ public class LimitedPartnerService {
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException {
-
-        if (hasExistingLimitedPartnerSubmission(transaction)) {
-            throw new ServiceException(String.format(
-                    "The transaction with id %s already has a Limited Partnership submission associated with it", transaction.getId()));
-        }
-
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         dao.getData().setKind(FILING_KIND_LIMITED_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
