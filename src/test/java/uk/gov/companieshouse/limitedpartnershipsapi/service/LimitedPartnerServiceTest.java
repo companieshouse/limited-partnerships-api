@@ -16,7 +16,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
@@ -38,20 +37,11 @@ class LimitedPartnerServiceTest {
     @Mock
     LimitedPartnerRepository repository;
 
-    //@Mock
-    TransactionService transactionService;
-
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
     @Mock
-    private TransactionUtils transactionUtils;
-
-    @Mock
     private LimitedPartnerMapper mapper;
-
-    @Mock
-    private LimitedPartnerType limitedPartnerType;
 
     @Test
     void testCreateLimitedPartnerIsSuccessful() throws ServiceException {
@@ -105,13 +95,4 @@ class LimitedPartnerServiceTest {
         transaction.setId("transaction-id");
         return transaction;
     }
-
-    private boolean hasExistingLimitedPartnerSubmission(Transaction transaction) {
-        if (transaction.getResources() != null) {
-            return transaction.getResources().entrySet().stream().anyMatch(
-                    resourceEntry -> FILING_KIND_LIMITED_PARTNER.equals(resourceEntry.getValue().getKind()));
-        }
-        return false;
-    }
-
 }

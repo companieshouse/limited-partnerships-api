@@ -10,9 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerSubmissionCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 
 import java.util.Objects;
@@ -40,7 +40,7 @@ class LimitedPartnerControllerTest {
 
     @BeforeEach
     void init() {
-        LimitedPartnerSubmissionDto data = new LimitedPartnerSubmissionDto();
+        LimitedPartnerDataDto data = new LimitedPartnerDataDto();
         limitedPartnerDto = new LimitedPartnerDto();
         limitedPartnerDto.setData(data);
     }

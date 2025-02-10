@@ -16,8 +16,7 @@ public class LimitedPartnerDto {
         return data;
     }
 
-    public void setData(LimitedPartnerSubmissionDto data) {
-        this.data = data.getData();
+    public void setData(LimitedPartnerDataDto data) {
+        this.data = data;
     }
-
 }

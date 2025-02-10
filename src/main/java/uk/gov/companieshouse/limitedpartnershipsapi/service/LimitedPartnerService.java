@@ -51,7 +51,7 @@ public class LimitedPartnerService {
         var limitedPartnerResource = createLimitedPartnerTransactionResource(submissionUri);
 
         updateLimitedPartnerTypeWithSelfLink(dao, submissionUri);
-        updateTransactionWithLinks(transaction, requestId, submissionUri, limitedPartnerResource, requestId);
+        // updateTransactionWithLinks(transaction, requestId, submissionUri, limitedPartnerResource, requestId);
 
         return insertedSubmission.getId();
     }
@@ -60,16 +60,6 @@ public class LimitedPartnerService {
                                                       String submissionUri) {
         limitedPartnerDao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(limitedPartnerDao);
-    }
-
-    private void updateTransactionWithLinks(Transaction transaction,
-                                            String requestId,
-                                            String submissionUri,
-                                            Resource limitedPartnerResource,
-                                            String loggingContext) {
-        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
-        ApiLogger.infoContext(requestId, String.format("Updating transaction with submissionUri:: %s", loggingContext));
-
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {
@@ -86,13 +76,5 @@ public class LimitedPartnerService {
 
     private String getSubmissionUri(String transactionId, String submissionId) {
         return String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId);
-    }
-
-    private boolean hasExistingLimitedPartnerSubmission(Transaction transaction) {
-        if (transaction.getResources() != null) {
-            return transaction.getResources().entrySet().stream().anyMatch(
-                    resourceEntry -> FILING_KIND_LIMITED_PARTNER.equals(resourceEntry.getValue().getKind()));
-        }
-        return false;
     }
 }
