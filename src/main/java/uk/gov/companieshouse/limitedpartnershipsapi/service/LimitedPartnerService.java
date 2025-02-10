@@ -53,7 +53,6 @@ public class LimitedPartnerService {
         dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
 
-        LimitedPartnerDao insertedLimitedPartner = repository.insert(dao);
         LimitedPartnerDao insertedSubmission = repository.insert(dao);
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission created with id: %s", insertedSubmission.getId()));
@@ -63,11 +62,11 @@ public class LimitedPartnerService {
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
         var limitedPartnerResource = createLimitedPartnerTransactionResource(submissionUri);
 
-        String limitedpartnerUri = getSubmissionUri(transaction.getId(), insertedLimitedPartner.getId());
+        String limitedpartnerUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
         updateLimitedPartnerTypeWithSelfLink(dao, limitedpartnerUri);
-        updateTransactionWithLinksAndPartnerName(transaction, requestId, submissionUri, limitedPartnerResource, requestId);
+        updateTransactionWithLinks(transaction, requestId, submissionUri, limitedPartnerResource, requestId);
 
-        return insertedLimitedPartner.getId();
+        return insertedSubmission.getId();
     }
 
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String submissionId) throws ResourceNotFoundException {
@@ -107,11 +106,11 @@ public class LimitedPartnerService {
         repository.save(limitedPartnerDao);
     }
 
-    private void updateTransactionWithLinksAndPartnerName(Transaction transaction,
-                                                          String requestId,
-                                                          String submissionUri,
-                                                          Resource limitedPartnerResource,
-                                                          String loggingContext) {
+    private void updateTransactionWithLinks(Transaction transaction,
+                                            String requestId,
+                                            String submissionUri,
+                                            Resource limitedPartnerResource,
+                                            String loggingContext) {
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
         ApiLogger.infoContext(requestId, String.format("Updating transaction with submissionUri:: %s", loggingContext));
 

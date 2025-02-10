@@ -17,7 +17,7 @@ public class Constants {
     // Filings
     public static final String FILING_KIND_REGISTRATION = "limited-partnership-registration";
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
-    public static final String FILING_KIND_LIMITED_PARTNER = "limited-partner";
+    public static final String FILING_KIND_LIMITED_PARTNER = "limited-partnership#limited-partner";
     public static final String LINK_SELF = "self";
     public static final String LINK_RESOURCE = "resource";
     // Validation rules
@@ -25,6 +25,7 @@ public class Constants {
     public static final String MIN_SIZE_MESSAGE = "must be greater than {min}";
     public static final int MAX_SIZE = 50;
     public static final String MAX_SIZE_MESSAGE = "must be less than {max}";
+
     private Constants() {
     }
 }

@@ -34,11 +34,11 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/limited-partner")
 public class LimitedPartnerController {
 
-    private final LimitedPartnerService limitedpartnerService;
+    private final LimitedPartnerService limitedPartnerService;
 
     @Autowired
-    public LimitedPartnerController(LimitedPartnerService limitedpartnerService) {
-        this.limitedpartnerService = limitedpartnerService;
+    public LimitedPartnerController(LimitedPartnerService limitedPartnerService) {
+        this.limitedPartnerService = limitedPartnerService;
     }
 
     @PostMapping
@@ -54,7 +54,7 @@ public class LimitedPartnerController {
         ApiLogger.infoContext(requestId, "Create a Limited Partner submission", logMap);
 
         try {
-            String submissionId = limitedpartnerService.createLimitedPartner(transaction, limitedPartnerDto, requestId,
+            String submissionId = limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, requestId,
                     userId);
             var location = URI.create(String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId));
             var response = new LimitedPartnerSubmissionCreatedResponseDto(submissionId);
@@ -77,7 +77,7 @@ public class LimitedPartnerController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            LimitedPartnerDto dto = limitedpartnerService.getLimitedPartner(transaction, submissionId);
+            LimitedPartnerDto dto = limitedPartnerService.getLimitedPartner(transaction, submissionId);
             return ResponseEntity.ok().body(dto);
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);

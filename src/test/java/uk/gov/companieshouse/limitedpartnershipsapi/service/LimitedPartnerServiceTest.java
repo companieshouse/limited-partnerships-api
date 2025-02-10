@@ -78,7 +78,7 @@ class LimitedPartnerServiceTest {
 
         // then
         verify(mapper, times(1)).dtoToDao(limitedPartnerDto);
-        verify(repository, times(2)).insert(limitedPartnerDao);
+        verify(repository, times(1)).insert(limitedPartnerDao);
         verify(repository, times(1)).save(submissionCaptor.capture());
 
         LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
