@@ -34,15 +34,13 @@ public class LimitedPartnerService {
     public LimitedPartnerService(
             LimitedPartnerRepository repository,
             LimitedPartnerMapper mapper,
-            TransactionUtils transactionUtils,
-            TransactionService transactionService) {
+            TransactionUtils transactionUtils) {
         this.repository = repository;
         this.mapper = mapper;
         this.transactionUtils = transactionUtils;
     }
 
-    public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId)
-            throws ServiceException {
+    public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) {
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         dao.getData().setKind(FILING_KIND_LIMITED_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
