@@ -43,7 +43,7 @@ public class LimitedPartnerService {
 
         LimitedPartnerDao insertedSubmission = repository.insert(dao);
 
-        ApiLogger.infoContext(requestId, String.format("Limited Partnership submission created with id: %s", insertedSubmission.getId()));
+        ApiLogger.infoContext(requestId, String.format("Limited Partner submission created with id: %s", insertedSubmission.getId()));
 
         transaction.setFilingMode(FILING_KIND_LIMITED_PARTNER);
 
