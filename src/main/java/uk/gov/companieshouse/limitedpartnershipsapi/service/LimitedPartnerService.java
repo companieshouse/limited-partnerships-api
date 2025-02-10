@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -9,10 +10,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -22,7 +26,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 public class LimitedPartnerService {
 
     private final LimitedPartnerRepository repository;
-    private final TransactionService transactionService;
 
     private final LimitedPartnerMapper mapper;
 
@@ -36,7 +39,6 @@ public class LimitedPartnerService {
         this.repository = repository;
         this.mapper = mapper;
         this.transactionUtils = transactionUtils;
-        this.transactionService = transactionService;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId)
@@ -48,11 +50,18 @@ public class LimitedPartnerService {
         dao.setCreatedBy(userId);
 
         LimitedPartnerDao insertedLimitedPartner = repository.insert(dao);
+        LimitedPartnerDao insertedSubmission = repository.insert(dao);
+
+        ApiLogger.infoContext(requestId, String.format("Limited Partnership submission created with id: %s", insertedSubmission.getId()));
 
         transaction.setFilingMode(FILING_KIND_LIMITED_PARTNER);
 
+        final String submissionUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
+        var limitedPartnerResource = createLimitedPartnerTransactionResource(submissionUri);
+
         String limitedpartnerUri = getSubmissionUri(transaction.getId(), insertedLimitedPartner.getId());
         updateLimitedPartnerTypeWithSelfLink(dao, limitedpartnerUri);
+        updateTransactionWithLinksAndPartnerName(transaction, requestId, submissionUri, limitedPartnerResource, requestId);
 
         return insertedLimitedPartner.getId();
     }
@@ -92,6 +101,30 @@ public class LimitedPartnerService {
                                                       String submissionUri) {
         limitedPartnerDao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(limitedPartnerDao);
+    }
+
+    private void updateTransactionWithLinksAndPartnerName(Transaction transaction,
+                                                          String requestId,
+                                                          String submissionUri,
+                                                          Resource limitedPartnerResource,
+                                                          String loggingContext) {
+        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
+        ApiLogger.infoContext(requestId, String.format("Updating transaction with submissionUri:: %s", submissionUri, loggingContext));
+
+    }
+
+    private Resource createLimitedPartnerTransactionResource(String submissionUri) {
+        var limitedPartnerResource = new Resource();
+
+        Map<String, String> linksMap = new HashMap<>();
+        linksMap.put("resource", submissionUri);
+
+        // TODO Add 'validation status' and 'cost' links here later
+
+        limitedPartnerResource.setLinks(linksMap);
+        limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
+
+        return limitedPartnerResource;
     }
 
     private String getSubmissionUri(String transactionId, String submissionId) {

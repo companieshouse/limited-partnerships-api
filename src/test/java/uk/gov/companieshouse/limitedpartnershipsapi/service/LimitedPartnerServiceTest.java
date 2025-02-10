@@ -38,7 +38,7 @@ public class LimitedPartnerServiceTest {
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
-    // private static final String TRANSACTION_ID = "12321123";
+    private static final String TRANSACTION_ID = "12321123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     @InjectMocks
     LimitedPartnerService service;
@@ -47,7 +47,7 @@ public class LimitedPartnerServiceTest {
     LimitedPartnerRepository repository;
 
     //@Mock
-    //TransactionService transactionService;
+    TransactionService transactionService;
 
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
@@ -78,7 +78,7 @@ public class LimitedPartnerServiceTest {
 
         // then
         verify(mapper, times(1)).dtoToDao(limitedPartnerDto);
-        verify(repository, times(1)).insert(limitedPartnerDao);
+        verify(repository, times(2)).insert(limitedPartnerDao);
         verify(repository, times(1)).save(submissionCaptor.capture());
 
         LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
