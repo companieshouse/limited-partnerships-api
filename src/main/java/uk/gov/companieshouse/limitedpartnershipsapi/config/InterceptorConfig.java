@@ -19,6 +19,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private static final String FILINGS = "/private/**/filings";
     private static final String INCORPORATION = TRANSACTIONS + "/incorporation/**";
     private static final String PARTNERSHIP = TRANSACTIONS + "/partnership";
+    private static final String LIMITED_PARTNER = TRANSACTIONS + "/limited-partner";
 
     private final LoggingInterceptor loggingInterceptor;
 
@@ -33,15 +34,16 @@ public class InterceptorConfig implements WebMvcConfigurer {
     /**
      * Set up the interceptors to run against endpoints when the endpoints are called
      * Interceptors are executed in the order they are added to the registry
+     *
      * @param registry The spring interceptor registry
      */
     @Override
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(loggingInterceptor);
         registry.addInterceptor(new TokenPermissionsInterceptor())
-                .addPathPatterns(INCORPORATION, PARTNERSHIP);
+                .addPathPatterns(INCORPORATION, PARTNERSHIP, LIMITED_PARTNER);
         registry.addInterceptor(customUserAuthenticationInterceptor)
-                .addPathPatterns(INCORPORATION, PARTNERSHIP);
+                .addPathPatterns(INCORPORATION, PARTNERSHIP, LIMITED_PARTNER);
         registry.addInterceptor(transactionInterceptor())
                 .addPathPatterns(FILINGS, TRANSACTIONS);
     }
