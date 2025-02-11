@@ -24,15 +24,12 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 public class LimitedPartnerService {
 
     private final LimitedPartnerRepository repository;
-    private final TransactionService transactionService;
     private final LimitedPartnerMapper mapper;
 
     public LimitedPartnerService(
             LimitedPartnerRepository repository,
-            TransactionService transactionService,
             LimitedPartnerMapper mapper) {
         this.repository = repository;
-        this.transactionService = transactionService;
         this.mapper = mapper;
     }
 
@@ -65,7 +62,11 @@ public class LimitedPartnerService {
                                                              LimitedPartnerDto limitedPartnerDto,
                                                              String submissionUri,
                                                              Resource limitedPartnerResource,
-                                                             String loggingContext) throws ServiceException {
+                                                             String requestID) throws ServiceException {
+        if (limitedPartnerDto == null || limitedPartnerDto.getData() == null) {
+            throw new ServiceException("LimitedPartnerDto or its data is null for request ID: " + requestID);
+        }
+
         transaction.setCompanyName(limitedPartnerDto.getData().getPartnerType().getDescription());
 
         // Retrieve existing resources
@@ -96,8 +97,6 @@ public class LimitedPartnerService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
-
-        // TODO Add 'validation status' and 'cost' links here later
 
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);

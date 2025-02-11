@@ -109,7 +109,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    public void testLimitedPartnerDtoInitialization() {
+    void testLimitedPartnerDtoInitialization() {
         LimitedPartnerDto limitedPartnerDto = new LimitedPartnerDto();
         LimitedPartnerDataDto limitedPartnerData = new LimitedPartnerDataDto();
         limitedPartnerDto.setData(limitedPartnerData);
