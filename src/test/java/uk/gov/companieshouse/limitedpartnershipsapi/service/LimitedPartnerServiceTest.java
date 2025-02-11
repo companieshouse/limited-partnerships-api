@@ -108,6 +108,15 @@ class LimitedPartnerServiceTest {
         assertEquals(submissionUri, resource.getLinks().get("resource"));
     }
 
+    @Test
+    public void testLimitedPartnerDtoInitialization() {
+        LimitedPartnerDto limitedPartnerDto = new LimitedPartnerDto();
+        LimitedPartnerDataDto limitedPartnerData = new LimitedPartnerDataDto();
+        limitedPartnerDto.setData(limitedPartnerData);
+
+        assertNotNull(limitedPartnerDto.getData());
+    }
+
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {
         var limitedPartnerResource = new Resource();
         Map<String, String> linksMap = new HashMap<>();
@@ -121,7 +130,7 @@ class LimitedPartnerServiceTest {
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
         dataDto.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
-
+        dto.setData(dataDto);
         return dto;
     }
 
