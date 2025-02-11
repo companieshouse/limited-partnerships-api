@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
@@ -13,8 +12,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -57,18 +54,6 @@ public class LimitedPartnerService {
                                                       String submissionUri) {
         limitedPartnerDao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(limitedPartnerDao);
-    }
-
-    private Resource createLimitedPartnerTransactionResource(String submissionUri) {
-        var limitedPartnerResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", submissionUri);
-
-        limitedPartnerResource.setLinks(linksMap);
-        limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
-
-        return limitedPartnerResource;
     }
 
     private String getSubmissionUri(String transactionId, String submissionId) {
