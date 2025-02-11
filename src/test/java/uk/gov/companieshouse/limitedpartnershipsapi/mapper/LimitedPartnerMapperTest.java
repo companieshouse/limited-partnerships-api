@@ -1,12 +1,16 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LimitedPartnerMapperTest {
+
+    private final LimitedPartnerMapper mapper = Mappers.getMapper(LimitedPartnerMapper.class);
 
     @Test
     void givenPartnerTypeEnum_whenMapsToString_thenCorrect() {
@@ -34,5 +38,38 @@ class LimitedPartnerMapperTest {
         String invalidPartnerType = "Invalid Partner Type";
         // then
         assertThrows(IllegalArgumentException.class, () -> LimitedPartnerMapper.INSTANCE.mapPartnerTypeToEnum(invalidPartnerType));
+    }
+
+    @Test
+    void givenValidPartnerTypeString_whenMapPartnerTypeToEnum_thenCorrect() {
+        // given
+        String partnerTypeString = "person";
+
+        // when
+        LimitedPartnerType result = mapper.mapPartnerTypeToEnum(partnerTypeString);
+
+        // then
+        assertEquals(LimitedPartnerType.PERSON, result);
+    }
+
+    @Test
+    void givenNullPartnerTypeString_whenMapPartnerTypeToEnum_thenNull() {
+        // given
+        String partnerTypeString = null;
+
+        // when
+        LimitedPartnerType result = mapper.mapPartnerTypeToEnum(partnerTypeString);
+
+        // then
+        assertNull(result);
+    }
+
+    @Test
+    void givenInvalidPartnerTypeString_whenMapPartnerTypeToEnum_thenException() {
+        // given
+        String partnerTypeString = "invalid";
+
+        // when + then
+        assertThrows(IllegalArgumentException.class, () -> mapper.mapPartnerTypeToEnum(partnerTypeString));
     }
 }

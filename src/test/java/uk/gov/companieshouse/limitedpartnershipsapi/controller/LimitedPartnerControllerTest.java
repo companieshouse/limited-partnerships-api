@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDataDto;
@@ -20,6 +21,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
@@ -70,6 +72,29 @@ class LimitedPartnerControllerTest {
         LimitedPartnerSubmissionCreatedResponseDto responseBody = (LimitedPartnerSubmissionCreatedResponseDto) response.getBody();
         assert responseBody != null;
         assertEquals(SUBMISSION_ID, responseBody.id());
+    }
+
+    @Test
+    void givenServiceException_whenCreateLimitedPartner_thenInternalServerError() throws ServiceException {
+        // given
+        Transaction transaction = buildTransaction();
+        String requestId = "requestId";
+        String userId = "userId";
+        doThrow(new ServiceException("Error")).when(limitedPartnerService).createLimitedPartner(transaction, limitedPartnerDto, requestId, userId);
+
+        // when
+        ResponseEntity<Object> response = limitedPartnerController.createLimitedPartner(transaction, limitedPartnerDto, requestId, userId);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        //verify(ApiLogger).errorContext(eq(requestId), eq("Error creating Limited Partner"), any(ServiceException.class), anyMap());
+    }
+
+    private Transaction buildTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setId("transactionId");
+
+        return transaction;
     }
 
 }

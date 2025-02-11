@@ -7,6 +7,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
@@ -17,7 +18,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,6 +36,7 @@ class LimitedPartnerServiceTest {
     private static final String SUBMISSION_ID = "abc-123";
     private static final String TRANSACTION_ID = "12321123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
+
     @InjectMocks
     LimitedPartnerService service;
 
@@ -72,6 +78,43 @@ class LimitedPartnerServiceTest {
         // Assert self link
         String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
+
+    @Test
+    void givenValidSubmissionUri_whenCreateLimitedPartnerTransactionResource_thenResourceCreated() {
+        // given
+        String submissionUri = "http://example.com/submission";
+
+        // when
+        Resource resource = createLimitedPartnerTransactionResource(submissionUri);
+
+        // then
+        assertNotNull(resource);
+        assertEquals(FILING_KIND_LIMITED_PARTNER, resource.getKind());
+        assertEquals(submissionUri, resource.getLinks().get("resource"));
+    }
+
+    @Test
+    void givenNullSubmissionUri_whenCreateLimitedPartnerTransactionResource_thenResourceCreatedWithNullLink() {
+        // given
+        String submissionUri = null;
+
+        // when
+        Resource resource = createLimitedPartnerTransactionResource(submissionUri);
+
+        // then
+        assertNotNull(resource);
+        assertEquals(FILING_KIND_LIMITED_PARTNER, resource.getKind());
+        assertEquals(submissionUri, resource.getLinks().get("resource"));
+    }
+
+    private Resource createLimitedPartnerTransactionResource(String submissionUri) {
+        var limitedPartnerResource = new Resource();
+        Map<String, String> linksMap = new HashMap<>();
+        linksMap.put("resource", submissionUri);
+        limitedPartnerResource.setLinks(linksMap);
+        limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
+        return limitedPartnerResource;
     }
 
     private LimitedPartnerDto createDto() {
