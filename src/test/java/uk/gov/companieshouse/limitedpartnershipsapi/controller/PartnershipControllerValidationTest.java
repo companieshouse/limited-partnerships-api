@@ -244,15 +244,15 @@ class PartnershipControllerValidationTest {
             private static final String JSON_ROA_MISSING_COUNTRY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
 
             // principal place of business
-            private static final String JSON_PPOB_POSTCODE_EMPTY = "{\"principle_place_of_business_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_POSTCODE_NOT_CORRECT = "{\"principle_place_of_business_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_ADDRESS_LINE_1_TOO_SHORT = "{\"principle_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_POSTCODE_EMPTY = "{\"principal_place_of_business_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_POSTCODE_NOT_CORRECT = "{\"principal_place_of_business_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_ADDRESS_LINE_1_TOO_SHORT = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
 
-            private static final String JSON_PPOB_MISSING_POSTCODE = "{\"principle_place_of_business_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_MISSING_PREMISES = "{\"principle_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_MISSING_ADDRESS_LINE_1 = "{\"principle_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_MISSING_LOCALITY = "{\"principle_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_MISSING_COUNTRY = "{\"principle_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
+            private static final String JSON_PPOB_MISSING_POSTCODE = "{\"principal_place_of_business_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_MISSING_PREMISES = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_MISSING_ADDRESS_LINE_1 = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_MISSING_LOCALITY = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_MISSING_COUNTRY = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
 
             @Test
             void shouldReturn200() throws Exception {

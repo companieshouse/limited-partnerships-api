@@ -27,6 +27,9 @@ public class DataDao {
     @Field("term")
     private Term term;
 
+    @Field("principal_place_of_business_address")
+    private AddressDao principalPlaceOfBusinessAddress;
+
     public String getPartnershipName() {
         return partnershipName;
     }
@@ -81,5 +84,13 @@ public class DataDao {
 
     public void setTerm(Term term) {
         this.term = term;
+    }
+
+    public AddressDao getPrincipalPlaceOfBusinessAddress() {
+        return principalPlaceOfBusinessAddress;
+    }
+
+    public void setPrincipalPlaceOfBusinessAddress(AddressDao principalPlaceOfBusinessAddress) {
+        this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
     }
 }
