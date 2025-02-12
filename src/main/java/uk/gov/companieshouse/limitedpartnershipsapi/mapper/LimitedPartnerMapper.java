@@ -18,7 +18,7 @@ public interface LimitedPartnerMapper {
     LimitedPartnerDao dtoToDao(LimitedPartnerDto dto);
 
     default String mapPartnerTypeToString(LimitedPartnerType partnerType) {
-        return partnerType.toString();
+        return partnerType.getDescription();
     }
 
     default LimitedPartnerType mapPartnerTypeToEnum(String partnerType) {

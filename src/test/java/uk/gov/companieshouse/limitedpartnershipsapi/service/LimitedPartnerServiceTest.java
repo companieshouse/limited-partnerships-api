@@ -43,6 +43,9 @@ class LimitedPartnerServiceTest {
     @Mock
     LimitedPartnerRepository repository;
 
+    @Mock
+    private TransactionService transactionService;
+
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
@@ -59,10 +62,10 @@ class LimitedPartnerServiceTest {
         when(mapper.dtoToDao(limitedPartnerDto)).thenReturn(limitedPartnerDao);
         when(repository.insert(limitedPartnerDao)).thenReturn(limitedPartnerDao);
 
-        Transaction transaction = buildTransaction();
+        Transaction testTransaction = buildTransaction();
 
         // when
-        String submissionId = service.createLimitedPartner(transaction, limitedPartnerDto, REQUEST_ID, USER_ID);
+        String submissionId = service.createLimitedPartner(testTransaction, limitedPartnerDto, REQUEST_ID, USER_ID);
 
         // then
         verify(mapper, times(1)).dtoToDao(limitedPartnerDto);
@@ -76,7 +79,7 @@ class LimitedPartnerServiceTest {
         assertEquals(LimitedPartnerType.LEGAL_ENTITY, sentSubmission.getData().getPartnerType());
 
         // Assert self link
-        String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), SUBMISSION_ID);
+        String expectedUri = String.format(URL_GET_LIMITED_PARTNER, testTransaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
     }
 

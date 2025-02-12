@@ -25,12 +25,15 @@ public class LimitedPartnerService {
 
     private final LimitedPartnerRepository repository;
     private final LimitedPartnerMapper mapper;
+    private final TransactionService transactionService;
 
     public LimitedPartnerService(
             LimitedPartnerRepository repository,
-            LimitedPartnerMapper mapper) {
+            LimitedPartnerMapper mapper,
+            TransactionService transactionService) {
         this.repository = repository;
         this.mapper = mapper;
+        this.transactionService = transactionService;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException {
@@ -52,33 +55,20 @@ public class LimitedPartnerService {
 
         var limitedPartnerResource = createLimitedPartnerTransactionResource(submissionUri);
 
-        updateTransactionWithLinksForLimitedPartner(transaction, limitedPartnerDto,
+        updateTransactionWithLinksForLimitedPartner(transaction,
                 submissionUri, limitedPartnerResource, requestId);
 
         return insertedSubmission.getId();
     }
 
     private void updateTransactionWithLinksForLimitedPartner(Transaction transaction,
-                                                             LimitedPartnerDto limitedPartnerDto,
                                                              String submissionUri,
                                                              Resource limitedPartnerResource,
                                                              String requestID) throws ServiceException {
-        if (limitedPartnerDto == null || limitedPartnerDto.getData() == null) {
-            throw new ServiceException("LimitedPartnerDto or its data is null for request ID: " + requestID);
-        }
 
-        transaction.setCompanyName(limitedPartnerDto.getData().getPartnerType().getDescription());
-
-        // Retrieve existing resources
-        Map<String, Resource> existingResources = transaction.getResources();
-        if (existingResources == null) {
-            existingResources = new HashMap<>();
-        }
-
-        existingResources.put(submissionUri, limitedPartnerResource);
-
-        // Set the updated resources back to the transaction
-        transaction.setResources(existingResources);
+        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
+        // Update the transaction
+        transactionService.updateTransaction(transaction, requestID);
 
     }
 
