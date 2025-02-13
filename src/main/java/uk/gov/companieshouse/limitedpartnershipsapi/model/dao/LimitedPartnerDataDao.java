@@ -1,11 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.dao;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
-
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class LimitedPartnerDataDao {
     @Field("kind")
@@ -14,8 +10,7 @@ public class LimitedPartnerDataDao {
     @Field("etag")
     private String etag;
 
-    @JsonInclude(NON_NULL)
-    @JsonProperty("partner_type")
+    @Field("limited_partner_type")
     private LimitedPartnerType partnerType;
 
     public String getKind() {

@@ -16,7 +16,7 @@ public class LimitedPartnerDataDto {
     private String etag;
 
     @JsonInclude(NON_NULL)
-    @JsonProperty("partner_type")
+    @JsonProperty("limited_partner_type")
     private LimitedPartnerType partnerType;
 
     public String getKind() {
