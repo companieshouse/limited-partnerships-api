@@ -34,7 +34,6 @@ class LimitedPartnerServiceTest {
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
-    private static final String TRANSACTION_ID = "12321123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
     @InjectMocks

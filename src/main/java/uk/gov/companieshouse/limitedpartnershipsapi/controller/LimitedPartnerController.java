@@ -38,7 +38,7 @@ public class LimitedPartnerController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createLimitedPartner(
+    public ResponseEntity<LimitedPartnerSubmissionCreatedResponseDto> createLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @Valid @RequestBody LimitedPartnerDto limitedPartnerDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
