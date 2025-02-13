@@ -42,12 +42,11 @@ public class LimitedPartnerService {
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
         dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
+        dao.setTransactionId(transaction.getId());
 
         LimitedPartnerDao insertedSubmission = repository.insert(dao);
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner submission created with id: %s", insertedSubmission.getId()));
-
-        transaction.setFilingMode(FILING_KIND_LIMITED_PARTNER);
 
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedSubmission.getId());
 

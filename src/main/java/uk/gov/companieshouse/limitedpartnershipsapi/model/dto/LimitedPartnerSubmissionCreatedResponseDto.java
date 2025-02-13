@@ -1,4 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
-public record LimitedPartnerSubmissionCreatedResponseDto(String id) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record LimitedPartnerSubmissionCreatedResponseDto(@JsonProperty("id") String id) {
 }
