@@ -258,5 +258,76 @@ class LimitedPartnershipServiceUpdateTest {
 
             }
         }
+
+        @Nested
+        class updatePrincipalPlaceOfBusinessAddress {
+            @Test
+            void shouldUpdateTheDao() throws ServiceException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+
+                AddressDto principalPlaceOfBusinessAddress = new AddressDto();
+                principalPlaceOfBusinessAddress.setAddressLine1("DUNCALF STREET");
+                principalPlaceOfBusinessAddress.setCountry("GB-ENG");
+                principalPlaceOfBusinessAddress.setLocality("STOKE-ON-TRENT");
+                principalPlaceOfBusinessAddress.setPostalCode("ST6 3LJ");
+                principalPlaceOfBusinessAddress.setPremises("2");
+
+                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+                limitedPartnershipPatchDto.setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
+
+                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+                // dao registered office address is null before mapping/update
+                assertNull(limitedPartnershipSubmissionDao.getData().getPrincipalPlaceOfBusinessAddress());
+
+                // when
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+                // then
+                verify(repository).findById(SUBMISSION_ID);
+                verify(repository).save(submissionCaptor.capture());
+
+                LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
+
+                assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
+                assertEquals("GB-ENG", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
+                assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
+                assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
+                assertEquals("2", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
+            }
+
+            @Test
+            void shouldReturnDtoContainingRegisteredOfficeAddress() throws ResourceNotFoundException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                AddressDao principalPlaceOfBusinessAddress = new AddressDao();
+                principalPlaceOfBusinessAddress.setAddressLine1("DUNCALF STREET");
+                principalPlaceOfBusinessAddress.setCountry("GB-ENG");
+                principalPlaceOfBusinessAddress.setLocality("STOKE-ON-TRENT");
+                principalPlaceOfBusinessAddress.setPostalCode("ST6 3LJ");
+                principalPlaceOfBusinessAddress.setPremises("2");
+
+                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+                limitedPartnershipSubmissionDao.getData().setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
+
+                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+                // when
+                LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+
+                // then
+                verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+
+                assertEquals("DUNCALF STREET", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
+                assertEquals("GB-ENG", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
+                assertEquals("STOKE-ON-TRENT", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
+                assertEquals("ST6 3LJ", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
+                assertEquals("2", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
+            }
+        }
     }
 }

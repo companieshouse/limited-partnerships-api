@@ -40,6 +40,10 @@ public class LimitedPartnershipPatchDto {
     @ValidEnum(message = "Term must be valid")
     private Term term;
 
+    @JsonProperty("principal_place_of_business_address")
+    @Valid
+    private AddressDto principalPlaceOfBusinessAddress;
+
     public String getPartnershipName() {
         return partnershipName;
     }
@@ -94,5 +98,13 @@ public class LimitedPartnershipPatchDto {
 
     public void setTerm(Term term) {
         this.term = term;
+    }
+
+    public AddressDto getPrincipalPlaceOfBusinessAddress() {
+        return principalPlaceOfBusinessAddress;
+    }
+
+    public void setPrincipalPlaceOfBusinessAddress(AddressDto principalPlaceOfBusinessAddress) {
+        this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
     }
 }
