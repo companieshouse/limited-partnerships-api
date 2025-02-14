@@ -252,7 +252,7 @@
         ],
         "responses": {
           "201": {
-            "description": "Limited Partner Submission has been successfully created.",
+            "description": "General Partner Submission has been successfully created.",
             "schema": {
               "$ref": "#/definitions/CreatedResponse"
             }
