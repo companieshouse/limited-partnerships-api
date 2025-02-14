@@ -246,7 +246,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/GeneralPartnerData"
+              "$ref": "#/definitions/GeneralPartnerSubmission"
             }
           }
         ],
@@ -330,7 +330,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/GeneralPartnerData"
+              "$ref": "#/definitions/GeneralPartnerSubmission"
             }
           }
         ],
