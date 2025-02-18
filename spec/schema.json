@@ -459,7 +459,8 @@
           "format": "date-time"
         },
         "date_of_birth": {
-         "$ref": "#/definitions/DateOfBirth"
+          "type": "string",
+          "format": "date-time"
         },
         "etag": {
           "type": "string"
@@ -493,6 +494,9 @@
         },
         "nationality2": {
           "type": "string"
+        },
+        "not_disqualified_statement_checked" :{
+          "type" : "boolean"
         },
         "principal_office_address": {
            "$ref": "#/definitions/Address"
@@ -629,25 +633,6 @@
         },
         "region": {
           "type": "string"
-        }
-      }
-    },
-    "DateOfBirth" : {
-      "type": "object",
-      "required": [
-        "day",
-        "month",
-        "year"
-      ],
-      "properties": {
-        "day": {
-          "type": "integer"
-        },
-        "month": {
-          "type": "integer"
-        },
-        "year": {
-          "type": "integer"
         }
       }
     },
