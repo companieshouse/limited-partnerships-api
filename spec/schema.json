@@ -488,7 +488,10 @@
         "legal_form": {
           "type": "string"
         },
-        "nationality": {
+        "nationality1": {
+          "type": "string"
+        },
+        "nationality2": {
           "type": "string"
         },
         "principal_office_address": {
