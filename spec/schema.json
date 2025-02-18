@@ -469,10 +469,7 @@
           "type": "string"
         },
         "former_names": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string"
         },
         "governing_law": {
           "type": "string"
