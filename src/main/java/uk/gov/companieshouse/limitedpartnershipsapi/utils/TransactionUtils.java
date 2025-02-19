@@ -47,4 +47,10 @@ public class TransactionUtils {
                 .filter(resource -> kind.equals(resource.getValue().getKind()))
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
     }
+
+   public static Transaction buildTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setId("transaction-id");
+        return transaction;
+    }
 }

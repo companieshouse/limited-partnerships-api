@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils.buildTransaction;
 
 @ExtendWith(MockitoExtension.class)
 class LimitedPartnerServiceTest {
@@ -142,11 +143,5 @@ class LimitedPartnerServiceTest {
         dataDao.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
         dao.setData(dataDao);
         return dao;
-    }
-
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId("transaction-id");
-        return transaction;
     }
 }
