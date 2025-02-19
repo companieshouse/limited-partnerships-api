@@ -456,11 +456,11 @@
         },
         "date_effective_from": {
           "type": "string",
-          "format": "date-time"
+          "format": "date"
         },
         "date_of_birth": {
           "type": "string",
-          "format": "date-time"
+          "format": "date"
         },
         "etag": {
           "type": "string"
@@ -503,7 +503,7 @@
         },
         "resignation_date": {
           "type": "string",
-          "format": "date-time"
+          "format": "date"
         },
         "service_address": {
           "$ref": "#/definitions/Address"
