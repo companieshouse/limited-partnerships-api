@@ -17,6 +17,9 @@
       "name": "Limited Partnerships"
     },
     {
+      "name": "General Partner"
+    },
+    {
       "name": "Limited Partner"
     },
     {
@@ -225,6 +228,131 @@
         }
       }
     },
+    "/transactions/{transaction_id}/limited-partnership/general-partner": {
+      "post": {
+        "tags": [
+          "General Partner"
+        ],
+        "summary": "Create a General Partner submission",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GeneralPartnerSubmission"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "General Partner Submission has been successfully created.",
+            "schema": {
+              "$ref": "#/definitions/CreatedResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/limited-partnership/general-partner/{submission_id}": {
+      "get": {
+        "tags": [
+          "General Partner"
+        ],
+        "summary": "Get General Partner details",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/GeneralPartnerData"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "General Partner"
+        ],
+        "summary": "Update a General Partner details",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/GeneralPartnerSubmission"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+             "description": "General Partner Submission has been successfully updated."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/transactions/{transaction_id}/limited-partnership/limited-partner": {
       "post": {
         "tags": [
@@ -320,6 +448,74 @@
         }
       }
     },
+    "GeneralPartnerData": {
+       "type": "object",
+       "properties": {
+        "country": {
+          "type": "string"
+        },
+        "date_effective_from": {
+          "type": "string",
+          "format": "date"
+        },
+        "date_of_birth": {
+          "type": "string",
+          "format": "date"
+        },
+        "etag": {
+          "type": "string"
+        },
+        "forename": {
+          "type": "string"
+        },
+        "former_names": {
+          "type": "string"
+        },
+        "governing_law": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "legal_entity_register_name": {
+          "type": "string"
+        },
+        "legal_entity_registration_location": {
+          "type": "string"
+        },
+        "legal_form": {
+          "type": "string"
+        },
+        "nationality1": {
+          "type": "string"
+        },
+        "nationality2": {
+          "type": "string"
+        },
+        "not_disqualified_statement_checked" :{
+          "type" : "boolean"
+        },
+        "principal_office_address": {
+           "$ref": "#/definitions/Address"
+        },
+        "registered_company_number": {
+          "type": "string"
+        },
+        "resignation_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "service_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "usual_residential_address": {
+          "$ref": "#/definitions/Address"
+        }
+      }
+    },
     "LimitedPartnershipIncorporationGetResponse": {
       "type": "object",
       "required": [
@@ -367,6 +563,17 @@
         }
       }
     },
+    "GeneralPartnerSubmission": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+         "$ref": "#/definitions/GeneralPartnerData"
+        }
+      }
+    },
     "LimitedPartnerSubmission": {
       "type": "object",
       "required": [
@@ -384,6 +591,45 @@
               ]
             }
           }
+        }
+      }
+    },
+    "Address" : {
+      "type": "object",
+      "required": [
+        "address_line_1",
+        "country",
+        "locality",
+        "postal_code",
+        "premises"
+      ],
+      "properties": {
+        "address_line_1": {
+          "type": "string"
+        },
+        "address_line_2": {
+          "type": "string"
+        },
+        "care_of": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "locality": {
+          "type": "string"
+        },
+        "po_box": {
+          "type": "string"
+        },
+        "postal_code": {
+          "type": "string"
+        },
+        "premises": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
         }
       }
     },
