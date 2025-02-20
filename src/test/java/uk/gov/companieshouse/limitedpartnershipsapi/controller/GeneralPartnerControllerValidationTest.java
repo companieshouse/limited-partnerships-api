@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {GeneralPartnerController.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
-public class GeneralPartnerControllerValidationTest {
+class GeneralPartnerControllerValidationTest {
 
     static String postUrl = "/transactions/863851-951242-143528/limited-partnership/general-partner";
 

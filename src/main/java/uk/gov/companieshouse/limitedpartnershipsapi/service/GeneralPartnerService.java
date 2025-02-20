@@ -7,7 +7,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -60,7 +59,7 @@ public class GeneralPartnerService {
     }
 
     private String linkAndSaveDao(Transaction transaction, String submissionId, GeneralPartnerDao dao) {
-        final String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), submissionId);
+        var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), submissionId);
         dao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(dao);
         return submissionUri;

@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import jakarta.validation.Valid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +14,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.util.Objects;
 

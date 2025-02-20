@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;

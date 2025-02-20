@@ -49,7 +49,7 @@ public class TransactionUtils {
     }
 
    public static Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
+        var transaction = new Transaction();
         transaction.setId("transaction-id");
         return transaction;
     }
