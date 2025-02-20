@@ -9,10 +9,10 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class LimitedPartnerDataDto {
 
-    @Field("kind")
+    @JsonProperty("kind")
     private String kind;
 
-    @Field("etag")
+    @JsonProperty("etag")
     private String etag;
 
     @JsonInclude(NON_NULL)

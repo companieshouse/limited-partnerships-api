@@ -15,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
@@ -48,14 +47,14 @@ public class GeneralPartnerController {
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        ApiLogger.infoContext(requestId, "Create a General Partner submission", logMap);
+        ApiLogger.infoContext(requestId, "Create a general partner submission", logMap);
         try {
             String submissionId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
             var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, submissionId));
             var response = new  GeneralPartnerSubmissionCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, "Error creating General Partner", e, logMap);
+            ApiLogger.errorContext(requestId, "Error creating the general partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

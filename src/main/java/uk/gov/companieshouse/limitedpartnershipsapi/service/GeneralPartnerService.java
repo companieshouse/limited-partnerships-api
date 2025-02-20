@@ -39,7 +39,6 @@ public class GeneralPartnerService {
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId)  throws ServiceException {
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
-
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
         updateTransactionWithGeneralPartnerTransactionResourceLinks(requestId, transaction, submissionUri);
