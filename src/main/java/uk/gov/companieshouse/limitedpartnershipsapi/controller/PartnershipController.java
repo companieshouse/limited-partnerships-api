@@ -24,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Map;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -55,16 +54,7 @@ public class PartnershipController {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
-        Map<String, Map<String, String>> errorResponse = new HashMap<>();
-
         try {
-            Map<String, String> errorFields = this.limitedPartnershipService.postValidation(limitedPartnershipSubmissionDto);
-
-            if (!errorFields.isEmpty()) {
-                errorResponse.put("errors", errorFields);
-                throw new IllegalArgumentException("Post validation");
-            }
-
             ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership Submission", logMap);
 
             var submissionId = limitedPartnershipService.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, requestId, userId);
@@ -73,9 +63,6 @@ public class PartnershipController {
             var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
 
             return ResponseEntity.created(location).body(response);
-        } catch (IllegalArgumentException e) {
-            ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
-            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

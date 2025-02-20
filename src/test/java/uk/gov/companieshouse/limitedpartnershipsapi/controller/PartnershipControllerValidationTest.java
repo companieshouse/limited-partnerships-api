@@ -28,6 +28,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -114,6 +115,27 @@ class PartnershipControllerValidationTest {
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        private static final String JSON_MISSING_PARTNERSHIP_NAME = "{\"data\":{\"name_ending\":\"Limited Partnership\",\"partnership_type\":\"LP\"}}";
+        private static final String JSON_MISSING_NAME_ENDING = "{\"data\":{\"partnership_name\":\"Name test\", \"partnership_type\":\"LP\"}}";
+        private static final String JSON_MISSING_TYPE = "{\"data\":{\"partnership_name\":\"Name test\", \"name_ending\":\"Limited Partnership\"}}";
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                JSON_MISSING_PARTNERSHIP_NAME,
+                JSON_MISSING_NAME_ENDING,
+                JSON_MISSING_TYPE
+        })
+        void shouldReturnBadRequest(String body) throws Exception {
+            mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andDo(print())
                     .andExpect(status().isBadRequest());
         }
     }

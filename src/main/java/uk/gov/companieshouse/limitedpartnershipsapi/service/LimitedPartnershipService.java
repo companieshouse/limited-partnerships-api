@@ -80,24 +80,6 @@ public class LimitedPartnershipService {
         return insertedSubmission.getId();
     }
 
-    public Map<String, String> postValidation(LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto) {
-        Map<String, String> errorFields = new HashMap<>();
-
-        if (limitedPartnershipSubmissionDto.getData().getPartnershipName() == null) {
-            errorFields.put("data.partnership_name", "Enter the name of the partnership ");
-        }
-
-        if (limitedPartnershipSubmissionDto.getData().getNameEnding() == null) {
-            errorFields.put("data.name_ending", "Select the name ending to go on the public record");
-        }
-
-        if (limitedPartnershipSubmissionDto.getData().getPartnershipType() == null) {
-            errorFields.put("data.partnership_type", "Partnership type must not be null");
-        }
-
-        return errorFields;
-    }
-
     public void updateLimitedPartnership(Transaction transaction,
                                          String submissionId,
                                          LimitedPartnershipPatchDto limitedPartnershipPatchDto,
