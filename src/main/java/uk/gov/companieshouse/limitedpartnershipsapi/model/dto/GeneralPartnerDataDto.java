@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_INVALID_CHARACTERS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
 
 public class GeneralPartnerDataDto {
 
@@ -16,7 +17,7 @@ public class GeneralPartnerDataDto {
 
     @JsonProperty("forename")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
+    @Size(max = SHORT_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String forename;
 
