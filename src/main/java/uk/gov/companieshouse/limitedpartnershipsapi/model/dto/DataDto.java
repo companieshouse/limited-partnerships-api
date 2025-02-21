@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
@@ -24,12 +25,14 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
+    @NotNull(message = "Enter the name of the partnership")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     private String partnershipName;
 
     @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
+    @NotNull(message = "Select the name ending to go on the public record")
     private PartnershipNameEnding nameEnding;
 
     @JsonProperty("email")
@@ -38,6 +41,7 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_type")
+    @NotNull(message = "Partnership type must not be null")
     private PartnershipType partnershipType;
 
     @JsonInclude(NON_NULL)
