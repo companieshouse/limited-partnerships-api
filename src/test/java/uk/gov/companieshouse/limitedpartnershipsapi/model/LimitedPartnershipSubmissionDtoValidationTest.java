@@ -13,7 +13,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MAX_SIZE;
 
 class LimitedPartnershipSubmissionDtoValidationTest {
 
@@ -88,8 +88,8 @@ class LimitedPartnershipSubmissionDtoValidationTest {
         assertThat(violations)
                 .extracting(ConstraintViolation::getMessage)
                 .containsExactlyInAnyOrder(
-                        String.format("Max length 'partnership name + name ending' is %s characters", NAME_MAX_SIZE),
-                        String.format("partnership name must be less than %s", NAME_MAX_SIZE),
+                        String.format("Max length 'partnership name + name ending' is %s characters", MAX_SIZE),
+                        String.format("value input must be less than %s", MAX_SIZE),
                         "must be a well-formed email address");
     }
 }

@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MAX_SIZE;
 
 public class NameSizeValidator implements ConstraintValidator<NameSize, Object> {
     public boolean isValid(Object object, ConstraintValidatorContext context) {
@@ -25,6 +25,6 @@ public class NameSizeValidator implements ConstraintValidator<NameSize, Object> 
         }
 
         var name = String.format("%s %s", partnershipName, nameEnding);
-        return name.length() <= NAME_MAX_SIZE;
+        return name.length() <= MAX_SIZE;
     }
 }
