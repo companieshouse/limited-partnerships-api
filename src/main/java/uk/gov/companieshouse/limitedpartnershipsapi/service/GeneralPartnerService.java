@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
@@ -79,7 +78,7 @@ public class GeneralPartnerService {
         linksMap.put("resource", submissionUri);
 
         generalPartnerResource.setLinks(linksMap);
-        generalPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
+        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
 
         transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
 
