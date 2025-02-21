@@ -47,7 +47,7 @@ public class GeneralPartnerController {
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        ApiLogger.infoContext(requestId, "Create a general partner submission", logMap);
+        ApiLogger.infoContext(requestId, "Create a general partner", logMap);
         try {
             String submissionId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
             var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, submissionId));
