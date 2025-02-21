@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
 
 import java.time.LocalDate;
 
@@ -25,14 +24,14 @@ public class GeneralPartnerDataDao {
     @Field("nationality2")
     private String nationality2;
 
+    @Field("not_disqualified_statement_checked")
+    private boolean isNotDisqualifiedStatementChecked;
+
     @Field("kind")
     private String kind;
 
     @Field("etag")
     private String etag;
-
-    @Field("general_partner_type")
-    private LimitedPartnerType partnerType;
 
     public String getKind() {
         return kind;
@@ -48,14 +47,6 @@ public class GeneralPartnerDataDao {
 
     public void setEtag(String etag) {
         this.etag = etag;
-    }
-
-    public LimitedPartnerType getPartnerType() {
-        return partnerType;
-    }
-
-    public void setPartnerType(LimitedPartnerType partnerType) {
-        this.partnerType = partnerType;
     }
 
     public String getForename() {
@@ -104,5 +95,13 @@ public class GeneralPartnerDataDao {
 
     public void setNationality2(String nationality2) {
         this.nationality2 = nationality2;
+    }
+
+    public boolean isNotDisqualifiedStatementChecked() {
+        return isNotDisqualifiedStatementChecked;
+    }
+
+    public void setNotDisqualifiedStatementChecked(boolean notDisqualifiedStatementChecked) {
+        isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 }

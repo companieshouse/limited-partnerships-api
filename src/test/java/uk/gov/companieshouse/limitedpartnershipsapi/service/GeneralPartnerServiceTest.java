@@ -11,7 +11,6 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils.buildTransaction;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralPartnerServiceTest {
@@ -49,7 +47,7 @@ class GeneralPartnerServiceTest {
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
     @Test
-    void testCreateGeneralPartnerReturnsSuccess() throws ServiceException {
+    void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException {
 
         GeneralPartnerDto dto = createDto();
         GeneralPartnerDao dao = createDao();
@@ -70,7 +68,6 @@ class GeneralPartnerServiceTest {
         assertEquals(USER_ID, sentSubmission.getCreatedBy());
         assertEquals(FILING_KIND_GENERAL_PARTNER, sentSubmission.getData().getKind());
         assertEquals(SUBMISSION_ID, submissionId);
-        assertEquals(LimitedPartnerType.LEGAL_ENTITY, sentSubmission.getData().getPartnerType());
 
         // Assert self link
         String expectedUri = String.format(URL_GET_GENERAL_PARTNER, testTransaction.getId(), SUBMISSION_ID);
@@ -126,7 +123,6 @@ class GeneralPartnerServiceTest {
     private GeneralPartnerDto createDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
-        dataDto.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
         dto.setData(dataDto);
         return dto;
     }
@@ -134,8 +130,13 @@ class GeneralPartnerServiceTest {
     private GeneralPartnerDao createDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-        dataDao.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
         dao.setData(dataDao);
         return dao;
+    }
+
+    public Transaction buildTransaction() {
+        var transaction = new Transaction();
+        transaction.setId("transaction-id");
+        return transaction;
     }
 }

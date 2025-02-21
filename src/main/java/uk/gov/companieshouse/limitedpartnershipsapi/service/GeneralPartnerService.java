@@ -37,6 +37,12 @@ public class GeneralPartnerService {
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId)  throws ServiceException {
+
+        if (transactionService.hasExistingLimitedPartnershipSubmission(transaction)) {
+            throw new ServiceException(String.format(
+                    "The transaction with id %s already has a Limited Partnership submission associated with it", transaction.getId()));
+        }
+
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);

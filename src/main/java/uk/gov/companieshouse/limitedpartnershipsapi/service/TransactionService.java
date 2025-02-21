@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
 
 @Service
@@ -49,5 +50,13 @@ public class TransactionService {
                                                      String partnershipName) throws ServiceException {
         transaction.setCompanyName(partnershipName);
         updateTransaction(transaction, requestId);
+    }
+
+    public boolean hasExistingLimitedPartnershipSubmission(Transaction transaction) {
+        if (transaction.getResources() != null) {
+            return transaction.getResources().entrySet().stream().anyMatch(
+                    resourceEntry -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resourceEntry.getValue().getKind()));
+        }
+        return false;
     }
 }

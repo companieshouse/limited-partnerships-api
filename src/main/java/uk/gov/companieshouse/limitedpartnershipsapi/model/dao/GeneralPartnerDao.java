@@ -28,9 +28,6 @@ public class GeneralPartnerDao {
     @Field("transaction_id")
     private String transactionId;
 
-    @Field("updated_at")
-    private LocalDateTime updatedAt;
-
     public String getId() {
         return id;
     }
@@ -77,13 +74,5 @@ public class GeneralPartnerDao {
 
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

@@ -1,28 +1,29 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
-
 import java.time.LocalDate;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidators.REG_EXP_FOR_INVALID_CHARACTERS;
 
 public class GeneralPartnerDataDto {
 
     @JsonProperty("forename")
     @Size(min = DataDto.NAME_MIN_SIZE, message = DataDto.NAME_MIN_SIZE_MESSAGE)
     @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String forename;
 
     @JsonProperty("former_names")
     @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String formerNames;
 
     @JsonProperty("surname")
     @Size(min = DataDto.NAME_MIN_SIZE, message = DataDto.NAME_MIN_SIZE_MESSAGE)
     @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String surname;
 
     @JsonProperty("date_of_birth")
@@ -34,39 +35,8 @@ public class GeneralPartnerDataDto {
     @JsonProperty("nationality2")
     private String nationality2;
 
-    @JsonProperty("kind")
-    private String kind;
-
-    @JsonProperty("etag")
-    private String etag;
-
-    @JsonInclude(NON_NULL)
-    @JsonProperty("general_partner_type")
-    private LimitedPartnerType partnerType;
-
-    public String getKind() {
-        return kind;
-    }
-
-    public void setKind(String kind) {
-        this.kind = kind;
-    }
-
-    public String getEtag() {
-        return etag;
-    }
-
-    public void setEtag(String etag) {
-        this.etag = etag;
-    }
-
-    public LimitedPartnerType getPartnerType() {
-        return partnerType;
-    }
-
-    public void setPartnerType(LimitedPartnerType partnerType) {
-        this.partnerType = partnerType;
-    }
+    @JsonProperty("not_disqualified_statement_checked")
+    private boolean isNotDisqualifiedStatementChecked;
 
     public String getForename() {
         return forename;
@@ -114,5 +84,13 @@ public class GeneralPartnerDataDto {
 
     public void setNationality2(String nationality2) {
         this.nationality2 = nationality2;
+    }
+
+    public boolean isNotDisqualifiedStatementChecked() {
+        return isNotDisqualifiedStatementChecked;
+    }
+
+    public void setNotDisqualifiedStatementChecked(boolean notDisqualifiedStatementChecked) {
+        isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 }
