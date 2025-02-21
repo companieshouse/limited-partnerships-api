@@ -5,28 +5,29 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MAX_SIZE_MESSAGE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MIN_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MIN_SIZE_MESSAGE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.REG_EXP_FOR_INVALID_CHARACTERS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_INVALID_CHARACTERS;
 
 public class GeneralPartnerDataDto {
 
+    public static final String NAME_MIN_SIZE_MESSAGE = "general partner name must be greater than {min}";
+    public static final String NAME_MAX_SIZE_MESSAGE = "general partner name must be less than {max}";
+
     @JsonProperty("forename")
-    @Size(min = MIN_SIZE, message = MIN_SIZE_MESSAGE)
-    @Size(max = MAX_SIZE, message = MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String forename;
 
     @JsonProperty("former_names")
-    @Size(max = MAX_SIZE, message = MAX_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String formerNames;
 
     @JsonProperty("surname")
-    @Size(min = MIN_SIZE, message = MIN_SIZE_MESSAGE)
-    @Size(max = MAX_SIZE, message = MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String surname;
 

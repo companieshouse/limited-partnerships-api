@@ -51,12 +51,4 @@ public class TransactionService {
         transaction.setCompanyName(partnershipName);
         updateTransaction(transaction, requestId);
     }
-
-    public boolean hasExistingLimitedPartnershipSubmission(Transaction transaction) {
-        if (transaction.getResources() != null) {
-            return transaction.getResources().entrySet().stream().anyMatch(
-                    resourceEntry -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resourceEntry.getValue().getKind()));
-        }
-        return false;
-    }
 }

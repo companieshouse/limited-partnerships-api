@@ -13,18 +13,19 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MAX_SIZE_MESSAGE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MIN_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.MIN_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
 
 @NameSize
 public class DataDto {
 
+    public static final String NAME_MIN_SIZE_MESSAGE = "partnership name must be greater than {min}";
+    public static final String NAME_MAX_SIZE_MESSAGE = "partnership name must be less than {max}";
+
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-    @Size(min = MIN_SIZE, message = MIN_SIZE_MESSAGE)
-    @Size(max = MAX_SIZE, message = MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     private String partnershipName;
 
     @JsonInclude(NON_NULL)
