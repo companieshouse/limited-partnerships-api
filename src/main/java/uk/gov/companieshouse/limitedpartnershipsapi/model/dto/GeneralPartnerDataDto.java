@@ -5,24 +5,28 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidators.REG_EXP_FOR_INVALID_CHARACTERS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MAX_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MIN_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.REG_EXP_FOR_INVALID_CHARACTERS;
 
 public class GeneralPartnerDataDto {
 
     @JsonProperty("forename")
-    @Size(min = DataDto.NAME_MIN_SIZE, message = DataDto.NAME_MIN_SIZE_MESSAGE)
-    @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    @Size(min = NAME_MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
+    @Size(max = NAME_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String forename;
 
     @JsonProperty("former_names")
-    @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    @Size(max = NAME_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String formerNames;
 
     @JsonProperty("surname")
-    @Size(min = DataDto.NAME_MIN_SIZE, message = DataDto.NAME_MIN_SIZE_MESSAGE)
-    @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    @Size(min = NAME_MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
+    @Size(max = NAME_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
     private String surname;
 

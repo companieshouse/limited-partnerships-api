@@ -13,13 +13,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MAX_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.StringValidationConstants.NAME_MIN_SIZE_MESSAGE;
 
 @NameSize
 public class DataDto {
-    public static final int NAME_MIN_SIZE = 1;
-    public static final String NAME_MIN_SIZE_MESSAGE = "partnership name must be greater than {min}";
-    public static final int NAME_MAX_SIZE = 160;
-    public static final String NAME_MAX_SIZE_MESSAGE = "partnership name must be less than {max}";
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
