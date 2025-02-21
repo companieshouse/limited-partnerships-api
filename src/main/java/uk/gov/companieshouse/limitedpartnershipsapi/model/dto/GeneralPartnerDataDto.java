@@ -14,22 +14,23 @@ public class GeneralPartnerDataDto {
 
     public static final String NAME_MIN_SIZE_MESSAGE = "general partner name must be greater than {min}";
     public static final String NAME_MAX_SIZE_MESSAGE = "general partner name must be less than {max}";
+    public static final String NAME_INVALID_MESSAGE = "general partner name is invalid";
 
     @JsonProperty("forename")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
+    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS, message = NAME_INVALID_MESSAGE)
     private String forename;
 
     @JsonProperty("former_names")
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
+    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS, message = NAME_INVALID_MESSAGE)
     private String formerNames;
 
     @JsonProperty("surname")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS)
+    @Pattern(regexp = REG_EXP_FOR_INVALID_CHARACTERS, message = NAME_INVALID_MESSAGE)
     private String surname;
 
     @JsonProperty("date_of_birth")
