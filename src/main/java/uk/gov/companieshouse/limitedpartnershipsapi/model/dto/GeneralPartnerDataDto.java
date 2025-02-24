@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.Nationality;
+
 import java.time.LocalDate;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
@@ -10,6 +12,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_S
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_INVALID_CHARACTERS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
 
+@Nationality
 public class GeneralPartnerDataDto {
 
     public static final String NAME_MIN_SIZE_MESSAGE = "general partner name must be greater than {min}";

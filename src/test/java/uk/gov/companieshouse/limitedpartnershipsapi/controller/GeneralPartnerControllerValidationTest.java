@@ -162,6 +162,48 @@ class GeneralPartnerControllerValidationTest {
             "    }\n" +
             "}";
 
+    private static final String JSON_INVALID_NATIONALITY = "{\n" +
+            "    \"data\": {\n" +
+            "      \"forename\": \"Joe\",\n" +
+            "      \"former_names\": \"ВЛАД\",\n" +
+            "      \"surname\": \"Bloggs\",\n" +
+            "      \"date_of_birth\": \"2001-01-01\",\n" +
+            "      \"nationality1\": \"Absurdistani\",\n" +
+            "      \"nationality2\": \"\",\n" +
+            "      \"kind\": \"kind\",\n" +
+            "      \"etag\": \"tag\",\n" +
+            "      \"general_partner_type\": \"Person\"\n" +
+            "    }\n" +
+            "}";
+
+    private static final String JSON_FIRST_AND_SECOND_NATIONALITY_NOT_DIFFERENT = "{\n" +
+            "    \"data\": {\n" +
+            "      \"forename\": \"Joe\",\n" +
+            "      \"former_names\": \"ВЛАД\",\n" +
+            "      \"surname\": \"Bloggs\",\n" +
+            "      \"date_of_birth\": \"2001-01-01\",\n" +
+            "      \"nationality1\": \"British\",\n" +
+            "      \"nationality2\": \"British\",\n" +
+            "      \"kind\": \"kind\",\n" +
+            "      \"etag\": \"tag\",\n" +
+            "      \"general_partner_type\": \"Person\"\n" +
+            "    }\n" +
+            "}";
+
+    private static final String JSON_INVALID_SECOND_NATIONALITY = "{\n" +
+            "    \"data\": {\n" +
+            "      \"forename\": \"Joe\",\n" +
+            "      \"former_names\": \"ВЛАД\",\n" +
+            "      \"surname\": \"Bloggs\",\n" +
+            "      \"date_of_birth\": \"2001-01-01\",\n" +
+            "      \"nationality1\": \"British\",\n" +
+            "      \"nationality2\": \"Absurdistani\",\n" +
+            "      \"kind\": \"kind\",\n" +
+            "      \"etag\": \"tag\",\n" +
+            "      \"general_partner_type\": \"Person\"\n" +
+            "    }\n" +
+            "}";
+
     private HttpHeaders httpHeaders;
     private Transaction transaction;
 
@@ -212,7 +254,10 @@ class GeneralPartnerControllerValidationTest {
             JSON_WITH_ABOVE_MAX_FORMERNAME,
             JSON_INVALID_FORENAME,
             JSON_INVALID_SURNAME,
-            JSON_INVALID_FORMERNAME
+            JSON_INVALID_FORMERNAME,
+            JSON_INVALID_NATIONALITY,
+            JSON_FIRST_AND_SECOND_NATIONALITY_NOT_DIFFERENT,
+            JSON_INVALID_SECOND_NATIONALITY
     })
     void shouldReturn400(String body)  throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.postUrl)
