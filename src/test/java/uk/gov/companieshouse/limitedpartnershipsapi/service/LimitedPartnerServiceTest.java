@@ -144,8 +144,8 @@ class LimitedPartnerServiceTest {
         return dao;
     }
 
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
+    public Transaction buildTransaction() {
+        var transaction = new Transaction();
         transaction.setId("transaction-id");
         return transaction;
     }

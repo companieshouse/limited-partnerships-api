@@ -11,11 +11,17 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
+
+
 @NameSize
 public class LimitedPartnershipPatchDto {
     @JsonProperty("partnership_name")
-    @Size(min = DataDto.NAME_MIN_SIZE, message = DataDto.NAME_MIN_SIZE_MESSAGE)
-    @Size(max = DataDto.NAME_MAX_SIZE, message = DataDto.NAME_MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = MAX_SIZE_MESSAGE)
     private String partnershipName;
 
     @JsonProperty("name_ending")

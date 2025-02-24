@@ -14,17 +14,21 @@ public class Constants {
     public static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
     public static final String URL_GET_INCORPORATION = "/transactions/%s/incorporation/limited-partnership/%s";
     public static final String URL_GET_LIMITED_PARTNER = "/transactions/%s/limited-partnership/limited-partner/%s";
+    public static final String URL_GET_GENERAL_PARTNER = "/transactions/%s/limited-partnership/general-partner/%s";
     // Filings
     public static final String FILING_KIND_REGISTRATION = "limited-partnership-registration";
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
     public static final String FILING_KIND_LIMITED_PARTNER = "limited-partnership#limited-partner";
+    public static final String FILING_KIND_GENERAL_PARTNER = "limited-partnership#general-partner";
     public static final String LINK_SELF = "self";
     public static final String LINK_RESOURCE = "resource";
     // Validation rules
     public static final int MIN_SIZE = 1;
     public static final String MIN_SIZE_MESSAGE = "must be greater than {min}";
-    public static final int MAX_SIZE = 50;
+    public static final int SHORT_MAX_SIZE = 50;
+    public static final int LONG_MAX_SIZE = 160;
     public static final String MAX_SIZE_MESSAGE = "must be less than {max}";
+    public static final String REG_EXP_FOR_INVALID_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
 
     private Constants() {
     }
