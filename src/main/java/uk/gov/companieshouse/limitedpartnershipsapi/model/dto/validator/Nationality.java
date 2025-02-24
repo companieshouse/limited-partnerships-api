@@ -12,7 +12,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Nationality {
-    String message() default "";
+
+    String message() default "Check nationality is valid and any second nationality is different from the first";
 
     Class<?>[] groups() default {};
 
