@@ -54,7 +54,7 @@ public class GeneralPartnerController {
             var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, submissionId));
             var response = new  GeneralPartnerSubmissionCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
-        } catch (ServiceException e) {
+        } catch (ServiceException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating the general partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

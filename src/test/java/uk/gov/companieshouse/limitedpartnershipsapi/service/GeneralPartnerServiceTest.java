@@ -24,6 +24,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,7 +51,7 @@ class GeneralPartnerServiceTest {
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
     @Test
-    void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException {
+    void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
         GeneralPartnerDto dto = createDto();
         GeneralPartnerDao dao = createDao();
@@ -78,17 +79,11 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testExceptionIsThrownWhenFirstAndSecondNationalityIsTheSame() {
+    void testExceptionIsThrownWhenFirstAndSecondNationalityIsTheSame() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDto dto = createDto();
         dto.getData().setNationality2(Nationality.BELGIAN);
         Transaction testTransaction = buildTransaction();
-        try {
-            generalPartnerService.createGeneralPartner(testTransaction, dto, REQUEST_ID, USER_ID);
-            fail("No exception was thrown");
-        }
-        catch(Exception e){
-            assertNotNull(e);
-        }
+        assertThrows(MethodArgumentNotValidException.class, () -> { generalPartnerService.createGeneralPartner(testTransaction, dto, REQUEST_ID, USER_ID); });
     }
 
     @Test
@@ -140,6 +135,7 @@ class GeneralPartnerServiceTest {
     private GeneralPartnerDto createDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
+        dataDto.setNationality1(Nationality.BELGIAN);
         dto.setData(dataDto);
         return dto;
     }

@@ -51,7 +51,7 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testCreatePartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException {
+    void testCreatePartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
          when(generalPartnerService.createGeneralPartner(
                 any(Transaction.class),
                 any(GeneralPartnerDto.class),
@@ -77,7 +77,7 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testCreatePartnerReturnsException() throws ServiceException, MethodArgumentNotValidException {
+    void testCreatePartnerReturnsException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(generalPartnerService.createGeneralPartner(
                 any(Transaction.class),
                 any(GeneralPartnerDto.class),

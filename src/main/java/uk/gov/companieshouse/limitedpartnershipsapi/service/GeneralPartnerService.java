@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -12,10 +13,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
+import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,7 +43,7 @@ public class GeneralPartnerService {
         this.transactionService = transactionService;
     }
 
-    public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException {
+    public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
         checkNationalities(generalPartnerDto);
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
@@ -86,12 +89,13 @@ public class GeneralPartnerService {
         transactionService.updateTransaction(transaction, requestId);
     }
 
-    private void checkNationalities(GeneralPartnerDto generalPartnerDto) throws MethodArgumentNotValidException {
+    private void checkNationalities(GeneralPartnerDto generalPartnerDto) throws MethodArgumentNotValidException, NoSuchMethodException {
         if (!isSecondNationalityDifferent(generalPartnerDto.getData().getNationality1(), generalPartnerDto.getData().getNationality2())) {
             BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, "GeneralPartnerDto");
-            FieldError fieldError = new FieldError("GeneralPartnerDto", "Nationality", "Second nationality must be different from the first");
+            var fieldError = new FieldError("GeneralPartnerDto", "Nationality", "Second nationality must be different from the first");
             bindingResult.addError(fieldError);
-            throw new MethodArgumentNotValidException(null, bindingResult);
+            MethodParameter methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(),-1);
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
 
