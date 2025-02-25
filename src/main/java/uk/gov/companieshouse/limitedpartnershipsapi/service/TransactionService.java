@@ -7,11 +7,11 @@ import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
 
 @Service
 public class TransactionService {

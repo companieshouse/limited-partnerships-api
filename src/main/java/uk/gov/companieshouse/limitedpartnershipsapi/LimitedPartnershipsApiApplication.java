@@ -3,7 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.TimeZone;
 

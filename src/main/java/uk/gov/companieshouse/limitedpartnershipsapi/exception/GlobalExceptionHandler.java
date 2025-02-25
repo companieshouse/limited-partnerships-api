@@ -11,13 +11,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.ERIC_REQUEST_ID_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

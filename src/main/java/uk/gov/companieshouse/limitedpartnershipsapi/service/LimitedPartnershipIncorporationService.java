@@ -12,7 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.IncorporationSubRe
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.TransactionUtils;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,9 +20,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.FILING_KIND_REGISTRATION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.URL_GET_INCORPORATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 @Service
 public class LimitedPartnershipIncorporationService {

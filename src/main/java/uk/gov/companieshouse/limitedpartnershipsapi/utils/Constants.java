@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils;
+package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
 public class Constants {
     // Request header names

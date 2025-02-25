@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -8,10 +8,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnu
 
 import java.time.LocalDate;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.LONG_MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.MIN_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.REG_EXP_FOR_INVALID_CHARACTERS;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.SHORT_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_INVALID_CHARACTERS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
 
 public class GeneralPartnerDataDto {
 

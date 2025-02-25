@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.SHORT_MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.MAX_SIZE_MESSAGE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.MIN_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.MIN_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
 
 
 public class AddressDto {

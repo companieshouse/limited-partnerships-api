@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 
 public class NameSizeValidator implements ConstraintValidator<NameSize, Object> {
     public boolean isValid(Object object, ConstraintValidatorContext context) {

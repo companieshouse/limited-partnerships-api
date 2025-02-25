@@ -6,7 +6,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.FILING_KIND_REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 
 class LimitedPartnershipIncorporationMapperTest {
 

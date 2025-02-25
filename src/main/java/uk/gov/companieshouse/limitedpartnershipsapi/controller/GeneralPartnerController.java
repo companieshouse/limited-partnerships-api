@@ -16,16 +16,16 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.ERIC_REQUEST_ID_KEY;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.TRANSACTION_KEY;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.URL_GET_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.URL_PARAM_TRANSACTION_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/general-partner")
