@@ -18,7 +18,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
-import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,10 +90,12 @@ public class GeneralPartnerService {
 
     private void checkNationalities(GeneralPartnerDto generalPartnerDto) throws MethodArgumentNotValidException, NoSuchMethodException {
         if (!isSecondNationalityDifferent(generalPartnerDto.getData().getNationality1(), generalPartnerDto.getData().getNationality2())) {
+            var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(),-1);
+
             BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, "GeneralPartnerDto");
             var fieldError = new FieldError("GeneralPartnerDto", "Nationality", "Second nationality must be different from the first");
             bindingResult.addError(fieldError);
-            MethodParameter methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(),-1);
+
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
