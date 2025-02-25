@@ -13,7 +13,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.LONG_MAX_SIZE;
 
 class LimitedPartnershipSubmissionDtoValidationTest {
 

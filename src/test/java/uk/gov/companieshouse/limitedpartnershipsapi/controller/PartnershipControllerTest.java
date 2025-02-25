@@ -27,7 +27,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.URL_GET_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 class PartnershipControllerTest {

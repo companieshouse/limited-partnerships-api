@@ -12,17 +12,17 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.URL_GET_PARTNERSHIP;
 
 @Service
 public class LimitedPartnershipService {

@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -37,8 +38,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -51,8 +52,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -64,8 +65,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -77,8 +78,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "",
                   "surname": "",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -90,8 +91,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "",
                   "surname": "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -103,8 +104,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -117,8 +118,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -131,8 +132,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "",
                   "surname": "BloГГs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -145,8 +146,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "ВЛАД",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -159,7 +160,7 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "ВЛАД",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "Absurdistani",
+                  "nationality1": "ABSURDISTANI",
                   "nationality2": "",
                   "kind": "kind",
                   "etag": "tag"
@@ -173,8 +174,8 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "ВЛАД",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
-                  "nationality2": "British",
+                  "nationality1": "BRITISH",
+                  "nationality2": "BRITISH",
                   "kind": "kind",
                   "etag": "tag"
                 }
@@ -187,7 +188,7 @@ class GeneralPartnerControllerValidationTest {
                   "former_names": "ВЛАД",
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
-                  "nationality1": "British",
+                  "nationality1": "BRITISH",
                   "nationality2": "Absurdistani",
                   "kind": "kind",
                   "etag": "tag"
@@ -233,7 +234,9 @@ class GeneralPartnerControllerValidationTest {
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
-                        .content(body))
+                        .content(body)).andDo(
+                                print()
+                )
                 .andExpect(status().isCreated());
     }
 

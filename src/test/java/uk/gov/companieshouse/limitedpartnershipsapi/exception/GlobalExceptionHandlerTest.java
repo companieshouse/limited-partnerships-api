@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.WebRequest;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.Constants.ERIC_REQUEST_ID_KEY;
 
 @ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {

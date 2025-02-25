@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.utils;
+package uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils;
 
 import uk.gov.companieshouse.limitedpartnershipsapi.LimitedPartnershipsApiApplication;
 import uk.gov.companieshouse.logging.Logger;
