@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
@@ -23,6 +24,9 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,6 +77,20 @@ class GeneralPartnerServiceTest {
         // Assert self link
         String expectedUri = String.format(URL_GET_GENERAL_PARTNER, testTransaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
+
+    @Test
+    void testExceptionIsThrownWhenFirstAndSecondNationalityIsTheSame() {
+        GeneralPartnerDto dto = createDto();
+        dto.getData().setNationality2(Nationality.BELGIAN);
+        Transaction testTransaction = buildTransaction();
+        try {
+            generalPartnerService.createGeneralPartner(testTransaction, dto, REQUEST_ID, USER_ID);
+            fail("No exception was thrown");
+        }
+        catch(Exception e){
+            assertNotNull(e);
+        }
     }
 
     @Test
