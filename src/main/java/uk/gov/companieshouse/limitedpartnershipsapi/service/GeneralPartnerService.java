@@ -1,12 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -19,8 +16,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.utils.ApiLogger;
 
-import java.beans.BeanProperty;
-import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;

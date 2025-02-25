@@ -17,8 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
