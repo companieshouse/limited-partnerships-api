@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -100,10 +101,10 @@ public class GeneralPartnerService {
         }
     }
 
-    public boolean isSecondNationalityDifferent(Nationality nationality1, Nationality nationality2) {
-        if (nationality2 == null || nationality2 == Nationality.UNKNOWN) {
-            return !(nationality1 == null || nationality1 == Nationality.UNKNOWN);
+    public boolean isSecondNationalityDifferent(String nationality1, String nationality2) {
+        if (StringUtils.isBlank(nationality2) || nationality2.equals(Nationality.UNKNOWN.getDescription())) {
+            return !(StringUtils.isBlank(nationality1) || nationality1.equals(Nationality.UNKNOWN.getDescription()));
         }
-        return nationality1 != nationality2;
+        return !nationality1.equals(nationality2);
     }
 }

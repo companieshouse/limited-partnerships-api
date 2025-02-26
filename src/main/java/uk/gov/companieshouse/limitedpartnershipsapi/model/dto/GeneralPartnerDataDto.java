@@ -82,16 +82,16 @@ public class GeneralPartnerDataDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Nationality getNationality1() {
-        return nationality1;
+    public String getNationality1() {
+        return nationality1 != null ? nationality1.getDescription() : null;
     }
 
     public void setNationality1(Nationality nationality1) {
         this.nationality1 = nationality1;
     }
 
-    public Nationality getNationality2() {
-        return nationality2;
+    public String getNationality2() {
+        return  nationality2 != null ? nationality2.getDescription() : null;
     }
 
     public void setNationality2(Nationality nationality2) {

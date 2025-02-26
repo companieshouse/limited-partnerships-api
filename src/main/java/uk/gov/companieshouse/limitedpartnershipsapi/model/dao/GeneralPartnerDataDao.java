@@ -20,10 +20,10 @@ public class GeneralPartnerDataDao {
     private LocalDate dateOfBirth;
 
     @Field("nationality1")
-    private Nationality nationality1;
+    private String nationality1;
 
     @Field("nationality2")
-    private Nationality nationality2;
+    private String nationality2;
 
     @Field("not_disqualified_statement_checked")
     private boolean isNotDisqualifiedStatementChecked;
@@ -82,19 +82,19 @@ public class GeneralPartnerDataDao {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Nationality getNationality1() {
+    public String getNationality1() {
         return nationality1;
     }
 
-    public void setNationality1(Nationality nationality1) {
+    public void setNationality1(String nationality1) {
         this.nationality1 = nationality1;
     }
 
-    public Nationality getNationality2() {
+    public String getNationality2() {
         return nationality2;
     }
 
-    public void setNationality2(Nationality nationality2) {
+    public void setNationality2(String nationality2) {
         this.nationality2 = nationality2;
     }
 
