@@ -25,7 +25,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +78,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testExceptionIsThrownWhenFirstAndSecondNationalityIsTheSame() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testExceptionIsThrownWhenFirstAndSecondNationalityIsTheSame() {
         GeneralPartnerDto dto = createDto();
         dto.getData().setNationality2(Nationality.BELGIAN);
         Transaction testTransaction = buildTransaction();
@@ -116,20 +115,20 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGeneralPartnerDtoInitialization() {
-        GeneralPartnerDto GeneralPartnerDto = new GeneralPartnerDto();
-        GeneralPartnerDataDto GeneralPartnerData = new GeneralPartnerDataDto();
-        GeneralPartnerDto.setData(GeneralPartnerData);
+        GeneralPartnerDto generalPartnerDto = new GeneralPartnerDto();
+        GeneralPartnerDataDto generalPartnerData = new GeneralPartnerDataDto();
+        generalPartnerDto.setData(generalPartnerData);
 
-        assertNotNull(GeneralPartnerDto.getData());
+        assertNotNull(generalPartnerDto.getData());
     }
 
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {
-        var GeneralPartnerResource = new Resource();
+        var generalPartnerResource = new Resource();
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
-        GeneralPartnerResource.setLinks(linksMap);
-        GeneralPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
-        return GeneralPartnerResource;
+        generalPartnerResource.setLinks(linksMap);
+        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
+        return generalPartnerResource;
     }
 
     private GeneralPartnerDto createDto() {

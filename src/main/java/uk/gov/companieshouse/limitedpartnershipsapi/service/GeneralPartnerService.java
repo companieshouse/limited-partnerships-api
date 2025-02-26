@@ -101,9 +101,13 @@ public class GeneralPartnerService {
     }
 
     public boolean isSecondNationalityDifferent(Nationality nationality1, Nationality nationality2) {
-        if (nationality2 != null && nationality2 != Nationality.UNKNOWN) {
-            return nationality1 != nationality2;
+        if (nationality2 == null || nationality2 == Nationality.UNKNOWN) {
+            if (nationality1 == null) {
+              return false;
+            } else {
+              return true;
+            }
         }
-        return true;
+        return nationality1 != nationality2;
     }
 }
