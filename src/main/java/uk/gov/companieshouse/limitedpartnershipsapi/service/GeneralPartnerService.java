@@ -92,8 +92,8 @@ public class GeneralPartnerService {
         if (!isSecondNationalityDifferent(generalPartnerDto.getData().getNationality1(), generalPartnerDto.getData().getNationality2())) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(),-1);
 
-            BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, "GeneralPartnerDto");
-            var fieldError = new FieldError("GeneralPartnerDto", "Nationality", "Second nationality must be different from the first");
+            BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
+            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "Nationality", "Second nationality must be different from the first");
             bindingResult.addError(fieldError);
 
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);

@@ -232,9 +232,7 @@ class GeneralPartnerControllerValidationTest {
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
-                        .content(body)).andDo(
-                                print()
-                )
+                        .content(body))
                 .andExpect(status().isCreated());
     }
 
