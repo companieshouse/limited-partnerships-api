@@ -40,11 +40,11 @@ public class GeneralPartnerDataDto {
     private LocalDate dateOfBirth;
 
     @JsonProperty("nationality1")
-    @ValidEnum(message = "Nationality must be valid")
+    @ValidEnum(message = "First nationality must be valid")
     private Nationality nationality1;
 
     @JsonProperty("nationality2")
-    @ValidEnum(message = "Nationality must be valid")
+    @ValidEnum(message = "Second nationality must be valid")
     private Nationality nationality2;
 
     @JsonProperty("not_disqualified_statement_checked")

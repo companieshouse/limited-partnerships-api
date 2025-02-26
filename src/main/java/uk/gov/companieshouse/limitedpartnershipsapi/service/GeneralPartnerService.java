@@ -53,7 +53,7 @@ public class GeneralPartnerService {
         return insertedSubmission.getId();
     }
 
-     private GeneralPartnerDao insertDaoWithMetadata(
+    private GeneralPartnerDao insertDaoWithMetadata(
             String requestId, Transaction transaction, String userId, GeneralPartnerDao dao) {
         dao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
@@ -102,11 +102,7 @@ public class GeneralPartnerService {
 
     public boolean isSecondNationalityDifferent(Nationality nationality1, Nationality nationality2) {
         if (nationality2 == null || nationality2 == Nationality.UNKNOWN) {
-            if (nationality1 == null) {
-              return false;
-            } else {
-              return true;
-            }
+            return !(nationality1 == null || nationality1 == Nationality.UNKNOWN);
         }
         return nationality1 != nationality2;
     }
