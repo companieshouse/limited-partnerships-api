@@ -20,8 +20,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRep
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,6 +72,50 @@ public class GeneralPartnerServiceCreateTest {
 
         String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
+
+    @Test
+    void shouldFailCreateAGeneralPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() throws ServiceException {
+        Transaction transaction = buildTransaction();
+        GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
+        dto.getData().setLegalForm(null);
+        dto.getData().setGoverningLaw(null);
+        dto.getData().setLegalEntityRegistrationLocation(null);
+        dto.getData().setCountry(null);
+        dto.getData().setRegisteredCompanyNumber(null);
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID)
+        );
+
+        assertNull(exception.getBindingResult().getFieldError("legal_entity_register_name"));
+        assertEquals("Legal Form must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_form")).getDefaultMessage());
+        assertEquals("Governing Law must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
+        assertEquals("Legal Entity Registration Location must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
+        assertEquals("Country must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("country")).getDefaultMessage());
+        assertEquals("Registered Company Number must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
+    }
+
+    @Test
+    void shouldFailCreateAGeneralPartnerLegalEntityIfLegalFormIsCorrectAndOthersAreNull() throws ServiceException {
+        Transaction transaction = buildTransaction();
+        GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
+        dto.getData().setLegalEntityRegisterName(null);
+        dto.getData().setGoverningLaw(null);
+        dto.getData().setLegalEntityRegistrationLocation(null);
+        dto.getData().setCountry(null);
+        dto.getData().setRegisteredCompanyNumber(null);
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID)
+        );
+
+        assertNull(exception.getBindingResult().getFieldError("legal_form"));
+        assertEquals("Legal Entity Register Name must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
+        assertEquals("Governing Law must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
+        assertEquals("Legal Entity Registration Location must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
+        assertEquals("Country must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("country")).getDefaultMessage());
+        assertEquals("Registered Company Number must not be null", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
     }
 
     private Transaction buildTransaction() {

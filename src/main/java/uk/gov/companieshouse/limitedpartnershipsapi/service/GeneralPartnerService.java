@@ -34,21 +34,26 @@ public class GeneralPartnerService {
     private final GeneralPartnerRepository repository;
     private final GeneralPartnerMapper mapper;
     private final TransactionService transactionService;
+    private final GeneralPartnerValidator generalPartnerValidator;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
-                                 TransactionService transactionService) {
+                                 TransactionService transactionService,
+                                 GeneralPartnerValidator generalPartnerValidator) {
         this.repository = repository;
         this.mapper = mapper;
         this.transactionService = transactionService;
+        this.generalPartnerValidator = generalPartnerValidator;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
+        generalPartnerValidator.checkNotNull(generalPartnerDto);
+
         if (generalPartnerDto.getData().getNationality1() != null) {
             checkNationalities(generalPartnerDto);
         }
-        
+
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);

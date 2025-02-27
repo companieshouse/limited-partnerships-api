@@ -46,6 +46,8 @@ class GeneralPartnerServiceTest {
     GeneralPartnerMapper mapper;
     @Mock
     TransactionService transactionService;
+    @Mock
+    GeneralPartnerValidator generalPartnerValidator;
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
