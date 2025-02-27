@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
@@ -17,12 +18,16 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +42,7 @@ class LimitedPartnerServiceTest {
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
     @InjectMocks
-    LimitedPartnerService service;
+    LimitedPartnerService limitedPartnerService;
 
     @Mock
     LimitedPartnerRepository repository;
@@ -50,6 +55,9 @@ class LimitedPartnerServiceTest {
 
     @Mock
     private LimitedPartnerMapper mapper;
+
+    @Mock
+    private TransactionUtils transactionUtils;
 
     @Test
     void testCreateLimitedPartnerIsSuccessful() throws ServiceException {
@@ -64,7 +72,7 @@ class LimitedPartnerServiceTest {
         Transaction testTransaction = buildTransaction();
 
         // when
-        String submissionId = service.createLimitedPartner(testTransaction, limitedPartnerDto, REQUEST_ID, USER_ID);
+        String submissionId = limitedPartnerService.createLimitedPartner(testTransaction, limitedPartnerDto, REQUEST_ID, USER_ID);
 
         // then
         verify(mapper, times(1)).dtoToDao(limitedPartnerDto);
@@ -111,12 +119,87 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
+    public void testGetLimitedPartner_Successful() throws ServiceException {
+        // Arrange
+        Transaction transaction = new Transaction();
+        transaction.setId("txn-123");
+        LimitedPartnerDao submissionDao = new LimitedPartnerDao();
+        LimitedPartnerDto dto = new LimitedPartnerDto();
+        List<LimitedPartnerDao> submissions = Collections.singletonList(submissionDao);
+
+        when(transactionUtils.doesTransactionHaveALimitedPartnerSubmission(transaction)).thenReturn(true);
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(submissions);
+        when(mapper.daoToDto(submissionDao)).thenReturn(dto);
+
+        // Act
+        LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction);
+
+        // Assert
+        assertEquals(dto, result);
+    }
+
+    @Test
     void testLimitedPartnerDtoInitialization() {
         LimitedPartnerDto limitedPartnerDto = new LimitedPartnerDto();
         LimitedPartnerDataDto limitedPartnerData = new LimitedPartnerDataDto();
         limitedPartnerDto.setData(limitedPartnerData);
 
         assertNotNull(limitedPartnerDto.getData());
+    }
+
+    @Test
+    void givenTransactionId_whenGetLp_ThenLPRetrieved() throws ServiceException {
+        // given
+        LimitedPartnerDto limitedPartnerDto = createDto();
+        LimitedPartnerDao limitedPartnerDao = createDao();
+        Transaction transaction = buildTransaction();
+
+        when(transactionUtils.doesTransactionHaveALimitedPartnerSubmission(transaction)).thenReturn(true);
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnerDao));
+        when(mapper.daoToDto(limitedPartnerDao)).thenReturn(limitedPartnerDto);
+
+        // when
+        LimitedPartnerDto retrievedDto = limitedPartnerService.getLimitedPartner(transaction);
+
+        // then
+        verify(repository, times(1)).findByTransactionId(transaction.getId());
+        verify(mapper, times(1)).daoToDto(limitedPartnerDao);
+        assertEquals(limitedPartnerDto.getData(), retrievedDto.getData());
+    }
+
+    @Test
+    void givenInvalidTransactionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
+        // given
+        Transaction transaction = buildTransaction();
+        when(transactionUtils.doesTransactionHaveALimitedPartnerSubmission(transaction)).thenReturn(true);
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(Collections.emptyList());
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> limitedPartnerService.getLimitedPartner(transaction));
+    }
+
+    @Test
+    void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+        // given
+        Transaction transaction = buildTransaction();
+        when(transactionUtils.doesTransactionHaveALimitedPartnerSubmission(transaction)).thenReturn(false);
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> limitedPartnerService.getLimitedPartner(transaction));
+    }
+
+    @Test
+    void givenTransactionIdHasMultipleLpSubmissions_whenGetLp_ThenServiceExceptionThrown() throws ResourceNotFoundException {
+        // given
+        Transaction transaction = buildTransaction();
+        LimitedPartnerDao lpDao1 = createDao();
+        LimitedPartnerDao lpDao2 = createDao();
+
+        when(transactionUtils.doesTransactionHaveALimitedPartnerSubmission(transaction)).thenReturn(true);
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao1, lpDao2));
+
+        // when + then
+        assertThrows(ServiceException.class, () -> limitedPartnerService.getLimitedPartner(transaction));
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {
