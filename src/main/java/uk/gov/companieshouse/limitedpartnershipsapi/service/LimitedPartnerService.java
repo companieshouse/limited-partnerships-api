@@ -4,12 +4,14 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -26,14 +28,17 @@ public class LimitedPartnerService {
     private final LimitedPartnerRepository repository;
     private final LimitedPartnerMapper mapper;
     private final TransactionService transactionService;
+    private final TransactionUtils transactionUtils;
 
     public LimitedPartnerService(
             LimitedPartnerRepository repository,
             LimitedPartnerMapper mapper,
-            TransactionService transactionService) {
+            TransactionService transactionService,
+            TransactionUtils transactionUtils) {
         this.repository = repository;
         this.mapper = mapper;
         this.transactionService = transactionService;
+        this.transactionUtils = transactionUtils;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException {
@@ -91,5 +96,36 @@ public class LimitedPartnerService {
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
 
         return limitedPartnerResource;
+    }
+
+    public LimitedPartnerDto getLimitedPartner(Transaction transaction, String submissionId) throws ResourceNotFoundException {
+        String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
+        if (!transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(transaction, submissionUri)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches submission id: %s", transaction, submissionId));
+        }
+
+        var submission = repository.findById(submissionId);
+        LimitedPartnerDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
+        return mapper.daoToDto(submissionDao);
+    }
+
+    public LimitedPartnerDto getLimitedPartner(Transaction transaction) throws ServiceException {
+        if (!transactionUtils.doesTransactionHaveALimitedPartnerSubmission(transaction)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
+        }
+
+        var submissions = repository.findByTransactionId(transaction.getId());
+
+        if (submissions.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("No limited partner found for transaction id %s", transaction.getId()));
+        } else if (submissions.size() > 1) {
+            throw new ServiceException(String.format("More than one limited partner found for transaction id %s", transaction.getId()));
+        }
+
+        LimitedPartnerDao submissionDao = submissions.getFirst();
+
+        return mapper.daoToDto(submissionDao);
     }
 }
