@@ -17,11 +17,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -30,137 +29,171 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class GeneralPartnerControllerValidationTest {
 
     static String postUrl = "/transactions/863851-951242-143528/limited-partnership/general-partner";
+    private static final String JSON_CORRECT = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
 
-    private static final String JSON_CORRECT = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"Joe\",\n" +
-            "      \"former_names\": \"\",\n" +
-            "      \"surname\": \"Bloggs\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
+    private static final String JSON_WITH_BELOW_MIN_FORENAME = """
+             {
+                "data": {
+                  "forename": "",
+                  "former_names": "",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
+    private static final String JSON_WITH_ABOVE_MAX_FORENAME = """
+            {
+                "data": {
+                  "forename": "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog             The quick brown fox jumps over the lazy dog",
+                  "former_names": "",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
+    private static final String JSON_WITH_BELOW_MIN_SURNAME = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "",
+                  "surname": "",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
+    private static final String JSON_WITH_ABOVE_MAX_SURNAME = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "",
+                  "surname": "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
+    private static final String JSON_WITH_ABOVE_MAX_FORMERNAME = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
 
-    private static final String JSON_WITH_BELOW_MIN_FORENAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"\",\n" +
-            "      \"former_names\": \"\",\n" +
-            "      \"surname\": \"Bloggs\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
-    private static final String JSON_WITH_ABOVE_MAX_FORENAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog\"  ,\n" +
-            "      \"former_names\": \"\",\n" +
-            "      \"surname\": \"Bloggs\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
-    private static final String JSON_WITH_BELOW_MIN_SURNAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"Joe\",\n" +
-            "      \"former_names\": \"\",\n" +
-            "      \"surname\": \"\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
-    private static final String JSON_WITH_ABOVE_MAX_SURNAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"Joe\",\n" +
-            "      \"former_names\": \"\",\n" +
-            "      \"surname\":\"The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
-    private static final String JSON_WITH_ABOVE_MAX_FORMERNAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"Joe\",\n" +
-            "      \"former_names\": \"The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog " +
-            "The quick brown fox jumps over the lazy dog\",\n" +
-            "      \"surname\": \"Bloggs\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
+    private static final String JSON_INVALID_FORENAME = """
+            {
+                "data": {
+                  "forename": "Жoe",
+                  "former_names": "",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
 
-    private static final String JSON_INVALID_FORENAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"Жoe\",\n" +
-            "      \"former_names\": \"\",\n" +
-            "      \"surname\": \"Bloggs\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
+    private static final String JSON_INVALID_SURNAME = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "",
+                  "surname": "BloГГs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
 
-    private static final String JSON_INVALID_SURNAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"Joe\",\n" +
-            "      \"former_names\": \"\",\n" +
-            "      \"surname\": \"BloГГs\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
+    private static final String JSON_INVALID_FORMERNAME = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "ВЛАД",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
 
-    private static final String JSON_INVALID_FORMERNAME = "{\n" +
-            "    \"data\": {\n" +
-            "      \"forename\": \"Joe\",\n" +
-            "      \"former_names\": \"ВЛАД\",\n" +
-            "      \"surname\": \"Bloggs\",\n" +
-            "      \"date_of_birth\": \"2001-01-01\",\n" +
-            "      \"nationality1\": \"British\",\n" +
-            "      \"nationality2\": \"\",\n" +
-            "      \"kind\": \"kind\",\n" +
-            "      \"etag\": \"tag\",\n" +
-            "      \"general_partner_type\": \"Person\"\n" +
-            "    }\n" +
-            "}";
+    private static final String JSON_INVALID_NATIONALITY = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "ВЛАД",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "ABSURDISTANI",
+                  "nationality2": "",
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
+
+    private static final String JSON_FIRST_AND_SECOND_NATIONALITY_NOT_DIFFERENT = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "ВЛАД",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": "BRITISH",
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
+
+    private static final String JSON_INVALID_SECOND_NATIONALITY = """
+            {
+                "data": {
+                  "forename": "Joe",
+                  "former_names": "ВЛАД",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": "Absurdistani",
+                  "kind": "kind",
+                  "etag": "tag"
+                }
+            }""";
+
+
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -212,7 +245,10 @@ class GeneralPartnerControllerValidationTest {
             JSON_WITH_ABOVE_MAX_FORMERNAME,
             JSON_INVALID_FORENAME,
             JSON_INVALID_SURNAME,
-            JSON_INVALID_FORMERNAME
+            JSON_INVALID_FORMERNAME,
+            JSON_INVALID_NATIONALITY,
+            JSON_FIRST_AND_SECOND_NATIONALITY_NOT_DIFFERENT,
+            JSON_INVALID_SECOND_NATIONALITY
     })
     void shouldReturn400(String body)  throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.postUrl)
@@ -222,15 +258,5 @@ class GeneralPartnerControllerValidationTest {
                         .requestAttr("transaction", transaction)
                         .content(body))
                 .andExpect(status().isBadRequest());
-    }
-
-    private static String createLongString() {
-        return "a".repeat(161);
-    }
-    private GeneralPartnerDto createDto() {
-        GeneralPartnerDto dto = new GeneralPartnerDto();
-        GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
-        dto.setData(dataDto);
-        return dto;
     }
 }

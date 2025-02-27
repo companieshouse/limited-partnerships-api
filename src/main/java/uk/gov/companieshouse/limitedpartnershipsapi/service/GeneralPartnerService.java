@@ -1,12 +1,20 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.apache.commons.lang.StringUtils;
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -35,8 +43,9 @@ public class GeneralPartnerService {
         this.transactionService = transactionService;
     }
 
-    public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId)  throws ServiceException {
+    public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
+        checkNationalities(generalPartnerDto);
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
@@ -78,5 +87,24 @@ public class GeneralPartnerService {
         transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
 
         transactionService.updateTransaction(transaction, requestId);
+    }
+
+    private void checkNationalities(GeneralPartnerDto generalPartnerDto) throws MethodArgumentNotValidException, NoSuchMethodException {
+        if (!isSecondNationalityDifferent(generalPartnerDto.getData().getNationality1(), generalPartnerDto.getData().getNationality2())) {
+            var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(),-1);
+
+            BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
+            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "Nationality", "Second nationality must be different from the first");
+            bindingResult.addError(fieldError);
+
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    private boolean isSecondNationalityDifferent(String nationality1, String nationality2) {
+        if (StringUtils.isBlank(nationality2) || nationality2.equals(Nationality.UNKNOWN.getDescription())) {
+            return !(StringUtils.isBlank(nationality1) || nationality1.equals(Nationality.UNKNOWN.getDescription()));
+        }
+        return !nationality1.equals(nationality2);
     }
 }

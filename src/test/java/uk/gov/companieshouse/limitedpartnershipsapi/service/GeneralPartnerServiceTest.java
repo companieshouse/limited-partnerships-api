@@ -7,10 +7,12 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
@@ -22,6 +24,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +50,7 @@ class GeneralPartnerServiceTest {
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
     @Test
-    void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException {
+    void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
         GeneralPartnerDto dto = createDto();
         GeneralPartnerDao dao = createDao();
@@ -72,6 +75,14 @@ class GeneralPartnerServiceTest {
         // Assert self link
         String expectedUri = String.format(URL_GET_GENERAL_PARTNER, testTransaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
+
+    @Test
+    void testExceptionIsThrownWhenFirstAndSecondNationalityIsTheSame() {
+        GeneralPartnerDto dto = createDto();
+        dto.getData().setNationality2(Nationality.BELGIAN);
+        Transaction testTransaction = buildTransaction();
+        assertThrows(MethodArgumentNotValidException.class, () -> { generalPartnerService.createGeneralPartner(testTransaction, dto, REQUEST_ID, USER_ID); });
     }
 
     @Test
@@ -104,25 +115,26 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGeneralPartnerDtoInitialization() {
-        GeneralPartnerDto GeneralPartnerDto = new GeneralPartnerDto();
-        GeneralPartnerDataDto GeneralPartnerData = new GeneralPartnerDataDto();
-        GeneralPartnerDto.setData(GeneralPartnerData);
+        GeneralPartnerDto generalPartnerDto = new GeneralPartnerDto();
+        GeneralPartnerDataDto generalPartnerData = new GeneralPartnerDataDto();
+        generalPartnerDto.setData(generalPartnerData);
 
-        assertNotNull(GeneralPartnerDto.getData());
+        assertNotNull(generalPartnerDto.getData());
     }
 
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {
-        var GeneralPartnerResource = new Resource();
+        var generalPartnerResource = new Resource();
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
-        GeneralPartnerResource.setLinks(linksMap);
-        GeneralPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
-        return GeneralPartnerResource;
+        generalPartnerResource.setLinks(linksMap);
+        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
+        return generalPartnerResource;
     }
 
     private GeneralPartnerDto createDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
+        dataDto.setNationality1(Nationality.BELGIAN);
         dto.setData(dataDto);
         return dto;
     }

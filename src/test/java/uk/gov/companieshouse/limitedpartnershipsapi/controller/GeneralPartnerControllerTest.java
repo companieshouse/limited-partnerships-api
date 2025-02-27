@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
@@ -50,7 +51,7 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testCreatePartnerReturnsSuccess()  throws ServiceException {
+    void testCreatePartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
          when(generalPartnerService.createGeneralPartner(
                 any(Transaction.class),
                 any(GeneralPartnerDto.class),
@@ -76,7 +77,7 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testCreatePartnerReturnsException() throws ServiceException {
+    void testCreatePartnerReturnsException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(generalPartnerService.createGeneralPartner(
                 any(Transaction.class),
                 any(GeneralPartnerDto.class),

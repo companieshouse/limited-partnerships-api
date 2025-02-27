@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +43,7 @@ public class GeneralPartnerController {
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @Valid @RequestBody GeneralPartnerDto generalPartnerDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId) {
+            @RequestHeader(value = ERIC_IDENTITY) String userId) throws MethodArgumentNotValidException {
 
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
@@ -53,7 +54,7 @@ public class GeneralPartnerController {
             var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, submissionId));
             var response = new  GeneralPartnerSubmissionCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
-        } catch (ServiceException e) {
+        } catch (ServiceException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating the general partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
