@@ -101,7 +101,7 @@ public class GeneralPartnerService {
         }
     }
 
-    public boolean isSecondNationalityDifferent(String nationality1, String nationality2) {
+    private boolean isSecondNationalityDifferent(String nationality1, String nationality2) {
         if (StringUtils.isBlank(nationality2) || nationality2.equals(Nationality.UNKNOWN.getDescription())) {
             return !(StringUtils.isBlank(nationality1) || nationality1.equals(Nationality.UNKNOWN.getDescription()));
         }
