@@ -45,7 +45,10 @@ public class GeneralPartnerService {
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        checkNationalities(generalPartnerDto);
+        if (generalPartnerDto.getData().getNationality1() != null) {
+            checkNationalities(generalPartnerDto);
+        }
+        
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
