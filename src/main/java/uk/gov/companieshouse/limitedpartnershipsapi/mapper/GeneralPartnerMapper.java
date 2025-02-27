@@ -12,11 +12,11 @@ public interface GeneralPartnerMapper {
     GeneralPartnerDto daoToDto(GeneralPartnerDao dao);
     GeneralPartnerDao dtoToDao(GeneralPartnerDto dto);
 
-    default String mapNationalityToString(Nationality nationality) {
+    default String mapNationalityEnumToString(Nationality nationality) {
         return nationality.getDescription();
     }
 
-    default Nationality mapNationalityToEnum(String nationality) {
+    default Nationality mapStringToNationalityEnum(String nationality) {
         return nationality != null ? Nationality.fromDescription(nationality) : null;
     }
 }
