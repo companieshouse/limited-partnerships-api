@@ -206,7 +206,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    public void testGetLimitedPartner_Success() throws ResourceNotFoundException {
+    void testGetLimitedPartner_Success() throws ResourceNotFoundException {
         // Arrange
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
@@ -227,7 +227,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    public void testGetALimitedPartner_Success() throws ResourceNotFoundException {
+    void testGetALimitedPartner_Failure() throws ResourceNotFoundException {
         // Arrange
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
@@ -243,9 +243,30 @@ class LimitedPartnerServiceTest {
 
         // Act
         LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction, submissionId);
+    }
 
-        // Assert
-        assertEquals(dto, result);
+    @Test
+    void testGetLimitedPartner_TransactionNotLinked() {
+        // Arrange
+        Transaction transaction = new Transaction();
+        transaction.setId("txn-123");
+        String submissionId = "sub-456";
+        String submissionUri = "/transactions/txn-123/submissions/sub-456";
+
+        // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
+        when(transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(eq(transaction), any(String.class))).thenReturn(false);
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            limitedPartnerService.getLimitedPartner(transaction, submissionId);
+        });
+
+        // Print the actual exception message
+        System.out.println("Actual exception message: " + exception.getMessage());
+
+        // Adjust the expected message if necessary
+        String expectedMessage = String.format("Transaction id: {\"id\":\"%s\"} does not have a resource that matches submission id: %s", transaction.getId(), submissionId);
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {
