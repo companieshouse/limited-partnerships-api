@@ -80,7 +80,7 @@ public class LimitedPartnerController {
         logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
 
         try {
-            ApiLogger.infoContext(requestId, "Successfully retrieved limited partner", logMap);
+            ApiLogger.infoContext(requestId, "Retrieving a limited partner", logMap);
             LimitedPartnerDto dto = limitedPartnerService.getLimitedPartner(transaction, submissionId);
             return ResponseEntity.ok().body(dto);
         } catch (ResourceNotFoundException e) {
