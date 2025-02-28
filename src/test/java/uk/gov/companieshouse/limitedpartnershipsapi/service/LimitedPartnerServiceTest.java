@@ -24,10 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -119,7 +122,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    public void testGetLimitedPartner_Successful() throws ServiceException {
+    void testGetLimitedPartner_Successful() throws ServiceException {
         // Arrange
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
@@ -200,6 +203,49 @@ class LimitedPartnerServiceTest {
 
         // when + then
         assertThrows(ServiceException.class, () -> limitedPartnerService.getLimitedPartner(transaction));
+    }
+
+    @Test
+    public void testGetLimitedPartner_Success() throws ResourceNotFoundException {
+        // Arrange
+        Transaction transaction = new Transaction();
+        transaction.setId("txn-123");
+        String submissionId = "sub-456";
+        String submissionUri = "/transactions/txn-123/submissions/sub-456";
+        LimitedPartnerDao submissionDao = new LimitedPartnerDao();
+        LimitedPartnerDto dto = new LimitedPartnerDto();
+
+        when(transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(eq(transaction), any(String.class))).thenReturn(true);
+        when(repository.findById(submissionId)).thenReturn(Optional.of(submissionDao));
+        when(mapper.daoToDto(submissionDao)).thenReturn(dto);
+
+        // Act
+        LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction, submissionId);
+
+        // Assert
+        assertEquals(dto, result);
+    }
+
+    @Test
+    public void testGetALimitedPartner_Success() throws ResourceNotFoundException {
+        // Arrange
+        Transaction transaction = new Transaction();
+        transaction.setId("txn-123");
+        String submissionId = "sub-456";
+        String submissionUri = "/transactions/txn-123/submissions/sub-456";
+        LimitedPartnerDao submissionDao = new LimitedPartnerDao();
+        LimitedPartnerDto dto = new LimitedPartnerDto();
+
+        // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
+        when(transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(eq(transaction), any(String.class))).thenReturn(true);
+        when(repository.findById(submissionId)).thenReturn(Optional.of(submissionDao));
+        when(mapper.daoToDto(submissionDao)).thenReturn(dto);
+
+        // Act
+        LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction, submissionId);
+
+        // Assert
+        assertEquals(dto, result);
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {

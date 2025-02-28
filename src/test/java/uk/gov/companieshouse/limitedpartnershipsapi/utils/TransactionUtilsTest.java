@@ -30,7 +30,7 @@ public class TransactionUtilsTest {
     @Test
     void givenLimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, "");
+        var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, LIMITED_PARTNER_SELF_LINK);
         // then
         assertFalse(result);
     }
