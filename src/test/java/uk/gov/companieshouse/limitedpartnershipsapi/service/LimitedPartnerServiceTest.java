@@ -227,7 +227,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    void testGetALimitedPartner_Failure() throws ResourceNotFoundException {
+    void testGetALimitedPartner_Success() throws ResourceNotFoundException {
         // Arrange
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
@@ -243,6 +243,9 @@ class LimitedPartnerServiceTest {
 
         // Act
         LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction, submissionId);
+
+        // Assert
+        assertEquals(dto, result);
     }
 
     @Test
