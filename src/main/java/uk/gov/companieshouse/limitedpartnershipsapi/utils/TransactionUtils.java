@@ -52,16 +52,4 @@ public class TransactionUtils {
     public boolean isTransactionLinkedToLimitedPartnerSubmission(Transaction transaction, String limitedPartnerSubmissionSelfLink) {
         return doChecks(transaction, limitedPartnerSubmissionSelfLink, FILING_KIND_LIMITED_PARTNER);
     }
-
-    public boolean doesTransactionHaveALimitedPartnerSubmission(Transaction transaction) {
-        if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
-            return false;
-        }
-
-        Optional<?> optionalEntry = transaction.getResources().entrySet().stream()
-                .filter(resource -> FILING_KIND_LIMITED_PARTNER.equals(resource.getValue().getKind()))
-                .findFirst();
-
-        return optionalEntry.isPresent();
-    }
 }

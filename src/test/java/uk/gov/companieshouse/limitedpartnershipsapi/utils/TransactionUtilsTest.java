@@ -152,20 +152,6 @@ public class TransactionUtilsTest {
     }
 
     @Test
-    void givenTransactionHasALimitedPartner_thenReturnTrue() {
-        // given
-        Map<String, Resource> transactionResources = new HashMap<>();
-        Resource limitedPartnerResource = new Resource();
-        limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
-        transactionResources.put(LIMITED_PARTNER_SELF_LINK, limitedPartnerResource);
-        when(transaction.getResources()).thenReturn(transactionResources);
-        // when
-        var result = transactionUtils.doesTransactionHaveALimitedPartnerSubmission(transaction);
-        // then
-        assertTrue(result);
-    }
-
-    @Test
     void givenALimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
         // when
         var result = transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(transaction, "");

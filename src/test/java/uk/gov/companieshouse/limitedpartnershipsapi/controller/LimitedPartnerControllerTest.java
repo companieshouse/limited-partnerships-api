@@ -115,8 +115,7 @@ class LimitedPartnerControllerTest {
         var response = limitedPartnerController.getLimitedPartner(
                 transaction,
                 SUBMISSION_ID,
-                REQUEST_ID,
-                USER_ID);
+                REQUEST_ID);
 
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
@@ -133,8 +132,7 @@ class LimitedPartnerControllerTest {
         var response = limitedPartnerController.getLimitedPartner(
                 transaction,
                 SUBMISSION_ID,
-                REQUEST_ID,
-                USER_ID);
+                REQUEST_ID);
 
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());

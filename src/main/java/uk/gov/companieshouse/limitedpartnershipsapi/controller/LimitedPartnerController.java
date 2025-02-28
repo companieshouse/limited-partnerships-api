@@ -34,8 +34,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/limited-partner")
 public class LimitedPartnerController {
 
-    @Autowired
-    private LimitedPartnerService limitedPartnerService;
+    private final LimitedPartnerService limitedPartnerService;
 
     @Autowired
     public LimitedPartnerController(LimitedPartnerService limitedPartnerService) {
@@ -74,12 +73,11 @@ public class LimitedPartnerController {
     public ResponseEntity<Object> getLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId) {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        logMap.put("submissionId", submissionId);
+        logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
 
         try {
             LimitedPartnerDto dto = limitedPartnerService.getLimitedPartner(transaction, submissionId);
