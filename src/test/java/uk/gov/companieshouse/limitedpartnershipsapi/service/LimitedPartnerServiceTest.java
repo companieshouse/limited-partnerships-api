@@ -134,7 +134,6 @@ class LimitedPartnerServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
         String submissionId = "sub-456";
-        String submissionUri = "/transactions/txn-123/submissions/sub-456";
         LimitedPartnerDao submissionDao = new LimitedPartnerDao();
         LimitedPartnerDto dto = new LimitedPartnerDto();
 
@@ -155,7 +154,6 @@ class LimitedPartnerServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
         String submissionId = "sub-456";
-        String submissionUri = "/transactions/txn-123/submissions/sub-456";
         LimitedPartnerDao submissionDao = new LimitedPartnerDao();
         LimitedPartnerDto dto = new LimitedPartnerDto();
 
@@ -177,7 +175,6 @@ class LimitedPartnerServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
         String submissionId = "sub-456";
-        String submissionUri = "/transactions/txn-123/submissions/sub-456";
 
         // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
         when(transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(eq(transaction), any(String.class))).thenReturn(false);

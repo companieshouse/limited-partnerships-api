@@ -35,7 +35,7 @@ public class TransactionUtils {
         return doChecks(transaction, limitedPartnershipIncorporationSelfLink, FILING_KIND_REGISTRATION);
     }
 
-    public boolean doChecks(Transaction transaction, String selfLink, String kind) {
+    private boolean doChecks(Transaction transaction, String selfLink, String kind) {
         if (StringUtils.isBlank(selfLink)) {
             return false;
         }
