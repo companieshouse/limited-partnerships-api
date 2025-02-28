@@ -12,12 +12,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -161,6 +163,59 @@ public class GeneralPartnerServiceCreateTest {
         dataDao.setLegalEntityRegistrationLocation("Public Register");
         dataDao.setCountry("United Kingdom");
         dataDao.setRegisteredCompanyNumber("12345678");
+        dataDao.setNotDisqualifiedStatementChecked(true);
+
+        dao.setData(dataDao);
+        dao.setId(SUBMISSION_ID);
+
+        return dao;
+    }
+
+    @Test
+    void shouldCreateAGeneralPartnerPerson() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        Transaction transaction = buildTransaction();
+        GeneralPartnerDto dto = createGeneralPartnerPersonDto();
+        GeneralPartnerDao dao = createGeneralPartnerPersonDao();
+
+        when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
+        when(repository.save(dao)).thenReturn(dao);
+
+        String submissionId = service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+        verify(repository).insert(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+        assertEquals(USER_ID, sentSubmission.getCreatedBy());
+        assertEquals(FILING_KIND_GENERAL_PARTNER, sentSubmission.getData().getKind());
+        assertEquals(SUBMISSION_ID, submissionId);
+
+        String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), SUBMISSION_ID);
+        assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
+
+    private GeneralPartnerDto createGeneralPartnerPersonDto() {
+        GeneralPartnerDto dto = new GeneralPartnerDto();
+
+        GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
+        dataDto.setForename("John");
+        dataDto.setSurname("Doe");
+        dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
+        dataDto.setNationality1(Nationality.AMERICAN);
+        dataDto.setNotDisqualifiedStatementChecked(true);
+
+        dto.setData(dataDto);
+
+        return dto;
+    }
+
+    private GeneralPartnerDao createGeneralPartnerPersonDao() {
+        GeneralPartnerDao dao = new GeneralPartnerDao();
+
+        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
+        dataDao.setForename("John");
+        dataDao.setSurname("Doe");
+        dataDao.setDateOfBirth(LocalDate.of(1980, 1, 1));
+        dataDao.setNationality1("American");
         dataDao.setNotDisqualifiedStatementChecked(true);
 
         dao.setData(dataDao);
