@@ -182,7 +182,9 @@ public class GeneralPartnerServiceCreateTest {
         void shouldCreateAGeneralPartnerPerson() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             Transaction transaction = buildTransaction();
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
+            dto.getData().setNationality2(Nationality.BRITISH);
             GeneralPartnerDao dao = createGeneralPartnerPersonDao();
+            dao.getData().setNationality2("British");
 
             when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
@@ -201,7 +203,7 @@ public class GeneralPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfFornameIsCorrectAndOthersAreNull() {
+        void shouldFailCreateAGeneralPartnerPersonIfForenameIsCorrectAndOthersAreNull() {
             Transaction transaction = buildTransaction();
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             dto.getData().setSurname(null);
@@ -234,6 +236,20 @@ public class GeneralPartnerServiceCreateTest {
             assertEquals("Forename is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("forename")).getDefaultMessage());
             assertEquals("Date of birth is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("date_of_birth")).getDefaultMessage());
             assertEquals("Nationality1 is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality1")).getDefaultMessage());
+        }
+
+        @Test
+        void shouldFailCreateAGeneralPartnerPersonIfNationality1ANdNationality2AreSame() {
+            Transaction transaction = buildTransaction();
+            GeneralPartnerDto dto = createGeneralPartnerPersonDto();
+            dto.getData().setNationality2(Nationality.AMERICAN);
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            assertNull(exception.getBindingResult().getFieldError("nationality1"));
+            assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
         }
 
         private GeneralPartnerDto createGeneralPartnerPersonDto() {
