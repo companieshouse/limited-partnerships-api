@@ -102,11 +102,11 @@ public class LimitedPartnerService {
         String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
         if (!transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
-                    "Transaction id: %s does not have a resource that matches submission id: %s", transaction, submissionId));
+                    "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
         }
 
         var submission = repository.findById(submissionId);
-        LimitedPartnerDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
+        LimitedPartnerDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("No limited partner found with id %s\"", submissionId)));
         return mapper.daoToDto(submissionDao);
     }
 }

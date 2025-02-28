@@ -81,6 +81,7 @@ public class LimitedPartnerController {
 
         try {
             LimitedPartnerDto dto = limitedPartnerService.getLimitedPartner(transaction, submissionId);
+            ApiLogger.infoContext(requestId, "Successfully retrieved limited partner", logMap);
             return ResponseEntity.ok().body(dto);
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
