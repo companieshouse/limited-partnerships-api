@@ -10,32 +10,32 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnu
 
 import java.time.LocalDate;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
 
 public class GeneralPartnerDataDto {
 
-    public static final String NAME_MIN_SIZE_MESSAGE = "general partner name must be greater than {min}";
-    public static final String NAME_MAX_SIZE_MESSAGE = "general partner name must be less than {max}";
-    public static final String NAME_INVALID_MESSAGE = "general partner name is invalid";
-
     @JsonProperty("forename")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = SHORT_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Forename " + MIN_SIZE_MESSAGE)
+    @Size(max = SHORT_MAX_SIZE, message = "Forename " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Forename " + INVALID_CHARACTERS_MESSAGE)
     private String forename;
 
     @JsonProperty("former_names")
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Former names " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Former names " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Former names " + INVALID_CHARACTERS_MESSAGE)
     private String formerNames;
 
     @JsonProperty("surname")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Surname " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Surname " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Surname " + INVALID_CHARACTERS_MESSAGE)
     private String surname;
 
     @JsonProperty("date_of_birth")
@@ -53,36 +53,36 @@ public class GeneralPartnerDataDto {
     private boolean isNotDisqualifiedStatementChecked;
 
     @JsonProperty("country")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Country " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Country " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Country " + INVALID_CHARACTERS_MESSAGE)
     private String country;
 
     @JsonProperty("date_effective_from")
     private LocalDate dateEffectiveFrom;
 
     @JsonProperty("governing_law")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Governing law " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Governing law " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
     private String governingLaw;
 
     @JsonProperty("legal_entity_register_name")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Legal entity register name " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityRegisterName;
 
     @JsonProperty("legal_entity_registration_location")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Legal entity registration location " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Legal entity registration location " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity registration law " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityRegistrationLocation;
 
     @JsonProperty("legal_form")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Legal form " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Legal form " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal form " + INVALID_CHARACTERS_MESSAGE)
     private String legalForm;
 
     @JsonProperty("principal_office_address")
@@ -90,9 +90,9 @@ public class GeneralPartnerDataDto {
     private AddressDao principalOfficeAddress;
 
     @JsonProperty("registered_company_number")
-    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = NAME_INVALID_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Registered company number " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Registered company number " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Registered company number " + INVALID_CHARACTERS_MESSAGE)
     private String registeredCompanyNumber;
 
     @JsonProperty("resignation_date")
