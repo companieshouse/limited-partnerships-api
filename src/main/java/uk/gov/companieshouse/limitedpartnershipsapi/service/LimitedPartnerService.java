@@ -106,7 +106,7 @@ public class LimitedPartnerService {
         }
 
         var submission = repository.findById(submissionId);
-        LimitedPartnerDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("No limited partner found with id %s\"", submissionId)));
+        LimitedPartnerDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("No limited partner found with id %s", submissionId)));
         return mapper.daoToDto(submissionDao);
     }
 }

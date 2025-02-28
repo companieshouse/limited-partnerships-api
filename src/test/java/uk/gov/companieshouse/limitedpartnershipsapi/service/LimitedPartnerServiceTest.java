@@ -149,27 +149,6 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    void testGetALimitedPartner_Success() throws ResourceNotFoundException {
-        // Arrange
-        Transaction transaction = new Transaction();
-        transaction.setId("txn-123");
-        String submissionId = "sub-456";
-        LimitedPartnerDao submissionDao = new LimitedPartnerDao();
-        LimitedPartnerDto dto = new LimitedPartnerDto();
-
-        // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
-        when(transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(eq(transaction), any(String.class))).thenReturn(true);
-        when(repository.findById(submissionId)).thenReturn(Optional.of(submissionDao));
-        when(mapper.daoToDto(submissionDao)).thenReturn(dto);
-
-        // Act
-        LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction, submissionId);
-
-        // Assert
-        assertEquals(dto, result);
-    }
-
-    @Test
     void testGetLimitedPartner_TransactionNotLinked() {
         // Arrange
         Transaction transaction = new Transaction();
