@@ -183,8 +183,7 @@ class LimitedPartnerServiceTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             limitedPartnerService.getLimitedPartner(transaction, submissionId);
         });
-
-        String expectedMessage = String.format("Transaction id: {\"id\":\"%s\"} does not have a resource that matches submission id: %s", transaction.getId(), submissionId);
+        String expectedMessage = String.format("Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId);
         assertEquals(expectedMessage, exception.getMessage());
     }
 
