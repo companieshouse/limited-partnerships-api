@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import java.util.Objects;
 import java.util.Optional;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
@@ -46,5 +47,9 @@ public class TransactionUtils {
         return transaction.getResources().entrySet().stream()
                 .filter(resource -> kind.equals(resource.getValue().getKind()))
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
+    }
+
+    public boolean isTransactionLinkedToLimitedPartnerSubmission(Transaction transaction, String limitedPartnerSubmissionSelfLink) {
+        return doChecks(transaction, limitedPartnerSubmissionSelfLink, FILING_KIND_LIMITED_PARTNER);
     }
 }
