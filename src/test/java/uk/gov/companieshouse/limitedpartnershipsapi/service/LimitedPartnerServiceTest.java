@@ -261,10 +261,6 @@ class LimitedPartnerServiceTest {
             limitedPartnerService.getLimitedPartner(transaction, submissionId);
         });
 
-        // Print the actual exception message
-        System.out.println("Actual exception message: " + exception.getMessage());
-
-        // Adjust the expected message if necessary
         String expectedMessage = String.format("Transaction id: {\"id\":\"%s\"} does not have a resource that matches submission id: %s", transaction.getId(), submissionId);
         assertEquals(expectedMessage, exception.getMessage());
     }
