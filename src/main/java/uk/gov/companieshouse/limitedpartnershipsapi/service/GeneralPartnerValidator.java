@@ -24,8 +24,7 @@ public class GeneralPartnerValidator {
             checkNotNullPerson(generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(generalPartnerDto, bindingResult);
         } else {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "", "Some fields are missing");
-            bindingResult.addError(fieldError);
+            addError("", "Some fields are missing", bindingResult);
         }
 
         if (bindingResult.hasErrors()) {
@@ -36,56 +35,46 @@ public class GeneralPartnerValidator {
     private void checkNotNullLegalEntity(GeneralPartnerDataDto generalPartnerDataDto,
                                          BindingResult bindingResult) {
         if (generalPartnerDataDto.getLegalEntityRegisterName() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "legal_entity_register_name", "Legal Entity Register Name is required");
-            bindingResult.addError(fieldError);
+            addError("legal_entity_register_name", "Legal Entity Register Name is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getLegalForm() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "legal_form", "Legal Form is required");
-            bindingResult.addError(fieldError);
+            addError("legal_form", "Legal Form is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getGoverningLaw() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "governing_law", "Governing Law is required");
-            bindingResult.addError(fieldError);
+            addError("governing_law", "Governing Law is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getLegalEntityRegistrationLocation() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "legal_entity_registration_location", "Legal Entity Registration Location is required");
-            bindingResult.addError(fieldError);
+            addError("legal_entity_registration_location", "Legal Entity Registration Location is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getCountry() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "country", "Country is required");
-            bindingResult.addError(fieldError);
+            addError("country", "Country is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getRegisteredCompanyNumber() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "registered_company_number", "Registered Company Number is required");
-            bindingResult.addError(fieldError);
+            addError("registered_company_number", "Registered Company Number is required", bindingResult);
         }
     }
 
     private void checkNotNullPerson(GeneralPartnerDataDto generalPartnerDataDto,
                                     BindingResult bindingResult) {
         if (generalPartnerDataDto.getForename() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "forename", "Forename is required");
-            bindingResult.addError(fieldError);
+            addError("forename", "Forename is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getSurname() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "surname", "Surname is required");
-            bindingResult.addError(fieldError);
+            addError("surname", "Surname is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getDateOfBirth() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "date_of_birth", "Date of birth is required");
-            bindingResult.addError(fieldError);
+            addError("date_of_birth", "Date of birth is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getNationality1() == null) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "nationality1", "Nationality1 is required");
-            bindingResult.addError(fieldError);
+            addError("nationality1", "Nationality1 is required", bindingResult);
         }
     }
 
@@ -94,8 +83,12 @@ public class GeneralPartnerValidator {
         String nationality2 = generalPartnerDto.getData().getNationality2();
 
         if (nationality1 != null && nationality2 != null && nationality1.equals(nationality2)) {
-            var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), "nationality2", "Second nationality must be different from the first");
-            bindingResult.addError(fieldError);
+            addError("nationality2", "Second nationality must be different from the first", bindingResult);
         }
+    }
+
+    private void addError(String legal_entity_register_name, String defaultMessage, BindingResult bindingResult) {
+        var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), legal_entity_register_name, defaultMessage);
+        bindingResult.addError(fieldError);
     }
 }
