@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.LimitedPartnerType;
@@ -17,12 +18,17 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +43,7 @@ class LimitedPartnerServiceTest {
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
     @InjectMocks
-    LimitedPartnerService service;
+    LimitedPartnerService limitedPartnerService;
 
     @Mock
     LimitedPartnerRepository repository;
@@ -50,6 +56,9 @@ class LimitedPartnerServiceTest {
 
     @Mock
     private LimitedPartnerMapper mapper;
+
+    @Mock
+    private TransactionUtils transactionUtils;
 
     @Test
     void testCreateLimitedPartnerIsSuccessful() throws ServiceException {
@@ -64,7 +73,7 @@ class LimitedPartnerServiceTest {
         Transaction testTransaction = buildTransaction();
 
         // when
-        String submissionId = service.createLimitedPartner(testTransaction, limitedPartnerDto, REQUEST_ID, USER_ID);
+        String submissionId = limitedPartnerService.createLimitedPartner(testTransaction, limitedPartnerDto, REQUEST_ID, USER_ID);
 
         // then
         verify(mapper, times(1)).dtoToDao(limitedPartnerDto);
@@ -117,6 +126,44 @@ class LimitedPartnerServiceTest {
         limitedPartnerDto.setData(limitedPartnerData);
 
         assertNotNull(limitedPartnerDto.getData());
+    }
+
+    @Test
+    void testGetLimitedPartner_Success() throws ResourceNotFoundException {
+        // Arrange
+        Transaction transaction = new Transaction();
+        transaction.setId("txn-123");
+        String submissionId = "sub-456";
+        LimitedPartnerDao submissionDao = new LimitedPartnerDao();
+        LimitedPartnerDto dto = new LimitedPartnerDto();
+
+        when(transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(eq(transaction), any(String.class))).thenReturn(true);
+        when(repository.findById(submissionId)).thenReturn(Optional.of(submissionDao));
+        when(mapper.daoToDto(submissionDao)).thenReturn(dto);
+
+        // Act
+        LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction, submissionId);
+
+        // Assert
+        assertEquals(dto, result);
+    }
+
+    @Test
+    void testGetLimitedPartner_TransactionNotLinked() {
+        // Arrange
+        Transaction transaction = new Transaction();
+        transaction.setId("txn-123");
+        String submissionId = "sub-456";
+
+        // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
+        when(transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(eq(transaction), any(String.class))).thenReturn(false);
+
+        // Act & Assert
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            limitedPartnerService.getLimitedPartner(transaction, submissionId);
+        });
+        String expectedMessage = String.format("Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId);
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {
