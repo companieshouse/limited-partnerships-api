@@ -87,8 +87,8 @@ public class GeneralPartnerValidator {
         }
     }
 
-    private void addError(String legal_entity_register_name, String defaultMessage, BindingResult bindingResult) {
-        var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), legal_entity_register_name, defaultMessage);
+    private void addError(String fieldName, String defaultMessage, BindingResult bindingResult) {
+        var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), fieldName, defaultMessage);
         bindingResult.addError(fieldError);
     }
 }
