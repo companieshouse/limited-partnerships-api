@@ -285,4 +285,21 @@ public class GeneralPartnerServiceCreateTest {
         }
     }
 
+    @Test
+    void shouldFailCreateAGeneralPartnerPersonIfAllFieldsAreNull() {
+        Transaction transaction = buildTransaction();
+        GeneralPartnerDto dto = new GeneralPartnerDto();
+        GeneralPartnerDataDto dataDao = new GeneralPartnerDataDto();
+        dto.setData(dataDao);
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID)
+        );
+
+        assertNull(exception.getBindingResult().getFieldError("forename"));
+        assertNull(exception.getBindingResult().getFieldError("surname"));
+        assertNull(exception.getBindingResult().getFieldError("legal_entity_register_name"));
+        assertNull(exception.getBindingResult().getFieldError("legal_form"));
+        assertEquals("Some fields are missing", Objects.requireNonNull(exception.getBindingResult().getFieldError("")).getDefaultMessage());
+    }
 }
