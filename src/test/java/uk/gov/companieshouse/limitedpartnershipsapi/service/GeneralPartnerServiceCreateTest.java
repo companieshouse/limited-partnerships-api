@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
@@ -148,7 +149,7 @@ public class GeneralPartnerServiceCreateTest {
             dataDto.setLegalForm("Limited Company");
             dataDto.setGoverningLaw("Act of law");
             dataDto.setLegalEntityRegistrationLocation("Public Register");
-            dataDto.setCountry("United Kingdom");
+            dataDto.setCountry(Country.UNITED_STATES);
             dataDto.setRegisteredCompanyNumber("12345678");
             dataDto.setNotDisqualifiedStatementChecked(true);
 

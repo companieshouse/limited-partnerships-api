@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
@@ -53,10 +54,8 @@ public class GeneralPartnerDataDto {
     private boolean isNotDisqualifiedStatementChecked;
 
     @JsonProperty("country")
-    @Size(min = MIN_SIZE, message = "Country " + MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = "Country " + MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Country " + INVALID_CHARACTERS_MESSAGE)
-    private String country;
+    @ValidEnum(message = "Country must be valid")
+    private Country country;
 
     @JsonProperty("date_effective_from")
     private LocalDate dateEffectiveFrom;
@@ -163,10 +162,10 @@ public class GeneralPartnerDataDto {
     }
 
     public String getCountry() {
-        return country;
+        return country != null ? country.getDescription() : null;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(Country country) {
         this.country = country;
     }
 
