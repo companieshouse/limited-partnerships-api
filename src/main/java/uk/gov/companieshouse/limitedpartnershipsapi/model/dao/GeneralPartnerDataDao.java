@@ -33,6 +33,42 @@ public class GeneralPartnerDataDao {
     @Field("etag")
     private String etag;
 
+    @Field("appointment_id")
+    private String appointmentId;
+
+    @Field("country")
+    private String country;
+
+    @Field("date_effective_from")
+    private LocalDate dateEffectiveFrom;
+
+    @Field("governing_law")
+    private String governingLaw;
+
+    @Field("legal_entity_register_name")
+    private String legalEntityRegisterName;
+
+    @Field("legal_entity_registration_location")
+    private String legalEntityRegistrationLocation;
+
+    @Field("legal_form")
+    private String legalForm;
+
+    @Field("principal_office_address")
+    private AddressDao principalOfficeAddress;
+
+    @Field("registered_company_number")
+    private String registeredCompanyNumber;
+
+    @Field("resignation_date")
+    private LocalDate resignationDate;
+
+    @Field("service_address")
+    private AddressDao serviceAddress;
+
+    @Field("usual_residential_address")
+    private AddressDao usualResidentialAddress;
+
     public String getKind() {
         return kind;
     }
@@ -103,5 +139,101 @@ public class GeneralPartnerDataDao {
 
     public void setNotDisqualifiedStatementChecked(boolean notDisqualifiedStatementChecked) {
         isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
+    }
+
+    public String getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(String appointmentId) {
+        this.appointmentId = appointmentId;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public LocalDate getDateEffectiveFrom() {
+        return dateEffectiveFrom;
+    }
+
+    public void setDateEffectiveFrom(LocalDate dateEffectiveFrom) {
+        this.dateEffectiveFrom = dateEffectiveFrom;
+    }
+
+    public String getGoverningLaw() {
+        return governingLaw;
+    }
+
+    public void setGoverningLaw(String governingLaw) {
+        this.governingLaw = governingLaw;
+    }
+
+    public String getLegalEntityRegisterName() {
+        return legalEntityRegisterName;
+    }
+
+    public void setLegalEntityRegisterName(String legalEntityRegisterName) {
+        this.legalEntityRegisterName = legalEntityRegisterName;
+    }
+
+    public String getLegalEntityRegistrationLocation() {
+        return legalEntityRegistrationLocation;
+    }
+
+    public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
+        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+    }
+
+    public String getLegalForm() {
+        return legalForm;
+    }
+
+    public void setLegalForm(String legalForm) {
+        this.legalForm = legalForm;
+    }
+
+    public AddressDao getPrincipalOfficeAddress() {
+        return principalOfficeAddress;
+    }
+
+    public void setPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
+        this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public String getRegisteredCompanyNumber() {
+        return registeredCompanyNumber;
+    }
+
+    public void setRegisteredCompanyNumber(String registeredCompanyNumber) {
+        this.registeredCompanyNumber = registeredCompanyNumber;
+    }
+
+    public LocalDate getResignationDate() {
+        return resignationDate;
+    }
+
+    public void setResignationDate(LocalDate resignationDate) {
+        this.resignationDate = resignationDate;
+    }
+
+    public AddressDao getServiceAddress() {
+        return serviceAddress;
+    }
+
+    public void setServiceAddress(AddressDao serviceAddress) {
+        this.serviceAddress = serviceAddress;
+    }
+
+    public AddressDao getUsualResidentialAddress() {
+        return usualResidentialAddress;
+    }
+
+    public void setUsualResidentialAddress(AddressDao usualResidentialAddress) {
+        this.usualResidentialAddress = usualResidentialAddress;
     }
 }
