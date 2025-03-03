@@ -78,14 +78,6 @@ class GeneralPartnerServiceTest {
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
     }
 
-//    @Test
-//    void testExceptionIsThrownWhenFirstAndSecondNationalityIsTheSame() {
-//        GeneralPartnerDto dto = createDto();
-//        dto.getData().setNationality2(Nationality.BELGIAN);
-//        Transaction testTransaction = buildTransaction();
-//        assertThrows(MethodArgumentNotValidException.class, () -> { generalPartnerService.createGeneralPartner(testTransaction, dto, REQUEST_ID, USER_ID); });
-//    }
-
     @Test
     void givenValidSubmissionUri_whenCreateGeneralPartnerTransactionResource_thenResourceCreated() {
         // given

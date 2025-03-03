@@ -16,7 +16,7 @@ public class GeneralPartnerValidator {
         var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
-        GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
+        var generalPartnerDataDto = generalPartnerDto.getData();
 
         if (generalPartnerDataDto.getLegalEntityRegisterName() != null || generalPartnerDataDto.getLegalForm() != null) {
             checkNotNullLegalEntity(generalPartnerDataDto, bindingResult);
