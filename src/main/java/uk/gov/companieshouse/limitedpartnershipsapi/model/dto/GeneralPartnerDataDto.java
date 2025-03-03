@@ -21,7 +21,19 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT
 
 public class GeneralPartnerDataDto {
 
-    @JsonProperty("forename")
+    public static final String FORENAME_FIELD = "forename";
+    public static final String SURNAME_FIELD = "surname";
+    public static final String DATE_OF_BIRTH_FIELD = "date_of_birth";
+    public static final String NATIONALITY1_FIELD = "nationality1";
+    public static final String NATIONALITY2_FIELD = "nationality2";
+    public static final String LEGAL_ENTITY_REGISTER_NAME_FIELD = "legal_entity_register_name";
+    public static final String LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD = "legal_entity_registration_location";
+    public static final String LEGAL_FORM_FIELD = "legal_form";
+    public static final String REGISTERED_COMPANY_NUMBER_FIELD = "registered_company_number";
+    public static final String COUNTRY_FIELD = "country";
+    public static final String GOVERNING_LAW_FIELD = "governing_law";
+
+    @JsonProperty(FORENAME_FIELD)
     @Size(min = MIN_SIZE, message = "Forename " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "Forename " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Forename " + INVALID_CHARACTERS_MESSAGE)
@@ -33,52 +45,52 @@ public class GeneralPartnerDataDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Former names " + INVALID_CHARACTERS_MESSAGE)
     private String formerNames;
 
-    @JsonProperty("surname")
+    @JsonProperty(SURNAME_FIELD)
     @Size(min = MIN_SIZE, message = "Surname " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Surname " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Surname " + INVALID_CHARACTERS_MESSAGE)
     private String surname;
 
-    @JsonProperty("date_of_birth")
+    @JsonProperty(DATE_OF_BIRTH_FIELD)
     private LocalDate dateOfBirth;
 
-    @JsonProperty("nationality1")
+    @JsonProperty(NATIONALITY1_FIELD)
     @ValidEnum(message = "First nationality must be valid")
     private Nationality nationality1;
 
-    @JsonProperty("nationality2")
+    @JsonProperty(NATIONALITY2_FIELD)
     @ValidEnum(message = "Second nationality must be valid")
     private Nationality nationality2;
 
     @JsonProperty("not_disqualified_statement_checked")
     private boolean isNotDisqualifiedStatementChecked;
 
-    @JsonProperty("country")
+    @JsonProperty(COUNTRY_FIELD)
     @ValidEnum(message = "Country must be valid")
     private Country country;
 
     @JsonProperty("date_effective_from")
     private LocalDate dateEffectiveFrom;
 
-    @JsonProperty("governing_law")
+    @JsonProperty(GOVERNING_LAW_FIELD)
     @Size(min = MIN_SIZE, message = "Governing law " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Governing law " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
     private String governingLaw;
 
-    @JsonProperty("legal_entity_register_name")
+    @JsonProperty(LEGAL_ENTITY_REGISTER_NAME_FIELD)
     @Size(min = MIN_SIZE, message = "Legal entity register name " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityRegisterName;
 
-    @JsonProperty("legal_entity_registration_location")
+    @JsonProperty(LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD)
     @Size(min = MIN_SIZE, message = "Legal entity registration location " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Legal entity registration location " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity registration law " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityRegistrationLocation;
 
-    @JsonProperty("legal_form")
+    @JsonProperty(LEGAL_FORM_FIELD)
     @Size(min = MIN_SIZE, message = "Legal form " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Legal form " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal form " + INVALID_CHARACTERS_MESSAGE)
@@ -88,7 +100,7 @@ public class GeneralPartnerDataDto {
     @Valid
     private AddressDao principalOfficeAddress;
 
-    @JsonProperty("registered_company_number")
+    @JsonProperty(REGISTERED_COMPANY_NUMBER_FIELD)
     @Size(min = MIN_SIZE, message = "Registered company number " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Registered company number " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Registered company number " + INVALID_CHARACTERS_MESSAGE)
