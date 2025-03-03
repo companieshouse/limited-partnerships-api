@@ -26,17 +26,18 @@ public class GeneralPartnerService {
 
     private final GeneralPartnerRepository repository;
     private final GeneralPartnerMapper mapper;
-    private final TransactionService transactionService;
     private final GeneralPartnerValidator generalPartnerValidator;
+    private final TransactionService transactionService;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
-                                 TransactionService transactionService,
-                                 GeneralPartnerValidator generalPartnerValidator) {
+                                 GeneralPartnerValidator generalPartnerValidator,
+                                 TransactionService transactionService
+    ) {
         this.repository = repository;
         this.mapper = mapper;
-        this.transactionService = transactionService;
         this.generalPartnerValidator = generalPartnerValidator;
+        this.transactionService = transactionService;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
