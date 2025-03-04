@@ -23,6 +23,7 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_PARTNERSHIP;
 
 @Service
 public class LimitedPartnershipService {
@@ -70,10 +71,8 @@ public class LimitedPartnershipService {
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri);
 
-        // Update company name set on the transaction and add a link to the newly created Limited Partnership
-        // submission (aka resource) to the transaction
         updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipSubmissionDto,
-                submissionUri, limitedPartnershipResource, requestId);
+                submissionUri, limitedPartnershipResource, requestId, insertedSubmission.getId());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission created with id: %s", insertedSubmission.getId()));
 
@@ -143,13 +142,22 @@ public class LimitedPartnershipService {
         return String.format(URL_GET_PARTNERSHIP, transactionId, submissionId);
     }
 
+    /**
+     * Update company name set on the transaction and add a link to the newly created Limited Partnership
+     * submission (aka resource) to the transaction. A resume link (URL) is also created and added, which
+     * is handled by the web client.
+     */
     private void updateTransactionWithLinksAndPartnershipName(Transaction transaction,
                                                               LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto,
                                                               String submissionUri,
                                                               Resource limitedPartnershipResource,
-                                                              String loggingContext) throws ServiceException {
+                                                              String loggingContext,
+                                                              String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipSubmissionDto.getData().getPartnershipName());
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
+
+        final String resumeJourneyUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), submissionId);
+        transaction.setResumeJourneyUri(resumeJourneyUri);
 
         transactionService.updateTransaction(transaction, loggingContext);
     }
