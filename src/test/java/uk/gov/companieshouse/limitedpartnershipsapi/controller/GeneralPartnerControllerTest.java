@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
@@ -31,6 +33,7 @@ class GeneralPartnerControllerTest {
     private static final String USER_ID = "user123";
     private static final String SUBMISSION_ID = "submission123";
     private static final String TRANSACTION_ID = "transaction123";
+    private static final String GENERAL_PARTNER_ID = "abc-123";
 
     @InjectMocks
     GeneralPartnerController generalPartnerController;
@@ -90,5 +93,39 @@ class GeneralPartnerControllerTest {
                 REQUEST_ID,
                 USER_ID);
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdatePartnerReturnsServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        doThrow(new ServiceException("Test")).when(generalPartnerService).updateGeneralPartner(
+                eq(GENERAL_PARTNER_ID),
+                any(GeneralPartnerDataDto.class),
+                eq(REQUEST_ID),
+                eq(USER_ID));
+
+        var response = generalPartnerController.updateGeneralPartner(
+                transaction,
+                GENERAL_PARTNER_ID,
+                new GeneralPartnerDataDto(),
+                REQUEST_ID,
+                USER_ID);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdatePartnerReturnsResourceNotFoundException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        doThrow(new ResourceNotFoundException("Test")).when(generalPartnerService).updateGeneralPartner(
+                eq(GENERAL_PARTNER_ID),
+                any(GeneralPartnerDataDto.class),
+                eq(REQUEST_ID),
+                eq(USER_ID));
+
+        var response = generalPartnerController.updateGeneralPartner(
+                transaction,
+                GENERAL_PARTNER_ID,
+                new GeneralPartnerDataDto(),
+                REQUEST_ID,
+                USER_ID);
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
     }
 }
