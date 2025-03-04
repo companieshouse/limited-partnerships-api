@@ -121,7 +121,7 @@ public class GeneralPartnerServiceUpdateTest {
         // dao principal office address is null before mapping/update
         assertNull(generalPartnerDao.getData().getPrincipalOfficeAddress());
 
-        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(repository).findById(GENERAL_PARTNER_ID);
         verify(repository).save(submissionCaptor.capture());
@@ -149,7 +149,7 @@ public class GeneralPartnerServiceUpdateTest {
         // dao principal office address before mapping/update
         assertEquals("United Kingdom", generalPartnerDao.getData().getCountry());
 
-        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(repository).findById(GENERAL_PARTNER_ID);
         verify(repository).save(submissionCaptor.capture());

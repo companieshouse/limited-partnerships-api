@@ -78,7 +78,7 @@ public class GeneralPartnerController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            generalPartnerService.updateGeneralPartner(transaction, generalPartnerId, generalPartnerDataDto, requestId, userId);
+            generalPartnerService.updateGeneralPartner(generalPartnerId, generalPartnerDataDto, requestId, userId);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
@@ -87,7 +87,7 @@ public class GeneralPartnerController {
             return ResponseEntity.notFound().build();
         } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, "Error updating General Partner", e, logMap);
-            
+
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -89,7 +89,7 @@ public class GeneralPartnerService {
         transactionService.updateTransaction(transaction, requestId);
     }
 
-    public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
+    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
         var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
 
         var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
