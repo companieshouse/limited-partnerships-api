@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -86,4 +87,8 @@ public class GeneralPartnerService {
 
         transactionService.updateTransaction(transaction, requestId);
     }
+
+    public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
+    }
 }
+
