@@ -45,7 +45,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/IncorporationData"
+              "$ref": "#/definitions/IncoporationSubmission"
             }
           }
         ],
@@ -682,7 +682,7 @@
       ],
       "properties": {
         "data": {
-          "$ref": "#/definitions/PartnershipData"
+          "$ref": "#/definitions/IncorporationData"
         }
       }
     },
