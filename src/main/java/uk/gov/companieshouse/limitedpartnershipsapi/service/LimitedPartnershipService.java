@@ -156,7 +156,7 @@ public class LimitedPartnershipService {
         transaction.setCompanyName(limitedPartnershipSubmissionDto.getData().getPartnershipName());
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
-        final String resumeJourneyUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), submissionId);
+        final var resumeJourneyUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), submissionId);
         transaction.setResumeJourneyUri(resumeJourneyUri);
 
         transactionService.updateTransaction(transaction, loggingContext);
