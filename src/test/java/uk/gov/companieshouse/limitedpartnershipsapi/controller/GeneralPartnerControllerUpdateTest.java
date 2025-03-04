@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {GeneralPartnerController.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
-public class GeneralPartnerControllerUpdateTest {
+class GeneralPartnerControllerUpdateTest {
 
     private static final String JSON_GENERAL_PARTNER_PERSON = """
             {

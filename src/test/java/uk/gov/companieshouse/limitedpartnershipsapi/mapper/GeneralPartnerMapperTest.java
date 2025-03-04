@@ -7,7 +7,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GeneralPartnerMapperTest {
+class GeneralPartnerMapperTest {
 
     private final GeneralPartnerMapper mapper = Mappers.getMapper(GeneralPartnerMapper.class);
 
