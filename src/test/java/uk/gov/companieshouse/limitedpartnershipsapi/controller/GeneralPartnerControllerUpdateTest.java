@@ -23,7 +23,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -103,7 +102,6 @@ public class GeneralPartnerControllerUpdateTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -121,7 +119,6 @@ public class GeneralPartnerControllerUpdateTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
     }
