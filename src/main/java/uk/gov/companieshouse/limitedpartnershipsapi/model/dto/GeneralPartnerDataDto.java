@@ -26,12 +26,15 @@ public class GeneralPartnerDataDto {
     public static final String DATE_OF_BIRTH_FIELD = "date_of_birth";
     public static final String NATIONALITY1_FIELD = "nationality1";
     public static final String NATIONALITY2_FIELD = "nationality2";
+    public static final String LEGAL_ENTITY_NAME = "legal_entity_name";
     public static final String LEGAL_ENTITY_REGISTER_NAME_FIELD = "legal_entity_register_name";
     public static final String LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD = "legal_entity_registration_location";
     public static final String LEGAL_FORM_FIELD = "legal_form";
     public static final String REGISTERED_COMPANY_NUMBER_FIELD = "registered_company_number";
     public static final String COUNTRY_FIELD = "country";
     public static final String GOVERNING_LAW_FIELD = "governing_law";
+    public static final String NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD = "not_disqualified_statement_checked";
+    public static final String LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD = "legal_personality_statement_checked";
 
     @JsonProperty(FORENAME_FIELD)
     @Size(min = MIN_SIZE, message = "Forename " + MIN_SIZE_MESSAGE)
@@ -62,8 +65,11 @@ public class GeneralPartnerDataDto {
     @ValidEnum(message = "Second nationality must be valid")
     private Nationality nationality2;
 
-    @JsonProperty("not_disqualified_statement_checked")
+    @JsonProperty(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)
     private boolean isNotDisqualifiedStatementChecked;
+
+    @JsonProperty(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)
+    private boolean isLegalPersonalityStatementChecked;
 
     @JsonProperty(COUNTRY_FIELD)
     @ValidEnum(message = "Country must be valid")
@@ -78,6 +84,12 @@ public class GeneralPartnerDataDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
     private String governingLaw;
 
+    @JsonProperty(LEGAL_ENTITY_NAME)
+    @Size(min = MIN_SIZE, message = "Legal entity name " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Legal entity name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity name " + INVALID_CHARACTERS_MESSAGE)
+    private String legalEntityName;
+
     @JsonProperty(LEGAL_ENTITY_REGISTER_NAME_FIELD)
     @Size(min = MIN_SIZE, message = "Legal entity register name " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
@@ -85,10 +97,8 @@ public class GeneralPartnerDataDto {
     private String legalEntityRegisterName;
 
     @JsonProperty(LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD)
-    @Size(min = MIN_SIZE, message = "Legal entity registration location " + MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = "Legal entity registration location " + MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity registration law " + INVALID_CHARACTERS_MESSAGE)
-    private String legalEntityRegistrationLocation;
+    @ValidEnum(message = "Legal entity registration location must be valid")
+    private Country legalEntityRegistrationLocation;
 
     @JsonProperty(LEGAL_FORM_FIELD)
     @Size(min = MIN_SIZE, message = "Legal form " + MIN_SIZE_MESSAGE)
@@ -173,6 +183,14 @@ public class GeneralPartnerDataDto {
         isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 
+    public boolean isLegalPersonalityStatementChecked() {
+        return isLegalPersonalityStatementChecked;
+    }
+
+    public void setLegalPersonalityStatementChecked(boolean legalPersonalityStatementChecked) {
+        isLegalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    }
+
     public String getCountry() {
         return country != null ? country.getDescription() : null;
     }
@@ -197,6 +215,14 @@ public class GeneralPartnerDataDto {
         this.governingLaw = governingLaw;
     }
 
+    public String getLegalEntityName() {
+        return legalEntityName;
+    }
+
+    public void setLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
+    }
+
     public String getLegalEntityRegisterName() {
         return legalEntityRegisterName;
     }
@@ -205,11 +231,11 @@ public class GeneralPartnerDataDto {
         this.legalEntityRegisterName = legalEntityRegisterName;
     }
 
-    public String getLegalEntityRegistrationLocation() {
+    public Country getLegalEntityRegistrationLocation() {
         return legalEntityRegistrationLocation;
     }
 
-    public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
+    public void setLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
         this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
     }
 
