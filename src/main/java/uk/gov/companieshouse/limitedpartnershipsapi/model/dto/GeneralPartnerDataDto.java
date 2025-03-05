@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
 
 import java.time.LocalDate;
@@ -108,7 +107,7 @@ public class GeneralPartnerDataDto {
 
     @JsonProperty("principal_office_address")
     @Valid
-    private AddressDao principalOfficeAddress;
+    private AddressDto principalOfficeAddress;
 
     @JsonProperty(REGISTERED_COMPANY_NUMBER_FIELD)
     @Size(min = MIN_SIZE, message = "Registered company number " + MIN_SIZE_MESSAGE)
@@ -121,11 +120,11 @@ public class GeneralPartnerDataDto {
 
     @JsonProperty("service_address")
     @Valid
-    private AddressDao serviceAddress;
+    private AddressDto serviceAddress;
 
     @JsonProperty("usual_residential_address")
     @Valid
-    private AddressDao usualResidentialAddress;
+    private AddressDto usualResidentialAddress;
 
     public String getForename() {
         return forename;
@@ -247,11 +246,11 @@ public class GeneralPartnerDataDto {
         this.legalForm = legalForm;
     }
 
-    public AddressDao getPrincipalOfficeAddress() {
+    public AddressDto getPrincipalOfficeAddress() {
         return principalOfficeAddress;
     }
 
-    public void setPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
+    public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
     }
 
@@ -271,19 +270,19 @@ public class GeneralPartnerDataDto {
         this.resignationDate = resignationDate;
     }
 
-    public AddressDao getServiceAddress() {
+    public AddressDto getServiceAddress() {
         return serviceAddress;
     }
 
-    public void setServiceAddress(AddressDao serviceAddress) {
+    public void setServiceAddress(AddressDto serviceAddress) {
         this.serviceAddress = serviceAddress;
     }
 
-    public AddressDao getUsualResidentialAddress() {
+    public AddressDto getUsualResidentialAddress() {
         return usualResidentialAddress;
     }
 
-    public void setUsualResidentialAddress(AddressDao usualResidentialAddress) {
+    public void setUsualResidentialAddress(AddressDto usualResidentialAddress) {
         this.usualResidentialAddress = usualResidentialAddress;
     }
 }

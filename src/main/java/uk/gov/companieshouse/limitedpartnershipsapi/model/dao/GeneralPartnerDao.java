@@ -19,6 +19,12 @@ public class GeneralPartnerDao {
     @Field("created_by_user_id")
     private String createdBy;
 
+    @Field("updated_at")
+    private LocalDateTime updatedAt;
+
+    @Field("updated_by_user_id")
+    private String updatedBy;
+
     @Field("data")
     private GeneralPartnerDataDao data;
 
@@ -50,6 +56,22 @@ public class GeneralPartnerDao {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 
     public GeneralPartnerDataDao getData() {

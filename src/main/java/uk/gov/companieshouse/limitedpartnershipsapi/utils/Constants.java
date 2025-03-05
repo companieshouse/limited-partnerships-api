@@ -7,11 +7,12 @@ public class Constants {
     public static final String URL_PARAM_TRANSACTION_ID = "transactionId";
     public static final String URL_PARAM_SUBMISSION_ID = "submissionId";
     public static final String URL_PARAM_FILING_RESOURCE_ID = "filingResourceId";
+    public static final String URL_PARAM_GENERAL_PARTNER_ID = "generalPartnerId";
     public static final String TRANSACTION_KEY = "transaction";
     // URIs
     public static final String TRANSACTIONS_PRIVATE_API_URI_PREFIX = "/private/transactions/";
-    public static final String SUBMISSION_URI_PATTERN = "/transactions/%s/limited-partnership/%s";
     public static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
+    public static final String URL_RESUME_PARTNERSHIP = "/limited-partnerships/transaction/%s/submission/%s/resume";
     public static final String URL_GET_INCORPORATION = "/transactions/%s/incorporation/limited-partnership/%s";
     public static final String URL_GET_LIMITED_PARTNER = "/transactions/%s/limited-partnership/limited-partner/%s";
     public static final String URL_GET_GENERAL_PARTNER = "/transactions/%s/limited-partnership/general-partner/%s";
@@ -30,4 +31,7 @@ public class Constants {
     public static final String MAX_SIZE_MESSAGE = "must be less than {max}";
     public static final String REG_EXP_FOR_ALLOWED_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
     public static final String INVALID_CHARACTERS_MESSAGE = "is invalid";
+
+    private Constants() {
+    }
 }
