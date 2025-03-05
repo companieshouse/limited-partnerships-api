@@ -231,8 +231,8 @@ public class GeneralPartnerDataDto {
         this.legalEntityRegisterName = legalEntityRegisterName;
     }
 
-    public Country getLegalEntityRegistrationLocation() {
-        return legalEntityRegistrationLocation;
+    public String getLegalEntityRegistrationLocation() {
+        return legalEntityRegistrationLocation != null ? legalEntityRegistrationLocation.getDescription() : null;
     }
 
     public void setLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
