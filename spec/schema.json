@@ -535,76 +535,73 @@
     "PartnerData": {
        "type": "object",
        "properties": {
-        "country": {
-          "type": "string"
-        },
-        "date_effective_from": {
-          "type": "string",
-          "format": "date"
-        },
-        "date_of_birth": {
-          "type": "string",
-          "format": "date"
-        },
-        "etag": {
-          "type": "string"
-        },
-        "legal_entity_name": {
-          "type": "string"
-        },
-        "forename": {
-          "type": "string"
-        },
-        "former_names": {
-          "type": "string"
-        },
-        "governing_law": {
-          "type": "string"
-        },
-        "kind": {
-          "type": "string"
-        },
-        "legal_entity_register_name": {
-          "type": "string"
-        },
-        "legal_entity_registration_location": {
-          "$ref": "#/definitions/Country"
-        },
-        "legal_form": {
-          "type": "string"
-        },
-        "nationality1": {
-          "$ref": "#/definitions/Nationality"
-        },
-        "nationality2": {
-          "$ref": "#/definitions/Nationality"
-        },
-        "not_disqualified_statement_checked" :{
-          "type" : "boolean"
-        },
-        "legal_personality_statement_checked" :{
-          "type" : "boolean"
-        },
-        "principal_office_address": {
-           "$ref": "#/definitions/Address"
-        },
-        "registered_company_number": {
-          "type": "string"
-        },
-        "resignation_date": {
-          "type": "string",
-          "format": "date"
-        },
-        "service_address": {
-          "$ref": "#/definitions/Address"
-        },
-        "surname": {
-          "type": "string"
-        },
-        "usual_residential_address": {
-          "$ref": "#/definitions/Address"
-        }
-      }
+          "date_effective_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "date_of_birth": {
+            "type": "string",
+            "format": "date"
+          },
+          "etag": {
+            "type": "string"
+          },
+          "legal_entity_name": {
+            "type": "string"
+          },
+          "forename": {
+            "type": "string"
+          },
+          "former_names": {
+            "type": "string"
+          },
+          "governing_law": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "legal_entity_register_name": {
+            "type": "string"
+          },
+          "legal_entity_registration_location": {
+            "$ref": "#/definitions/Country"
+          },
+          "legal_form": {
+            "type": "string"
+          },
+          "nationality1": {
+            "$ref": "#/definitions/Nationality"
+          },
+          "nationality2": {
+            "$ref": "#/definitions/Nationality"
+          },
+          "not_disqualified_statement_checked" :{
+            "type" : "boolean"
+          },
+          "legal_personality_statement_checked" :{
+            "type" : "boolean"
+          },
+          "principal_office_address": {
+             "$ref": "#/definitions/Address"
+          },
+          "registered_company_number": {
+            "type": "string"
+          },
+          "resignation_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "service_address": {
+            "$ref": "#/definitions/Address"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "usual_residential_address": {
+            "$ref": "#/definitions/Address"
+          }
+       }
     },
     "LimitedPartnerData": {
       "allOf": [
@@ -612,7 +609,7 @@
           "type": "object",
           "properties": {
             "contribution_currency_type": {
-            "type": "string"
+              "type": "string"
             },
             "contribution_currency_value": {
               "type": "string"
@@ -622,7 +619,9 @@
             }
           }
         },
-        { "$ref": "#/definitions/PartnerData" }
+        {
+          "$ref": "#/definitions/PartnerData"
+        }
       ]
     },
     "LimitedPartnershipIncorporationGetResponse": {
