@@ -32,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
@@ -144,6 +146,20 @@ class GeneralPartnerServiceCreateTest {
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
         }
 
+        @Test
+        void shouldFailCreateAGeneralPartnerLegalEntityIfLegalPersonalityStatementCheckedIsFalse() {
+            Transaction transaction = buildTransaction();
+            GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
+            var data = dto.getData();
+            data.setLegalPersonalityStatementChecked(false);
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            assertEquals("Legal Personality Statement must be checked", Objects.requireNonNull(exception.getBindingResult().getFieldError(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)).getDefaultMessage());
+        }
+
         private GeneralPartnerDto createGeneralPartnerLegalEntityDto() {
             GeneralPartnerDto dto = new GeneralPartnerDto();
 
@@ -243,7 +259,7 @@ class GeneralPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfNationality1ANdNationality2AreSame() {
+        void shouldFailCreateAGeneralPartnerPersonIfNationality1AndNationality2AreSame() {
             Transaction transaction = buildTransaction();
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             dto.getData().setNationality2(Nationality.AMERICAN);
@@ -254,6 +270,20 @@ class GeneralPartnerServiceCreateTest {
 
             assertNull(exception.getBindingResult().getFieldError("nationality1"));
             assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
+        }
+
+        @Test
+        void shouldFailCreateAGeneralPartnerPersonIfNotDisqualifiedStatementCheckedIsFalse() {
+            Transaction transaction = buildTransaction();
+            GeneralPartnerDto dto = createGeneralPartnerPersonDto();
+            var data = dto.getData();
+            data.setNotDisqualifiedStatementChecked(false);
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            assertEquals("Not Disqualified Statement must be checked", Objects.requireNonNull(exception.getBindingResult().getFieldError(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)).getDefaultMessage());
         }
 
         private GeneralPartnerDto createGeneralPartnerPersonDto() {
