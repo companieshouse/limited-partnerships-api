@@ -180,11 +180,11 @@ class GeneralPartnerServiceCreateTest {
             GeneralPartnerDao dao = new GeneralPartnerDao();
 
             GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-            dataDao.setLegalEntityRegisterName("General Partner Legal Entity");
+            dataDao.setLegalEntityName("My company ltd");
             dataDao.setLegalForm("Limited Company");
             dataDao.setGoverningLaw("Act of law");
-            dataDao.setLegalEntityRegistrationLocation("Public Register");
-            dataDao.setCountry("United Kingdom");
+            dataDao.setLegalEntityRegisterName("UK Register");
+            dataDao.setLegalEntityRegistrationLocation("United Kingdom");
             dataDao.setRegisteredCompanyNumber("12345678");
             dataDao.setNotDisqualifiedStatementChecked(true);
 

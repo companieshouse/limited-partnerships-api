@@ -39,9 +39,6 @@ public class GeneralPartnerDataDao {
     @Field("appointment_id")
     private String appointmentId;
 
-    @Field("country")
-    private String country;
-
     @Field("date_effective_from")
     private LocalDate dateEffectiveFrom;
 
@@ -161,14 +158,6 @@ public class GeneralPartnerDataDao {
 
     public void setAppointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 
     public LocalDate getDateEffectiveFrom() {

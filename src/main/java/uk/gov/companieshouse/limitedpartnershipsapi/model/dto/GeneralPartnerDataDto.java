@@ -30,7 +30,6 @@ public class GeneralPartnerDataDto {
     public static final String LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD = "legal_entity_registration_location";
     public static final String LEGAL_FORM_FIELD = "legal_form";
     public static final String REGISTERED_COMPANY_NUMBER_FIELD = "registered_company_number";
-    public static final String COUNTRY_FIELD = "country";
     public static final String GOVERNING_LAW_FIELD = "governing_law";
     public static final String NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD = "not_disqualified_statement_checked";
     public static final String LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD = "legal_personality_statement_checked";
@@ -69,10 +68,6 @@ public class GeneralPartnerDataDto {
 
     @JsonProperty(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)
     private boolean isLegalPersonalityStatementChecked;
-
-    @JsonProperty(COUNTRY_FIELD)
-    @ValidEnum(message = "Country must be valid")
-    private Country country;
 
     @JsonProperty("date_effective_from")
     private LocalDate dateEffectiveFrom;
@@ -188,14 +183,6 @@ public class GeneralPartnerDataDto {
 
     public void setLegalPersonalityStatementChecked(boolean legalPersonalityStatementChecked) {
         isLegalPersonalityStatementChecked = legalPersonalityStatementChecked;
-    }
-
-    public String getCountry() {
-        return country != null ? country.getDescription() : null;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
     }
 
     public LocalDate getDateEffectiveFrom() {
