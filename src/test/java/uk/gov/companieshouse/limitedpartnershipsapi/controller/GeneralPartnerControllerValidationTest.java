@@ -20,7 +20,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -151,7 +150,6 @@ class GeneralPartnerControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_CORRECT))
-                .andDo(print())
                 .andExpect(status().isCreated());
     }
 
@@ -174,7 +172,6 @@ class GeneralPartnerControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_GENERAL_LEGAL_ENTITY_INVALID_COUNTRY))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.['errors'].['data.country']").value("Country must be valid"));
     }

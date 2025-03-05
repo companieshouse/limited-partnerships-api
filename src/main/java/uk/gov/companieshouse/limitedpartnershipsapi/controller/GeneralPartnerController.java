@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
@@ -25,6 +29,7 @@ import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTIT
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_GENERAL_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
@@ -56,6 +61,33 @@ public class GeneralPartnerController {
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating the general partner", e, logMap);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
+    public ResponseEntity<Object> updateGeneralPartner(
+            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
+            @Valid @RequestBody GeneralPartnerDataDto generalPartnerDataDto,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+            @RequestHeader(value = ERIC_IDENTITY) String userId) {
+
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+
+        try {
+            generalPartnerService.updateGeneralPartner(generalPartnerId, generalPartnerDataDto, requestId, userId);
+
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+
+            return ResponseEntity.notFound().build();
+        } catch (ServiceException e) {
+            ApiLogger.errorContext(requestId, "Error updating General Partner", e, logMap);
+
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

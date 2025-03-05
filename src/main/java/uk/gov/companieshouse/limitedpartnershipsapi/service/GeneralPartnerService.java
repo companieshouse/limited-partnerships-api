@@ -5,9 +5,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -86,4 +88,38 @@ public class GeneralPartnerService {
 
         transactionService.updateTransaction(transaction, requestId);
     }
+
+    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
+        var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
+
+        var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
+
+        mapper.update(generalPartnerDataDto, generalPartnerDto.getData());
+
+        var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
+
+        // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
+        copyMetaDataForUpdate(generalPartnerDaoBeforePatch, generalPartnerDaoAfterPatch);
+
+        setAuditDetailsForUpdate(userId, generalPartnerDaoAfterPatch);
+
+        ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
+
+        repository.save(generalPartnerDaoAfterPatch);
+    }
+
+    private void copyMetaDataForUpdate(GeneralPartnerDao generalPartnerDaoBeforePatch,
+                                       GeneralPartnerDao generalPartnerDaoAfterPatch) {
+        generalPartnerDaoAfterPatch.setId(generalPartnerDaoBeforePatch.getId());
+        generalPartnerDaoAfterPatch.setCreatedAt(generalPartnerDaoBeforePatch.getCreatedAt());
+        generalPartnerDaoAfterPatch.setCreatedBy(generalPartnerDaoBeforePatch.getCreatedBy());
+        generalPartnerDaoAfterPatch.setLinks(generalPartnerDaoBeforePatch.getLinks());
+        generalPartnerDaoAfterPatch.setTransactionId(generalPartnerDaoBeforePatch.getTransactionId());
+    }
+
+    private void setAuditDetailsForUpdate(String userId, GeneralPartnerDao generalPartnerDaoAfterPatch) {
+        generalPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
+        generalPartnerDaoAfterPatch.setUpdatedBy(userId);
+    }
 }
+
