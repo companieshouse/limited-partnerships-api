@@ -39,6 +39,14 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IncorporationSubmission"
+            }
           }
         ],
         "responses": {
@@ -496,6 +504,18 @@
     }
   },
   "definitions": {
+    "IncorporationData": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "limited-partnership-registration",
+            "limited-partnership-transition"
+          ]
+        }
+      }
+    },
     "PartnershipData": {
       "type": "object",
       "properties": {
@@ -652,6 +672,17 @@
               "$ref": "#/definitions/LimitedPartnershipSubmission"
             }
           }
+        }
+      }
+    },
+    "IncorporationSubmission": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/IncorporationData"
         }
       }
     },
