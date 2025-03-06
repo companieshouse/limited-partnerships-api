@@ -8,8 +8,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.AddressDto;
@@ -17,10 +19,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,7 +82,7 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @Test
-    void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException {
+    void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         AddressDto principalOfficeAddress = new AddressDto();
@@ -103,6 +107,7 @@ class GeneralPartnerServiceUpdateTest {
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
+        assertEquals("John", sentSubmission.getData().getForename());
         assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalOfficeAddress().getAddressLine1());
         assertEquals("GB-ENG", sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
         assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
@@ -111,7 +116,24 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @Test
-    void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException {
+    void shouldFailUpdateIfNationalitiesAreSame() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality2(Nationality.AMERICAN);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID)
+        );
+
+        assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
+
+    }
+
+    @Test
+    void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerLegalEntityDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();

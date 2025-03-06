@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -89,12 +92,14 @@ public class GeneralPartnerService {
         transactionService.updateTransaction(transaction, requestId);
     }
 
-    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
+    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
 
         var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
 
         mapper.update(generalPartnerDataDto, generalPartnerDto.getData());
+
+        isSecondNationalityDifferent(generalPartnerDto);
 
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
@@ -106,6 +111,16 @@ public class GeneralPartnerService {
         ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
 
         repository.save(generalPartnerDaoAfterPatch);
+    }
+
+    private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+        var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
+        generalPartnerValidator.isSecondNationalityDifferent(generalPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
     }
 
     private void copyMetaDataForUpdate(GeneralPartnerDao generalPartnerDaoBeforePatch,

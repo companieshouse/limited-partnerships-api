@@ -85,7 +85,7 @@ public class GeneralPartnerValidator {
         }
     }
 
-    private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) {
+    public void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) {
         String nationality1 = generalPartnerDto.getData().getNationality1();
         String nationality2 = generalPartnerDto.getData().getNationality2();
 
