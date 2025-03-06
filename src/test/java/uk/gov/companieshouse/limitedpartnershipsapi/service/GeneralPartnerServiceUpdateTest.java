@@ -116,7 +116,7 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @Test
-    void shouldFailUpdateIfNationalitiesAreSame() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldFailUpdateIfNationalitiesAreSame() {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
