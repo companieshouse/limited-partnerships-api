@@ -555,70 +555,73 @@
     "PartnerData": {
        "type": "object",
        "properties": {
-        "country": {
-          "type": "string"
-        },
-        "date_effective_from": {
-          "type": "string",
-          "format": "date"
-        },
-        "date_of_birth": {
-          "type": "string",
-          "format": "date"
-        },
-        "etag": {
-          "type": "string"
-        },
-        "forename": {
-          "type": "string"
-        },
-        "former_names": {
-          "type": "string"
-        },
-        "governing_law": {
-          "type": "string"
-        },
-        "kind": {
-          "type": "string"
-        },
-        "legal_entity_register_name": {
-          "type": "string"
-        },
-        "legal_entity_registration_location": {
-          "type": "string"
-        },
-        "legal_form": {
-          "type": "string"
-        },
-        "nationality1": {
-          "$ref": "#/definitions/Nationality"
-        },
-        "nationality2": {
-          "$ref": "#/definitions/Nationality"
-        },
-        "not_disqualified_statement_checked" :{
-          "type" : "boolean"
-        },
-        "principal_office_address": {
-           "$ref": "#/definitions/Address"
-        },
-        "registered_company_number": {
-          "type": "string"
-        },
-        "resignation_date": {
-          "type": "string",
-          "format": "date"
-        },
-        "service_address": {
-          "$ref": "#/definitions/Address"
-        },
-        "surname": {
-          "type": "string"
-        },
-        "usual_residential_address": {
-          "$ref": "#/definitions/Address"
-        }
-      }
+          "date_effective_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "date_of_birth": {
+            "type": "string",
+            "format": "date"
+          },
+          "etag": {
+            "type": "string"
+          },
+          "legal_entity_name": {
+            "type": "string"
+          },
+          "forename": {
+            "type": "string"
+          },
+          "former_names": {
+            "type": "string"
+          },
+          "governing_law": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "legal_entity_register_name": {
+            "type": "string"
+          },
+          "legal_entity_registration_location": {
+            "$ref": "#/definitions/Country"
+          },
+          "legal_form": {
+            "type": "string"
+          },
+          "nationality1": {
+            "$ref": "#/definitions/Nationality"
+          },
+          "nationality2": {
+            "$ref": "#/definitions/Nationality"
+          },
+          "not_disqualified_statement_checked" :{
+            "type" : "boolean"
+          },
+          "legal_personality_statement_checked" :{
+            "type" : "boolean"
+          },
+          "principal_office_address": {
+             "$ref": "#/definitions/Address"
+          },
+          "registered_company_number": {
+            "type": "string"
+          },
+          "resignation_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "service_address": {
+            "$ref": "#/definitions/Address"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "usual_residential_address": {
+            "$ref": "#/definitions/Address"
+          }
+       }
     },
     "LimitedPartnerData": {
       "allOf": [
@@ -626,7 +629,7 @@
           "type": "object",
           "properties": {
             "contribution_currency_type": {
-            "type": "string"
+              "type": "string"
             },
             "contribution_currency_value": {
               "type": "string"
@@ -636,7 +639,9 @@
             }
           }
         },
-        { "$ref": "#/definitions/PartnerData" }
+        {
+          "$ref": "#/definitions/PartnerData"
+        }
       ]
     },
     "LimitedPartnershipIncorporationGetResponse": {
@@ -757,6 +762,269 @@
           "type": "string"
         }
       }
+    },
+    "Country" : {
+      "type": "string",
+      "enum": [
+        "Afghanistan",
+        "Aland Islands",
+        "Albania",
+        "Algeria",
+        "Alderney",
+        "American Samoa",
+        "Andorra",
+        "Angola",
+        "Anguilla",
+        "Antarctica",
+        "Antigua and Barbuda",
+        "Argentina",
+        "Armenia",
+        "Aruba",
+        "Australia",
+        "Austria",
+        "Azerbaijan",
+        "Bahamas",
+        "Bahrain",
+        "Bangladesh",
+        "Barbados",
+        "Belarus",
+        "Belgium",
+        "Belize",
+        "Benin",
+        "Bermuda",
+        "Bhutan",
+        "Bolivia",
+        "Bonaire, Sint Eustatius and Saba",
+        "Bosnia and Herzegovina",
+        "Botswana",
+        "Bouvet Island",
+        "Brazil",
+        "British Indian Ocean Territory",
+        "Brunei Darussalam",
+        "Bulgaria",
+        "Burkina Faso",
+        "Burundi",
+        "Cambodia",
+        "Cameroon",
+        "Canada",
+        "Cape Verde",
+        "Cayman Islands",
+        "Central African Republic",
+        "Chad",
+        "Chile",
+        "China",
+        "Christmas Island",
+        "Cocos (Keeling) Islands",
+        "Colombia",
+        "Comoros",
+        "Congo",
+        "Congo, the Democratic Republic of the",
+        "Cook Islands",
+        "Costa Rica",
+        "Croatia",
+        "Cuba",
+        "Curacao",
+        "Cyprus",
+        "Czech Republic",
+        "Denmark",
+        "Djibouti",
+        "Dominica",
+        "Dominican Republic",
+        "East Timor",
+        "Ecuador",
+        "Egypt",
+        "El Salvador",
+        "England",
+        "Equatorial Guinea",
+        "Eritrea",
+        "Estonia",
+        "Eswatini",
+        "Ethiopia",
+        "Falkland Islands",
+        "Faroe Islands",
+        "Fiji",
+        "Finland",
+        "France",
+        "French Guiana",
+        "French Polynesia",
+        "French Southern Territories",
+        "Gabon",
+        "Gambia",
+        "Georgia",
+        "Germany",
+        "Ghana",
+        "Gibraltar",
+        "Greece",
+        "Greenland",
+        "Grenada",
+        "Guadeloupe",
+        "Guam",
+        "Guatemala",
+        "Guernsey",
+        "Guinea",
+        "Guinea-Bissau",
+        "Guyana",
+        "Haiti",
+        "Heard Island and McDonald Islands",
+        "Herm",
+        "Honduras",
+        "Hong Kong",
+        "Hungary",
+        "Iceland",
+        "India",
+        "Indonesia",
+        "Iran",
+        "Iraq",
+        "Ireland",
+        "Isle of Man",
+        "Israel",
+        "Italy",
+        "Ivory Coast",
+        "Jamaica",
+        "Japan",
+        "Jersey",
+        "Jordan",
+        "Kazakhstan",
+        "Kenya",
+        "Kiribati",
+        "Kosovo",
+        "Kuwait",
+        "Kyrgyzstan",
+        "Laos",
+        "Latvia",
+        "Lebanon",
+        "Lesotho",
+        "Liberia",
+        "Libya",
+        "Liechtenstein",
+        "Lithuania",
+        "Luxembourg",
+        "Macao",
+        "Macedonia",
+        "Madagascar",
+        "Malawi",
+        "Malaysia",
+        "Maldives",
+        "Mali",
+        "Malta",
+        "Marshall Islands",
+        "Martinique",
+        "Mauritania",
+        "Mauritius",
+        "Mayotte",
+        "Mexico",
+        "Micronesia",
+        "Moldova",
+        "Monaco",
+        "Mongolia",
+        "Montenegro",
+        "Montserrat",
+        "Morocco",
+        "Mozambique",
+        "Myanmar",
+        "Namibia",
+        "Nauru",
+        "Nepal",
+        "Netherlands",
+        "New Caledonia",
+        "New Zealand",
+        "Nicaragua",
+        "Niger",
+        "Nigeria",
+        "Niue",
+        "Norfolk Island",
+        "North Korea",
+        "Northern Ireland",
+        "Northern Mariana Islands",
+        "Norway",
+        "Oman",
+        "Pakistan",
+        "Palau",
+        "Palestine, State of",
+        "Panama",
+        "Papua New Guinea",
+        "Paraguay",
+        "Peru",
+        "Philippines",
+        "Pitcairn",
+        "Poland",
+        "Portugal",
+        "Puerto Rico",
+        "Qatar",
+        "Reunion",
+        "Romania",
+        "Russia",
+        "Rwanda",
+        "Saint Barthelemy",
+        "Saint Helena, Ascension and Tristan da Cunha",
+        "Saint Kitts and Nevis",
+        "Saint Lucia",
+        "Saint Martin (French part)",
+        "Saint Pierre and Miquelon",
+        "Saint Vincent and the Grenadines",
+        "Samoa",
+        "San Marino",
+        "Sao Tome and Principe",
+        "Sark",
+        "Saudi Arabia",
+        "Scotland",
+        "Senegal",
+        "Serbia",
+        "Seychelles",
+        "Sierra Leone",
+        "Singapore",
+        "Sint Maarten (Dutch part)",
+        "Slovakia",
+        "Slovenia",
+        "Solomon Islands",
+        "Somalia",
+        "South Africa",
+        "South Georgia and the South Sandwich Islands",
+        "South Korea",
+        "South Sudan",
+        "Spain",
+        "Sri Lanka",
+        "Sudan",
+        "Suriname",
+        "Svalbard and Jan Mayen",
+        "Sweden",
+        "Switzerland",
+        "Syria",
+        "Taiwan",
+        "Tajikistan",
+        "Tanzania",
+        "Thailand",
+        "Togo",
+        "Tokelau",
+        "Tonga",
+        "Trinidad and Tobago",
+        "Tunisia",
+        "Turkey",
+        "Turkmenistan",
+        "Turks and Caicos Islands",
+        "Tuvalu",
+        "Uganda",
+        "Ukraine",
+        "United Arab Emirates",
+        "United Kingdom",
+        "United States",
+        "United States Minor Outlying Islands",
+        "Uruguay",
+        "Uzbekistan",
+        "Vanuatu",
+        "Vatican City",
+        "Venezuela",
+        "Vietnam",
+        "Virgin Islands, British",
+        "Virgin Islands, U.S.",
+        "Wales",
+        "Wallis and Futuna",
+        "Western Sahara",
+        "Yemen",
+        "Zambia",
+        "Zimbabwe",
+        ""
+      ]
     },
     "Nationality" : {
       "type": "string",

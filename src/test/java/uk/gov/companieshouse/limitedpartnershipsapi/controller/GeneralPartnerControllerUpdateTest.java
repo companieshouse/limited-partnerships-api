@@ -42,11 +42,11 @@ class GeneralPartnerControllerUpdateTest {
 
     private static final String JSON_GENERAL_LEGAL_ENTITY = """
             {
-                "legal_entity_register_name": "General Partner Legal Entity",
+                "legal_entity_name": "My Company ltd",
                 "legal_form": "Limited Company",
                 "governing_law": "Act of law",
-                "legal_entity_registration_location": "Public Register",
-                "country": "United States",
+                "legal_entity_register_name": "US Register",
+                "legal_entity_registration_location": "United States",
                 "registered_company_number": "12345678",
                 "not_disqualified_statement_checked": true
             }""";
