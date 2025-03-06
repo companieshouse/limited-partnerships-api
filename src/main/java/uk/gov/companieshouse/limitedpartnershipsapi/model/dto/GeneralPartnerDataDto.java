@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
@@ -53,6 +54,7 @@ public class GeneralPartnerDataDto {
     private String surname;
 
     @JsonProperty(DATE_OF_BIRTH_FIELD)
+    @Past(message = "Date of birth must be in the past")
     private LocalDate dateOfBirth;
 
     @JsonProperty(NATIONALITY1_FIELD)
