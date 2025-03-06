@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
@@ -11,7 +12,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 
 @Component
-@Mapper(componentModel = "spring")
+@Mapper(uses = JsonNullableMapper.class,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        componentModel = "spring")
 public interface GeneralPartnerMapper {
     GeneralPartnerDto daoToDto(GeneralPartnerDao dao);
     GeneralPartnerDao dtoToDao(GeneralPartnerDto dto);
