@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +42,25 @@ public class GeneralPartnerController {
     @Autowired
     public GeneralPartnerController(GeneralPartnerService generalPartnerService) {
         this.generalPartnerService = generalPartnerService;
+    }
+
+    @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
+    public ResponseEntity<GeneralPartnerDto> getGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                               @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
+                                                               @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        logMap.put(URL_PARAM_GENERAL_PARTNER_ID, generalPartnerId);
+
+        try {
+            ApiLogger.infoContext(requestId, String.format("Retrieving a general partner %s", generalPartnerId), logMap);
+            var dto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
+            return ResponseEntity.ok().body(dto);
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
