@@ -13,9 +13,10 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,7 +24,10 @@ public class TransactionUtilsTest {
 
     private static final String LIMITED_PARTNERSHIP_SELF_LINK = "/transaction/1234/limited-partnership/partnership/1234";
     private static final String LIMITED_PARTNER_SELF_LINK = "/transactions/txn-123/limited-partnership/limited-partner/sub-456";
+    private static final String INCORPORATION_SELF_LINK = "/transactions/txn-123/incorporation/limited-partnership/sub-456";
+
     private final TransactionUtils transactionUtils = new TransactionUtils();
+
     @Mock
     private Transaction transaction;
 
@@ -107,7 +111,7 @@ public class TransactionUtilsTest {
         // given
         Map<String, Resource> transactionResources = new HashMap<>();
         Resource limitedPartnershipResource = new Resource();
-        limitedPartnershipResource.setKind(FILING_KIND_REGISTRATION);
+        limitedPartnershipResource.setKind(REGISTRATION.getDescription());
         transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
@@ -167,5 +171,43 @@ public class TransactionUtilsTest {
         var result = transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(transaction, LIMITED_PARTNER_SELF_LINK);
         // then
         assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionIsNotLinkedToLimitedPartnershipIncorporationDueToIncorrectFilingKind_thenReturnFalse() {
+        // given + when
+        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(FILING_KIND_LIMITED_PARTNERSHIP);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionIsLinkedToLimitedPartnershipRegistrationIncorporation_thenReturnTrue() {
+        // given + when
+        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(REGISTRATION.getDescription());
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void givenTransactionIsLinkedToLimitedPartnershipTransitionIncorporation_thenReturnTrue() {
+        // given + when
+        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(TRANSITION.getDescription());
+        // then
+        assertTrue(result);
+    }
+
+    private boolean testIfTransactionIsLinkedToLimitedPartnershipIncorporation(String kind) {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(kind);
+        Map<String, String> limitedPartnershipsResourceLinks = new HashMap<>();
+        limitedPartnershipsResourceLinks.put(LINK_RESOURCE, INCORPORATION_SELF_LINK);
+        limitedPartnershipResource.setLinks(limitedPartnershipsResourceLinks);
+        transactionResources.put(INCORPORATION_SELF_LINK, limitedPartnershipResource);
+        when(transaction.getResources()).thenReturn(transactionResources);
+        // when
+        return transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, INCORPORATION_SELF_LINK);
     }
 }

@@ -8,6 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
@@ -20,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
@@ -49,44 +49,44 @@ public class LimitedPartnershipIncorporationService {
         this.transactionService = transactionService;
     }
 
-    public String createIncorporation(Transaction transaction, String requestId, String userId)
+    public String createIncorporation(Transaction transaction, IncorporationDto incorporationDto, String requestId, String userId)
             throws ServiceException {
+        final var kind = incorporationDto.getData().getKind();
+
         var dao = new LimitedPartnershipIncorporationDao();
-        dao.getData().setKind(FILING_KIND_REGISTRATION);
+        dao.getData().setKind(kind);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
         dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
 
         LimitedPartnershipIncorporationDao insertedIncorporation = repository.insert(dao);
 
-        transaction.setFilingMode(FILING_KIND_REGISTRATION);
+        transaction.setFilingMode(kind);
 
         String incorporationUri = getSubmissionUri(transaction.getId(), insertedIncorporation.getId());
         updateIncorporationTypeWithSelfLink(dao, incorporationUri);
 
-        updateTransactionWithIncorporationResource(transaction,
-                incorporationUri, requestId);
+        updateTransactionWithIncorporationResource(transaction, incorporationUri, kind, requestId);
 
         return insertedIncorporation.getId();
     }
 
-    private void updateTransactionWithIncorporationResource(Transaction transaction, String incorporationUri, String loggingContext)
+    private void updateTransactionWithIncorporationResource(Transaction transaction, String incorporationUri, String kind, String loggingContext)
             throws ServiceException {
-        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri);
+        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri, kind);
 
-        // TODO set filing_mode on transaction (requires update to SDK)
         transaction.setResources(Collections.singletonMap(incorporationUri, incorporationTransactionResource));
         transactionService.updateTransaction(transaction, loggingContext);
     }
 
-    private Resource createIncorporationTransactionResource(String incorporationUri) {
+    private Resource createIncorporationTransactionResource(String incorporationUri, String kind) {
         var incorporationResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", incorporationUri);
 
         incorporationResource.setLinks(linksMap);
-        incorporationResource.setKind(FILING_KIND_REGISTRATION);
+        incorporationResource.setKind(kind);
 
         return incorporationResource;
     }
