@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
@@ -82,8 +83,8 @@ class GeneralPartnerServiceTest {
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.empty());
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
-        ServiceException serviceException = assertThrows(ServiceException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
-        assertEquals("General partner submission with id submission123 not found", serviceException.getMessage());
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
+        assertEquals("General partner submission with id submission123 not found", resourceNotFoundException.getMessage());
     }
 
     @Test
@@ -93,8 +94,8 @@ class GeneralPartnerServiceTest {
 
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
                 .thenReturn(false);
-        ServiceException serviceException = assertThrows(ServiceException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
-        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: submission123", transaction.getId()), serviceException.getMessage());
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: submission123", transaction.getId()), resourceNotFoundException.getMessage());
     }
 
     @Test

@@ -69,7 +69,7 @@ class GeneralPartnerControllerTest {
     @Test
     void testGetPartnerReturnsNotFoundWhenExceptionIsThrown() throws ServiceException {
          when(generalPartnerService.getGeneralPartner(any(Transaction.class), anyString()))
-                .thenThrow(ServiceException.class);
+                .thenThrow(ResourceNotFoundException.class);
 
         var response = generalPartnerController.getGeneralPartner(transaction, SUBMISSION_ID, REQUEST_ID);
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());

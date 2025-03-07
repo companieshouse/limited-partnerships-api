@@ -31,7 +31,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_GENERAL_PARTNER_ID;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_SUBMISSION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
@@ -47,18 +46,18 @@ public class GeneralPartnerController {
 
     @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
     public ResponseEntity<GeneralPartnerDto> getGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                               @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String submissionId,
+                                                               @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
                                                                @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
+        logMap.put(URL_PARAM_GENERAL_PARTNER_ID, generalPartnerId);
 
         try {
-            ApiLogger.infoContext(requestId, "Retrieving a general partner", logMap);
-            var dto = generalPartnerService.getGeneralPartner(transaction, submissionId);
+            ApiLogger.infoContext(requestId, String.format("Retrieving a general partner %s", generalPartnerId), logMap);
+            var dto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
             return ResponseEntity.ok().body(dto);
-        } catch (ServiceException e) {
+        } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         }
