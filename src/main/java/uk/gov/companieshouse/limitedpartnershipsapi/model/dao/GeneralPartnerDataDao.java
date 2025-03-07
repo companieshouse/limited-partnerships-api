@@ -27,6 +27,9 @@ public class GeneralPartnerDataDao {
     @Field("not_disqualified_statement_checked")
     private boolean isNotDisqualifiedStatementChecked;
 
+    @Field("legal_personality_statement_checked")
+    private boolean isLegalPersonalityStatementChecked;
+
     @Field("kind")
     private String kind;
 
@@ -36,14 +39,14 @@ public class GeneralPartnerDataDao {
     @Field("appointment_id")
     private String appointmentId;
 
-    @Field("country")
-    private String country;
-
     @Field("date_effective_from")
     private LocalDate dateEffectiveFrom;
 
     @Field("governing_law")
     private String governingLaw;
+
+    @Field("legal_entity_name")
+    private String legalEntityName;
 
     @Field("legal_entity_register_name")
     private String legalEntityRegisterName;
@@ -141,20 +144,20 @@ public class GeneralPartnerDataDao {
         isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 
+    public boolean isLegalPersonalityStatementChecked() {
+        return isLegalPersonalityStatementChecked;
+    }
+
+    public void setLegalPersonalityStatementChecked(boolean legalPersonalityStatementChecked) {
+        isLegalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    }
+
     public String getAppointmentId() {
         return appointmentId;
     }
 
     public void setAppointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 
     public LocalDate getDateEffectiveFrom() {
@@ -171,6 +174,14 @@ public class GeneralPartnerDataDao {
 
     public void setGoverningLaw(String governingLaw) {
         this.governingLaw = governingLaw;
+    }
+
+    public String getLegalEntityName() {
+        return legalEntityName;
+    }
+
+    public void setLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
     }
 
     public String getLegalEntityRegisterName() {

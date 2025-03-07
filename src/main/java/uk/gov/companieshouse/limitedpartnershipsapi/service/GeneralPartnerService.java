@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -23,8 +26,6 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @Service
 public class GeneralPartnerService {
@@ -95,12 +96,14 @@ public class GeneralPartnerService {
         transactionService.updateTransaction(transaction, requestId);
     }
 
-    public void updateGeneralPartner(String submissionId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
-        var generalPartnerDaoBeforePatch = repository.findById(submissionId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
+    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
 
         var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
 
         mapper.update(generalPartnerDataDto, generalPartnerDto.getData());
+
+        isSecondNationalityDifferent(generalPartnerDto);
 
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
@@ -109,7 +112,7 @@ public class GeneralPartnerService {
 
         setAuditDetailsForUpdate(userId, generalPartnerDaoAfterPatch);
 
-        ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", submissionId));
+        ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
 
         repository.save(generalPartnerDaoAfterPatch);
     }
@@ -118,6 +121,16 @@ public class GeneralPartnerService {
         checkGeneralPartnerIsLinkedToPartnership(transaction, submissionId);
         var generalPartnerDao = repository.findById(submissionId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", submissionId)));
         return mapper.daoToDto(generalPartnerDao);
+    }
+
+    private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+        var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
+        generalPartnerValidator.isSecondNationalityDifferent(generalPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
     }
 
     private void copyMetaDataForUpdate(GeneralPartnerDao generalPartnerDaoBeforePatch,

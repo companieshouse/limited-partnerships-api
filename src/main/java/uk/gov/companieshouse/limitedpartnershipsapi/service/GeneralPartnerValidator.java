@@ -20,9 +20,15 @@ public class GeneralPartnerValidator {
 
         if (generalPartnerDataDto.getLegalEntityRegisterName() != null || generalPartnerDataDto.getLegalForm() != null) {
             checkNotNullLegalEntity(generalPartnerDataDto, bindingResult);
+            if (!generalPartnerDataDto.isLegalPersonalityStatementChecked()) {
+                addError(GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
+            }
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(generalPartnerDto, bindingResult);
+            if (!generalPartnerDataDto.isNotDisqualifiedStatementChecked()) {
+                addError(GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
+            }
         } else {
             addError("", "Some fields are missing", bindingResult);
         }
@@ -34,8 +40,9 @@ public class GeneralPartnerValidator {
 
     private void checkNotNullLegalEntity(GeneralPartnerDataDto generalPartnerDataDto,
                                          BindingResult bindingResult) {
-        if (generalPartnerDataDto.getLegalEntityRegisterName() == null) {
-            addError(GeneralPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD, "Legal Entity Register Name is required", bindingResult);
+
+        if (generalPartnerDataDto.getLegalEntityName() == null) {
+            addError(GeneralPartnerDataDto.LEGAL_ENTITY_NAME, "Legal Entity Name is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getLegalForm() == null) {
@@ -46,12 +53,12 @@ public class GeneralPartnerValidator {
             addError(GeneralPartnerDataDto.GOVERNING_LAW_FIELD, "Governing Law is required", bindingResult);
         }
 
-        if (generalPartnerDataDto.getLegalEntityRegistrationLocation() == null) {
-            addError(GeneralPartnerDataDto.LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD, "Legal Entity Registration Location is required", bindingResult);
+        if (generalPartnerDataDto.getLegalEntityRegisterName() == null) {
+            addError(GeneralPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD, "Legal Entity Register Name is required", bindingResult);
         }
 
-        if (generalPartnerDataDto.getCountry() == null) {
-            addError(GeneralPartnerDataDto.COUNTRY_FIELD, "Country is required", bindingResult);
+        if (generalPartnerDataDto.getLegalEntityRegistrationLocation() == null) {
+            addError(GeneralPartnerDataDto.LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD, "Legal Entity Registration Location is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getRegisteredCompanyNumber() == null) {
@@ -78,11 +85,11 @@ public class GeneralPartnerValidator {
         }
     }
 
-    private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) {
+    public void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) {
         String nationality1 = generalPartnerDto.getData().getNationality1();
         String nationality2 = generalPartnerDto.getData().getNationality2();
 
-        if (nationality1 != null && nationality2 != null && nationality1.equals(nationality2)) {
+        if (nationality1 != null && nationality1.equals(nationality2)) {
             addError(GeneralPartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
         }
     }

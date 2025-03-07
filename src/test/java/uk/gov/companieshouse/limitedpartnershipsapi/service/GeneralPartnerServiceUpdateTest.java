@@ -8,10 +8,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import uk.gov.companieshouse.api.model.transaction.Resource;
-import uk.gov.companieshouse.api.model.transaction.Transaction;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.AddressDto;
@@ -19,15 +19,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -35,7 +34,6 @@ class GeneralPartnerServiceUpdateTest {
     private static final String USER_ID = "xbJf0l";
     private static final String GENERAL_PARTNER_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String TRANSACTION_ID = "txn-456";
 
     @Autowired
     private GeneralPartnerService service;
@@ -48,23 +46,6 @@ class GeneralPartnerServiceUpdateTest {
 
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
-
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_GENERAL_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/general-partner/abc-123");
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, GENERAL_PARTNER_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
-    }
 
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
@@ -86,11 +67,11 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDao dao = new GeneralPartnerDao();
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-        dataDao.setLegalEntityRegisterName("General Partner Legal Entity");
+        dataDao.setLegalEntityName("My company ltd");
         dataDao.setLegalForm("Limited Company");
         dataDao.setGoverningLaw("Act of law");
-        dataDao.setLegalEntityRegistrationLocation("Public Register");
-        dataDao.setCountry("United Kingdom");
+        dataDao.setLegalEntityRegisterName("UK Register");
+        dataDao.setLegalEntityRegistrationLocation("United Kingdom");
         dataDao.setRegisteredCompanyNumber("12345678");
         dataDao.setNotDisqualifiedStatementChecked(true);
 
@@ -101,9 +82,7 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @Test
-    void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException {
-        Transaction transaction = buildTransaction();
-
+    void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         AddressDto principalOfficeAddress = new AddressDto();
@@ -128,6 +107,7 @@ class GeneralPartnerServiceUpdateTest {
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
+        assertEquals("John", sentSubmission.getData().getForename());
         assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalOfficeAddress().getAddressLine1());
         assertEquals("GB-ENG", sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
         assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
@@ -136,18 +116,33 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @Test
-    void shouldUpdateTheDaoWithCountry() throws ServiceException {
-        Transaction transaction = buildTransaction();
+    void shouldFailUpdateIfNationalitiesAreSame() {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality2(Nationality.AMERICAN);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID)
+        );
+
+        assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
+
+    }
+
+    @Test
+    void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerLegalEntityDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
-        generalPartnerDataDto.setCountry(Country.ENGLAND);
+        generalPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // dao principal office address before mapping/update
-        assertEquals("United Kingdom", generalPartnerDao.getData().getCountry());
+        assertEquals("United Kingdom", generalPartnerDao.getData().getLegalEntityRegistrationLocation());
 
         service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -156,7 +151,7 @@ class GeneralPartnerServiceUpdateTest {
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
-        assertEquals("England", sentSubmission.getData().getCountry());
+        assertEquals("England", sentSubmission.getData().getLegalEntityRegistrationLocation());
     }
 
 }

@@ -92,7 +92,7 @@ public class GeneralPartnerController {
             @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
             @Valid @RequestBody GeneralPartnerDataDto generalPartnerDataDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId) {
+            @RequestHeader(value = ERIC_IDENTITY) String userId) throws MethodArgumentNotValidException, NoSuchMethodException {
 
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();

@@ -38,7 +38,8 @@ class GeneralPartnerControllerValidationTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null
+                  "nationality2": null,
+                  "not_disqualified_statement_checked": "true"
                 }
             }""";
 
@@ -50,13 +51,13 @@ class GeneralPartnerControllerValidationTest {
 
     private static final String JSON_WITH_ABOVE_MAX_SURNAME = "{ \"data\": { \"forename\": \"Joe\", \"surname\": \"The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null} }";
 
-    private static final String JSON_WITH_ABOVE_MAX_FORMERNAMES = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null} }";
+    private static final String JSON_WITH_ABOVE_MAX_FORMER_NAMES = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog The quick brown fox jumps over the lazy dog\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null} }";
 
     private static final String JSON_INVALID_FORENAME = "{ \"data\": { \"forename\": \"Жoe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
 
     private static final String JSON_INVALID_SURNAME = "{ \"data\": { \"forename\": \"Joe\", \"surname\": \"BloГГs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
 
-    private static final String JSON_INVALID_FORMERNAMES = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
+    private static final String JSON_INVALID_FORMER_NAMES = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
 
     private static final String JSON_INVALID_NATIONALITY = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null } }";
 
@@ -66,11 +67,11 @@ class GeneralPartnerControllerValidationTest {
     private static final String JSON_GENERAL_LEGAL_ENTITY_CORRECT = """
             {
               "data": {
-                "legal_entity_register_name": "General Partner Legal Entity",
-                "legal_form": "Limited Company",
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
                 "governing_law": "Act of law",
-                "legal_entity_registration_location": "Public Register",
-                "country": "United States",
+                "legal_entity_register_name": "Register of somewhere",
+                "legal_entity_registration_location": "Scotland",
                 "registered_company_number": "12345678",
                 "not_disqualified_statement_checked": true
               }
@@ -79,11 +80,11 @@ class GeneralPartnerControllerValidationTest {
     private static final String JSON_GENERAL_LEGAL_ENTITY_INVALID_COUNTRY = """
             {
               "data": {
-                "legal_entity_register_name": "General Partner Legal Entity",
-                "legal_form": "Limited Company",
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
                 "governing_law": "Act of law",
-                "legal_entity_registration_location": "Public Register",
-                "country": "Wrong country",
+                "legal_entity_register_name": "Register of somewhere",
+                "legal_entity_registration_location": "Wrong Country",
                 "registered_company_number": "12345678",
                 "not_disqualified_statement_checked": true
               }
@@ -124,10 +125,10 @@ class GeneralPartnerControllerValidationTest {
             JSON_WITH_ABOVE_MAX_FORENAME + "$ data.forename $ Forename must be less than 50",
             JSON_WITH_BELOW_MIN_SURNAME + "$ data.surname $ Surname must be greater than 1",
             JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
-            JSON_WITH_ABOVE_MAX_FORMERNAMES + "$ data.formerNames $ Former names must be less than 160",
+            JSON_WITH_ABOVE_MAX_FORMER_NAMES + "$ data.formerNames $ Former names must be less than 160",
             JSON_INVALID_FORENAME + "$ data.forename $ Forename is invalid",
             JSON_INVALID_SURNAME + "$ data.surname $ Surname is invalid",
-            JSON_INVALID_FORMERNAMES + "$ data.formerNames $ Former names is invalid",
+            JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names is invalid",
             JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
             JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid"
     }, delimiter = '$')
@@ -173,6 +174,6 @@ class GeneralPartnerControllerValidationTest {
                         .requestAttr("transaction", transaction)
                         .content(JSON_GENERAL_LEGAL_ENTITY_INVALID_COUNTRY))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.['errors'].['data.country']").value("Country must be valid"));
+                .andExpect(jsonPath("$.['errors'].['data.legalEntityRegistrationLocation']").value("Legal entity registration location must be valid"));
     }
 }
