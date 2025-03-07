@@ -13,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -22,6 +23,8 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @Service
 public class GeneralPartnerService {
@@ -30,16 +33,19 @@ public class GeneralPartnerService {
     private final GeneralPartnerMapper mapper;
     private final GeneralPartnerValidator generalPartnerValidator;
     private final TransactionService transactionService;
+    private final TransactionUtils transactionUtils;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
                                  GeneralPartnerValidator generalPartnerValidator,
-                                 TransactionService transactionService
+                                 TransactionService transactionService,
+                                 TransactionUtils transactionUtils
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.generalPartnerValidator = generalPartnerValidator;
         this.transactionService = transactionService;
+        this.transactionUtils = transactionUtils;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -89,8 +95,8 @@ public class GeneralPartnerService {
         transactionService.updateTransaction(transaction, requestId);
     }
 
-    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
-        var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
+    public void updateGeneralPartner(String submissionId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException {
+        var generalPartnerDaoBeforePatch = repository.findById(submissionId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
 
         var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
 
@@ -103,9 +109,15 @@ public class GeneralPartnerService {
 
         setAuditDetailsForUpdate(userId, generalPartnerDaoAfterPatch);
 
-        ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
+        ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", submissionId));
 
         repository.save(generalPartnerDaoAfterPatch);
+    }
+
+    public GeneralPartnerDto getGeneralPartner(Transaction transaction, String submissionId) throws ServiceException {
+        checkGeneralPartnerIsLinkedToPartnership(transaction, submissionId);
+        var generalPartnerDao = repository.findById(submissionId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", submissionId)));
+        return mapper.daoToDto(generalPartnerDao);
     }
 
     private void copyMetaDataForUpdate(GeneralPartnerDao generalPartnerDaoBeforePatch,
@@ -120,6 +132,15 @@ public class GeneralPartnerService {
     private void setAuditDetailsForUpdate(String userId, GeneralPartnerDao generalPartnerDaoAfterPatch) {
         generalPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         generalPartnerDaoAfterPatch.setUpdatedBy(userId);
+    }
+
+    private void checkGeneralPartnerIsLinkedToPartnership(Transaction transaction, String generalPartnerId) throws ServiceException {
+        String transactionId = transaction.getId();
+        String submissionUri =  String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
+        if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
+        }
     }
 }
 

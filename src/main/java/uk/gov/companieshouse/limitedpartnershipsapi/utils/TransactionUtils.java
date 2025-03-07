@@ -39,7 +39,6 @@ public class TransactionUtils {
         if (StringUtils.isBlank(selfLink)) {
             return false;
         }
-
         if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
             return false;
         }
@@ -49,7 +48,7 @@ public class TransactionUtils {
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
     }
 
-    public boolean isTransactionLinkedToLimitedPartnerSubmission(Transaction transaction, String limitedPartnerSubmissionSelfLink) {
-        return doChecks(transaction, limitedPartnerSubmissionSelfLink, FILING_KIND_LIMITED_PARTNER);
+    public boolean isTransactionLinkedToPartnerSubmission(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
+        return doChecks(transaction, partnerSubmissionSelfLink, kind);
     }
 }

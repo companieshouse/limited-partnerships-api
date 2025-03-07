@@ -20,7 +20,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerServic
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -51,6 +53,26 @@ class GeneralPartnerControllerTest {
         GeneralPartnerDataDto data = new GeneralPartnerDataDto();
         generalPartnerDto = new GeneralPartnerDto();
         generalPartnerDto.setData(data);
+    }
+
+    @Test
+    void testGetPartnerReturnsDto() throws ServiceException {
+        GeneralPartnerDto dto = new GeneralPartnerDto();
+        when(generalPartnerService.getGeneralPartner(any(Transaction.class), anyString()))
+                .thenReturn(dto);
+
+        var response = generalPartnerController.getGeneralPartner(transaction, SUBMISSION_ID, REQUEST_ID);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    void testGetPartnerReturnsNotFoundWhenExceptionIsThrown() throws ServiceException {
+         when(generalPartnerService.getGeneralPartner(any(Transaction.class), anyString()))
+                .thenThrow(ServiceException.class);
+
+        var response = generalPartnerController.getGeneralPartner(transaction, SUBMISSION_ID, REQUEST_ID);
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
     }
 
     @Test

@@ -13,6 +13,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
@@ -23,6 +24,7 @@ public class TransactionUtilsTest {
 
     private static final String LIMITED_PARTNERSHIP_SELF_LINK = "/transaction/1234/limited-partnership/partnership/1234";
     private static final String LIMITED_PARTNER_SELF_LINK = "/transactions/txn-123/limited-partnership/limited-partner/sub-456";
+    private static final String GENERAL_PARTNER_SELF_LINK = "/transactions/trans123/limited-partnership/generalPartner/gp123";
     private final TransactionUtils transactionUtils = new TransactionUtils();
     @Mock
     private Transaction transaction;
@@ -146,7 +148,7 @@ public class TransactionUtilsTest {
         transactionResources.put(LIMITED_PARTNER_SELF_LINK, limitedPartnerResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(transaction, LIMITED_PARTNER_SELF_LINK);
+        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
         // then
         assertTrue(result);
     }
@@ -154,7 +156,7 @@ public class TransactionUtilsTest {
     @Test
     void givenALimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(transaction, "");
+        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, "", FILING_KIND_LIMITED_PARTNER);
         // then
         assertFalse(result);
     }
@@ -164,8 +166,54 @@ public class TransactionUtilsTest {
         // given
         when(transaction.getResources()).thenReturn(null);
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnerSubmission(transaction, LIMITED_PARTNER_SELF_LINK);
+        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
         // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionIsLinkedToGeneralPartner_thenReturnTrue() {
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource generalPartnerResource = new Resource();
+        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
+        transactionResources.put(GENERAL_PARTNER_SELF_LINK, generalPartnerResource);
+
+        Map<String, String> generalPartnerResourceLinks = new HashMap<>();
+        generalPartnerResourceLinks.put(LINK_RESOURCE, GENERAL_PARTNER_SELF_LINK);
+        generalPartnerResource.setLinks(generalPartnerResourceLinks);
+
+        when(transaction.getResources()).thenReturn(transactionResources);
+        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+
+        assertTrue(result);
+    }
+    @Test
+    void givenTransactionIsNotLinkedToGeneralPartner_thenReturnFalse() {
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource generalPartnerResource = new Resource();
+        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
+        transactionResources.put(GENERAL_PARTNER_SELF_LINK, generalPartnerResource);
+
+        Map<String, String> generalPartnerResourceLinks = new HashMap<>();
+        generalPartnerResourceLinks.put(LINK_RESOURCE, "some/garbage");
+        generalPartnerResource.setLinks(generalPartnerResourceLinks);
+
+        when(transaction.getResources()).thenReturn(transactionResources);
+        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void givenGeneralPartnerSelfLinkIsBlank_thenReturnFalse() {
+        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, "", FILING_KIND_GENERAL_PARTNER);
+        assertFalse(result);
+    }
+
+    @Test
+    void givenGeneralPartnerTransactionIsNull_thenReturnFalse() {
+        when(transaction.getResources()).thenReturn(null);
+        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
         assertFalse(result);
     }
 }
