@@ -149,7 +149,7 @@ public class GeneralPartnerService {
 
     private void checkGeneralPartnerIsLinkedToPartnership(Transaction transaction, String generalPartnerId) throws ServiceException {
         String transactionId = transaction.getId();
-        String submissionUri =  String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
+        var submissionUri =  String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
         if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
