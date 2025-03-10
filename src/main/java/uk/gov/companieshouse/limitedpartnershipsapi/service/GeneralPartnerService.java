@@ -82,7 +82,7 @@ public class GeneralPartnerService {
     }
 
     private void updateTransactionWithGeneralPartnerTransactionResourceLinks(
-            String requestId, Transaction transaction, String submissionUri)  throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();

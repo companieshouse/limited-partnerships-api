@@ -77,7 +77,7 @@ class GeneralPartnerControllerTest {
 
     @Test
     void testCreatePartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-         when(generalPartnerService.createGeneralPartner(
+        when(generalPartnerService.createGeneralPartner(
                 any(Transaction.class),
                 any(GeneralPartnerDto.class),
                 eq(REQUEST_ID),
@@ -85,7 +85,7 @@ class GeneralPartnerControllerTest {
                 .thenReturn(SUBMISSION_ID);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        
+
         var response = generalPartnerController.createGeneralPartner(
                 transaction,
                 generalPartnerDto,
@@ -94,7 +94,7 @@ class GeneralPartnerControllerTest {
 
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
-        assertEquals( String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
+        assertEquals(String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
         GeneralPartnerSubmissionCreatedResponseDto responseBody = (GeneralPartnerSubmissionCreatedResponseDto) response.getBody();
         assert responseBody != null;
