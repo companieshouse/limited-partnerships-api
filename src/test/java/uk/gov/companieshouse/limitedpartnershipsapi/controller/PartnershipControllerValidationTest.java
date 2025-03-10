@@ -388,7 +388,7 @@ class PartnershipControllerValidationTest {
                         });
             }
 
-            static Stream<Arguments> provideInvalidCharsInputsAndMessages() {
+            private static Stream<Arguments> provideInvalidCharsInputsAndMessages() {
                 return Stream.of(
                         Arguments.of(JSON_ROA_PREMISES_INVALID_CHARS,
                                 "\"registeredOfficeAddress.premises\":\"Property name or number is invalid\""),
