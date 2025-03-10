@@ -15,8 +15,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.*;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 
 @NameSize
 public class DataDto {
