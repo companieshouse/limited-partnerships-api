@@ -16,6 +16,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -33,16 +34,19 @@ public class GeneralPartnerService {
     private final GeneralPartnerMapper mapper;
     private final GeneralPartnerValidator generalPartnerValidator;
     private final TransactionService transactionService;
+    private final TransactionUtils transactionUtils;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
                                  GeneralPartnerValidator generalPartnerValidator,
-                                 TransactionService transactionService
+                                 TransactionService transactionService,
+                                 TransactionUtils transactionUtils
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.generalPartnerValidator = generalPartnerValidator;
         this.transactionService = transactionService;
+        this.transactionUtils = transactionUtils;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -113,6 +117,12 @@ public class GeneralPartnerService {
         repository.save(generalPartnerDaoAfterPatch);
     }
 
+    public GeneralPartnerDto getGeneralPartner(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
+        checkGeneralPartnerIsLinkedToPartnership(transaction, generalPartnerId);
+        var generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", generalPartnerId)));
+        return mapper.daoToDto(generalPartnerDao);
+    }
+
     private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
@@ -135,6 +145,15 @@ public class GeneralPartnerService {
     private void setAuditDetailsForUpdate(String userId, GeneralPartnerDao generalPartnerDaoAfterPatch) {
         generalPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         generalPartnerDaoAfterPatch.setUpdatedBy(userId);
+    }
+
+    private void checkGeneralPartnerIsLinkedToPartnership(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
+        String transactionId = transaction.getId();
+        var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
+        if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
+        }
     }
 }
 

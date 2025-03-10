@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
@@ -18,12 +19,18 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,8 +54,49 @@ class GeneralPartnerServiceTest {
     TransactionService transactionService;
     @Mock
     GeneralPartnerValidator generalPartnerValidator;
+    @Mock
+    TransactionUtils transactionUtils;
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
+
+    @Test
+    void testGetGeneralPartnerSuccess() throws ServiceException {
+        GeneralPartnerDao dao = createDao();
+
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.of(dao));
+
+        when(mapper.daoToDto(dao)).thenReturn(createDto());
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), anyString(), anyString()))
+                .thenReturn(true);
+
+        var dto = generalPartnerService.getGeneralPartner(buildTransaction(), SUBMISSION_ID);
+        assertEquals("John", dto.getData().getForename());
+        assertEquals("Doe", dto.getData().getSurname());
+    }
+
+    @Test
+    void testGetGeneralPartnerNotFound() {
+        Transaction transaction = new Transaction();
+        transaction.setId("tran1234");
+
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.empty());
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
+        assertEquals("General partner submission with id submission123 not found", resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testGetGeneralPartnerLinkFails() {
+        Transaction transaction = new Transaction();
+        transaction.setId("tran1234");
+
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+                .thenReturn(false);
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: submission123", transaction.getId()), resourceNotFoundException.getMessage());
+    }
 
     @Test
     void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
