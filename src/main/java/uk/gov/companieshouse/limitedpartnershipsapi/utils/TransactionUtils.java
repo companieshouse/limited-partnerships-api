@@ -66,10 +66,6 @@ public class TransactionUtils {
             return false;
         }
 
-        if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
-            return false;
-        }
-
-        return true;
+        return !(Objects.isNull(transaction) || Objects.isNull(transaction.getResources()));
     }
 }
