@@ -5,10 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.*;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
 
 public class AddressDto {
@@ -17,10 +15,12 @@ public class AddressDto {
     @NotNull
     @Size(min = MIN_SIZE, message = "address_line_1 " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "address_line_1 " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Address line 1 " + INVALID_CHARACTERS_MESSAGE)
     private String addressLine1;
 
     @JsonProperty("address_line_2")
     @Size(max = SHORT_MAX_SIZE, message = "address_line_2 " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Address line 2 " + INVALID_CHARACTERS_MESSAGE)
     private String addressLine2;
 
     @JsonProperty("country")
@@ -33,11 +33,12 @@ public class AddressDto {
     @NotNull
     @Size(min = MIN_SIZE, message = "locality " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "locality " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Town or city " + INVALID_CHARACTERS_MESSAGE)
     private String locality;
 
     @JsonProperty("postal_code")
     @NotNull
-    @Pattern(regexp = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? ?\\d[A-Za-z]{2}$")
+    @Pattern(regexp = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? ?\\d[A-Za-z]{2}$", message = "Invalid postcode format")
     @Size(max = 15, message = "postal_code " + MAX_SIZE_MESSAGE)
     private String postalCode;
 
@@ -45,10 +46,12 @@ public class AddressDto {
     @NotNull
     @Size(min = MIN_SIZE, message = "premises " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "premises " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Property name or number " + INVALID_CHARACTERS_MESSAGE)
     private String premises;
 
     @JsonProperty("region")
     @Size(max = SHORT_MAX_SIZE, message = "region " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "County " + INVALID_CHARACTERS_MESSAGE)
     private String region;
 
     public String getAddressLine1() {

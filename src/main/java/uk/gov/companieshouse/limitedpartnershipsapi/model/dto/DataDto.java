@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
@@ -14,8 +15,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.NameSize
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.validator.ValidEnum;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.*;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
 @NameSize
 public class DataDto {
@@ -28,6 +29,7 @@ public class DataDto {
     @NotNull(message = "Enter the name of the partnership")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)
     private String partnershipName;
 
     @JsonInclude(NON_NULL)
