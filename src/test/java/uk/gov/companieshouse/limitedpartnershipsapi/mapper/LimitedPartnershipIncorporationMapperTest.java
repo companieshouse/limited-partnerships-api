@@ -6,7 +6,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnership
 import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.IncorporationKind.REGISTRATION;
 
 class LimitedPartnershipIncorporationMapperTest {
 
@@ -16,7 +16,7 @@ class LimitedPartnershipIncorporationMapperTest {
         final String eTag = "eTag";
         LimitedPartnershipIncorporationDao source = new LimitedPartnershipIncorporationDao();
         IncorporationDataDao sourceData = new IncorporationDataDao();
-        sourceData.setKind(FILING_KIND_REGISTRATION);
+        sourceData.setKind(REGISTRATION.getDescription());
         sourceData.setEtag(eTag);
         source.setData(sourceData);
 
@@ -24,7 +24,7 @@ class LimitedPartnershipIncorporationMapperTest {
         LimitedPartnershipIncorporationDto destination = LimitedPartnershipIncorporationMapper.INSTANCE.daoToDto(source);
 
         // then
-        assertEquals(FILING_KIND_REGISTRATION, destination.getKind());
+        assertEquals(REGISTRATION.getDescription(), destination.getKind());
         assertEquals(eTag, destination.getEtag());
     }
 }
