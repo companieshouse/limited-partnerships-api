@@ -17,13 +17,13 @@ public class AddressDto {
 
     @JsonProperty("address_line_1")
     @NotNull
-    @Size(min = MIN_SIZE, message = "address_line_1 " + MIN_SIZE_MESSAGE)
-    @Size(max = SHORT_MAX_SIZE, message = "address_line_1 " + MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Address line 1 " + MIN_SIZE_MESSAGE)
+    @Size(max = SHORT_MAX_SIZE, message = "Address line 1 " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Address line 1 " + INVALID_CHARACTERS_MESSAGE)
     private String addressLine1;
 
     @JsonProperty("address_line_2")
-    @Size(max = SHORT_MAX_SIZE, message = "address_line_2 " + MAX_SIZE_MESSAGE)
+    @Size(max = SHORT_MAX_SIZE, message = "Address line 2 " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Address line 2 " + INVALID_CHARACTERS_MESSAGE)
     private String addressLine2;
 
@@ -35,8 +35,8 @@ public class AddressDto {
 
     @JsonProperty("locality")
     @NotNull
-    @Size(min = MIN_SIZE, message = "locality " + MIN_SIZE_MESSAGE)
-    @Size(max = SHORT_MAX_SIZE, message = "locality " + MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Town or city " + MIN_SIZE_MESSAGE)
+    @Size(max = SHORT_MAX_SIZE, message = "Town or city " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Town or city " + INVALID_CHARACTERS_MESSAGE)
     private String locality;
 
@@ -48,13 +48,13 @@ public class AddressDto {
 
     @JsonProperty("premises")
     @NotNull
-    @Size(min = MIN_SIZE, message = "premises " + MIN_SIZE_MESSAGE)
-    @Size(max = SHORT_MAX_SIZE, message = "premises " + MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Property name or number " + MIN_SIZE_MESSAGE)
+    @Size(max = SHORT_MAX_SIZE, message = "Property name or number " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Property name or number " + INVALID_CHARACTERS_MESSAGE)
     private String premises;
 
     @JsonProperty("region")
-    @Size(max = SHORT_MAX_SIZE, message = "region " + MAX_SIZE_MESSAGE)
+    @Size(max = SHORT_MAX_SIZE, message = "County " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "County " + INVALID_CHARACTERS_MESSAGE)
     private String region;
 

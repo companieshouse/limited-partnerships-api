@@ -30,7 +30,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -240,10 +239,7 @@ class PartnershipControllerValidationTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(result -> {
-                            String responseBody = result.getResponse().getContentAsString();
-                            assertThat(responseBody).contains("\"partnershipName\":\"Limited partnership name is invalid\"");
-                        });
+                        .andExpect(jsonPath("errors.partnershipName").value("Limited partnership name is invalid"));
             }
         }
 
@@ -374,7 +370,7 @@ class PartnershipControllerValidationTest {
 
             @ParameterizedTest
             @MethodSource("provideInvalidCharsInputsAndMessages")
-            void shouldReturn400IfFieldHasInvalidChars(String body, String expectedErrorMessage) throws Exception {
+            void shouldReturn400IfFieldHasInvalidChars(String body, String fieldName, String expectedErrorMessage) throws Exception {
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
@@ -382,38 +378,47 @@ class PartnershipControllerValidationTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(result -> {
-                            String responseBody = result.getResponse().getContentAsString();
-                            assertThat(responseBody).contains(expectedErrorMessage);
-                        });
+                        .andExpect(jsonPath(fieldName).value(expectedErrorMessage));
             }
 
             private static Stream<Arguments> provideInvalidCharsInputsAndMessages() {
                 return Stream.of(
                         Arguments.of(JSON_ROA_PREMISES_INVALID_CHARS,
-                                "\"registeredOfficeAddress.premises\":\"Property name or number is invalid\""),
+                                "$.[\"errors\"].[\"registeredOfficeAddress.premises\"]",
+                                "Property name or number is invalid"),
                         Arguments.of(JSON_ROA_ADDRESS_LINE_1_INVALID_CHARS,
-                                "\"registeredOfficeAddress.addressLine1\":\"Address line 1 is invalid\""),
+                                "$.[\"errors\"].[\"registeredOfficeAddress.addressLine1\"]",
+                                "Address line 1 is invalid"),
                         Arguments.of(JSON_ROA_ADDRESS_LINE_2_INVALID_CHARS,
-                                "\"registeredOfficeAddress.addressLine2\":\"Address line 2 is invalid\""),
+                                "$.[\"errors\"].[\"registeredOfficeAddress.addressLine2\"]",
+                                "Address line 2 is invalid"),
                         Arguments.of(JSON_ROA_ADDRESS_LOCALITY_INVALID_CHARS,
-                                "\"registeredOfficeAddress.locality\":\"Town or city is invalid\""),
+                                "$.[\"errors\"].[\"registeredOfficeAddress.locality\"]",
+                                "Town or city is invalid"),
                         Arguments.of(JSON_ROA_ADDRESS_REGION_INVALID_CHARS,
-                                "\"registeredOfficeAddress.region\":\"County is invalid\""),
+                                "$.[\"errors\"].[\"registeredOfficeAddress.region\"]",
+                                "County is invalid"),
                         Arguments.of(JSON_ROA_ADDRESS_POSTCODE_INVALID_CHARS,
-                                "registeredOfficeAddress.postalCode\":\"Invalid postcode format"),
+                                "$.[\"errors\"].[\"registeredOfficeAddress.postalCode\"]",
+                                "Invalid postcode format"),
                         Arguments.of(JSON_PPOB_PREMISES_INVALID_CHARS,
-                                "\"principalPlaceOfBusinessAddress.premises\":\"Property name or number is invalid\""),
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.premises\"]",
+                                "Property name or number is invalid"),
                         Arguments.of(JSON_PPOB_ADDRESS_LINE_1_INVALID_CHARS,
-                                "\"principalPlaceOfBusinessAddress.addressLine1\":\"Address line 1 is invalid\""),
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.addressLine1\"]",
+                                "Address line 1 is invalid"),
                         Arguments.of(JSON_PPOB_ADDRESS_LINE_2_INVALID_CHARS,
-                                "\"principalPlaceOfBusinessAddress.addressLine2\":\"Address line 2 is invalid\""),
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.addressLine2\"]",
+                                "Address line 2 is invalid"),
                         Arguments.of(JSON_PPOB_ADDRESS_LOCALITY_INVALID_CHARS,
-                                "\"principalPlaceOfBusinessAddress.locality\":\"Town or city is invalid\""),
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.locality\"]",
+                                "Town or city is invalid"),
                         Arguments.of(JSON_PPOB_ADDRESS_REGION_INVALID_CHARS,
-                                "\"principalPlaceOfBusinessAddress.region\":\"County is invalid\""),
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.region\"]",
+                                "County is invalid"),
                         Arguments.of(JSON_PPOB_ADDRESS_POSTCODE_INVALID_CHARS,
-                                "principalPlaceOfBusinessAddress.postalCode\":\"Invalid postcode format")
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.postalCode\"]",
+                                "Invalid postcode format")
                 );
             }
         }

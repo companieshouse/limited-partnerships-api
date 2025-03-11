@@ -23,12 +23,12 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_E
 @NameSize
 public class DataDto {
 
-    public static final String NAME_MIN_SIZE_MESSAGE = "partnership name must be greater than {min}";
-    public static final String NAME_MAX_SIZE_MESSAGE = "partnership name must be less than {max}";
+    public static final String NAME_MIN_SIZE_MESSAGE = "Limited partnership name must be greater than {min}";
+    public static final String NAME_MAX_SIZE_MESSAGE = "Limited partnership name must be less than {max}";
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-    @NotNull(message = "Enter the name of the partnership")
+    @NotNull(message = "Enter the name of the limited partnership")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)

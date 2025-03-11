@@ -23,8 +23,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_E
 @NameSize
 public class LimitedPartnershipPatchDto {
     @JsonProperty("partnership_name")
-    @Size(min = MIN_SIZE, message = MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Limited partnership name " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Limited partnership name " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)
     private String partnershipName;
 

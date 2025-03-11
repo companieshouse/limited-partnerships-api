@@ -89,7 +89,7 @@ class LimitedPartnershipSubmissionDtoValidationTest {
                 .extracting(ConstraintViolation::getMessage)
                 .containsExactlyInAnyOrder(
                         String.format("Max length 'partnership name + name ending' is %s characters", LONG_MAX_SIZE),
-                        String.format("partnership name must be less than %s", LONG_MAX_SIZE),
+                        String.format("Limited partnership name must be less than %s", LONG_MAX_SIZE),
                         "must be a well-formed email address");
     }
 }
