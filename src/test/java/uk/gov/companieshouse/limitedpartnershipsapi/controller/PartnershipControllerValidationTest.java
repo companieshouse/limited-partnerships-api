@@ -239,7 +239,7 @@ class PartnershipControllerValidationTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("errors.partnershipName").value("Limited partnership name is invalid"));
+                        .andExpect(jsonPath("errors.partnershipName").value("Limited partnership name has invalid characters"));
             }
         }
 
@@ -385,37 +385,37 @@ class PartnershipControllerValidationTest {
                 return Stream.of(
                         Arguments.of(JSON_ROA_PREMISES_INVALID_CHARS,
                                 "$.[\"errors\"].[\"registeredOfficeAddress.premises\"]",
-                                "Property name or number is invalid"),
+                                "Property name or number has invalid characters"),
                         Arguments.of(JSON_ROA_ADDRESS_LINE_1_INVALID_CHARS,
                                 "$.[\"errors\"].[\"registeredOfficeAddress.addressLine1\"]",
-                                "Address line 1 is invalid"),
+                                "Address line 1 has invalid characters"),
                         Arguments.of(JSON_ROA_ADDRESS_LINE_2_INVALID_CHARS,
                                 "$.[\"errors\"].[\"registeredOfficeAddress.addressLine2\"]",
-                                "Address line 2 is invalid"),
+                                "Address line 2 has invalid characters"),
                         Arguments.of(JSON_ROA_ADDRESS_LOCALITY_INVALID_CHARS,
                                 "$.[\"errors\"].[\"registeredOfficeAddress.locality\"]",
-                                "Town or city is invalid"),
+                                "Town or city has invalid characters"),
                         Arguments.of(JSON_ROA_ADDRESS_REGION_INVALID_CHARS,
                                 "$.[\"errors\"].[\"registeredOfficeAddress.region\"]",
-                                "County is invalid"),
+                                "County has invalid characters"),
                         Arguments.of(JSON_ROA_ADDRESS_POSTCODE_INVALID_CHARS,
                                 "$.[\"errors\"].[\"registeredOfficeAddress.postalCode\"]",
                                 "Invalid postcode format"),
                         Arguments.of(JSON_PPOB_PREMISES_INVALID_CHARS,
                                 "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.premises\"]",
-                                "Property name or number is invalid"),
+                                "Property name or number has invalid characters"),
                         Arguments.of(JSON_PPOB_ADDRESS_LINE_1_INVALID_CHARS,
                                 "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.addressLine1\"]",
-                                "Address line 1 is invalid"),
+                                "Address line 1 has invalid characters"),
                         Arguments.of(JSON_PPOB_ADDRESS_LINE_2_INVALID_CHARS,
                                 "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.addressLine2\"]",
-                                "Address line 2 is invalid"),
+                                "Address line 2 has invalid characters"),
                         Arguments.of(JSON_PPOB_ADDRESS_LOCALITY_INVALID_CHARS,
                                 "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.locality\"]",
-                                "Town or city is invalid"),
+                                "Town or city has invalid characters"),
                         Arguments.of(JSON_PPOB_ADDRESS_REGION_INVALID_CHARS,
                                 "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.region\"]",
-                                "County is invalid"),
+                                "County has invalid characters"),
                         Arguments.of(JSON_PPOB_ADDRESS_POSTCODE_INVALID_CHARS,
                                 "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.postalCode\"]",
                                 "Invalid postcode format")

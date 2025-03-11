@@ -109,7 +109,7 @@ class GeneralPartnerControllerUpdateTest {
     @CsvSource(value = {
             JSON_WITH_BELOW_MIN_FORENAME + "$ forename $ Forename must be greater than 1",
             JSON_WITH_ABOVE_MAX_SURNAME + "$ surname $ Surname must be less than 160",
-            JSON_INVALID_FORMERNAMES + "$ formerNames $ Former names is invalid",
+            JSON_INVALID_FORMERNAMES + "$ formerNames $ Former names has invalid characters",
             JSON_INVALID_NATIONALITY + "$ nationality1 $ First nationality must be valid"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
