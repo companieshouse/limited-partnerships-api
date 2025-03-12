@@ -7,11 +7,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

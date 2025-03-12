@@ -4,8 +4,8 @@ import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 
 @Mapper(uses = JsonNullableMapper.class,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,

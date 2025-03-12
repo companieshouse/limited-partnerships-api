@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnerSubmissionCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 

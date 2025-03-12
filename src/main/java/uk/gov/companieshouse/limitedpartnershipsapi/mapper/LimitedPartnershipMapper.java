@@ -3,10 +3,10 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipSubmissionDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 
 @Component
 @Mapper(componentModel = "spring")
