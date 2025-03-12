@@ -75,7 +75,7 @@ class LimitedPartnerControllerTest {
         assertEquals(
                 String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
-        LimitedPartnerSubmissionCreatedResponseDto responseBody = (LimitedPartnerSubmissionCreatedResponseDto) response.getBody();
+        LimitedPartnerSubmissionCreatedResponseDto responseBody = response.getBody();
         assert responseBody != null;
         assertEquals(SUBMISSION_ID, responseBody.id());
     }
@@ -138,5 +138,4 @@ class LimitedPartnerControllerTest {
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
         assertNull(response.getBody());
     }
-
 }

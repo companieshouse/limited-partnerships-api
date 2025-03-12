@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerServic
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {GeneralPartnerController.class})
@@ -126,9 +127,9 @@ class GeneralPartnerControllerValidationTest {
             JSON_WITH_BELOW_MIN_SURNAME + "$ data.surname $ Surname must be greater than 1",
             JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
             JSON_WITH_ABOVE_MAX_FORMER_NAMES + "$ data.formerNames $ Former names must be less than 160",
-            JSON_INVALID_FORENAME + "$ data.forename $ Forename has invalid characters",
-            JSON_INVALID_SURNAME + "$ data.surname $ Surname has invalid characters",
-            JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names has invalid characters",
+            JSON_INVALID_FORENAME + "$ data.forename $ Forename " + INVALID_CHARACTERS_MESSAGE,
+            JSON_INVALID_SURNAME + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
+            JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
             JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid"
     }, delimiter = '$')
