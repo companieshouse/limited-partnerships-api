@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.IncorporationDataDao;
 
 @Document(collection = "limited_partnership_incorporations")
 public class LimitedPartnershipIncorporationDao {
