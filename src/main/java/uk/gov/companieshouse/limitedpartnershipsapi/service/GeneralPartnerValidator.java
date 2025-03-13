@@ -6,8 +6,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 
 @Component
 public class GeneralPartnerValidator {

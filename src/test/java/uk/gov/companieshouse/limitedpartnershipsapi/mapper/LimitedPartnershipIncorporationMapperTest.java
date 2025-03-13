@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.IncorporationDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipIncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.IncorporationDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;

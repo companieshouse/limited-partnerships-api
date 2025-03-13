@@ -13,13 +13,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.DataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.LimitedPartnershipSubmissionDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipPatchDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipSubmissionDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 

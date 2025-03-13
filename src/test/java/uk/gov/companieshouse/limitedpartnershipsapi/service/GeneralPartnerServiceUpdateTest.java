@@ -10,12 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
