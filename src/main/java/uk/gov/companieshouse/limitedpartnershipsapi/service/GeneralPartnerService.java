@@ -11,9 +11,9 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
@@ -82,7 +82,7 @@ public class GeneralPartnerService {
     }
 
     private void updateTransactionWithGeneralPartnerTransactionResourceLinks(
-            String requestId, Transaction transaction, String submissionUri)  throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
@@ -149,7 +149,7 @@ public class GeneralPartnerService {
 
     private void checkGeneralPartnerIsLinkedToPartnership(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
         String transactionId = transaction.getId();
-        var submissionUri =  String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
+        var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
         if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));

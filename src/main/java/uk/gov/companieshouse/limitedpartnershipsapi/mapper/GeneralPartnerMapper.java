@@ -5,11 +5,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
 
 @Component
 @Mapper(uses = JsonNullableMapper.class,
@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
         componentModel = "spring")
 public interface GeneralPartnerMapper {
     GeneralPartnerDto daoToDto(GeneralPartnerDao dao);
+
     GeneralPartnerDao dtoToDao(GeneralPartnerDto dto);
 
     GeneralPartnerDataDto map(GeneralPartnerDataDto dto);

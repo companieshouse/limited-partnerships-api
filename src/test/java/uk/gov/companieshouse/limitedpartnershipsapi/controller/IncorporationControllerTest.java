@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipIncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.LimitedPartnershipSubmissionCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 
 import java.util.Objects;
@@ -19,7 +21,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,8 +44,12 @@ class IncorporationControllerTest {
     @Test
     void testCreateIncorporationIsSuccessful() throws ServiceException {
         // given
+        IncorporationDto incorporationDto = new IncorporationDto();
+        IncorporationDataDto dataDto = new IncorporationDataDto();
+        incorporationDto.setData(dataDto);
+
         when(incorporationService.createIncorporation(
-                transaction, REQUEST_ID, USER_ID
+                transaction, incorporationDto, REQUEST_ID, USER_ID
         ))
                 .thenReturn(SUBMISSION_ID);
 
@@ -52,6 +58,7 @@ class IncorporationControllerTest {
         // when
         var response = incorporationController.createIncorporation(
                 transaction,
+                incorporationDto,
                 REQUEST_ID,
                 USER_ID);
 
@@ -71,7 +78,7 @@ class IncorporationControllerTest {
         // given
         LimitedPartnershipIncorporationDto limitedPartnershipIncorporationDto = new LimitedPartnershipIncorporationDto();
 
-        limitedPartnershipIncorporationDto.setKind(FILING_KIND_REGISTRATION);
+        limitedPartnershipIncorporationDto.setKind(REGISTRATION.getDescription());
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenReturn(limitedPartnershipIncorporationDto);
@@ -86,7 +93,7 @@ class IncorporationControllerTest {
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         assertEquals(limitedPartnershipIncorporationDto, response.getBody());
-        assertEquals(FILING_KIND_REGISTRATION, limitedPartnershipIncorporationDto.getKind());
+        assertEquals(REGISTRATION.getDescription(), limitedPartnershipIncorporationDto.getKind());
     }
 
     @Test

@@ -12,9 +12,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.dto.GeneralPartnerSubmissionCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import java.util.Objects;
@@ -68,7 +68,7 @@ class GeneralPartnerControllerTest {
 
     @Test
     void testGetPartnerReturnsNotFoundWhenExceptionIsThrown() throws ServiceException {
-         when(generalPartnerService.getGeneralPartner(any(Transaction.class), anyString()))
+        when(generalPartnerService.getGeneralPartner(any(Transaction.class), anyString()))
                 .thenThrow(ResourceNotFoundException.class);
 
         var response = generalPartnerController.getGeneralPartner(transaction, SUBMISSION_ID, REQUEST_ID);
@@ -77,7 +77,7 @@ class GeneralPartnerControllerTest {
 
     @Test
     void testCreatePartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-         when(generalPartnerService.createGeneralPartner(
+        when(generalPartnerService.createGeneralPartner(
                 any(Transaction.class),
                 any(GeneralPartnerDto.class),
                 eq(REQUEST_ID),
@@ -85,7 +85,7 @@ class GeneralPartnerControllerTest {
                 .thenReturn(SUBMISSION_ID);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        
+
         var response = generalPartnerController.createGeneralPartner(
                 transaction,
                 generalPartnerDto,
@@ -94,7 +94,7 @@ class GeneralPartnerControllerTest {
 
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
-        assertEquals( String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
+        assertEquals(String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
         GeneralPartnerSubmissionCreatedResponseDto responseBody = response.getBody();
         assert responseBody != null;
