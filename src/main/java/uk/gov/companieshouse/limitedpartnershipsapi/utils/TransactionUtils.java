@@ -7,8 +7,8 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import java.util.Objects;
 import java.util.Optional;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.IncorporationKind.REGISTRATION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
