@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,10 +28,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
+import java.util.stream.Stream;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {PartnershipController.class})
@@ -118,12 +123,15 @@ class PartnershipControllerValidationTest {
         }
 
         private static final String JSON_MISSING_PARTNERSHIP_NAME = "{\"data\":{\"name_ending\":\"Limited Partnership\",\"partnership_type\":\"LP\"}}";
+        private static final String JSON_INVALID_CHARS_PARTNERSHIP_NAME = "{\"data\":{\"partnership_name\":\"±±±Name test\", \"name_ending\":\"Limited Partnership\",\"partnership_type\":\"LP\"}}";
         private static final String JSON_MISSING_NAME_ENDING = "{\"data\":{\"partnership_name\":\"Name test\", \"partnership_type\":\"LP\"}}";
         private static final String JSON_MISSING_TYPE = "{\"data\":{\"partnership_name\":\"Name test\", \"name_ending\":\"Limited Partnership\"}}";
+
 
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_MISSING_PARTNERSHIP_NAME,
+                JSON_INVALID_CHARS_PARTNERSHIP_NAME,
                 JSON_MISSING_NAME_ENDING,
                 JSON_MISSING_TYPE
         })
@@ -217,11 +225,13 @@ class PartnershipControllerValidationTest {
                                 .content(body))
                         .andExpect(status().isBadRequest());
             }
+        }
 
+        @Nested
+        class NameInvalidChars {
             @Test
-            void testUpdatePartnershipShouldReturnBadRequestErrorIfNameSizeIsTooLong() throws Exception {
-                String longName = StringUtils.repeat("A", 160);
-                String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
+            void shouldReturnBadRequestErrorIfNameContainsInvalidChars() throws Exception {
+                String body = "{\"partnership_name\":\"±±\",\"name_ending\":\"Limited Partnership\"}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -229,7 +239,8 @@ class PartnershipControllerValidationTest {
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("errors.partnershipName").value("Limited partnership name " + INVALID_CHARACTERS_MESSAGE));
             }
         }
 
@@ -263,6 +274,13 @@ class PartnershipControllerValidationTest {
             private static final String JSON_ROA_MISSING_LOCALITY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
             private static final String JSON_ROA_MISSING_COUNTRY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
 
+            private static final String JSON_ROA_PREMISES_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"±\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_ADDRESS_LINE_1_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"±±DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_ADDRESS_LINE_2_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"±±\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_ADDRESS_LOCALITY_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"±±STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_ADDRESS_REGION_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"±±Herefordshire\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_ADDRESS_POSTCODE_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"±±ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"Herefordshire\", \"country\":\"GB-ENG\"}}";
+
             // principal place of business
             private static final String JSON_PPOB_POSTCODE_EMPTY = "{\"principal_place_of_business_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
             private static final String JSON_PPOB_POSTCODE_NOT_CORRECT = "{\"principal_place_of_business_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
@@ -273,6 +291,13 @@ class PartnershipControllerValidationTest {
             private static final String JSON_PPOB_MISSING_ADDRESS_LINE_1 = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
             private static final String JSON_PPOB_MISSING_LOCALITY = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
             private static final String JSON_PPOB_MISSING_COUNTRY = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
+
+            private static final String JSON_PPOB_PREMISES_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"±\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_ADDRESS_LINE_1_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"±±DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_ADDRESS_LINE_2_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"±±\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_ADDRESS_LOCALITY_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"±±STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_ADDRESS_REGION_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"±±Herefordshire\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_ADDRESS_POSTCODE_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"±±ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"Herefordshire\", \"country\":\"GB-ENG\"}}";
 
             @Test
             void shouldReturn200() throws Exception {
@@ -342,6 +367,60 @@ class PartnershipControllerValidationTest {
                                     .requestAttr("transaction", transaction)
                                     .content(body))
                             .andExpect(status().isBadRequest());
+            }
+
+            @ParameterizedTest
+            @MethodSource("provideInvalidCharsInputsAndMessages")
+            void shouldReturn400IfFieldHasInvalidChars(String body, String fieldName, String expectedErrorMessage) throws Exception {
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath(fieldName).value(expectedErrorMessage));
+            }
+
+            private static Stream<Arguments> provideInvalidCharsInputsAndMessages() {
+                return Stream.of(
+                        Arguments.of(JSON_ROA_PREMISES_INVALID_CHARS,
+                                "$.[\"errors\"].[\"registeredOfficeAddress.premises\"]",
+                                "Property name or number " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_ROA_ADDRESS_LINE_1_INVALID_CHARS,
+                                "$.[\"errors\"].[\"registeredOfficeAddress.addressLine1\"]",
+                                "Address line 1 " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_ROA_ADDRESS_LINE_2_INVALID_CHARS,
+                                "$.[\"errors\"].[\"registeredOfficeAddress.addressLine2\"]",
+                                "Address line 2 " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_ROA_ADDRESS_LOCALITY_INVALID_CHARS,
+                                "$.[\"errors\"].[\"registeredOfficeAddress.locality\"]",
+                                "Town or city " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_ROA_ADDRESS_REGION_INVALID_CHARS,
+                                "$.[\"errors\"].[\"registeredOfficeAddress.region\"]",
+                                "County " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_ROA_ADDRESS_POSTCODE_INVALID_CHARS,
+                                "$.[\"errors\"].[\"registeredOfficeAddress.postalCode\"]",
+                                "Invalid postcode format"),
+                        Arguments.of(JSON_PPOB_PREMISES_INVALID_CHARS,
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.premises\"]",
+                                "Property name or number " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_PPOB_ADDRESS_LINE_1_INVALID_CHARS,
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.addressLine1\"]",
+                                "Address line 1 " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_PPOB_ADDRESS_LINE_2_INVALID_CHARS,
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.addressLine2\"]",
+                                "Address line 2 " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_PPOB_ADDRESS_LOCALITY_INVALID_CHARS,
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.locality\"]",
+                                "Town or city " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_PPOB_ADDRESS_REGION_INVALID_CHARS,
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.region\"]",
+                                "County " + INVALID_CHARACTERS_MESSAGE),
+                        Arguments.of(JSON_PPOB_ADDRESS_POSTCODE_INVALID_CHARS,
+                                "$.[\"errors\"].[\"principalPlaceOfBusinessAddress.postalCode\"]",
+                                "Invalid postcode format")
+                );
             }
         }
 

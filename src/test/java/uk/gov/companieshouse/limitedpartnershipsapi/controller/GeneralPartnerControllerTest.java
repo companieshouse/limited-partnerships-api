@@ -96,7 +96,7 @@ class GeneralPartnerControllerTest {
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
         assertEquals(String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
-        GeneralPartnerSubmissionCreatedResponseDto responseBody = (GeneralPartnerSubmissionCreatedResponseDto) response.getBody();
+        GeneralPartnerSubmissionCreatedResponseDto responseBody = response.getBody();
         assert responseBody != null;
         assertEquals(SUBMISSION_ID, responseBody.id());
     }

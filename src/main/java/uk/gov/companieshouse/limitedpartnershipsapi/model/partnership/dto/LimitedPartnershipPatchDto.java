@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
@@ -11,17 +12,20 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidEnum;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 
 
 @NameSize
 public class LimitedPartnershipPatchDto {
     @JsonProperty("partnership_name")
-    @Size(min = MIN_SIZE, message = MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Limited partnership name " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Limited partnership name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)
     private String partnershipName;
 
     @JsonProperty("name_ending")
