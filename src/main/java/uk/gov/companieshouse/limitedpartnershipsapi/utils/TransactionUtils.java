@@ -7,8 +7,9 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import java.util.Objects;
 import java.util.Optional;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
 @Component
@@ -31,14 +32,15 @@ public class TransactionUtils {
     }
 
     public boolean isTransactionLinkedToLimitedPartnershipIncorporation(Transaction transaction, String limitedPartnershipIncorporationSelfLink) {
-        return doChecks(transaction, limitedPartnershipIncorporationSelfLink, FILING_KIND_REGISTRATION);
+        return doIncorporationChecks(transaction, limitedPartnershipIncorporationSelfLink);
+    }
+
+    public boolean isTransactionLinkedToPartnerSubmission(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
+        return doChecks(transaction, partnerSubmissionSelfLink, kind);
     }
 
     private boolean doChecks(Transaction transaction, String selfLink, String kind) {
-        if (StringUtils.isBlank(selfLink)) {
-            return false;
-        }
-        if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
+        if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
             return false;
         }
 
@@ -47,7 +49,23 @@ public class TransactionUtils {
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
     }
 
-    public boolean isTransactionLinkedToPartnerSubmission(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
-        return doChecks(transaction, partnerSubmissionSelfLink, kind);
+    private boolean doIncorporationChecks(Transaction transaction, String selfLink) {
+        if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
+            return false;
+        }
+
+        return transaction.getResources().entrySet().stream()
+                .filter(resource -> (
+                        REGISTRATION.getDescription().equals(resource.getValue().getKind()))
+                        || TRANSITION.getDescription().equals(resource.getValue().getKind()))
+                .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
+    }
+
+    private boolean isTransactionAndSelfLinkValid(Transaction transaction, String selfLink) {
+        if (StringUtils.isBlank(selfLink)) {
+            return false;
+        }
+
+        return !(Objects.isNull(transaction) || Objects.isNull(transaction.getResources()));
     }
 }

@@ -11,11 +11,13 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.IncorporationDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
@@ -32,7 +34,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
@@ -72,9 +74,13 @@ class LimitedPartnershipIncorporationServiceTest {
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
 
+        IncorporationDto incorporationDto = new IncorporationDto();
+        IncorporationDataDto dataDto = new IncorporationDataDto();
+        dataDto.setKind(REGISTRATION);
+        incorporationDto.setData(dataDto);
+
         // when
-        var submissionId = incorporationService.createIncorporation(transaction, REQUEST_ID,
-                USER_ID);
+        var submissionId = incorporationService.createIncorporation(transaction, incorporationDto, REQUEST_ID, USER_ID);
 
         // then
         verify(repository, times(1)).insert(incorporationCaptor.capture());
@@ -82,14 +88,14 @@ class LimitedPartnershipIncorporationServiceTest {
 
         LimitedPartnershipIncorporationDao sentSubmission = incorporationCaptor.getValue();
         IncorporationDataDao dataDao = sentSubmission.getData();
-        assertEquals(FILING_KIND_REGISTRATION, dataDao.getKind());
+        assertEquals(dataDto.getKind(), dataDao.getKind());
         assertNotNull(dataDao.getEtag());
         // assert dao incorporation self link is correct
         String submissionUri = String.format(URL_GET_INCORPORATION, TRANSACTION_ID, submissionId);
         String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
         assertEquals(submissionUri, sentSubmissionUri);
 
-        assertEquals(FILING_KIND_REGISTRATION, transaction.getFilingMode());
+        assertEquals(dataDto.getKind(), transaction.getFilingMode());
     }
 
     @Test
@@ -106,7 +112,7 @@ class LimitedPartnershipIncorporationServiceTest {
 
         // then
         assertNotNull(limitedPartnershipIncorporationDto);
-        assertEquals(FILING_KIND_REGISTRATION, limitedPartnershipIncorporationDto.getKind());
+        assertEquals(REGISTRATION.getDescription(), limitedPartnershipIncorporationDto.getKind());
         assertNull(limitedPartnershipIncorporationDto.getSubResources());
     }
 
@@ -126,7 +132,7 @@ class LimitedPartnershipIncorporationServiceTest {
 
         // then
         assertNotNull(limitedPartnershipIncorporationDto);
-        assertEquals(FILING_KIND_REGISTRATION, limitedPartnershipIncorporationDto.getKind());
+        assertEquals(REGISTRATION.getDescription(), limitedPartnershipIncorporationDto.getKind());
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources());
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources().getPartnership());
         assertEquals(limitedPartnershipSubmissionDto.getData(), limitedPartnershipIncorporationDto.getSubResources().getPartnership().getData());
@@ -158,7 +164,7 @@ class LimitedPartnershipIncorporationServiceTest {
     private LimitedPartnershipIncorporationDao createLimitedPartnershipIncorporationDao() {
         var dao = new LimitedPartnershipIncorporationDao();
         dao.setId(SUBMISSION_ID);
-        dao.getData().setKind(FILING_KIND_REGISTRATION);
+        dao.getData().setKind(REGISTRATION.getDescription());
         dao.setCreatedAt(LocalDateTime.now());
 
         return dao;
@@ -172,7 +178,7 @@ class LimitedPartnershipIncorporationServiceTest {
 
     private LimitedPartnershipIncorporationDto createLimitedPartnershipIncorporationDto() {
         LimitedPartnershipIncorporationDto dto = new LimitedPartnershipIncorporationDto();
-        dto.setKind(FILING_KIND_REGISTRATION);
+        dto.setKind(REGISTRATION.getDescription());
         return dto;
     }
 

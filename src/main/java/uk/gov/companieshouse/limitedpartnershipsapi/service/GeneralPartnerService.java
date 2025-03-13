@@ -82,7 +82,7 @@ public class GeneralPartnerService {
     }
 
     private void updateTransactionWithGeneralPartnerTransactionResourceLinks(
-            String requestId, Transaction transaction, String submissionUri)  throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
@@ -149,7 +149,7 @@ public class GeneralPartnerService {
 
     private void checkGeneralPartnerIsLinkedToPartnership(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
         String transactionId = transaction.getId();
-        var submissionUri =  String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
+        var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
         if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
