@@ -169,7 +169,7 @@ public class GeneralPartnerDataDto {
     }
 
     public String getNationality2() {
-        return  nationality2 != null ? nationality2.getDescription() : null;
+        return nationality2 != null ? nationality2.getDescription() : null;
     }
 
     public void setNationality2(Nationality nationality2) {

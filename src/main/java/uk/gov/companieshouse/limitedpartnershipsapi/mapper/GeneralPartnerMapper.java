@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationalit
         componentModel = "spring")
 public interface GeneralPartnerMapper {
     GeneralPartnerDto daoToDto(GeneralPartnerDao dao);
+
     GeneralPartnerDao dtoToDao(GeneralPartnerDto dto);
 
     GeneralPartnerDataDto map(GeneralPartnerDataDto dto);
