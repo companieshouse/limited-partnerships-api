@@ -44,7 +44,6 @@ public class GeneralPartnerDataDto {
     private String forename;
 
     @JsonProperty("former_names")
-    @Size(min = MIN_SIZE, message = "Former names " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Former names " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Former names " + INVALID_CHARACTERS_MESSAGE)
     private String formerNames;
