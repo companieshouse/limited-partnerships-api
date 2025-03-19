@@ -120,6 +120,7 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(Nationality.AMERICAN);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
@@ -136,6 +137,7 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
@@ -155,6 +157,7 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(null);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
