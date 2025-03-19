@@ -25,6 +25,9 @@ test: test-unit
 test-unit: clean
 	mvn test
 
+.PHONY: test-integration
+test-integration:
+
 .PHONY: package
 package:
 ifndef version
