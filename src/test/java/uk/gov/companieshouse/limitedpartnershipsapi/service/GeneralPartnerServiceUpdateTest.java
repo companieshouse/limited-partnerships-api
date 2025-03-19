@@ -116,7 +116,7 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @Test
-    void shouldFailUpdateIfNationalitiesAreSame() {
+    void shouldFailUpdateIfNationalitiesAreTheSame() {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
@@ -129,7 +129,44 @@ class GeneralPartnerServiceUpdateTest {
         );
 
         assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
+    }
 
+    @Test
+    void shouldAllowUpdateIfNationalitiesAreDifferent() throws Exception {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(repository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(Nationality.AMERICAN.getDescription(), sentSubmission.getData().getNationality1());
+        assertEquals(Nationality.NEW_ZEALANDER.getDescription(), sentSubmission.getData().getNationality2());
+    }
+
+    @Test
+    void shouldClearSecondNationalityIfBeingReset() throws Exception {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality2(null);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(repository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(Nationality.AMERICAN.getDescription(), sentSubmission.getData().getNationality1());
+        assertEquals(null, sentSubmission.getData().getNationality2());
     }
 
     @Test
