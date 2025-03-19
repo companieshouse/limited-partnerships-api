@@ -84,6 +84,7 @@ class GeneralPartnerServiceUpdateTest {
     @Test
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+        generalPartnerDao.getData().setNationality2(Nationality.GREENLANDIC.getDescription());
 
         AddressDto principalOfficeAddress = new AddressDto();
         principalOfficeAddress.setAddressLine1("DUNCALF STREET");
@@ -113,6 +114,9 @@ class GeneralPartnerServiceUpdateTest {
         assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
         assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalOfficeAddress().getPostalCode());
         assertEquals("2", sentSubmission.getData().getPrincipalOfficeAddress().getPremises());
+
+        // Ensure that second nationality isn't cleared if only address data is updated
+        assertEquals(Nationality.GREENLANDIC.getDescription(), sentSubmission.getData().getNationality2());
     }
 
     @Test
