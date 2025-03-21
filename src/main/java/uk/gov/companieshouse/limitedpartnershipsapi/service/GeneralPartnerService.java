@@ -96,14 +96,15 @@ public class GeneralPartnerService {
         transactionService.updateTransaction(transaction, requestId);
     }
 
-    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    public void updateGeneralPartner(String generalPartnerId, GeneralPartnerDataDto generalPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
 
         var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
 
-        mapper.update(generalPartnerDataDto, generalPartnerDto.getData());
+        mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         isSecondNationalityDifferent(generalPartnerDto);
+        handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
@@ -130,6 +131,14 @@ public class GeneralPartnerService {
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    private void handleSecondNationalityOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto,
+                                                    GeneralPartnerDataDto generalPartnerDataDto) {
+        // The first 'not null' check here ensures that second nationality isn't wiped if, for example, only address data is being updated
+        if (generalPartnerChangesDataDto.getNationality1() != null && generalPartnerChangesDataDto.getNationality2() == null) {
+            generalPartnerDataDto.setNationality2(null);
         }
     }
 

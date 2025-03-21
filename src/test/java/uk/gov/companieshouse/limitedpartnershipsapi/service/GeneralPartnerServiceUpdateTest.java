@@ -84,6 +84,7 @@ class GeneralPartnerServiceUpdateTest {
     @Test
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+        generalPartnerDao.getData().setNationality2(Nationality.GREENLANDIC.getDescription());
 
         AddressDto principalOfficeAddress = new AddressDto();
         principalOfficeAddress.setAddressLine1("DUNCALF STREET");
@@ -113,13 +114,17 @@ class GeneralPartnerServiceUpdateTest {
         assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
         assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalOfficeAddress().getPostalCode());
         assertEquals("2", sentSubmission.getData().getPrincipalOfficeAddress().getPremises());
+
+        // Ensure that second nationality isn't cleared if only address data is updated
+        assertEquals(Nationality.GREENLANDIC.getDescription(), sentSubmission.getData().getNationality2());
     }
 
     @Test
-    void shouldFailUpdateIfNationalitiesAreSame() {
+    void shouldFailUpdateIfNationalitiesAreTheSame() {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(Nationality.AMERICAN);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
@@ -129,7 +134,46 @@ class GeneralPartnerServiceUpdateTest {
         );
 
         assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
+    }
 
+    @Test
+    void shouldAllowUpdateIfNationalitiesAreDifferent() throws Exception {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
+        generalPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(repository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(Nationality.AMERICAN.getDescription(), sentSubmission.getData().getNationality1());
+        assertEquals(Nationality.NEW_ZEALANDER.getDescription(), sentSubmission.getData().getNationality2());
+    }
+
+    @Test
+    void shouldClearSecondNationalityIfBeingReset() throws Exception {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
+        generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
+        generalPartnerDataDto.setNationality2(null);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(repository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(Nationality.AMERICAN.getDescription(), sentSubmission.getData().getNationality1());
+        assertEquals(null, sentSubmission.getData().getNationality2());
     }
 
     @Test
