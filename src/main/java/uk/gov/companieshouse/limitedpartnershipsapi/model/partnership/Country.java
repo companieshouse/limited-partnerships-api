@@ -262,7 +262,7 @@ public enum Country {
     ZIMBABWE("Zimbabwe"),
 
     @JsonEnumDefaultValue
-    UNKNOWN("Unknown");
+    UNKNOWN("UNKNOWN");
 
     private final String description;
 

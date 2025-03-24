@@ -12,7 +12,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LimitedPartnershipMapperTest {
 
@@ -63,8 +62,10 @@ class LimitedPartnershipMapperTest {
     void givenInvalidNameEndingString_whenMapsToEnum_thenIllegalArgumentException() {
         // given
         String invalidNameEnding = "Invalid Name Ending";
+        // when
+        PartnershipNameEnding destinationData = LimitedPartnershipMapper.INSTANCE.mapPartnershipNameEndingToEnum(invalidNameEnding);
         // then
-        assertThrows(IllegalArgumentException.class, () -> LimitedPartnershipMapper.INSTANCE.mapPartnershipNameEndingToEnum(invalidNameEnding));
+        assertEquals(PartnershipNameEnding.UNKNOWN.getDescription(), destinationData.getDescription());
     }
 
     @Test

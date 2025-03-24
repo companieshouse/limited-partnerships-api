@@ -6,6 +6,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 
 public class EnumValidator implements ConstraintValidator<ValidEnum, Enum> {
@@ -17,6 +19,8 @@ public class EnumValidator implements ConstraintValidator<ValidEnum, Enum> {
             case Nationality nationality -> !Nationality.UNKNOWN.equals(enumeration);
             case Country country -> !Country.UNKNOWN.equals(enumeration);
             case IncorporationKind incorporationKind -> !IncorporationKind.UNKNOWN.equals(enumeration);
+            case PartnershipType partnershipType -> !PartnershipType.UNKNOWN.equals(enumeration);
+            case PartnershipNameEnding partnershipNameEnding -> !PartnershipNameEnding.UNKNOWN.equals(enumeration);
             default -> false;
         };
     }

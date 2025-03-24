@@ -29,6 +29,7 @@ public class LimitedPartnershipPatchDto {
     private String partnershipName;
 
     @JsonProperty("name_ending")
+    @ValidEnum(message = "Name ending must be valid")
     private PartnershipNameEnding nameEnding;
 
     @JsonProperty("email")
@@ -36,6 +37,7 @@ public class LimitedPartnershipPatchDto {
     private String email;
 
     @JsonProperty("partnership_type")
+    @ValidEnum(message = "Partnership type must be valid")
     private PartnershipType partnershipType;
 
     @JsonProperty("jurisdiction")

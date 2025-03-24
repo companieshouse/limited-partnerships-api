@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class LimitedPartnershipPatchMapperTest {
 
     private static final String JSON_WITH_MISSING_FIELDS = "{\"email\":\"test@test.com\"}";
-    private static final String JSON_WITH_VALID_FIELDS_ALL_PRESENT = "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\"}";
-    private static final String JSON_WITH_INVALID_JURISDICTION = "{\"partnership_name\":\"Asset Adders\", \"email\":\"test@test.com\", \"jurisdiction\":\"Mongolia\"}";
+    private static final String JSON_WITH_VALID_FIELDS_ALL_PRESENT = "{\"partnership_name\":\"Asset Adders\", \"name_ending\":\"L.P.\",\"partnership_type\":\"PFLP\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\"}";
+    private static final String JSON_WITH_INVALID_ENUM_VALUES = "{\"partnership_name\":\"Asset Adders\", \"name_ending\":\"ILLEGAL\", \"partnership_type\":\"SHADY\", \"email\":\"test@test.com\", \"jurisdiction\":\"MONGOLIA\"}";
 
 
     @Autowired
@@ -46,16 +46,18 @@ class LimitedPartnershipPatchMapperTest {
     @ParameterizedTest
     @CsvSource(value = {
             // Fields NOT present in the JSON - no update:
-            JSON_WITH_MISSING_FIELDS + "$ Asset Strippers $ test@test.com $ Scotland",
+            JSON_WITH_MISSING_FIELDS + "$ Asset Strippers $ test@test.com $ Scotland $ PFLP $ L.P.",
             // Fields ARE present in the JSON - set the new string value:
-            JSON_WITH_VALID_FIELDS_ALL_PRESENT + "$ Asset Adders $ test@test.com $ Scotland",
-            // Jurisdiction field is invalid in the JSON - set the 'Unknown' value:
-            JSON_WITH_INVALID_JURISDICTION + "$ Asset Adders $ test@test.com $ Unknown"
+            JSON_WITH_VALID_FIELDS_ALL_PRESENT + "$ Asset Adders $ test@test.com $ Scotland $ PFLP $ L.P.",
+            // Enum fields are invalid in the JSON - set the 'UNKNOWN' value:
+            JSON_WITH_INVALID_ENUM_VALUES + "$ Asset Adders $ test@test.com $ UNKNOWN $ UNKNOWN $ UNKNOWN"
     }, delimiter = '$')
     void testMappingWhenEmailValueSentAndNameUnchanged(String incomingJson,
                                                        String expectedPartnershipName,
                                                        String expectedEmail,
-                                                       String expectedJurisdiction)
+                                                       String expectedJurisdiction,
+                                                       String expectedPartnershipType,
+                                                       String expectedPartnershipNameEnding)
             throws JsonProcessingException {
         // Given
         LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);
@@ -66,7 +68,7 @@ class LimitedPartnershipPatchMapperTest {
         patchMapper.update(patchDto, mongoDto);
 
         // Then
-        checkExpectedFieldValues(mongoDto, expectedPartnershipName, expectedEmail, expectedJurisdiction);
+        checkExpectedFieldValues(mongoDto, expectedPartnershipName, expectedEmail, expectedJurisdiction, expectedPartnershipType, expectedPartnershipNameEnding);
     }
 
     private DataDto createMongoDto() {
@@ -82,10 +84,12 @@ class LimitedPartnershipPatchMapperTest {
     private void checkExpectedFieldValues(DataDto mongoDto,
                                           String expectedPartnershipName,
                                           String expectedEmail,
-                                          String expectedJurisdiction) {
+                                          String expectedJurisdiction,
+                                          String expectedPartnershipType,
+                                          String expectedPartnershipNameEnding) {
         assertEquals(expectedPartnershipName, mongoDto.getPartnershipName());
-        assertEquals(PartnershipNameEnding.L_DOT_P_DOT.getDescription(), mongoDto.getNameEnding());
-        assertEquals(PartnershipType.PFLP, mongoDto.getPartnershipType());
+        assertEquals(expectedPartnershipNameEnding, mongoDto.getNameEnding());
+        assertEquals(expectedPartnershipType, mongoDto.getPartnershipType().toString());
         assertEquals(expectedEmail, mongoDto.getEmail());
         assertEquals(expectedJurisdiction, mongoDto.getJurisdiction());
     }
