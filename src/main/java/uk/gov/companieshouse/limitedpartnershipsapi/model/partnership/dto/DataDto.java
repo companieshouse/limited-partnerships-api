@@ -36,7 +36,8 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
-    @NotNull(message = "Select the name ending to go on the public record")
+    @NotNull(message = "Name ending must not be null")
+    @ValidEnum(message = "Name ending must be valid")
     private PartnershipNameEnding nameEnding;
 
     @JsonProperty("email")
@@ -46,6 +47,7 @@ public class DataDto {
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_type")
     @NotNull(message = "Partnership type must not be null")
+    @ValidEnum(message = "Partnership type must be valid")
     private PartnershipType partnershipType;
 
     @JsonInclude(NON_NULL)

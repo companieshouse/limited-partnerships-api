@@ -262,6 +262,40 @@ class PartnershipControllerValidationTest {
         }
 
         @Nested
+        class PartnershipNameEnding {
+            @Test
+            void testUpdatePartnershipWithAnInvalidPartnershipNameEndingShouldReturn400() throws Exception {
+                String body = "{\"name_ending\":\"Illegal\"}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("errors.nameEnding").value("Name ending must be valid"));
+            }
+        }
+
+        @Nested
+        class PartnershipType {
+            @Test
+            void testUpdatePartnershipWithAnInvalidPartnershipTypeShouldReturn400() throws Exception {
+                String body = "{\"partnership_type\":\"Illegal\"}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("errors.partnershipType").value("Partnership type must be valid"));
+            }
+        }
+
+        @Nested
         class Addresses {
             // registered_office_address
             private static final String JSON_ROA_POSTCODE_EMPTY = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
@@ -360,13 +394,13 @@ class PartnershipControllerValidationTest {
                     JSON_PPOB_MISSING_COUNTRY
             })
             void shouldReturn400IfRequiredFieldIsMissing(String body) throws Exception {
-                    mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .characterEncoding("utf-8")
-                                    .headers(httpHeaders)
-                                    .requestAttr("transaction", transaction)
-                                    .content(body))
-                            .andExpect(status().isBadRequest());
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
             }
 
             @ParameterizedTest

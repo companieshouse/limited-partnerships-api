@@ -230,9 +230,8 @@ public enum Nationality {
     ZAMBIAN("Zambian"),
     ZIMBABWEAN("Zimbabwean"),
 
-
     @JsonEnumDefaultValue
-    UNKNOWN("Unknown");
+    UNKNOWN("UNKNOWN");
 
 
     private final String description;
@@ -247,7 +246,7 @@ public enum Nationality {
 
     @JsonCreator
     public static Nationality fromDescription(String description) {
-        for (Nationality nationality  : Nationality.values()) {
+        for (Nationality nationality : Nationality.values()) {
             if (nationality.getDescription().equalsIgnoreCase(description)) {
                 return nationality;
             }

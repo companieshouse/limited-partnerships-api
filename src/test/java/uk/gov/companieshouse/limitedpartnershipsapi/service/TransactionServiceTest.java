@@ -29,6 +29,7 @@ class TransactionServiceTest {
     private static final String LOGGING_CONTEXT = "fg4536";
     private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
 
+
     @Mock
     private ApiClientService apiClientService;
 

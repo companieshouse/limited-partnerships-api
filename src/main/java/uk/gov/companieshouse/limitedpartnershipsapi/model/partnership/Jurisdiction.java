@@ -7,8 +7,9 @@ public enum Jurisdiction {
     ENGLAND_AND_WALES("England and Wales"),
     NORTHERN_IRELAND("Northern Ireland"),
     SCOTLAND("Scotland"),
+
     @JsonEnumDefaultValue
-    UNKNOWN("Unknown");
+    UNKNOWN("UNKNOWN");
 
     private final String description;
 

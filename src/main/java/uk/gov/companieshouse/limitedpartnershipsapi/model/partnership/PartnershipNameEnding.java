@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum PartnershipNameEnding {
     LIMITED_PARTNERSHIP("Limited Partnership"),
@@ -8,7 +9,11 @@ public enum PartnershipNameEnding {
     L_DOT_P_DOT("L.P."),
     PARTNERIAETH_CYFYNGEDIG("Partneriaeth Cyfyngedig"),
     PC("PC"),
-    P_DOT_C_DOT("P.C.");
+    P_DOT_C_DOT("P.C."),
+
+    @JsonEnumDefaultValue
+    UNKNOWN("UNKNOWN");
+
 
     private final String description;
 
@@ -27,7 +32,7 @@ public enum PartnershipNameEnding {
                 return nameEnding;
             }
         }
-        throw new IllegalArgumentException(
-                "No PartnershipNameEnding constant with description " + description);
+
+        return UNKNOWN;
     }
 }
