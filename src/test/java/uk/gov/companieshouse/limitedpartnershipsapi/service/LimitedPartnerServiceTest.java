@@ -43,10 +43,10 @@ class LimitedPartnerServiceTest {
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
     @InjectMocks
-    LimitedPartnerService limitedPartnerService;
+    private LimitedPartnerService limitedPartnerService;
 
     @Mock
-    LimitedPartnerRepository repository;
+    private LimitedPartnerRepository repository;
 
     @Mock
     private TransactionService transactionService;

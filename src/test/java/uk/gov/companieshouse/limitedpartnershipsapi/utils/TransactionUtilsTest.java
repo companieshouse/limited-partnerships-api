@@ -21,7 +21,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
 @ExtendWith(MockitoExtension.class)
-public class TransactionUtilsTest {
+class TransactionUtilsTest {
 
     private static final String LIMITED_PARTNERSHIP_SELF_LINK = "/transaction/1234/limited-partnership/partnership/1234";
     private static final String LIMITED_PARTNER_SELF_LINK = "/transactions/txn-123/limited-partnership/limited-partner/sub-456";

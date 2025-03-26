@@ -27,8 +27,10 @@ class CustomUserAuthenticationInterceptorTest {
 
     @Mock
     private HttpServletRequest mockHttpServletRequest;
+
     @Mock
     private TokenPermissions mockTokenPermissions;
+
     @InjectMocks
     private CustomUserAuthenticationInterceptor userAuthenticationInterceptor;
 

@@ -28,7 +28,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class IncorporationControllerTest {
 
     @InjectMocks
-    IncorporationController incorporationController;
+    private IncorporationController incorporationController;
 
     @Mock
     private LimitedPartnershipIncorporationService incorporationService;

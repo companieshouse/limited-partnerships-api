@@ -177,9 +177,6 @@ class LimitedPartnershipServiceTest {
         // given
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("email", "test@email.com");
-
         Transaction transaction = buildTransaction();
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
 

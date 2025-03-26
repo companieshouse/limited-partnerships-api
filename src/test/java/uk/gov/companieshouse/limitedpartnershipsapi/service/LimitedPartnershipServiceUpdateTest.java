@@ -8,7 +8,7 @@ import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -41,15 +41,14 @@ class LimitedPartnershipServiceUpdateTest {
     private static final String SUBMISSION_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
-    private static final String LINK_SELF = "self";
 
     @Autowired
     private LimitedPartnershipService service;
 
-    @MockBean
+    @MockitoBean
     private LimitedPartnershipSubmissionsRepository repository;
 
-    @MockBean
+    @MockitoBean
     private TransactionService transactionService;
 
     @Captor
