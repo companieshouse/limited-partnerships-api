@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION;
 
 @ExtendWith(MockitoExtension.class)
 class LimitedPartnershipServiceTest {
@@ -102,7 +102,7 @@ class LimitedPartnershipServiceTest {
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), limitedPartnershipSubmissionDao.getId());
         assertEquals(submissionUri, sentTransaction.getResources().get(submissionUri).getLinks().get("resource"));
         // assert resume link is correct
-        String resumeUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), limitedPartnershipSubmissionDao.getId());
+        String resumeUri = String.format(URL_RESUME_REGISTRATION, transaction.getId(), limitedPartnershipSubmissionDao.getId());
         assertEquals(resumeUri, sentTransaction.getResumeJourneyUri());
         // assert dao submission self link is correct
         LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
@@ -111,7 +111,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenTransactionAlreadyAssociatedWithAnLP_whenCreateLP_thenServiceExceptionThrown() throws ServiceException {
+    void givenTransactionAlreadyAssociatedWithAnLP_whenCreateLP_thenServiceExceptionThrown() {
         // given
         LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
 
@@ -127,7 +127,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void giveInvalidSubmissionId_whenUpdateLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+    void giveInvalidSubmissionId_whenUpdateLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
@@ -173,7 +173,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenWrongSubmissionId_whenUpdateLP_thenServiceExceptionThrown() throws ServiceException {
+    void givenWrongSubmissionId_whenUpdateLP_thenServiceExceptionThrown() {
         // given
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
@@ -209,7 +209,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void giveInvalidSubmissionId_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+    void giveInvalidSubmissionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
         when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(true);
@@ -220,7 +220,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void giveSubmissionIdAndTransactionIdDoNotMatch_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+    void giveSubmissionIdAndTransactionIdDoNotMatch_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
         when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(false);
@@ -261,7 +261,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() throws ResourceNotFoundException {
+    void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
         when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(false);
@@ -271,7 +271,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenTransactionIdHasMultipleLpSubmissions_whenGetLp_ThenServiceExceptionThrown() throws ResourceNotFoundException {
+    void givenTransactionIdHasMultipleLpSubmissions_whenGetLp_ThenServiceExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
         LimitedPartnershipSubmissionDao lpDao1 = createDao();
