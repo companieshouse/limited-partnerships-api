@@ -18,7 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -121,11 +121,12 @@ class LimitedPartnershipIncorporationServiceTest {
         // given
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createLimitedPartnershipSubmissionDto();
+        LimitedPartnershipDto limitedPartnershipDto = createLimitedPartnershipSubmissionDto();
         when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
         when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipSubmissionDto);
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(
+                limitedPartnershipDto);
 
         // when
         var limitedPartnershipIncorporationDto = incorporationService.getIncorporation(transaction, SUBMISSION_ID, true);
@@ -135,7 +136,7 @@ class LimitedPartnershipIncorporationServiceTest {
         assertEquals(REGISTRATION.getDescription(), limitedPartnershipIncorporationDto.getKind());
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources());
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources().getPartnership());
-        assertEquals(limitedPartnershipSubmissionDto.getData(), limitedPartnershipIncorporationDto.getSubResources().getPartnership().getData());
+        assertEquals(limitedPartnershipDto.getData(), limitedPartnershipIncorporationDto.getSubResources().getPartnership().getData());
     }
 
     @Test
@@ -182,8 +183,8 @@ class LimitedPartnershipIncorporationServiceTest {
         return dto;
     }
 
-    private LimitedPartnershipSubmissionDto createLimitedPartnershipSubmissionDto() {
-        var submissionDto = new LimitedPartnershipSubmissionDto();
+    private LimitedPartnershipDto createLimitedPartnershipSubmissionDto() {
+        var submissionDto = new LimitedPartnershipDto();
         var dataDto = new DataDto();
         dataDto.setPartnershipName("Asset Strippers");
         dataDto.setNameEnding(PartnershipNameEnding.LP);
