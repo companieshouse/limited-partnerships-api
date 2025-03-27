@@ -7,7 +7,7 @@ import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
@@ -38,10 +38,10 @@ class GeneralPartnerServiceUpdateTest {
     @Autowired
     private GeneralPartnerService service;
 
-    @MockBean
+    @MockitoBean
     private GeneralPartnerRepository repository;
 
-    @MockBean
+    @MockitoBean
     private TransactionService transactionService;
 
     @Captor
@@ -173,7 +173,7 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
         assertEquals(Nationality.AMERICAN.getDescription(), sentSubmission.getData().getNationality1());
-        assertEquals(null, sentSubmission.getData().getNationality2());
+        assertNull(sentSubmission.getData().getNationality2());
     }
 
     @Test

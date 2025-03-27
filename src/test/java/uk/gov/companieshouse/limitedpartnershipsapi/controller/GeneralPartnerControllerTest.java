@@ -38,10 +38,10 @@ class GeneralPartnerControllerTest {
     private static final String GENERAL_PARTNER_ID = "abc-123";
 
     @InjectMocks
-    GeneralPartnerController generalPartnerController;
+    private GeneralPartnerController generalPartnerController;
 
     @Mock
-    GeneralPartnerService generalPartnerService;
+    private GeneralPartnerService generalPartnerService;
 
     @Mock
     private Transaction transaction;

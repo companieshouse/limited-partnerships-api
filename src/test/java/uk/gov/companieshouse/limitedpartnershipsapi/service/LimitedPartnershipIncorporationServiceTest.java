@@ -42,13 +42,13 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class LimitedPartnershipIncorporationServiceTest {
 
     @InjectMocks
-    LimitedPartnershipIncorporationService incorporationService;
+    private LimitedPartnershipIncorporationService incorporationService;
 
     @Mock
-    LimitedPartnershipIncorporationRepository repository;
+    private LimitedPartnershipIncorporationRepository repository;
 
     @Mock
-    TransactionService transactionService;
+    private TransactionService transactionService;
 
     @Captor
     private ArgumentCaptor<LimitedPartnershipIncorporationDao> incorporationCaptor;
@@ -139,7 +139,7 @@ class LimitedPartnershipIncorporationServiceTest {
     }
 
     @Test
-    void testGetIncorporationTypeReturnsNotFoundExceptionWhenNoLinkBetweenTransactionAndIncorporation() throws ResourceNotFoundException {
+    void testGetIncorporationTypeReturnsNotFoundExceptionWhenNoLinkBetweenTransactionAndIncorporation() {
         // given
         Transaction transaction = buildTransaction();
         when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
