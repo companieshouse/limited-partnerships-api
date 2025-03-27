@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
@@ -24,6 +27,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -35,6 +39,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RestController
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/partnership")
 public class PartnershipController {
+
+    private static final String VALIDATION_ERRORS_MESSAGE = "Validation errors : %s";
 
     private final LimitedPartnershipService limitedPartnershipService;
 
@@ -112,5 +118,52 @@ public class PartnershipController {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}/validation-status")
+    public ResponseEntity<Object> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                      @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
+                                                      @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+        var logMap = new HashMap<String, Object>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
+
+        try {
+            ApiLogger.infoContext(requestId, "Calling service to validate a Limited Partnership Submission", logMap);
+            var validationStatus = new ValidationStatusResponse();
+            validationStatus.setValid(true);
+
+            var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction, submissionId);
+
+            if (!validationErrors.isEmpty()) {
+                final var errorsAsJsonString = convertErrorsToJsonString(validationErrors);
+                ApiLogger.errorContext(requestId, String.format(VALIDATION_ERRORS_MESSAGE, errorsAsJsonString), null, logMap);
+
+                flagValidationStatusAsFailed(validationStatus, errorsAsJsonString);
+            }
+
+            return ResponseEntity.ok().body(validationStatus);
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private void flagValidationStatusAsFailed(ValidationStatusResponse validationStatus, String errorsAsJsonString) {
+        validationStatus.setValid(false);
+
+        // A simplified 'errors' object can be created as LP registrations are not software filed. Note also
+        // that at least one 'error' needs to be present for the validation check to register as failed by the
+        // Transactions API
+        var errors = new ValidationStatusError[1];
+        var error = new ValidationStatusError();
+        error.setError(errorsAsJsonString);
+        errors[0] = error;
+
+        validationStatus.setValidationStatusError(errors);
+    }
+
+    private String convertErrorsToJsonString(List<String> validationErrors) {
+        var gson = new GsonBuilder().create();
+        return gson.toJson(validationErrors);
     }
 }

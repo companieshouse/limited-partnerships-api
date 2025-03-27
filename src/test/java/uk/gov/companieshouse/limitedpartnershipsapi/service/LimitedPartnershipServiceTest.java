@@ -284,6 +284,24 @@ class LimitedPartnershipServiceTest {
         assertThrows(ServiceException.class, () -> service.getLimitedPartnership(transaction));
     }
 
+    @Test
+    void testValidateLimitedPartnershipWhenErrorsFound() throws ResourceNotFoundException {
+
+        // given
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();  // This DTO has no partnership type set, so that will produce one error when Java Bean validation is run
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        Transaction transaction = buildTransaction();
+
+        when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(true);
+
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
+
+        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+
+        assertEquals(2, results.size());
+    }
+
     private Transaction buildTransaction() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);

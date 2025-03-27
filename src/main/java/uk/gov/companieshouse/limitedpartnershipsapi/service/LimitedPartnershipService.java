@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -16,14 +19,18 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipService {
@@ -129,8 +136,9 @@ public class LimitedPartnershipService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
+        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
 
-        // TODO Add 'validation status' and 'cost' links here later
+        // TODO Add 'cost' link here later
 
         limitedPartnershipResource.setLinks(linksMap);
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
@@ -205,5 +213,24 @@ public class LimitedPartnershipService {
         LimitedPartnershipSubmissionDao submissionDao = submissions.getFirst();
 
         return mapper.daoToDto(submissionDao);
+    }
+
+    public List<String> validateLimitedPartnership(Transaction transaction, String submissionId)
+            throws ResourceNotFoundException {
+        LimitedPartnershipSubmissionDto dto = getLimitedPartnership(transaction, submissionId);
+
+        // TODO See if it's possible to auto-wire in a validator from Spring Boot
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(dto);
+
+        List violationsList = new ArrayList<>();
+        violations.stream().forEach(v -> violationsList.add(v.getMessage()));
+
+        // TODO Create a new validator class (or just method in here?) that checks the mandatory fields. For now, just
+        //      simulate a missing email address
+        violationsList.add("Email is required");
+
+        return violationsList;
     }
 }
