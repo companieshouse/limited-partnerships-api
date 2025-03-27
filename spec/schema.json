@@ -201,7 +201,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/partnership/{submission_id}": {
+    "/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}": {
       "get": {
         "tags": [
           "Partnerships"
@@ -215,7 +215,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -252,7 +252,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -282,7 +282,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/partnership/{submission_id}/validation-status": {
+    "/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}/validation-status": {
       "get": {
         "tags": [
           "Partnerships",
@@ -297,7 +297,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -322,7 +322,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/partnership/{submission_id}/filings": {
+    "/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "Partnerships",
@@ -403,7 +403,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/general-partner/{submission_id}": {
+    "/transactions/{transaction_id}/limited-partnership/general-partner/{filing_resource_id}": {
       "get": {
         "tags": [
           "General Partners"
@@ -417,7 +417,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -454,7 +454,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -523,7 +523,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/general-partner/{submission_id}/validation-status": {
+    "/transactions/{transaction_id}/limited-partnership/general-partner/{filing_resource_id}/validation-status": {
       "get": {
         "tags": [
           "General Partners",
@@ -538,7 +538,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -563,7 +563,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/general-partner/{submission_id}/filings": {
+    "/transactions/{transaction_id}/limited-partnership/general-partner/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "General Partners",
@@ -578,7 +578,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -644,7 +644,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/limited-partner/{submission_id}": {
+    "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}": {
       "get": {
         "tags": [
           "Limited Partners"
@@ -658,7 +658,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -695,7 +695,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -761,7 +761,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/limited-partner/{submission_id}/validation-status": {
+    "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/validation-status": {
       "get": {
         "tags": [
           "Limited Partners",
@@ -776,7 +776,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -801,7 +801,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/limited-partner/{submission_id}/filings": {
+    "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "Limited Partners",
@@ -816,7 +816,7 @@
             "type": "string"
           },
           {
-            "name": "submission_id",
+            "name": "filing_resource_id",
             "in": "path",
             "required": true,
             "type": "string"
