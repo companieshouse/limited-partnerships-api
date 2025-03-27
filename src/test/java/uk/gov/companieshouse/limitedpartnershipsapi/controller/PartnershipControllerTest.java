@@ -13,8 +13,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
 import java.util.Objects;
@@ -46,13 +46,13 @@ class PartnershipControllerTest {
     @Mock
     private Transaction transaction;
 
-    private LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto;
+    private LimitedPartnershipDto limitedPartnershipDto;
 
     @BeforeEach
     void init() {
         DataDto data = new DataDto();
-        limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
-        limitedPartnershipSubmissionDto.setData(data);
+        limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(data);
     }
 
     @Test
@@ -60,7 +60,7 @@ class PartnershipControllerTest {
         // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
-                any(LimitedPartnershipSubmissionDto.class),
+                any(LimitedPartnershipDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
@@ -70,7 +70,7 @@ class PartnershipControllerTest {
         // when
         var response = partnershipController.createPartnership(
                 transaction,
-                limitedPartnershipSubmissionDto,
+                limitedPartnershipDto,
                 REQUEST_ID,
                 USER_ID);
 
@@ -80,7 +80,7 @@ class PartnershipControllerTest {
         assertEquals(
                 String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
-        LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
+        LimitedPartnershipCreatedResponseDto responseBody = (LimitedPartnershipCreatedResponseDto) response.getBody();
         assert responseBody != null;
         assertEquals(SUBMISSION_ID, responseBody.id());
     }
@@ -90,7 +90,7 @@ class PartnershipControllerTest {
         // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
-                any(LimitedPartnershipSubmissionDto.class),
+                any(LimitedPartnershipDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))
                 .thenThrow(new ServiceException("TEST"));
@@ -98,7 +98,7 @@ class PartnershipControllerTest {
         // when
         var response = partnershipController.createPartnership(
                 transaction,
-                limitedPartnershipSubmissionDto,
+                limitedPartnershipDto,
                 REQUEST_ID,
                 USER_ID);
 
@@ -187,10 +187,11 @@ class PartnershipControllerTest {
         // given
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipName("Test name");
-        limitedPartnershipSubmissionDto.setData(dataDto);
+        limitedPartnershipDto.setData(dataDto);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(limitedPartnershipSubmissionDto);
+        when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(
+                limitedPartnershipDto);
 
         // when
         var response = partnershipController.getPartnership(
@@ -201,9 +202,9 @@ class PartnershipControllerTest {
 
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
-        assertEquals(limitedPartnershipSubmissionDto, response.getBody());
-        assertEquals("Test name", limitedPartnershipSubmissionDto.getData().getPartnershipName());
-        assertNull(limitedPartnershipSubmissionDto.getData().getNameEnding());
+        assertEquals(limitedPartnershipDto, response.getBody());
+        assertEquals("Test name", limitedPartnershipDto.getData().getPartnershipName());
+        assertNull(limitedPartnershipDto.getData().getNameEnding());
     }
 
     @Test

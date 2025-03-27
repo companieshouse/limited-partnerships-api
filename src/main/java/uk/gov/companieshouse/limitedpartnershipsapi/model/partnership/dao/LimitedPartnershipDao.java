@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-@Document(collection = "limited_partnership_submissions")
-public class LimitedPartnershipSubmissionDao {
+@Document(collection = "limited_partnerships")
+public class LimitedPartnershipDao {
 
     @Id
     private String id;

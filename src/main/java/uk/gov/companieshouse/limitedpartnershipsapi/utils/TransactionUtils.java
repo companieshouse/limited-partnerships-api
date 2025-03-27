@@ -15,7 +15,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 @Component
 public class TransactionUtils {
 
-    public boolean isTransactionLinkedToLimitedPartnershipSubmission(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
+    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
         return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
     }
 

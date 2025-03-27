@@ -5,8 +5,8 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipSubmissionDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 @Component
 @Mapper(componentModel = "spring")
@@ -14,9 +14,9 @@ public interface LimitedPartnershipMapper {
 
     LimitedPartnershipMapper INSTANCE = Mappers.getMapper(LimitedPartnershipMapper.class);
 
-    LimitedPartnershipSubmissionDao dtoToDao(LimitedPartnershipSubmissionDto dto);
+    LimitedPartnershipDao dtoToDao(LimitedPartnershipDto dto);
 
-    LimitedPartnershipSubmissionDto daoToDto(LimitedPartnershipSubmissionDao dao);
+    LimitedPartnershipDto daoToDto(LimitedPartnershipDao dao);
 
     default String mapPartnershipNameEndingToString(PartnershipNameEnding nameEnding) {
         return nameEnding.getDescription();

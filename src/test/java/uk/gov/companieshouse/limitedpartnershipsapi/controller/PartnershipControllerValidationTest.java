@@ -25,7 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
 import java.util.stream.Stream;
@@ -82,15 +82,15 @@ class PartnershipControllerValidationTest {
     class CreatePartnership {
         @Test
         void shouldReturn201() throws Exception {
-            LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
             DataDto dto = new DataDto();
 
             dto.setPartnershipName("test name");
             dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
             dto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipSubmissionDto.setData(dto);
+            limitedPartnershipDto.setData(dto);
 
-            String body = objectMapper.writeValueAsString(limitedPartnershipSubmissionDto);
+            String body = objectMapper.writeValueAsString(limitedPartnershipDto);
 
             mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -103,15 +103,15 @@ class PartnershipControllerValidationTest {
 
         @Test
         void shouldReturnBadRequestErrorIfPartnershipNameIsLessThan1Character() throws Exception {
-            LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
 
             DataDto dto = new DataDto();
             dto.setPartnershipName("");
             dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
             dto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipSubmissionDto.setData(dto);
+            limitedPartnershipDto.setData(dto);
 
-            String body = objectMapper.writeValueAsString(limitedPartnershipSubmissionDto);
+            String body = objectMapper.writeValueAsString(limitedPartnershipDto);
 
             mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
                             .contentType(MediaType.APPLICATION_JSON)

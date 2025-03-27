@@ -11,7 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.Limi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -113,7 +113,7 @@ public class LimitedPartnershipIncorporationService {
             subResourcesDto.setGeneralPartners(new ArrayList<>());
             subResourcesDto.setLimitedPartners(new ArrayList<>());
 
-            LimitedPartnershipSubmissionDto partnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+            LimitedPartnershipDto partnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
             subResourcesDto.setPartnership(partnershipDto);
 
             incorporationDto.setSubResources(subResourcesDto);

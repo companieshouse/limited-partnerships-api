@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-public class LimitedPartnershipSubmissionDto {
+public class LimitedPartnershipDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("data")

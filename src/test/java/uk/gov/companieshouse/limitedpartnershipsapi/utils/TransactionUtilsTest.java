@@ -36,7 +36,7 @@ class TransactionUtilsTest {
     @Test
     void givenLimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, LIMITED_PARTNER_SELF_LINK);
+        var result = transactionUtils.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNER_SELF_LINK);
         // then
         assertFalse(result);
     }
@@ -46,7 +46,7 @@ class TransactionUtilsTest {
         // given
         when(transaction.getResources()).thenReturn(null);
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
+        var result = transactionUtils.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
         // then
         assertFalse(result);
     }
@@ -64,7 +64,7 @@ class TransactionUtilsTest {
         transactionResources.put(nonMatchingResourceLink, limitedPartnershipResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
+        var result = transactionUtils.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
         // then
         assertFalse(result);
     }
@@ -81,7 +81,7 @@ class TransactionUtilsTest {
         transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
+        var result = transactionUtils.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
         // then
         assertTrue(result);
     }
@@ -135,7 +135,7 @@ class TransactionUtilsTest {
         transactionResources.put(nonMatchingResourceLink, limitedPartnershipResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        var result = transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(transaction, LIMITED_PARTNER_SELF_LINK);
+        var result = transactionUtils.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNER_SELF_LINK);
         // then
         assertFalse(result);
     }

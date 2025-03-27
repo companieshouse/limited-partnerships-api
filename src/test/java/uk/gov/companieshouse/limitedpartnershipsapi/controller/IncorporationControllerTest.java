@@ -13,7 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 
 import java.util.Objects;
@@ -68,7 +68,7 @@ class IncorporationControllerTest {
         assertEquals(
                 String.format(URL_GET_INCORPORATION, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
-        LimitedPartnershipSubmissionCreatedResponseDto responseBody = (LimitedPartnershipSubmissionCreatedResponseDto) response.getBody();
+        LimitedPartnershipCreatedResponseDto responseBody = (LimitedPartnershipCreatedResponseDto) response.getBody();
         assert responseBody != null;
         assertEquals(SUBMISSION_ID, responseBody.id());
     }
