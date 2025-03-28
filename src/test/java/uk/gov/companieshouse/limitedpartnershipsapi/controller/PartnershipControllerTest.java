@@ -228,7 +228,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testValidationStatusWhenPartnershipIsValid() throws ResourceNotFoundException {
+    void testValidationStatusWhenPartnershipDataIsValid() throws ResourceNotFoundException {
         // given
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipName("Test name");
@@ -252,7 +252,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testValidationStatusWhenPartnershipIsNotValid() throws ResourceNotFoundException {
+    void testValidationStatusWhenPartnershipDataIsNotValid() throws ResourceNotFoundException {
         // given
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipName("Test name");
@@ -275,8 +275,25 @@ class PartnershipControllerTest {
 
         ValidationStatusResponse validationStatusResponse = (ValidationStatusResponse) response.getBody();
         assertEquals(false, validationStatusResponse.isValid());
-        assertEquals(1, validationStatusResponse.getValidationStatusError().length);
-        assertEquals("[\"Partnership type must not be null\",\"Email must not be null\"]",
-                validationStatusResponse.getValidationStatusError()[0].getError());
+        assertEquals(2, validationStatusResponse.getValidationStatusError().length);
+        assertEquals("Partnership type must not be null", validationStatusResponse.getValidationStatusError()[0].getError());
+        assertEquals("Email must not be null", validationStatusResponse.getValidationStatusError()[1].getError());
+    }
+
+    @Test
+    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ResourceNotFoundException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));
+
+        // when
+        var response = partnershipController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
     }
 }

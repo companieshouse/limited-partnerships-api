@@ -1,8 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -19,12 +16,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -40,18 +35,22 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipSubmissionsRepository repository;
     private final TransactionService transactionService;
     private final TransactionUtils transactionUtils;
+    private final LimitedPartnershipValidator limitedPartnershipValidator;
+
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
                                      LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipSubmissionsRepository repository,
                                      TransactionService transactionService,
-                                     TransactionUtils transactionUtils) {
+                                     TransactionUtils transactionUtils,
+                                     LimitedPartnershipValidator limitedPartnershipValidator) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
         this.transactionUtils = transactionUtils;
+        this.limitedPartnershipValidator = limitedPartnershipValidator;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -219,18 +218,6 @@ public class LimitedPartnershipService {
             throws ResourceNotFoundException {
         LimitedPartnershipSubmissionDto dto = getLimitedPartnership(transaction, submissionId);
 
-        // TODO See if it's possible to auto-wire in a validator from Spring Boot
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(dto);
-
-        List violationsList = new ArrayList<>();
-        violations.stream().forEach(v -> violationsList.add(v.getMessage()));
-
-        // TODO Create a new validator class (or just method in here?) that checks the mandatory fields. For now, just
-        //      simulate a missing email address
-        violationsList.add("Email is required");
-
-        return violationsList;
+        return limitedPartnershipValidator.validate(dto);
     }
 }

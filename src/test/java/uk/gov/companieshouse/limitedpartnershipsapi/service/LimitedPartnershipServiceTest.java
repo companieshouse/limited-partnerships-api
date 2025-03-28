@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -67,6 +69,9 @@ class LimitedPartnershipServiceTest {
 
     @Mock
     private TransactionUtils transactionUtils;
+
+    @Mock
+    private LimitedPartnershipValidator limitedPartnershipValidator;
 
     @Captor
     private ArgumentCaptor<Transaction> transactionApiCaptor;
@@ -285,21 +290,56 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void testValidateLimitedPartnershipWhenErrorsFound() throws ResourceNotFoundException {
-
+    void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();  // This DTO has no partnership type set, so that will produce one error when Java Bean validation is run
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
         LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
         when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(true);
-
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
+        when(limitedPartnershipValidator.validate(limitedPartnershipSubmissionDto)).thenReturn(new ArrayList<>());
 
+        // when
         List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
+        // then
+        assertEquals(0, results.size());
+    }
+
+    @Test
+    void givenErrorsWithPartnershipData_whenValidateStatus_thenErrorsReturned() throws ResourceNotFoundException {
+        // given
+        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
+        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        Transaction transaction = buildTransaction();
+
+        when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(true);
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
+        List<String> errorsList = new ArrayList<>();
+        errorsList.add("Missing field");
+        errorsList.add("Invalid data format");
+        when(limitedPartnershipValidator.validate(limitedPartnershipSubmissionDto)).thenReturn(errorsList);
+
+        // when
+        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+
+        // then
         assertEquals(2, results.size());
+        assertTrue(results.contains("Missing field"));
+        assertTrue(results.contains("Invalid data format"));
+    }
+
+    @Test
+    void giveSubmissionIdAndTransactionIdDoNotMatch_whenValidateStatus_ThenResourceNotFoundExceptionThrown() {
+        // given
+        Transaction transaction = buildTransaction();
+        when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(false);
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartnership(transaction, SUBMISSION_ID));
     }
 
     private Transaction buildTransaction() {

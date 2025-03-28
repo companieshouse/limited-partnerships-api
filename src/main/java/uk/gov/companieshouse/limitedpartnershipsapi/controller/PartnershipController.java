@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -135,10 +135,8 @@ public class PartnershipController {
             var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction, submissionId);
 
             if (!validationErrors.isEmpty()) {
-                final var errorsAsJsonString = convertErrorsToJsonString(validationErrors);
-                ApiLogger.errorContext(requestId, String.format(VALIDATION_ERRORS_MESSAGE, errorsAsJsonString), null, logMap);
-
-                flagValidationStatusAsFailed(validationStatus, errorsAsJsonString);
+                flagValidationStatusAsFailed(validationStatus, validationErrors);
+                ApiLogger.errorContext(requestId, String.format(VALIDATION_ERRORS_MESSAGE, validationErrors), null, logMap);
             }
 
             return ResponseEntity.ok().body(validationStatus);
@@ -148,22 +146,17 @@ public class PartnershipController {
         }
     }
 
-    private void flagValidationStatusAsFailed(ValidationStatusResponse validationStatus, String errorsAsJsonString) {
+    private void flagValidationStatusAsFailed(ValidationStatusResponse validationStatus, List<String> validationErrors) {
         validationStatus.setValid(false);
 
-        // A simplified 'errors' object can be created as LP registrations are not software filed. Note also
-        // that at least one 'error' needs to be present for the validation check to register as failed by the
-        // Transactions API
-        var errors = new ValidationStatusError[1];
-        var error = new ValidationStatusError();
-        error.setError(errorsAsJsonString);
-        errors[0] = error;
+        // A simplified 'errors' object can be created as LP registrations are not software filed
+        List errors = new ArrayList<ValidationStatusError>();
+        validationErrors.stream().forEach(error -> {
+            var statusError = new ValidationStatusError();
+            statusError.setError(error);
+            errors.add(statusError);
+        });
 
-        validationStatus.setValidationStatusError(errors);
-    }
-
-    private String convertErrorsToJsonString(List<String> validationErrors) {
-        var gson = new GsonBuilder().create();
-        return gson.toJson(validationErrors);
+        validationStatus.setValidationStatusError((ValidationStatusError[]) errors.toArray(new ValidationStatusError[0]));
     }
 }
