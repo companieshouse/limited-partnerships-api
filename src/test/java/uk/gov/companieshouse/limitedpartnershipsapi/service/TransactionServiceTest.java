@@ -83,14 +83,13 @@ class TransactionServiceTest {
     }
 
     @Test
-    void testUpdatingATransactionIsSuccessful() throws IOException, URIValidationException, ServiceException {
+    void testUpdatingATransactionIsSuccessful() throws IOException, URIValidationException {
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
 
         try {
             transactionService.updateTransaction(transaction, LOGGING_CONTEXT);
         } catch (Exception e) {
-            e.printStackTrace();
             fail("Should not throw exception");
         }
     }
@@ -103,7 +102,6 @@ class TransactionServiceTest {
         try {
             transactionService.updateTransactionWithPartnershipName(transaction, "New name", LOGGING_CONTEXT);
         } catch (Exception e) {
-            e.printStackTrace();
             fail("Should not throw exception");
         }
     }

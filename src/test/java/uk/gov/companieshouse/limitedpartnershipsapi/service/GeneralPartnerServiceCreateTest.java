@@ -8,7 +8,7 @@ import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -49,10 +49,10 @@ class GeneralPartnerServiceCreateTest {
     @Autowired
     private GeneralPartnerService service;
 
-    @MockBean
+    @MockitoBean
     private GeneralPartnerRepository repository;
 
-    @MockBean
+    @MockitoBean
     private TransactionService transactionService;
 
     @Captor

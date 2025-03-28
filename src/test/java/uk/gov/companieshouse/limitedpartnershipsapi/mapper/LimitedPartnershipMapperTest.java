@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
@@ -14,9 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class LimitedPartnershipMapperTest {
-
-    @InjectMocks
-    LimitedPartnershipMapper mapper;
 
     @Test
     void givenDto_whenMapsToDao_thenCorrect() {

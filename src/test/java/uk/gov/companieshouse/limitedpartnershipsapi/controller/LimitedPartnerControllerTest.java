@@ -33,8 +33,9 @@ class LimitedPartnerControllerTest {
     private static final String USER_ID = "rjg736k791";
     private static final String SUBMISSION_ID = "ABC123ABC456";
     private static final String TRANSACTION_ID = "12321123";
+
     @InjectMocks
-    LimitedPartnerController limitedPartnerController;
+    private LimitedPartnerController limitedPartnerController;
 
     @Mock
     private LimitedPartnerService limitedPartnerService;

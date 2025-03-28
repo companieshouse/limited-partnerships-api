@@ -45,17 +45,23 @@ class GeneralPartnerServiceTest {
     private static final String SUBMISSION_ID = "submission123";
 
     @InjectMocks
-    GeneralPartnerService generalPartnerService;
+    private GeneralPartnerService generalPartnerService;
+
     @Mock
-    GeneralPartnerRepository repository;
+    private GeneralPartnerRepository repository;
+
     @Mock
-    GeneralPartnerMapper mapper;
+    private GeneralPartnerMapper mapper;
+
     @Mock
-    TransactionService transactionService;
+    private TransactionService transactionService;
+
     @Mock
-    GeneralPartnerValidator generalPartnerValidator;
+    private GeneralPartnerValidator generalPartnerValidator;
+
     @Mock
-    TransactionUtils transactionUtils;
+    private TransactionUtils transactionUtils;
+
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
