@@ -16,7 +16,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT
 public class AddressDto {
 
     @JsonProperty("address_line_1")
-    @NotNull
+    @NotNull(message = "Address line 1 must not be null")
     @Size(min = MIN_SIZE, message = "Address line 1 " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "Address line 1 " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Address line 1 " + INVALID_CHARACTERS_MESSAGE)
@@ -28,26 +28,26 @@ public class AddressDto {
     private String addressLine2;
 
     @JsonProperty("country")
-    @NotNull
+    @NotNull(message = "Country must not be null")
     @Size(min = MIN_SIZE, message = "country " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "country " + MAX_SIZE_MESSAGE)
     private String country;
 
     @JsonProperty("locality")
-    @NotNull
+    @NotNull(message = "Town or city must not be null")
     @Size(min = MIN_SIZE, message = "Town or city " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "Town or city " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Town or city " + INVALID_CHARACTERS_MESSAGE)
     private String locality;
 
     @JsonProperty("postal_code")
-    @NotNull
+    @NotNull(message = "Postcode must not be null")
     @Pattern(regexp = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? ?\\d[A-Za-z]{2}$", message = "Invalid postcode format")
-    @Size(max = 15, message = "postal_code " + MAX_SIZE_MESSAGE)
+    @Size(max = 15, message = "Postcode " + MAX_SIZE_MESSAGE)
     private String postalCode;
 
     @JsonProperty("premises")
-    @NotNull
+    @NotNull(message = "Property name or number must not be null")
     @Size(min = MIN_SIZE, message = "Property name or number " + MIN_SIZE_MESSAGE)
     @Size(max = SHORT_MAX_SIZE, message = "Property name or number " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Property name or number " + INVALID_CHARACTERS_MESSAGE)

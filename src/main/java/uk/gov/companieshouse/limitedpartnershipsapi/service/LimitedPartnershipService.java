@@ -18,12 +18,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipService {
@@ -33,18 +35,22 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipSubmissionsRepository repository;
     private final TransactionService transactionService;
     private final TransactionUtils transactionUtils;
+    private final LimitedPartnershipValidator limitedPartnershipValidator;
+
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
                                      LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipSubmissionsRepository repository,
                                      TransactionService transactionService,
-                                     TransactionUtils transactionUtils) {
+                                     TransactionUtils transactionUtils,
+                                     LimitedPartnershipValidator limitedPartnershipValidator) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
         this.transactionUtils = transactionUtils;
+        this.limitedPartnershipValidator = limitedPartnershipValidator;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -129,8 +135,9 @@ public class LimitedPartnershipService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
+        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
 
-        // TODO Add 'validation status' and 'cost' links here later
+        // TODO Add 'cost' link here later
 
         limitedPartnershipResource.setLinks(linksMap);
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
@@ -205,5 +212,12 @@ public class LimitedPartnershipService {
         LimitedPartnershipSubmissionDao submissionDao = submissions.getFirst();
 
         return mapper.daoToDto(submissionDao);
+    }
+
+    public List<String> validateLimitedPartnership(Transaction transaction, String submissionId)
+            throws ResourceNotFoundException {
+        LimitedPartnershipSubmissionDto dto = getLimitedPartnership(transaction, submissionId);
+
+        return limitedPartnershipValidator.validate(dto);
     }
 }
