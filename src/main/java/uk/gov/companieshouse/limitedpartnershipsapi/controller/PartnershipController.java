@@ -150,13 +150,13 @@ public class PartnershipController {
         validationStatus.setValid(false);
 
         // A simplified 'errors' object can be created as LP registrations are not software filed
-        List<ValidationStatusError> errors = new ArrayList<ValidationStatusError>();
+        List<ValidationStatusError> errors = new ArrayList<>();
         validationErrors.stream().forEach(error -> {
             var statusError = new ValidationStatusError();
             statusError.setError(error);
             errors.add(statusError);
         });
 
-        validationStatus.setValidationStatusError((ValidationStatusError[]) errors.toArray(new ValidationStatusError[0]));
+        validationStatus.setValidationStatusError(errors.toArray(new ValidationStatusError[0]));
     }
 }
