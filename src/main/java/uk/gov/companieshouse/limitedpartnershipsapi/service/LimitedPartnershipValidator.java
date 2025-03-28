@@ -5,7 +5,6 @@ import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class LimitedPartnershipValidator {
         // TODO These checks are valid for Partnership Types PFLP and SPFLP (the LP7D CHIPS transaction). Code will
         //      need changing when other Partnership Types need to be validated and sent to CHIPS
 
-        final DataDto dataDto = limitedPartnershipDto.getData();
+        final var dataDto = limitedPartnershipDto.getData();
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
             if (dataDto.getEmail() == null) {
