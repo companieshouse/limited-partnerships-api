@@ -296,11 +296,11 @@ class LimitedPartnershipServiceTest {
     @Test
     void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
-        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDto limitedPartnershipSubmissionDto = createDto();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         when(limitedPartnershipValidator.validate(limitedPartnershipSubmissionDto)).thenReturn(new ArrayList<>());
@@ -315,11 +315,11 @@ class LimitedPartnershipServiceTest {
     @Test
     void givenErrorsWithPartnershipData_whenValidateStatus_thenErrorsReturned() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = createDto();
-        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDto limitedPartnershipSubmissionDto = createDto();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         List<ValidationStatusError> errorsList = new ArrayList<>();
@@ -341,7 +341,7 @@ class LimitedPartnershipServiceTest {
     void giveSubmissionIdAndTransactionIdDoNotMatch_whenValidateStatus_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(false);
+        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartnership(transaction, SUBMISSION_ID));

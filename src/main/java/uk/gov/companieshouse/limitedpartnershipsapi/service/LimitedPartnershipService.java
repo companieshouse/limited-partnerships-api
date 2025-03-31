@@ -217,7 +217,7 @@ public class LimitedPartnershipService {
 
     public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction, String submissionId)
             throws ResourceNotFoundException {
-        LimitedPartnershipSubmissionDto dto = getLimitedPartnership(transaction, submissionId);
+        LimitedPartnershipDto dto = getLimitedPartnership(transaction, submissionId);
 
         return limitedPartnershipValidator.validate(dto);
     }

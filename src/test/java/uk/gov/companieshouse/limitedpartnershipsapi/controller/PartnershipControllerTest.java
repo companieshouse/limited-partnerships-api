@@ -235,7 +235,7 @@ class PartnershipControllerTest {
         // given
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipName("Test name");
-        limitedPartnershipSubmissionDto.setData(dataDto);
+        limitedPartnershipDto.setData(dataDto);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(new ArrayList<>());
@@ -259,7 +259,7 @@ class PartnershipControllerTest {
         // given
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipName("Test name");
-        limitedPartnershipSubmissionDto.setData(dataDto);
+        limitedPartnershipDto.setData(dataDto);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         List errors = new ArrayList<ValidationStatusError>();
