@@ -132,8 +132,8 @@ public class PartnershipController {
             var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction, submissionId);
 
             if (!validationErrors.isEmpty()) {
-                ApiLogger.errorContext(requestId, String.format("Validation errors : "
-                        + new GsonBuilder().create().toJson(validationErrors)), null, logMap);
+                ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
+                        new GsonBuilder().create().toJson(validationErrors)), null, logMap);
                 validationStatus.setValid(false);
                 validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
             }
