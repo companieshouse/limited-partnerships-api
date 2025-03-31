@@ -21,17 +21,24 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
@@ -41,9 +48,11 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
 
+    private static final String SUBMISSION_ID = "93702824-9062-4c63-a694-716acffccdd5";
 
-    static String postUrl = "/transactions/863851-951242-143528/limited-partnership/partnership";
-    static String patchUrl = postUrl + "/93702824-9062-4c63-a694-716acffccdd5";
+    private static String postUrl = "/transactions/863851-951242-143528/limited-partnership/partnership";
+    private static String patchUrl = postUrl + "/" + SUBMISSION_ID;
+    private static String validateStatusUrl = patchUrl + "/validation-status";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -493,6 +502,61 @@ class PartnershipControllerValidationTest {
                         .andExpect(status().isBadRequest())
                         .andExpect(jsonPath("errors.term").value("Term must be valid"));
             }
+        }
+    }
+
+
+    @Nested
+    class ValidatePartnership {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
+                    .thenReturn(new ArrayList<>());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.validateStatusUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
+            List<ValidationStatusError> errorsList = new ArrayList<>();
+            errorsList.add(new ValidationStatusError("Term must be valid", "here", null, null));
+            errorsList.add(new ValidationStatusError("Invalid data format", "there", null, null));
+            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(errorsList);
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.validateStatusUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors'][0].['location']").value("here"))
+                    .andExpect(jsonPath("$.['errors'][0].['error']").value("Term must be valid"))
+                    .andExpect(jsonPath("$.['errors'][1].['location']").value("there"))
+                    .andExpect(jsonPath("$.['errors'][1].['error']").value("Invalid data format"));
+        }
+
+        @Test
+        void shouldReturn404IfPartnershipNotFound() throws Exception {
+            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
+                    .thenThrow(new ResourceNotFoundException("Error"));
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.validateStatusUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isNotFound());
         }
     }
 }

@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -17,8 +19,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -218,6 +223,78 @@ class PartnershipControllerTest {
                 SUBMISSION_ID,
                 REQUEST_ID,
                 USER_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testValidationStatusWhenPartnershipDataIsValid() throws ResourceNotFoundException {
+        // given
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipName("Test name");
+        limitedPartnershipSubmissionDto.setData(dataDto);
+
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(new ArrayList<>());
+
+        // when
+        var response = partnershipController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        ValidationStatusResponse validationStatusResponse = response.getBody();
+        assertEquals(true, validationStatusResponse.isValid());
+        assertNull(validationStatusResponse.getValidationStatusError());
+    }
+
+    @Test
+    void testValidationStatusWhenPartnershipDataIsNotValid() throws ResourceNotFoundException {
+        // given
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipName("Test name");
+        limitedPartnershipSubmissionDto.setData(dataDto);
+
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        List errors = new ArrayList<ValidationStatusError>();
+        errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));
+        errors.add(new ValidationStatusError("Email must not be null", "data.email", null, null));
+        when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(errors);
+
+        // when
+        var response = partnershipController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        ValidationStatusResponse validationStatusResponse = response.getBody();
+
+        assertThat(validationStatusResponse.getValidationStatusError())
+                .hasSize(2)
+                .satisfiesExactly(
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Partnership type must not be null"),
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Email must not be null"));
+    }
+
+    @Test
+    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ResourceNotFoundException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));
+
+        // when
+        var response = partnershipController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
 
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());

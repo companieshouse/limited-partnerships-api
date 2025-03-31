@@ -28,7 +28,7 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-    @NotNull(message = "Enter the name of the limited partnership")
+    @NotNull(message = "Limited partnership name must not be null")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)

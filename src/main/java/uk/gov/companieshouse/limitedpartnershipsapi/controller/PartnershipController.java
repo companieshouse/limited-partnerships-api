@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
@@ -108,6 +111,34 @@ public class PartnershipController {
         try {
             LimitedPartnershipSubmissionDto dto = limitedPartnershipService.getLimitedPartnership(transaction, submissionId);
             return ResponseEntity.ok().body(dto);
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}/validation-status")
+    public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                                        @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
+                                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+        var logMap = new HashMap<String, Object>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
+
+        try {
+            ApiLogger.infoContext(requestId, "Calling service to validate a Limited Partnership Submission", logMap);
+            var validationStatus = new ValidationStatusResponse();
+            validationStatus.setValid(true);
+
+            var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction, submissionId);
+
+            if (!validationErrors.isEmpty()) {
+                ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
+                        new GsonBuilder().create().toJson(validationErrors)), null, logMap);
+                validationStatus.setValid(false);
+                validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
+            }
+
+            return ResponseEntity.ok().body(validationStatus);
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
