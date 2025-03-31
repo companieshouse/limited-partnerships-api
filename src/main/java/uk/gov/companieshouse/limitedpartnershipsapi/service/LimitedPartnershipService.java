@@ -148,12 +148,12 @@ public class LimitedPartnershipService {
      * is handled by the web client.
      */
     private void updateTransactionWithLinksAndPartnershipName(Transaction transaction,
-                                                              LimitedPartnershipDto partnershipDto,
+                                                              LimitedPartnershipDto limitedPartnershipDto,
                                                               String submissionUri,
                                                               Resource limitedPartnershipResource,
                                                               String loggingContext,
                                                               String submissionId) throws ServiceException {
-        transaction.setCompanyName(partnershipDto.getData().getPartnershipName());
+        transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
         final var resumeJourneyUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), submissionId);
@@ -170,10 +170,10 @@ public class LimitedPartnershipService {
         return false;
     }
 
-    private void updateLimitedPartnershipWithSelfLink(LimitedPartnershipDao partnershipDao,
+    private void updateLimitedPartnershipWithSelfLink(LimitedPartnershipDao limitedPartnershipDao,
                                                                 String submissionUri) {
-        partnershipDao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
-        repository.save(partnershipDao);
+        limitedPartnershipDao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
+        repository.save(limitedPartnershipDao);
     }
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException {
@@ -184,8 +184,8 @@ public class LimitedPartnershipService {
         }
 
         var submission = repository.findById(submissionId);
-        LimitedPartnershipDao partnershipDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
-        return mapper.daoToDto(partnershipDao);
+        LimitedPartnershipDao limitedPartnershipDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
+        return mapper.daoToDto(limitedPartnershipDao);
     }
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction) throws ServiceException {
@@ -194,16 +194,16 @@ public class LimitedPartnershipService {
                     "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
         }
 
-        var partnerships = repository.findByTransactionId(transaction.getId());
+        var limitedPartnerships = repository.findByTransactionId(transaction.getId());
 
-        if (partnerships.isEmpty()) {
+        if (limitedPartnerships.isEmpty()) {
             throw new ResourceNotFoundException(String.format("No limited partnership found for transaction id %s", transaction.getId()));
-        } else if (partnerships.size() > 1) {
+        } else if (limitedPartnerships.size() > 1) {
             throw new ServiceException(String.format("More than one limited partnership found for transaction id %s", transaction.getId()));
         }
 
-        LimitedPartnershipDao partnershipDao = partnerships.getFirst();
+        LimitedPartnershipDao limitedPartnershipDao = limitedPartnerships.getFirst();
 
-        return mapper.daoToDto(partnershipDao);
+        return mapper.daoToDto(limitedPartnershipDao);
     }
 }

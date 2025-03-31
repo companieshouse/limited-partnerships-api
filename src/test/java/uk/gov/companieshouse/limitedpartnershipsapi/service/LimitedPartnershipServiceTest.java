@@ -89,10 +89,10 @@ class LimitedPartnershipServiceTest {
         String submissionId = service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
 
         // then
-        verify(mapper, times(1)).dtoToDao(limitedPartnershipDto);
-        verify(repository, times(1)).insert(limitedPartnershipDao);
-        verify(repository, times(1)).save(submissionCaptor.capture());
-        verify(transactionService, times(1)).updateTransaction(transactionApiCaptor.capture(), any());
+        verify(mapper).dtoToDao(limitedPartnershipDto);
+        verify(repository).insert(limitedPartnershipDao);
+        verify(repository).save(submissionCaptor.capture());
+        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), any());
         assertEquals(SUBMISSION_ID, submissionId);
 
         // assert transaction resources are updated appropriately
@@ -165,14 +165,14 @@ class LimitedPartnershipServiceTest {
         service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
 
         // then
-        verify(repository, times(1)).findById(SUBMISSION_ID);
-        verify(repository, times(1)).save(submissionCaptor.capture());
+        verify(repository).findById(SUBMISSION_ID);
+        verify(repository).save(submissionCaptor.capture());
 
         LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
         assertEquals("5fd36577288e", sentSubmission.getCreatedBy());
         assertEquals(USER_ID, sentSubmission.getUpdatedBy());
 
-        verify(transactionService, times(1)).updateTransactionWithPartnershipName(transaction, REQUEST_ID, "Asset Adders");
+        verify(transactionService).updateTransactionWithPartnershipName(transaction, REQUEST_ID, "Asset Adders");
     }
 
     @Test
@@ -204,8 +204,8 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
-        verify(repository, times(1)).findById(limitedPartnershipDao.getId());
-        verify(mapper, times(1)).daoToDto(limitedPartnershipDao);
+        verify(repository).findById(limitedPartnershipDao.getId());
+        verify(mapper).daoToDto(limitedPartnershipDao);
         assertEquals(limitedPartnershipDto.getData(), retrievedDto.getData());
     }
 
@@ -246,8 +246,8 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction);
 
         // then
-        verify(repository, times(1)).findByTransactionId(transaction.getId());
-        verify(mapper, times(1)).daoToDto(limitedPartnershipDao);
+        verify(repository).findByTransactionId(transaction.getId());
+        verify(mapper).daoToDto(limitedPartnershipDao);
         assertEquals(limitedPartnershipDto.getData(), retrievedDto.getData());
     }
 
