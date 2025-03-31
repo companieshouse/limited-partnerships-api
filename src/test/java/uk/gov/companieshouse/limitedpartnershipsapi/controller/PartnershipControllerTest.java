@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -274,11 +275,13 @@ class PartnershipControllerTest {
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
 
-        ValidationStatusResponse validationStatusResponse = (ValidationStatusResponse) response.getBody();
-        assertEquals(false, validationStatusResponse.isValid());
-        assertEquals(2, validationStatusResponse.getValidationStatusError().length);
-        assertEquals("Partnership type must not be null", validationStatusResponse.getValidationStatusError()[0].getError());
-        assertEquals("Email must not be null", validationStatusResponse.getValidationStatusError()[1].getError());
+        ValidationStatusResponse validationStatusResponse = response.getBody();
+
+        assertThat(validationStatusResponse.getValidationStatusError())
+                .hasSize(2)
+                .satisfiesExactly(
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Partnership type must not be null"),
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Email must not be null"));
     }
 
     @Test

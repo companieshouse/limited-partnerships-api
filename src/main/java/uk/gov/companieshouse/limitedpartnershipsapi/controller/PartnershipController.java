@@ -118,9 +118,9 @@ public class PartnershipController {
     }
 
     @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}/validation-status")
-    public ResponseEntity<Object> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                      @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-                                                      @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+    public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                                        @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
+                                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
 
