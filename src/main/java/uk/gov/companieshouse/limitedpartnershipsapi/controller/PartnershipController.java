@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,9 +26,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -39,8 +38,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RestController
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/partnership")
 public class PartnershipController {
-
-    private static final String VALIDATION_ERRORS_MESSAGE = "Validation errors : %s";
 
     private final LimitedPartnershipService limitedPartnershipService;
 
@@ -135,8 +132,10 @@ public class PartnershipController {
             var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction, submissionId);
 
             if (!validationErrors.isEmpty()) {
-                flagValidationStatusAsFailed(validationStatus, validationErrors);
-                ApiLogger.errorContext(requestId, String.format(VALIDATION_ERRORS_MESSAGE, validationErrors), null, logMap);
+                ApiLogger.errorContext(requestId, String.format("Validation errors : "
+                        + new GsonBuilder().create().toJson(validationErrors)), null, logMap);
+                validationStatus.setValid(false);
+                validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
             }
 
             return ResponseEntity.ok().body(validationStatus);
@@ -144,19 +143,5 @@ public class PartnershipController {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         }
-    }
-
-    private void flagValidationStatusAsFailed(ValidationStatusResponse validationStatus, List<String> validationErrors) {
-        validationStatus.setValid(false);
-
-        // A simplified 'errors' object can be created as LP registrations are not software filed
-        List<ValidationStatusError> errors = new ArrayList<>();
-        validationErrors.stream().forEach(error -> {
-            var statusError = new ValidationStatusError();
-            statusError.setError(error);
-            errors.add(statusError);
-        });
-
-        validationStatus.setValidationStatusError(errors.toArray(new ValidationStatusError[0]));
     }
 }

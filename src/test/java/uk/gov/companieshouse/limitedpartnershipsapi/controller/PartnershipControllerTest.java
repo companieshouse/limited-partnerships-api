@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -259,9 +260,9 @@ class PartnershipControllerTest {
         limitedPartnershipSubmissionDto.setData(dataDto);
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        List errors = new ArrayList<String>();
-        errors.add("Partnership type must not be null");
-        errors.add("Email must not be null");
+        List errors = new ArrayList<ValidationStatusError>();
+        errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));
+        errors.add(new ValidationStatusError("Email must not be null", "data.email", null, null));
         when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(errors);
 
         // when

@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
@@ -30,10 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -299,7 +301,7 @@ class LimitedPartnershipServiceTest {
         when(limitedPartnershipValidator.validate(limitedPartnershipSubmissionDto)).thenReturn(new ArrayList<>());
 
         // when
-        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         assertEquals(0, results.size());
@@ -315,18 +317,19 @@ class LimitedPartnershipServiceTest {
         when(transactionUtils.isTransactionLinkedToLimitedPartnershipSubmission(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
-        List<String> errorsList = new ArrayList<>();
-        errorsList.add("Missing field");
-        errorsList.add("Invalid data format");
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+        var error1 = new ValidationStatusError("Missing field", "here", null, null);
+        var error2 = new ValidationStatusError("Invalid data format", "there", null, null);
+        errorsList.add(error1);
+        errorsList.add(error2);
         when(limitedPartnershipValidator.validate(limitedPartnershipSubmissionDto)).thenReturn(errorsList);
 
         // when
-        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         assertEquals(2, results.size());
-        assertTrue(results.contains("Missing field"));
-        assertTrue(results.contains("Invalid data format"));
+        assertThat(results, hasItems(error1, error2));
     }
 
     @Test

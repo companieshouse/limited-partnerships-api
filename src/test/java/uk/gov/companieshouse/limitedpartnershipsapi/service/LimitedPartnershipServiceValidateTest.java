@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
@@ -23,8 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
@@ -53,7 +58,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -68,22 +73,24 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().setEmail("invalid-email-address-format");
         limitedPartnershipSubmissionDao.getData().getRegisteredOfficeAddress().setAddressLine1(null);
         limitedPartnershipSubmissionDao.getData().getPrincipalPlaceOfBusinessAddress().setPostalCode("invalid-postal-code-format-and-too-long");
+        limitedPartnershipSubmissionDao.getData().getPrincipalPlaceOfBusinessAddress().setAddressLine1(null);
 
         Transaction transaction = buildTransaction();
 
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
-        assertEquals(5, results.size());
-        assertTrue(results.contains("Enter the name of the limited partnership"));
-        assertTrue(results.contains("must be a well-formed email address"));
-        assertTrue(results.contains("Address line 1 must not be null"));
-        assertTrue(results.contains("Invalid postcode format"));
-        assertTrue(results.contains("Postcode must be less than 15"));
+        assertEquals(6, results.size());
+        checkForError(results, "Limited partnership name must not be null", "data.partnershipName");
+        checkForError(results, "must be a well-formed email address", "data.email");
+        checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
+        checkForError(results, "Invalid postcode format", "data.principalPlaceOfBusinessAddress.postalCode");
+        checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");
+        checkForError(results, "Address line 1 must not be null", "data.principalPlaceOfBusinessAddress.addressLine1");
     }
 
     @Test
@@ -101,16 +108,16 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(5, results.size());
-        assertTrue(results.contains("Email is required"));
-        assertTrue(results.contains("Jurisdiction is required"));
-        assertTrue(results.contains("Registered office address is required"));
-        assertTrue(results.contains("Principal place of business address is required"));
-        assertTrue(results.contains("Term is not required"));
+        checkForError(results, "Email is required", "data.email");
+        checkForError(results, "Jurisdiction is required", "data.jurisdiction");
+        checkForError(results, "Registered office address is required", "data.registeredOfficeAddress");
+        checkForError(results, "Principal place of business address is required", "data.principalPlaceOfBusinessAddress");
+        checkForError(results, "Term is not required", "data.term");
     }
 
     @Test
@@ -125,13 +132,13 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<String> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(2, results.size());
-        assertTrue(results.contains("Limited partnership name must be greater than 1"));
-        assertTrue(results.contains("Email is required"));
+        checkForError(results, "Limited partnership name must be greater than 1", "data.partnershipName");
+        checkForError(results, "Email is required", "data.email");
     }
 
     private Transaction buildTransaction() {
@@ -178,5 +185,11 @@ class LimitedPartnershipServiceValidateTest {
         dao.setPostalCode("BM1 2EH");
 
         return dao;
+    }
+
+    private void checkForError(List<ValidationStatusError> results, String errorMessage, String location) {
+        assertThat(results, hasItem(allOf(
+                hasProperty("error", is(errorMessage)),
+                hasProperty("location", is(location)))));
     }
 }

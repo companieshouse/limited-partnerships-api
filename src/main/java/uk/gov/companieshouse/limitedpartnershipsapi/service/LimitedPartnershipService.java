@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
@@ -214,7 +215,7 @@ public class LimitedPartnershipService {
         return mapper.daoToDto(submissionDao);
     }
 
-    public List<String> validateLimitedPartnership(Transaction transaction, String submissionId)
+    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction, String submissionId)
             throws ResourceNotFoundException {
         LimitedPartnershipSubmissionDto dto = getLimitedPartnership(transaction, submissionId);
 
