@@ -1,0 +1,28 @@
+{
+  "data": {
+    "partnership_name": "Random Company LP",
+    "name_ending": "LP",
+    "email": "test@test.com",
+    "partnership_type": "PFLP",
+    "jurisdiction": "England and Wales",
+    "registered_office_address": {
+      "address_line_1": "Line 1",
+      "address_line_2": "Line 2",
+      "country": "Country",
+      "locality": "England",
+      "postal_code": "CF14 0ZL",
+      "premises": null,
+      "region": "Region"
+    },
+    "term": "UNKNOWN",
+    "principal_place_of_business_address": {
+      "address_line_1": "Line 1",
+      "address_line_2": "Line 2",
+      "country": "Country",
+      "locality": "England",
+      "postal_code": "CF14 0ZL",
+      "premises": null,
+      "region": "Region"
+    }
+  }
+}
