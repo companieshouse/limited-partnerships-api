@@ -248,7 +248,7 @@ class PartnershipControllerTest {
         // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
 
-        ValidationStatusResponse validationStatusResponse = (ValidationStatusResponse) response.getBody();
+        ValidationStatusResponse validationStatusResponse = response.getBody();
         assertEquals(true, validationStatusResponse.isValid());
         assertNull(validationStatusResponse.getValidationStatusError());
     }
