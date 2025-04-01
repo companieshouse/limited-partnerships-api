@@ -5,9 +5,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdicti
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipSubmissionDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -17,7 +17,7 @@ class LimitedPartnershipMapperTest {
     @Test
     void givenDto_whenMapsToDao_thenCorrect() {
         // given
-        LimitedPartnershipSubmissionDto source = new LimitedPartnershipSubmissionDto();
+        LimitedPartnershipDto source = new LimitedPartnershipDto();
         DataDto sourceData = new DataDto();
         sourceData.setPartnershipName("Joe Bloggs");
         sourceData.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
@@ -25,7 +25,7 @@ class LimitedPartnershipMapperTest {
         source.setData(sourceData);
 
         // when
-        LimitedPartnershipSubmissionDao destination = LimitedPartnershipMapper.INSTANCE.dtoToDao(source);
+        LimitedPartnershipDao destination = LimitedPartnershipMapper.INSTANCE.dtoToDao(source);
 
         // then
         DataDao destinationData = destination.getData();

@@ -9,7 +9,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdicti
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.util.Set;
 
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 
-class LimitedPartnershipSubmissionDtoValidationTest {
+class LimitedPartnershipDtoValidationTest {
 
     private Validator validator;
 
@@ -30,7 +30,7 @@ class LimitedPartnershipSubmissionDtoValidationTest {
     @Test
     void testCreatePartnershipShouldNotReturnError() {
 
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dto = new DataDto();
 
         dto.setPartnershipName("Test name");
@@ -39,9 +39,10 @@ class LimitedPartnershipSubmissionDtoValidationTest {
         dto.setEmail("test@email.com");
         dto.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES);
 
-        limitedPartnershipSubmissionDto.setData(dto);
+        limitedPartnershipDto.setData(dto);
 
-        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(
+                limitedPartnershipDto);
 
         assertTrue(violations.isEmpty());
     }
@@ -49,7 +50,7 @@ class LimitedPartnershipSubmissionDtoValidationTest {
     @Test
     void testCreatePartnershipWithInvalidEnumValuesReturnsErrors() {
 
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dto = new DataDto();
 
         dto.setPartnershipName("Test name");
@@ -58,9 +59,10 @@ class LimitedPartnershipSubmissionDtoValidationTest {
         dto.setPartnershipType(PartnershipType.UNKNOWN);
         dto.setNameEnding(PartnershipNameEnding.UNKNOWN);
 
-        limitedPartnershipSubmissionDto.setData(dto);
+        limitedPartnershipDto.setData(dto);
 
-        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(
+                limitedPartnershipDto);
 
         assertFalse(violations.isEmpty());
         assertThat(violations).hasSize(3);
@@ -73,7 +75,7 @@ class LimitedPartnershipSubmissionDtoValidationTest {
     @Test
     void testCreatePartnershipShouldReturnBadRequestErrorIfPartnershipNameIsMoreThan160Character() {
 
-        LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto = new LimitedPartnershipSubmissionDto();
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dto = new DataDto();
 
         String longString161Characters = "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk";
@@ -83,9 +85,10 @@ class LimitedPartnershipSubmissionDtoValidationTest {
         dto.setPartnershipType(PartnershipType.LP);
         dto.setEmail("wrong-format-email.com");
 
-        limitedPartnershipSubmissionDto.setData(dto);
+        limitedPartnershipDto.setData(dto);
 
-        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipSubmissionDto);
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(
+                limitedPartnershipDto);
 
         assertFalse(violations.isEmpty());
         assertThat(violations).hasSize(3);

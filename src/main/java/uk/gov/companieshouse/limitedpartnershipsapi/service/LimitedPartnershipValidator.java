@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,8 @@ public class LimitedPartnershipValidator {
     private Validator validator;
 
 
-    public List<ValidationStatusError> validate(LimitedPartnershipSubmissionDto limitedPartnershipDto) {
-        Set<ConstraintViolation<LimitedPartnershipSubmissionDto>> violations = validator.validate(limitedPartnershipDto);
+    public List<ValidationStatusError> validate(LimitedPartnershipDto limitedPartnershipDto) {
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
 
         List<ValidationStatusError> errorsList = new ArrayList<>();
         violations.stream().forEach(v ->

@@ -16,8 +16,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipSubmissionDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,13 +45,13 @@ class LimitedPartnershipServiceValidateTest {
     private LimitedPartnershipService service;
 
     @MockitoBean
-    private LimitedPartnershipSubmissionsRepository repository;
+    private LimitedPartnershipRepository repository;
 
 
     @Test
     void shouldReturnNoErrorsWhenPflpAndSpflpPartnershipDataIsValid() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
 
         Transaction transaction = buildTransaction();
 
@@ -68,7 +68,7 @@ class LimitedPartnershipServiceValidateTest {
     @Test
     void shouldReturnErrorsWhenPflpAndSpflpPartnershipDataIsInvalidAndJavaBeanChecksFail() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         limitedPartnershipSubmissionDao.getData().setPartnershipName(null);
         limitedPartnershipSubmissionDao.getData().setEmail("invalid-email-address-format");
         limitedPartnershipSubmissionDao.getData().getRegisteredOfficeAddress().setAddressLine1(null);
@@ -96,7 +96,7 @@ class LimitedPartnershipServiceValidateTest {
     @Test
     void shouldReturnErrorsWhenPflpAndSpflpPartnershipDataIsInvalidAndCustomChecksFail() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         limitedPartnershipSubmissionDao.getData().setEmail(null);
         limitedPartnershipSubmissionDao.getData().setJurisdiction(null);
         limitedPartnershipSubmissionDao.getData().setRegisteredOfficeAddress(null);
@@ -123,7 +123,7 @@ class LimitedPartnershipServiceValidateTest {
     @Test
     void shouldReturnErrorsWhenPflpAndSpflpPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail() throws ResourceNotFoundException {
         // given
-        LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         limitedPartnershipSubmissionDao.getData().setPartnershipName("");
         limitedPartnershipSubmissionDao.getData().setEmail(null);
 
@@ -158,8 +158,8 @@ class LimitedPartnershipServiceValidateTest {
         return transaction;
     }
 
-    private LimitedPartnershipSubmissionDao createDao() {
-        LimitedPartnershipSubmissionDao dao = new LimitedPartnershipSubmissionDao();
+    private LimitedPartnershipDao createDao() {
+        LimitedPartnershipDao dao = new LimitedPartnershipDao();
 
         dao.setId(SUBMISSION_ID);
         DataDao dataDao = new DataDao();

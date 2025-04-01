@@ -18,7 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -59,7 +59,7 @@ public class IncorporationController {
             String submissionId = incorporationService.createIncorporation(transaction, incorporationDto, requestId,
                     userId);
             var location = URI.create(String.format(URL_GET_INCORPORATION, transactionId, submissionId));
-            var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
+            var response = new LimitedPartnershipCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, "Error creating Limited Partnership incorporation", e, logMap);
