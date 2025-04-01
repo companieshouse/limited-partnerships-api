@@ -512,7 +512,7 @@ class PartnershipControllerValidationTest {
 
             @Test
             void shouldReturn400IfSicCodesIncorrect() throws Exception {
-                String body = "{\"sic_codes\":[\"abcde\"]}";
+                String body = "{\"sic_codes\":[\"abcde\", \"123A5\", \"123\", \"123456\", \"12345\"]}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -521,7 +521,10 @@ class PartnershipControllerValidationTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("errors.['sicCodes[0]']").value("Sic code can only contain numeric values"));
+                        .andExpect(jsonPath("errors.['sicCodes[0]']").value("Sic code must be 5 numeric characters"))
+                        .andExpect(jsonPath("errors.['sicCodes[1]']").value("Sic code must be 5 numeric characters"))
+                        .andExpect(jsonPath("errors.['sicCodes[2]']").value("Sic code must be 5 numeric characters"))
+                        .andExpect(jsonPath("errors.['sicCodes']").value("Sic codes list must contain at least 1 sic code, and no more than 4 sic codes"));
             }
         }
     }

@@ -71,8 +71,8 @@ public class DataDto {
     private AddressDto principalPlaceOfBusinessAddress;
 
     @JsonProperty("sic_codes")
-    @Size(min = 1, max = 4, message = "Sic Codes list cant be empty")
-    private List<@Size(min = 5, max = 5, message = "sic codes must be exactly 5 characters long") @ValidSicCode() String> sicCodes;
+    @Size(min = 1, max = 4, message = "Sic codes list must contain at least 1 sic code, and no more than 4 sic codes")
+    private List<@ValidSicCode() String> sicCodes;
 
     public String getPartnershipName() {
         return partnershipName;

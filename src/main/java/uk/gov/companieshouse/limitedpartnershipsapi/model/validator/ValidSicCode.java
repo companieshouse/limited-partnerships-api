@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE_USE, ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidSicCode {
-    String message() default "Sic code can only contain numeric values";
+    String message() default "Sic code must be 5 numeric characters";
 
     Class<?>[] groups() default {};
 
