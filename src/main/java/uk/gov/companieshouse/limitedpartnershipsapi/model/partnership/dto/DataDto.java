@@ -13,6 +13,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidEnum;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidSicCode;
+
+import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
@@ -66,6 +69,10 @@ public class DataDto {
     @JsonProperty("principal_place_of_business_address")
     @Valid
     private AddressDto principalPlaceOfBusinessAddress;
+
+    @JsonProperty("sic_codes")
+    @Size(min = 1, max = 4, message = "Sic Codes list cant be empty")
+    private List<@Size(min = 5, max = 5, message = "sic codes must be exactly 5 characters long") @ValidSicCode() String> sicCodes;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -129,5 +136,13 @@ public class DataDto {
 
     public void setPrincipalPlaceOfBusinessAddress(AddressDto principalPlaceOfBusinessAddress) {
         this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
+    }
+
+    public List<String> getSicCodes() {
+        return sicCodes;
+    }
+
+    public void setSicCodes(List<String> sicCodes) {
+        this.sicCodes = sicCodes;
     }
 }

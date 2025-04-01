@@ -23,9 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipSubmissionsRepository;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -327,6 +325,59 @@ class LimitedPartnershipServiceUpdateTest {
                 assertEquals("STOKE-ON-TRENT", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
                 assertEquals("ST6 3LJ", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
                 assertEquals("2", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
+            }
+        }
+
+        @Nested
+        class updateSicCode {
+            @Test
+            void shouldUpdateTheDao() throws ServiceException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+
+                List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
+
+                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+                limitedPartnershipPatchDto.setSicCodes(sicCodes);
+
+                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+                // dao registered office address is null before mapping/update
+                assertNull(limitedPartnershipSubmissionDao.getData().getSicCodes());
+
+                // when
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+                // then
+                verify(repository).findById(SUBMISSION_ID);
+                verify(repository).save(submissionCaptor.capture());
+
+                LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
+
+                assertEquals(sicCodes, sentSubmission.getData().getSicCodes());
+            }
+
+            @Test
+            void shouldReturnDtoContainingSicCodes() throws ResourceNotFoundException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
+
+                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+                limitedPartnershipSubmissionDao.getData().setSicCodes(sicCodes);
+
+                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+                // when
+                LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+
+                // then
+                verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+
+                assertEquals(sicCodes, retrievedDto.getData().getSicCodes());
             }
         }
     }

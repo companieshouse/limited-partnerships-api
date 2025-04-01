@@ -494,5 +494,35 @@ class PartnershipControllerValidationTest {
                         .andExpect(jsonPath("errors.term").value("Term must be valid"));
             }
         }
+
+        @Nested
+        class SicCodes {
+            @Test
+            void shouldReturn200IfSicCodesIsCorrect() throws Exception {
+                String body = "{\"sic_codes\":[\"12345\"]}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isOk());
+            }
+
+            @Test
+            void shouldReturn400IfSicCodesIncorrect() throws Exception {
+                String body = "{\"sic_codes\":[\"abcde\"]}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("errors.['sicCodes[0]']").value("Sic code can only contain numeric values"));
+            }
+        }
     }
 }
