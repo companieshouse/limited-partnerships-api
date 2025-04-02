@@ -346,17 +346,17 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 Transaction transaction = buildTransaction();
 
-                LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = createDao();
 
                 List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setSicCodes(sicCodes);
 
-                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
 
                 // dao registered office address is null before mapping/update
-                assertNull(limitedPartnershipSubmissionDao.getData().getSicCodes());
+                assertNull(limitedPartnershipDao.getData().getSicCodes());
 
                 // when
                 service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
@@ -377,16 +377,16 @@ class LimitedPartnershipServiceUpdateTest {
 
                 List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
 
-                LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
-                limitedPartnershipSubmissionDao.getData().setSicCodes(sicCodes);
+                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                limitedPartnershipDao.getData().setSicCodes(sicCodes);
 
-                when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+                verify(repository).findById(limitedPartnershipDao.getId());
 
                 assertEquals(sicCodes, retrievedDto.getData().getSicCodes());
             }
