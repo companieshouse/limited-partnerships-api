@@ -61,7 +61,7 @@ public class LimitedPartnershipPatchDto {
 
     @JsonProperty("sic_codes")
     @Size(min = 1, max = 4, message = "Sic codes list must contain at least 1 sic code, and no more than 4 sic codes")
-    private List<@ValidSicCode() String> sicCodes;
+    private List<@Pattern(regexp = "\\d{5}", message = "Sic code must be 5 numeric characters") String> sicCodes;
 
     public String getPartnershipName() {
         return partnershipName;
