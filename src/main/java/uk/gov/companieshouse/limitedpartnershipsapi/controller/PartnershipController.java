@@ -19,9 +19,9 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipSubmissionDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -49,7 +49,7 @@ public class PartnershipController {
     @PostMapping
     public ResponseEntity<Object> createPartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @Valid @RequestBody LimitedPartnershipSubmissionDto limitedPartnershipSubmissionDto,
+            @Valid @RequestBody LimitedPartnershipDto limitedPartnershipDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId) {
 
@@ -58,16 +58,17 @@ public class PartnershipController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership Submission", logMap);
+            ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership", logMap);
 
-            var submissionId = limitedPartnershipService.createLimitedPartnership(transaction, limitedPartnershipSubmissionDto, requestId, userId);
+            var submissionId = limitedPartnershipService.createLimitedPartnership(transaction,
+                    limitedPartnershipDto, requestId, userId);
 
             var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
-            var response = new LimitedPartnershipSubmissionCreatedResponseDto(submissionId);
+            var response = new LimitedPartnershipCreatedResponseDto(submissionId);
 
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, "Error creating Limited Partnership submission", e, logMap);
+            ApiLogger.errorContext(requestId, "Error creating Limited Partnership", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -92,7 +93,7 @@ public class PartnershipController {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, "Error updating Limited Partnership submission", e, logMap);
+            ApiLogger.errorContext(requestId, "Error updating Limited Partnership", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -109,7 +110,7 @@ public class PartnershipController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            LimitedPartnershipSubmissionDto dto = limitedPartnershipService.getLimitedPartnership(transaction, submissionId);
+            LimitedPartnershipDto dto = limitedPartnershipService.getLimitedPartnership(transaction, submissionId);
             return ResponseEntity.ok().body(dto);
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
