@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
@@ -21,10 +22,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationalit
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -167,6 +172,60 @@ class GeneralPartnerServiceTest {
         generalPartnerDto.setData(generalPartnerData);
 
         assertNotNull(generalPartnerDto.getData());
+    }
+
+    @Test
+    void givenNoErrorsWithGeneralPartnerData_whenValidateStatus_thenNoErrorsReturned() throws ServiceException {
+        // given
+        GeneralPartnerDto dto = createDto();
+        GeneralPartnerDao dao = createDao();
+        Transaction transaction = buildTransaction();
+
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), anyString(), anyString())).thenReturn(true);
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(dao));
+        when(mapper.daoToDto(dao)).thenReturn(dto);
+        when(generalPartnerValidator.validate(dto)).thenReturn(new ArrayList<>());
+
+        // when
+        List<ValidationStatusError> results = generalPartnerService.validateGeneralPartner(transaction, SUBMISSION_ID);
+
+        // then
+        assertEquals(0, results.size());
+    }
+
+    @Test
+    void givenErrorsWithGeneralPartnerData_whenValidateStatus_thenErrorsReturned() throws ServiceException {
+        // given
+        GeneralPartnerDto dto = createDto();
+        GeneralPartnerDao dao = createDao();
+        Transaction transaction = buildTransaction();
+
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), anyString(), anyString())).thenReturn(true);
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(dao));
+        when(mapper.daoToDto(dao)).thenReturn(dto);
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+        var error1 = new ValidationStatusError("Missing field", "here", null, null);
+        var error2 = new ValidationStatusError("Invalid data format", "there", null, null);
+        errorsList.add(error1);
+        errorsList.add(error2);
+        when(generalPartnerValidator.validate(dto)).thenReturn(errorsList);
+
+        // when
+        List<ValidationStatusError> results = generalPartnerService.validateGeneralPartner(transaction, SUBMISSION_ID);
+
+        // then
+        assertEquals(2, results.size());
+        assertThat(results, hasItems(error1, error2));
+    }
+
+    @Test
+    void giveGeneralPartnerIdAndTransactionIdDoNotMatch_whenValidateStatus_ThenResourceNotFoundExceptionThrown() {
+        // given
+        Transaction transaction = buildTransaction();
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), anyString(), anyString())).thenReturn(false);
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.validateGeneralPartner(transaction, SUBMISSION_ID));
     }
 
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {

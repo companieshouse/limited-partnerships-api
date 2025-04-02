@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -17,10 +19,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -149,5 +155,86 @@ class GeneralPartnerControllerTest {
                 REQUEST_ID,
                 USER_ID);
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testValidationStatusWhenGeneralPartnerDataIsValid() throws ServiceException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(generalPartnerService.validateGeneralPartner(transaction, SUBMISSION_ID))
+                .thenReturn(new ArrayList<>());
+
+        // when
+        var response = generalPartnerController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        ValidationStatusResponse validationStatusResponse = response.getBody();
+        assertEquals(true, validationStatusResponse.isValid());
+        assertNull(validationStatusResponse.getValidationStatusError());
+    }
+
+    @Test
+    void testValidationStatusWhenGeneralPartnerDataIsNotValid() throws ServiceException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        List errors = new ArrayList<ValidationStatusError>();
+        errors.add(new ValidationStatusError("Forename is required", GeneralPartnerDataDto.FORENAME_FIELD, null, null));
+        errors.add(new ValidationStatusError("Date of birth is required", GeneralPartnerDataDto.DATE_OF_BIRTH_FIELD, null, null));
+        when(generalPartnerService.validateGeneralPartner(transaction, SUBMISSION_ID)).thenReturn(errors);
+
+        // when
+        var response = generalPartnerController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        ValidationStatusResponse validationStatusResponse = response.getBody();
+
+        assertThat(validationStatusResponse.getValidationStatusError())
+                .hasSize(2)
+                .satisfiesExactly(
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Forename is required"),
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Date of birth is required"));
+    }
+
+    @Test
+    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ServiceException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(generalPartnerService.validateGeneralPartner(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));
+
+        // when
+        var response = generalPartnerController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testInternalServerErrorReturnedWhenValidationStatusEncountersServiceException() throws ServiceException {
+        // given
+        when(transaction.getId()).thenReturn(TRANSACTION_ID);
+        when(generalPartnerService.validateGeneralPartner(transaction, SUBMISSION_ID)).thenThrow(new ServiceException("error"));
+
+        // when
+        var response = generalPartnerController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
     }
 }

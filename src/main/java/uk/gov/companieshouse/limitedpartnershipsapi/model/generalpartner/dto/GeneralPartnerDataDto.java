@@ -28,7 +28,7 @@ public class GeneralPartnerDataDto {
     public static final String DATE_OF_BIRTH_FIELD = "date_of_birth";
     public static final String NATIONALITY1_FIELD = "nationality1";
     public static final String NATIONALITY2_FIELD = "nationality2";
-    public static final String LEGAL_ENTITY_NAME = "legal_entity_name";
+    public static final String LEGAL_ENTITY_NAME_FIELD = "legal_entity_name";
     public static final String LEGAL_ENTITY_REGISTER_NAME_FIELD = "legal_entity_register_name";
     public static final String LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD = "legal_entity_registration_location";
     public static final String LEGAL_FORM_FIELD = "legal_form";
@@ -36,6 +36,9 @@ public class GeneralPartnerDataDto {
     public static final String GOVERNING_LAW_FIELD = "governing_law";
     public static final String NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD = "not_disqualified_statement_checked";
     public static final String LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD = "legal_personality_statement_checked";
+    public static final String USUAL_RESIDENTIAL_ADDRESS_FIELD = "usual_residential_address";
+    public static final String SERVICE_ADDRESS_FIELD = "service_address";
+    public static final String PRINCIPAL_OFFICE_ADDRESS_FIELD = "principal_office_address";
 
     @JsonProperty(FORENAME_FIELD)
     @Size(min = MIN_SIZE, message = "Forename " + MIN_SIZE_MESSAGE)
@@ -83,7 +86,7 @@ public class GeneralPartnerDataDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
     private String governingLaw;
 
-    @JsonProperty(LEGAL_ENTITY_NAME)
+    @JsonProperty(LEGAL_ENTITY_NAME_FIELD)
     @Size(min = MIN_SIZE, message = "Legal entity name " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Legal entity name " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity name " + INVALID_CHARACTERS_MESSAGE)
@@ -105,7 +108,7 @@ public class GeneralPartnerDataDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal form " + INVALID_CHARACTERS_MESSAGE)
     private String legalForm;
 
-    @JsonProperty("principal_office_address")
+    @JsonProperty(PRINCIPAL_OFFICE_ADDRESS_FIELD)
     @Valid
     private AddressDto principalOfficeAddress;
 
@@ -119,11 +122,11 @@ public class GeneralPartnerDataDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate resignationDate;
 
-    @JsonProperty("service_address")
+    @JsonProperty(SERVICE_ADDRESS_FIELD)
     @Valid
     private AddressDto serviceAddress;
 
-    @JsonProperty("usual_residential_address")
+    @JsonProperty(USUAL_RESIDENTIAL_ADDRESS_FIELD)
     @Valid
     private AddressDto usualResidentialAddress;
 

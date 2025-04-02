@@ -232,10 +232,6 @@ class PartnershipControllerTest {
     @Test
     void testValidationStatusWhenPartnershipDataIsValid() throws ResourceNotFoundException {
         // given
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipName("Test name");
-        limitedPartnershipSubmissionDto.setData(dataDto);
-
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(new ArrayList<>());
 
@@ -256,10 +252,6 @@ class PartnershipControllerTest {
     @Test
     void testValidationStatusWhenPartnershipDataIsNotValid() throws ResourceNotFoundException {
         // given
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipName("Test name");
-        limitedPartnershipSubmissionDto.setData(dataDto);
-
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         List errors = new ArrayList<ValidationStatusError>();
         errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -77,7 +80,7 @@ public class GeneralPartnerController {
         try {
             String submissionId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
             var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, submissionId));
-            var response = new  GeneralPartnerSubmissionCreatedResponseDto(submissionId);
+            var response = new GeneralPartnerSubmissionCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating the general partner", e, logMap);
@@ -108,6 +111,37 @@ public class GeneralPartnerController {
         } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, "Error updating General Partner", e, logMap);
 
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}/validation-status")
+    public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                                        @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
+                                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+        var logMap = new HashMap<String, Object>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
+
+        try {
+            ApiLogger.infoContext(requestId, "Calling service to validate a General Partner", logMap);
+            var validationStatus = new ValidationStatusResponse();
+            validationStatus.setValid(true);
+
+            var validationErrors = generalPartnerService.validateGeneralPartner(transaction, generalPartnerId);
+
+            if (!validationErrors.isEmpty()) {
+                ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
+                        new GsonBuilder().create().toJson(validationErrors)), null, logMap);
+                validationStatus.setValid(false);
+                validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
+            }
+
+            return ResponseEntity.ok().body(validationStatus);
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+            return ResponseEntity.notFound().build();
+        } catch (ServiceException e) {
+            ApiLogger.errorContext(requestId, "Error validating the general partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

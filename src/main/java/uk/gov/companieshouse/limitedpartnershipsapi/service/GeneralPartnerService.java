@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
@@ -21,11 +22,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class GeneralPartnerService {
@@ -87,6 +90,7 @@ public class GeneralPartnerService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
+        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
 
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
@@ -122,6 +126,13 @@ public class GeneralPartnerService {
         checkGeneralPartnerIsLinkedToPartnership(transaction, generalPartnerId);
         var generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", generalPartnerId)));
         return mapper.daoToDto(generalPartnerDao);
+    }
+
+    public List<ValidationStatusError> validateGeneralPartner(Transaction transaction, String generalPartnerId)
+            throws ServiceException {
+        GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
+
+        return generalPartnerValidator.validate(dto);
     }
 
     private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
