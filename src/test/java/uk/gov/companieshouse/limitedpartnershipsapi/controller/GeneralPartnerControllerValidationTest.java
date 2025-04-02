@@ -194,9 +194,6 @@ class GeneralPartnerControllerValidationTest {
     class ValidatePartnership {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID))
-                    .thenReturn(new ArrayList<>());
-
             mockMvc.perform(get(validateStatusUrl)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
