@@ -36,7 +36,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class GeneralPartnerServiceValidateTest {
+class GeneralPartnerServiceValidateTest {
 
     private static final String GENERAL_PARTNER_ID = "abc-123";
     private static final String TRANSACTION_ID = "txn-456";
