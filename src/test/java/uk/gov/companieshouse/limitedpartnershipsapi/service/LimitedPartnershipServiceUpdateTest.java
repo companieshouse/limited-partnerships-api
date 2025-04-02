@@ -346,7 +346,7 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 Transaction transaction = buildTransaction();
 
-                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+                LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
 
                 List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
 
@@ -365,7 +365,7 @@ class LimitedPartnershipServiceUpdateTest {
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipSubmissionDao sentSubmission = submissionCaptor.getValue();
+                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals(sicCodes, sentSubmission.getData().getSicCodes());
             }
@@ -377,13 +377,13 @@ class LimitedPartnershipServiceUpdateTest {
 
                 List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
 
-                LimitedPartnershipSubmissionDao limitedPartnershipSubmissionDao = createDao();
+                LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
                 limitedPartnershipSubmissionDao.getData().setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
                 // when
-                LimitedPartnershipSubmissionDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
                 verify(repository).findById(limitedPartnershipSubmissionDao.getId());
