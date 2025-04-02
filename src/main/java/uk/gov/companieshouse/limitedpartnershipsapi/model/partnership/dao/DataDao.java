@@ -4,6 +4,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 
+import java.util.List;
+
 public class DataDao {
 
     @Field("partnership_name")
@@ -29,6 +31,9 @@ public class DataDao {
 
     @Field("principal_place_of_business_address")
     private AddressDao principalPlaceOfBusinessAddress;
+
+    @Field("sic_codes")
+    private List<String> sicCodes;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -92,5 +97,13 @@ public class DataDao {
 
     public void setPrincipalPlaceOfBusinessAddress(AddressDao principalPlaceOfBusinessAddress) {
         this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
+    }
+
+    public List<String> getSicCodes() {
+        return sicCodes;
+    }
+
+    public void setSicCodes(List<String> sicCodes) {
+        this.sicCodes = sicCodes;
     }
 }

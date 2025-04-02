@@ -503,6 +503,39 @@ class PartnershipControllerValidationTest {
                         .andExpect(jsonPath("errors.term").value("Term must be valid"));
             }
         }
+
+        @Nested
+        class SicCodes {
+            @Test
+            void shouldReturn200IfSicCodesIsCorrect() throws Exception {
+                String body = "{\"sic_codes\":[\"12345\"]}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isOk());
+            }
+
+            @Test
+            void shouldReturn400IfSicCodesIncorrect() throws Exception {
+                String body = "{\"sic_codes\":[\"abcde\", \"123A5\", \"123\", \"123456\", \"12345\"]}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8")
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("errors.['sicCodes[0]']").value("Sic code must be 5 numeric characters"))
+                        .andExpect(jsonPath("errors.['sicCodes[1]']").value("Sic code must be 5 numeric characters"))
+                        .andExpect(jsonPath("errors.['sicCodes[2]']").value("Sic code must be 5 numeric characters"))
+                        .andExpect(jsonPath("errors.['sicCodes']").value("Sic codes list must contain at least 1 sic code, and no more than 4 sic codes"));
+            }
+        }
     }
 
 

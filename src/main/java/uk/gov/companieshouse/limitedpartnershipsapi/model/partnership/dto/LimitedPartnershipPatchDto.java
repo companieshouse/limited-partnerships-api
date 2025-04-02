@@ -12,6 +12,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidEnum;
 
+import java.util.List;
+
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
@@ -55,6 +57,10 @@ public class LimitedPartnershipPatchDto {
     @JsonProperty("principal_place_of_business_address")
     @Valid
     private AddressDto principalPlaceOfBusinessAddress;
+
+    @JsonProperty("sic_codes")
+    @Size(min = 1, max = 4, message = "Sic codes list must contain at least 1 sic code, and no more than 4 sic codes")
+    private List<@Pattern(regexp = "\\d{5}", message = "Sic code must be 5 numeric characters") String> sicCodes;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -118,5 +124,11 @@ public class LimitedPartnershipPatchDto {
 
     public void setPrincipalPlaceOfBusinessAddress(AddressDto principalPlaceOfBusinessAddress) {
         this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
+    }
+
+    public List<String> getSicCodes() { return sicCodes; }
+
+    public void setSicCodes(List<String> sicCodes ) {
+        this.sicCodes = sicCodes;
     }
 }
