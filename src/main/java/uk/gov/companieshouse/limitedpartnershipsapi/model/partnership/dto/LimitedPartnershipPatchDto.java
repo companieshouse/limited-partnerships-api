@@ -11,7 +11,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidEnum;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidSicCode;
 
 import java.util.List;
 
