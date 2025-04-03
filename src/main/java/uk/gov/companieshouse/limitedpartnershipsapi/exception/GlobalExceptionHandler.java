@@ -29,6 +29,17 @@ public class GlobalExceptionHandler {
     @Value("${GLOBAL_EXCEPTION_HANDLER_TRUNCATE_LENGTH_CHARS:15000}")
     private int truncationLength;
 
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFoundException(Exception ex, WebRequest webRequest) {
+        var context = webRequest.getHeader(ERIC_REQUEST_ID_KEY);
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put("error", ex.getClass());
+
+        ApiLogger.errorContext(context, ex.getMessage(), ex, logMap);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception ex, WebRequest webRequest) {
         var context = webRequest.getHeader(ERIC_REQUEST_ID_KEY);

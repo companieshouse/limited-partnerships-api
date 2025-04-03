@@ -50,28 +50,24 @@ public class GeneralPartnerController {
     @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
     public ResponseEntity<GeneralPartnerDto> getGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
-                                                               @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+                                                               @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
+            throws ResourceNotFoundException {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         logMap.put(URL_PARAM_GENERAL_PARTNER_ID, generalPartnerId);
 
-        try {
-            ApiLogger.infoContext(requestId, String.format("Retrieving a general partner %s", generalPartnerId), logMap);
-            var dto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
-            return ResponseEntity.ok().body(dto);
-        } catch (ResourceNotFoundException e) {
-            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
-            return ResponseEntity.notFound().build();
-        }
+        ApiLogger.infoContext(requestId, String.format("Retrieving a general partner %s", generalPartnerId), logMap);
+        var dto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
+        return ResponseEntity.ok().body(dto);
     }
 
     @PostMapping
-    public ResponseEntity<GeneralPartnerSubmissionCreatedResponseDto> createGeneralPartner(
-            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @Valid @RequestBody GeneralPartnerDto generalPartnerDto,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId) throws MethodArgumentNotValidException {
+    public ResponseEntity<GeneralPartnerSubmissionCreatedResponseDto> createGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                                                           @Valid @RequestBody GeneralPartnerDto generalPartnerDto,
+                                                                                           @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+                                                                                           @RequestHeader(value = ERIC_IDENTITY) String userId)
+            throws ServiceException, MethodArgumentNotValidException {
 
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
@@ -82,37 +78,29 @@ public class GeneralPartnerController {
             var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, submissionId));
             var response = new GeneralPartnerSubmissionCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
-        } catch (ServiceException | NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating the general partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PatchMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
-    public ResponseEntity<Object> updateGeneralPartner(
-            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
-            @Valid @RequestBody GeneralPartnerDataDto generalPartnerDataDto,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId) throws MethodArgumentNotValidException, NoSuchMethodException {
+    public ResponseEntity<Object> updateGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                       @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
+                                                       @Valid @RequestBody GeneralPartnerDataDto generalPartnerDataDto,
+                                                       @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+                                                       @RequestHeader(value = ERIC_IDENTITY) String userId)
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
-        try {
-            generalPartnerService.updateGeneralPartner(generalPartnerId, generalPartnerDataDto, requestId, userId);
+        ApiLogger.infoContext(requestId, "Update a general partner", logMap);
 
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+        generalPartnerService.updateGeneralPartner(generalPartnerId, generalPartnerDataDto, requestId, userId);
 
-            return ResponseEntity.notFound().build();
-        } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, "Error updating General Partner", e, logMap);
-
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}/validation-status")
@@ -120,27 +108,23 @@ public class GeneralPartnerController {
                                                                         @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
                                                                         @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
             throws ServiceException {
+
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
 
-        try {
-            ApiLogger.infoContext(requestId, "Calling service to validate a General Partner", logMap);
-            var validationStatus = new ValidationStatusResponse();
-            validationStatus.setValid(true);
+        ApiLogger.infoContext(requestId, "Calling service to validate a General Partner", logMap);
+        var validationStatus = new ValidationStatusResponse();
+        validationStatus.setValid(true);
 
-            var validationErrors = generalPartnerService.validateGeneralPartner(transaction, generalPartnerId);
+        var validationErrors = generalPartnerService.validateGeneralPartner(transaction, generalPartnerId);
 
-            if (!validationErrors.isEmpty()) {
-                ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
-                        new GsonBuilder().create().toJson(validationErrors)), null, logMap);
-                validationStatus.setValid(false);
-                validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
-            }
-
-            return ResponseEntity.ok().body(validationStatus);
-        } catch (ResourceNotFoundException e) {
-            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
-            return ResponseEntity.notFound().build();
+        if (!validationErrors.isEmpty()) {
+            ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
+                    new GsonBuilder().create().toJson(validationErrors)), null, logMap);
+            validationStatus.setValid(false);
+            validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
         }
+
+        return ResponseEntity.ok().body(validationStatus);
     }
 }
