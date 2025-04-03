@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -67,12 +68,12 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testGetPartnerReturnsNotFoundWhenExceptionIsThrown() throws ServiceException {
+    void testGetPartnerThrowsResourceNotFoundException() throws ServiceException {
         when(generalPartnerService.getGeneralPartner(any(Transaction.class), anyString()))
                 .thenThrow(ResourceNotFoundException.class);
 
-        var response = generalPartnerController.getGeneralPartner(transaction, SUBMISSION_ID, REQUEST_ID);
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertThrows(ResourceNotFoundException.class, () -> generalPartnerController.getGeneralPartner(
+                transaction, SUBMISSION_ID, REQUEST_ID));
     }
 
     @Test
@@ -102,52 +103,49 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testCreatePartnerReturnsException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testCreatePartnerThrowsServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(generalPartnerService.createGeneralPartner(
                 any(Transaction.class),
                 any(GeneralPartnerDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID))).thenThrow(new ServiceException("Example"));
 
-        var response = generalPartnerController.createGeneralPartner(
+        assertThrows(ServiceException.class, () -> generalPartnerController.createGeneralPartner(
                 transaction,
                 generalPartnerDto,
                 REQUEST_ID,
-                USER_ID);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+                USER_ID));
     }
 
     @Test
-    void testUpdatePartnerReturnsServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testUpdatePartnerThrowsServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         doThrow(new ServiceException("Test")).when(generalPartnerService).updateGeneralPartner(
                 eq(GENERAL_PARTNER_ID),
                 any(GeneralPartnerDataDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID));
 
-        var response = generalPartnerController.updateGeneralPartner(
+        assertThrows(ServiceException.class, () -> generalPartnerController.updateGeneralPartner(
                 transaction,
                 GENERAL_PARTNER_ID,
                 new GeneralPartnerDataDto(),
                 REQUEST_ID,
-                USER_ID);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+                USER_ID));
     }
 
     @Test
-    void testUpdatePartnerReturnsResourceNotFoundException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testUpdatePartnerThrowsResourceNotFoundException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         doThrow(new ResourceNotFoundException("Test")).when(generalPartnerService).updateGeneralPartner(
                 eq(GENERAL_PARTNER_ID),
                 any(GeneralPartnerDataDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID));
 
-        var response = generalPartnerController.updateGeneralPartner(
+        assertThrows(ResourceNotFoundException.class, () -> generalPartnerController.updateGeneralPartner(
                 transaction,
                 GENERAL_PARTNER_ID,
                 new GeneralPartnerDataDto(),
                 REQUEST_ID,
-                USER_ID);
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+                USER_ID));
     }
 }

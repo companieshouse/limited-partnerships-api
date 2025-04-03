@@ -1,16 +1,52 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 @Component
 public class GeneralPartnerValidator {
+
+    @Autowired
+    private Validator validator;
+
+
+    public List<ValidationStatusError> validate(GeneralPartnerDto generalPartnerDto) throws ServiceException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+
+        executeJavaBeansValidation(generalPartnerDto, errorsList);
+
+        var dataDto = generalPartnerDto.getData();
+        if (dataDto.isLegalEntity()) {
+            if (dataDto.getPrincipalOfficeAddress() == null) {
+                errorsList.add(createValidationStatusError("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+            }
+        } else {
+            if (dataDto.getUsualResidentialAddress() == null) {
+                errorsList.add(createValidationStatusError("Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+            }
+
+            if (dataDto.getServiceAddress() == null) {
+                errorsList.add(createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
+            }
+        }
+
+        return errorsList;
+    }
 
     public void isValid(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
@@ -18,7 +54,7 @@ public class GeneralPartnerValidator {
 
         var generalPartnerDataDto = generalPartnerDto.getData();
 
-        if (generalPartnerDataDto.getLegalEntityRegisterName() != null || generalPartnerDataDto.getLegalForm() != null) {
+        if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(generalPartnerDataDto, bindingResult);
             if (!generalPartnerDataDto.isLegalPersonalityStatementChecked()) {
                 addError(GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
@@ -42,7 +78,7 @@ public class GeneralPartnerValidator {
                                          BindingResult bindingResult) {
 
         if (generalPartnerDataDto.getLegalEntityName() == null) {
-            addError(GeneralPartnerDataDto.LEGAL_ENTITY_NAME, "Legal Entity Name is required", bindingResult);
+            addError(GeneralPartnerDataDto.LEGAL_ENTITY_NAME_FIELD, "Legal Entity Name is required", bindingResult);
         }
 
         if (generalPartnerDataDto.getLegalForm() == null) {
@@ -97,5 +133,33 @@ public class GeneralPartnerValidator {
     private void addError(String fieldName, String defaultMessage, BindingResult bindingResult) {
         var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), fieldName, defaultMessage);
         bindingResult.addError(fieldError);
+    }
+
+    private void executeJavaBeansValidation(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
+            throws ServiceException {
+        Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(generalPartnerDto);
+
+        violations.stream().forEach(v ->
+                errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
+
+        try {
+            isValid(generalPartnerDto);
+        } catch (MethodArgumentNotValidException e) {
+            convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
+        } catch (NoSuchMethodException e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
+        bindingResult.getFieldErrors().stream().forEach(fe ->
+                errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
+    }
+
+    private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
+        var error = new ValidationStatusError();
+        error.setError(errorMessage);
+        error.setLocation(location);
+        return error;
     }
 }

@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,9 +17,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +38,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerValidationTest {
 
-    static String postUrl = "/transactions/863851-951242-143528/limited-partnership/general-partner";
+    private static final String GENERAL_PARTNER_ID = "93702824-9062-4c63-a694-716acffccdd5";
+
+    private static String postUrl = "/transactions/863851-951242-143528/limited-partnership/general-partner";
+    private static String validateStatusUrl = postUrl + "/" + GENERAL_PARTNER_ID + "/validation-status";
 
     // PERSON
     private static final String JSON_CORRECT = """
@@ -176,5 +188,69 @@ class GeneralPartnerControllerValidationTest {
                         .content(JSON_GENERAL_LEGAL_ENTITY_INVALID_COUNTRY))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.['errors'].['data.legalEntityRegistrationLocation']").value("Legal entity registration location must be valid"));
+    }
+
+    @Nested
+    class ValidatePartnership {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+            mockMvc.perform(get(validateStatusUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
+            List<ValidationStatusError> errorsList = new ArrayList<>();
+            errorsList.add(new ValidationStatusError("Forename must be greater than 1", "here", null, null));
+            errorsList.add(new ValidationStatusError("First nationality must be valid", "there", null, null));
+            when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(errorsList);
+
+            mockMvc.perform(get(validateStatusUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors'][0].['location']").value("here"))
+                    .andExpect(jsonPath("$.['errors'][0].['error']").value("Forename must be greater than 1"))
+                    .andExpect(jsonPath("$.['errors'][1].['location']").value("there"))
+                    .andExpect(jsonPath("$.['errors'][1].['error']").value("First nationality must be valid"));
+        }
+
+        @Test
+        void shouldReturn404IfGeneralPartnerNotFound() throws Exception {
+            when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID))
+                    .thenThrow(new ResourceNotFoundException("Error"));
+
+            mockMvc.perform(get(validateStatusUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void shouldReturn500IfUnexpectedServiceExceptionThrown() throws Exception {
+            when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID))
+                    .thenThrow(new ServiceException("Error"));
+
+            mockMvc.perform(get(validateStatusUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isInternalServerError());
+        }
     }
 }

@@ -14,9 +14,9 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
 import java.util.ArrayList;
@@ -233,10 +233,6 @@ class PartnershipControllerTest {
     @Test
     void testValidationStatusWhenPartnershipDataIsValid() throws ResourceNotFoundException {
         // given
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipName("Test name");
-        limitedPartnershipDto.setData(dataDto);
-
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(new ArrayList<>());
 
@@ -257,10 +253,6 @@ class PartnershipControllerTest {
     @Test
     void testValidationStatusWhenPartnershipDataIsNotValid() throws ResourceNotFoundException {
         // given
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipName("Test name");
-        limitedPartnershipDto.setData(dataDto);
-
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         List errors = new ArrayList<ValidationStatusError>();
         errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));
