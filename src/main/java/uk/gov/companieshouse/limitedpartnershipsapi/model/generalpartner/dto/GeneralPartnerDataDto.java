@@ -130,6 +130,10 @@ public class GeneralPartnerDataDto {
     @Valid
     private AddressDto usualResidentialAddress;
 
+    public boolean isLegalEntity() {
+        return getLegalEntityRegisterName() != null || getLegalForm() != null;
+    }
+
     public String getForename() {
         return forename;
     }

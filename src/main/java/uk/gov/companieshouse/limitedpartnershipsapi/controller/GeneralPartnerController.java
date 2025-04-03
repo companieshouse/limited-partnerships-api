@@ -118,7 +118,8 @@ public class GeneralPartnerController {
     @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}/validation-status")
     public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                         @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
-                                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+                                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
+            throws ServiceException {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
 
@@ -140,9 +141,6 @@ public class GeneralPartnerController {
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
-        } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, "Error validating the general partner", e, logMap);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

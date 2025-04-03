@@ -9,6 +9,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
@@ -30,6 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
@@ -157,6 +159,22 @@ class GeneralPartnerServiceValidateTest {
         assertEquals(2, results.size());
         checkForError(results, "Registered company number must be greater than 1", "data.registeredCompanyNumber");
         checkForError(results, "Legal Entity Name is required", GeneralPartnerDataDto.LEGAL_ENTITY_NAME_FIELD);
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenGeneralPartnerIdAndTransactionIdDoNotMatch() {
+        // given
+        GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
+        generalPartnerDao.getData().setRegisteredCompanyNumber("");
+        generalPartnerDao.getData().setLegalEntityName(null);
+
+        Transaction transaction = buildTransaction();
+        transaction.getResources().values().stream().forEach(r -> r.setKind("INVALID-KIND"));
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID));
     }
 
     private Transaction buildTransaction() {

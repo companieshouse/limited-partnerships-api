@@ -31,7 +31,7 @@ public class GeneralPartnerValidator {
         executeJavaBeansValidation(generalPartnerDto, errorsList);
 
         var dataDto = generalPartnerDto.getData();
-        if (isLegalEntity(dataDto)) {
+        if (dataDto.isLegalEntity()) {
             if (dataDto.getPrincipalOfficeAddress() == null) {
                 errorsList.add(createValidationStatusError("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
             }
@@ -54,7 +54,7 @@ public class GeneralPartnerValidator {
 
         var generalPartnerDataDto = generalPartnerDto.getData();
 
-        if (isLegalEntity(generalPartnerDataDto)) {
+        if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(generalPartnerDataDto, bindingResult);
             if (!generalPartnerDataDto.isLegalPersonalityStatementChecked()) {
                 addError(GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
@@ -133,10 +133,6 @@ public class GeneralPartnerValidator {
     private void addError(String fieldName, String defaultMessage, BindingResult bindingResult) {
         var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), fieldName, defaultMessage);
         bindingResult.addError(fieldError);
-    }
-
-    private boolean isLegalEntity(GeneralPartnerDataDto generalPartnerDataDto) {
-        return generalPartnerDataDto.getLegalEntityRegisterName() != null || generalPartnerDataDto.getLegalForm() != null;
     }
 
     private void executeJavaBeansValidation(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
