@@ -30,6 +30,7 @@ public class Constants {
     // Validation rules
     public static final int MIN_SIZE = 1;
     public static final String MIN_SIZE_MESSAGE = "must be greater than {min}";
+    public static final int POSTAL_CODE_MAX_SIZE = 15;
     public static final int SHORT_MAX_SIZE = 50;
     public static final int LONG_MAX_SIZE = 160;
     public static final String MAX_SIZE_MESSAGE = "must be less than {max}";

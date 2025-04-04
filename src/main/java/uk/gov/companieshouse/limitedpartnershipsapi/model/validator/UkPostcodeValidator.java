@@ -7,6 +7,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Addres
 
 import java.util.List;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.POSTAL_CODE_MAX_SIZE;
+
 public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, AddressDto> {
     private final List<String> UK_COUNTRIES = List.of(
             Country.ENGLAND.getDescription(),
@@ -22,8 +24,8 @@ public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, Addr
                 return false;
             }
 
-            if (addressDto.getPostalCode().length() > 15) {
-                addConstraintViolation(context, "Postcode must be less than 15");
+            if (addressDto.getPostalCode().length() > POSTAL_CODE_MAX_SIZE) {
+                addConstraintViolation(context, "Postcode must be less than " + POSTAL_CODE_MAX_SIZE);
 
                 return false;
             }
