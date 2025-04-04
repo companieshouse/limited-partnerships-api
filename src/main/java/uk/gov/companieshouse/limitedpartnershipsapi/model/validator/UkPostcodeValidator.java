@@ -10,7 +10,7 @@ import java.util.List;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.POSTAL_CODE_MAX_SIZE;
 
 public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, AddressDto> {
-    private final List<String> UK_COUNTRIES = List.of(
+    private static final List<String> UK_COUNTRIES = List.of(
             Country.ENGLAND.getDescription(),
             Country.WALES.getDescription(),
             Country.SCOTLAND.getDescription(),
