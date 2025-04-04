@@ -23,9 +23,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
@@ -152,7 +152,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDto registeredOfficeAddress = new AddressDto();
                 registeredOfficeAddress.setAddressLine1("DUNCALF STREET");
-                registeredOfficeAddress.setCountry("GB-ENG");
+                registeredOfficeAddress.setCountry("England");
                 registeredOfficeAddress.setLocality("STOKE-ON-TRENT");
                 registeredOfficeAddress.setPostalCode("ST6 3LJ");
                 registeredOfficeAddress.setPremises("2");
@@ -176,7 +176,7 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals("DUNCALF STREET", sentSubmission.getData().getRegisteredOfficeAddress().getAddressLine1());
-                assertEquals("GB-ENG", sentSubmission.getData().getRegisteredOfficeAddress().getCountry());
+                assertEquals("England", sentSubmission.getData().getRegisteredOfficeAddress().getCountry());
                 assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getRegisteredOfficeAddress().getLocality());
                 assertEquals("ST6 3LJ", sentSubmission.getData().getRegisteredOfficeAddress().getPostalCode());
                 assertEquals("2", sentSubmission.getData().getRegisteredOfficeAddress().getPremises());
@@ -189,7 +189,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDao registeredOfficeAddress = new AddressDao();
                 registeredOfficeAddress.setAddressLine1("DUNCALF STREET");
-                registeredOfficeAddress.setCountry("GB-ENG");
+                registeredOfficeAddress.setCountry("England");
                 registeredOfficeAddress.setLocality("STOKE-ON-TRENT");
                 registeredOfficeAddress.setPostalCode("ST6 3LJ");
                 registeredOfficeAddress.setPremises("2");
@@ -207,7 +207,7 @@ class LimitedPartnershipServiceUpdateTest {
                 verify(repository).findById(limitedPartnershipDao.getId());
 
                 assertEquals("DUNCALF STREET", retrievedDto.getData().getRegisteredOfficeAddress().getAddressLine1());
-                assertEquals("GB-ENG", retrievedDto.getData().getRegisteredOfficeAddress().getCountry());
+                assertEquals("England", retrievedDto.getData().getRegisteredOfficeAddress().getCountry());
                 assertEquals("STOKE-ON-TRENT", retrievedDto.getData().getRegisteredOfficeAddress().getLocality());
                 assertEquals("ST6 3LJ", retrievedDto.getData().getRegisteredOfficeAddress().getPostalCode());
                 assertEquals("2", retrievedDto.getData().getRegisteredOfficeAddress().getPremises());
@@ -277,7 +277,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDto principalPlaceOfBusinessAddress = new AddressDto();
                 principalPlaceOfBusinessAddress.setAddressLine1("DUNCALF STREET");
-                principalPlaceOfBusinessAddress.setCountry("GB-ENG");
+                principalPlaceOfBusinessAddress.setCountry("England");
                 principalPlaceOfBusinessAddress.setLocality("STOKE-ON-TRENT");
                 principalPlaceOfBusinessAddress.setPostalCode("ST6 3LJ");
                 principalPlaceOfBusinessAddress.setPremises("2");
@@ -301,7 +301,7 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
-                assertEquals("GB-ENG", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
+                assertEquals("England", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
                 assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
                 assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
                 assertEquals("2", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
@@ -314,7 +314,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDao principalPlaceOfBusinessAddress = new AddressDao();
                 principalPlaceOfBusinessAddress.setAddressLine1("DUNCALF STREET");
-                principalPlaceOfBusinessAddress.setCountry("GB-ENG");
+                principalPlaceOfBusinessAddress.setCountry("England");
                 principalPlaceOfBusinessAddress.setLocality("STOKE-ON-TRENT");
                 principalPlaceOfBusinessAddress.setPostalCode("ST6 3LJ");
                 principalPlaceOfBusinessAddress.setPremises("2");
@@ -332,7 +332,7 @@ class LimitedPartnershipServiceUpdateTest {
                 verify(repository).findById(limitedPartnershipDao.getId());
 
                 assertEquals("DUNCALF STREET", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
-                assertEquals("GB-ENG", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
+                assertEquals("England", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
                 assertEquals("STOKE-ON-TRENT", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
                 assertEquals("ST6 3LJ", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
                 assertEquals("2", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
