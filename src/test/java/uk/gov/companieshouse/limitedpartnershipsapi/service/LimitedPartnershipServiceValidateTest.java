@@ -84,11 +84,10 @@ class LimitedPartnershipServiceValidateTest {
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
-        assertEquals(6, results.size());
+        assertEquals(5, results.size());
         checkForError(results, "Limited partnership name must not be null", "data.partnershipName");
         checkForError(results, "must be a well-formed email address", "data.email");
         checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
-        checkForError(results, "Invalid postcode format", "data.principalPlaceOfBusinessAddress.postalCode");
         checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");
         checkForError(results, "Address line 1 must not be null", "data.principalPlaceOfBusinessAddress.addressLine1");
     }

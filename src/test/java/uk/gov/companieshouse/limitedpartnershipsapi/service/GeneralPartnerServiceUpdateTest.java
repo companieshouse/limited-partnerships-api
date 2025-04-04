@@ -88,7 +88,7 @@ class GeneralPartnerServiceUpdateTest {
 
         AddressDto principalOfficeAddress = new AddressDto();
         principalOfficeAddress.setAddressLine1("DUNCALF STREET");
-        principalOfficeAddress.setCountry("GB-ENG");
+        principalOfficeAddress.setCountry("England");
         principalOfficeAddress.setLocality("STOKE-ON-TRENT");
         principalOfficeAddress.setPostalCode("ST6 3LJ");
         principalOfficeAddress.setPremises("2");
@@ -110,7 +110,7 @@ class GeneralPartnerServiceUpdateTest {
 
         assertEquals("John", sentSubmission.getData().getForename());
         assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalOfficeAddress().getAddressLine1());
-        assertEquals("GB-ENG", sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
+        assertEquals("England", sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
         assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
         assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalOfficeAddress().getPostalCode());
         assertEquals("2", sentSubmission.getData().getPrincipalOfficeAddress().getPremises());
