@@ -29,7 +29,7 @@ public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, Addr
                 return false;
             }
 
-            String postcodePattern = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? ?\\d[A-Za-z]{2}$";
+            var postcodePattern = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? ?\\d[A-Za-z]{2}$";
             if (!addressDto.getPostalCode().matches(postcodePattern)) {
                 addConstraintViolation(context, "Invalid postcode format");
 
