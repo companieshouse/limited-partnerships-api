@@ -8,14 +8,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Addres
 import java.util.List;
 
 public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, AddressDto> {
+    private final List<String> ukCountries = List.of(
+            Country.ENGLAND.getDescription(),
+            Country.WALES.getDescription(),
+            Country.SCOTLAND.getDescription(),
+            Country.NORTHERN_IRELAND.getDescription());
 
     public boolean isValid(AddressDto addressDto, ConstraintValidatorContext context) {
-        List<String> ukCountries = List.of(
-                Country.ENGLAND.getDescription(),
-                Country.WALES.getDescription(),
-                Country.SCOTLAND.getDescription(),
-                Country.NORTHERN_IRELAND.getDescription());
-
         if (addressDto.getCountry() != null && ukCountries.contains(addressDto.getCountry())) {
             if (addressDto.getPostalCode() == null || addressDto.getPostalCode().isEmpty()) {
                 addConstraintViolation(context, "Postcode must not be null");
