@@ -178,7 +178,7 @@ class LimitedPartnerServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         List<LimitedPartnerDto> limitedPartnerDtoList = limitedPartnerService.getLimitedPartnerList(transaction);
-        assertEquals(limitedPartnerDtoList.size(), 2);
+        assertEquals(2, limitedPartnerDtoList.size());
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {

@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,9 +16,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
@@ -49,9 +48,9 @@ class FilingsServiceTest {
         FilingApi filing = filingsService.generateLimitedPartnerFilings(transaction);
         assertNotNull(filing);
         assertNotNull(filing.getData());
-        assertNotNull(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
-        assertNotNull(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
-        assertNotNull(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
+        assertTrue(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
+        assertTrue(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
+        assertTrue(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
     }
 
     @Test

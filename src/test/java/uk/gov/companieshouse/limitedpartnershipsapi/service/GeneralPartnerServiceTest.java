@@ -180,7 +180,7 @@ class GeneralPartnerServiceTest {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
-        assertEquals(generalPartnerDtoList.size(), 2);
+        assertEquals(2, generalPartnerDtoList.size());
     }
 
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {
