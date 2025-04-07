@@ -20,9 +20,10 @@ import java.util.HashMap;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_FILING_RESOURCE_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
-@RequestMapping("/private/transactions/{transaction_id}/incorporation/limited-partnership/{filing_resource_id}/filings")
+@RequestMapping("/private/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/incorporation/limited-partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
 public class FilingsController {
 
     @Autowired
@@ -35,10 +36,10 @@ public class FilingsController {
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             HttpServletRequest request) {
 
-        var logMap = new HashMap<String, Object>();
-        logMap.put(TRANSACTION_KEY, transaction.getId());
-        ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
-        ApiLogger.infoContext(requestId, "Transaction id is " + transaction.getId(), logMap);
+       var logMap = new HashMap<String, Object>();
+       logMap.put(TRANSACTION_KEY, transaction.getId());
+       ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
+       ApiLogger.infoContext(requestId, "Transaction id is " + transaction.getId(), logMap);
        try {
           FilingApi filing = filingsService.generateLimitedPartnerFilings(transaction);
           return ResponseEntity.ok(new FilingApi[] { filing });

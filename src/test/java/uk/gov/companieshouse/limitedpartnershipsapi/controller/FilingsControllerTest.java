@@ -12,6 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -37,8 +38,10 @@ class FilingsControllerTest {
     }
 
     @Test
-    void testWhenErrorIsReturned(){
-
+    void testWhenErrorIsReturned() throws ServiceException {
+        var filingApi = new FilingApi();
+        when(filingsService.generateLimitedPartnerFilings(any())).thenThrow(ServiceException.class);
+        var response = filingsController.getFilings(new Transaction(), INCORPORATION_ID, REQUEST_ID, null);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
-
 }

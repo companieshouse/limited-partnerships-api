@@ -17,14 +17,18 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class FilingsServiceTest {
 
-    private static String INCORPORATION_ID = "sub123";
     private static String TRANSACTION_ID = "trns123";
     @Autowired
     private FilingsService filingsService;
@@ -36,7 +40,7 @@ class FilingsServiceTest {
     private LimitedPartnerService limitedPartnerService;
 
     @Test
-    void testFilingGeneration() throws ServiceException {
+    void testFilingGenerationSuccess() throws ServiceException {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
@@ -44,6 +48,18 @@ class FilingsServiceTest {
         when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(buildLimitedPartnerDtoList());
         FilingApi filing = filingsService.generateLimitedPartnerFilings(transaction);
         assertNotNull(filing);
+        assertNotNull(filing.getData());
+        assertNotNull(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
+        assertNotNull(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
+        assertNotNull(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
+    }
+
+    @Test
+    void testFilingGenerationWithException() throws ServiceException {
+        var transaction = new Transaction();
+        transaction.setId(TRANSACTION_ID);
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
+        assertThrows(ServiceException.class, () -> filingsService.generateLimitedPartnerFilings(transaction));
     }
 
     private LimitedPartnershipDto buildLimitedPartnership() {
