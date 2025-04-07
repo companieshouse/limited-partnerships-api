@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 
 import java.time.LocalDate;
 
