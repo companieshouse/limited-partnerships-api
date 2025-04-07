@@ -2,8 +2,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 
 import java.util.List;
 

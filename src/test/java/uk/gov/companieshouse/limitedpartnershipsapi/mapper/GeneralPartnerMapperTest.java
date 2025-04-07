@@ -2,8 +2,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

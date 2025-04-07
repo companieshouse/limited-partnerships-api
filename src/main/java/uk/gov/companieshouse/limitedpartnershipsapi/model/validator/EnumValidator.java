@@ -2,15 +2,15 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 
-public class EnumValidator implements ConstraintValidator<ValidEnum, Enum> {
+public class EnumValidator implements ConstraintValidator<EnumValid, Enum> {
     public boolean isValid(Enum enumeration, ConstraintValidatorContext context) {
         return switch (enumeration) {
             case null -> true;

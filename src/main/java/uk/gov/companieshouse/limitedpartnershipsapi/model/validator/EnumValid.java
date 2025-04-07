@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = EnumValidator.class)
 @Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidEnum {
+public @interface EnumValid {
     String message() default "Enum must be valid";
 
     Class<?>[] groups() default {};
