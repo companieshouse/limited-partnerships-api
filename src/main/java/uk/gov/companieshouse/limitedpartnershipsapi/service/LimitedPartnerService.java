@@ -16,7 +16,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -108,5 +110,12 @@ public class LimitedPartnerService {
         var submission = repository.findById(submissionId);
         LimitedPartnerDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("No limited partner found with id %s", submissionId)));
         return mapper.daoToDto(submissionDao);
+    }
+
+    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) {
+        return repository.findAll().stream().
+                filter(gp -> gp.getLinks().get(LINK_SELF).contains(transaction.getId())).
+                map(gpDao -> mapper.daoToDto(gpDao)).
+                collect(Collectors.toList());
     }
 }

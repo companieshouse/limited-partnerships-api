@@ -21,7 +21,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationalit
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,6 +37,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +46,8 @@ class GeneralPartnerServiceTest {
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
     private static final String SUBMISSION_ID = "submission123";
+    private static String TRANSACTION_ID = "trns123";
+    private static final String SELF_LINK = "/transactions/%s/limited-partnership/general-partner/67c5910c3b0b42436c908fc3";
 
     @InjectMocks
     private GeneralPartnerService generalPartnerService;
@@ -169,6 +174,15 @@ class GeneralPartnerServiceTest {
         assertNotNull(generalPartnerDto.getData());
     }
 
+    @Test
+    void testGetGeneralPartnerList() {
+        when(repository.findAll()).thenReturn(buildGeneralPartnerDaoList());
+        Transaction transaction = new Transaction();
+        transaction.setId(TRANSACTION_ID);
+        List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
+        assertEquals(generalPartnerDtoList.size(), 2);
+    }
+
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {
         var generalPartnerResource = new Resource();
         Map<String, String> linksMap = new HashMap<>();
@@ -193,6 +207,29 @@ class GeneralPartnerServiceTest {
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dao.setData(dataDao);
         return dao;
+    }
+
+    private List<GeneralPartnerDao> buildGeneralPartnerDaoList() {
+        List<GeneralPartnerDao> daoList = new ArrayList<>();
+        GeneralPartnerDao dao1 = createDao();
+        setSelfLinkOnDaoWithTransactionId(dao1, TRANSACTION_ID);
+        daoList.add(dao1);
+        GeneralPartnerDao dao2 = createDao();
+        setSelfLinkOnDaoWithTransactionId(dao2, "wrong1");
+        daoList.add(dao2);
+        GeneralPartnerDao dao3 = createDao();
+        setSelfLinkOnDaoWithTransactionId(dao3, "wrong2");
+        daoList.add(dao3);
+        GeneralPartnerDao dao4 = createDao();
+        setSelfLinkOnDaoWithTransactionId(dao4, TRANSACTION_ID);
+        daoList.add(dao4);
+        return daoList;
+    }
+
+    private void setSelfLinkOnDaoWithTransactionId(GeneralPartnerDao dao, String transactionId) {
+        Map<String, String> links = new HashMap<>();
+        links.put(LINK_SELF, String.format(SELF_LINK, transactionId));
+        dao.setLinks(links);
     }
 
     public Transaction buildTransaction() {
