@@ -108,7 +108,7 @@ class LimitedPartnerServiceTest {
 
     @Test
     void givenNullSubmissionUri_whenCreateLimitedPartnerTransactionResource_thenResourceCreatedWithNullLink() {
-        // when
+        // given + when
         Resource resource = createLimitedPartnerTransactionResource(null);
 
         // then

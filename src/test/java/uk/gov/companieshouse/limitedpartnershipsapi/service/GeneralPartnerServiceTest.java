@@ -149,7 +149,7 @@ class GeneralPartnerServiceTest {
 
     @Test
     void givenNullSubmissionUri_whenCreateGeneralPartnerTransactionResource_thenResourceCreatedWithNullLink() {
-        // when
+        // given + when
         Resource resource = createGeneralPartnerTransactionResource(null);
 
         // then
