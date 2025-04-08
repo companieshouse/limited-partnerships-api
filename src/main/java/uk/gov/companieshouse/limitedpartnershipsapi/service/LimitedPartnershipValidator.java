@@ -23,7 +23,7 @@ public class LimitedPartnershipValidator {
         Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
 
         List<ValidationStatusError> errorsList = new ArrayList<>();
-        violations.stream().forEach(v ->
+        violations.forEach(v ->
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
         // TODO These checks are valid for Partnership Types PFLP and SPFLP (the LP7D CHIPS transaction). Code will

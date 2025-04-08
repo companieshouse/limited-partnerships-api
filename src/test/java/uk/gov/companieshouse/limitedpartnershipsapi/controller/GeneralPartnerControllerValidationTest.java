@@ -40,8 +40,8 @@ class GeneralPartnerControllerValidationTest {
 
     private static final String GENERAL_PARTNER_ID = "93702824-9062-4c63-a694-716acffccdd5";
 
-    private static String postUrl = "/transactions/863851-951242-143528/limited-partnership/general-partner";
-    private static String validateStatusUrl = postUrl + "/" + GENERAL_PARTNER_ID + "/validation-status";
+    private static final String POST_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner";
+    private static final String VALIDATE_STATUS_URL = POST_URL + "/" + GENERAL_PARTNER_ID + "/validation-status";
 
     // PERSON
     private static final String JSON_CORRECT = """
@@ -146,7 +146,7 @@ class GeneralPartnerControllerValidationTest {
             JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
-        mockMvc.perform(post(GeneralPartnerControllerValidationTest.postUrl)
+        mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
@@ -158,7 +158,7 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
-        mockMvc.perform(post(GeneralPartnerControllerValidationTest.postUrl)
+        mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
@@ -169,7 +169,7 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201WhenCreatingGeneralPartnerLegalEntity() throws Exception {
-        mockMvc.perform(post(GeneralPartnerControllerValidationTest.postUrl)
+        mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
@@ -180,7 +180,7 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithWrongCountry() throws Exception {
-        mockMvc.perform(post(GeneralPartnerControllerValidationTest.postUrl)
+        mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
@@ -194,7 +194,7 @@ class GeneralPartnerControllerValidationTest {
     class ValidatePartnership {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            mockMvc.perform(get(validateStatusUrl)
+            mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -211,7 +211,7 @@ class GeneralPartnerControllerValidationTest {
             errorsList.add(new ValidationStatusError("First nationality must be valid", "there", null, null));
             when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(errorsList);
 
-            mockMvc.perform(get(validateStatusUrl)
+            mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -230,7 +230,7 @@ class GeneralPartnerControllerValidationTest {
             when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID))
                     .thenThrow(new ResourceNotFoundException("Error"));
 
-            mockMvc.perform(get(validateStatusUrl)
+            mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -244,7 +244,7 @@ class GeneralPartnerControllerValidationTest {
             when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID))
                     .thenThrow(new ServiceException("Error"));
 
-            mockMvc.perform(get(validateStatusUrl)
+            mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)

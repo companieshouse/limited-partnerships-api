@@ -96,10 +96,8 @@ class LimitedPartnershipMapperTest {
 
     @Test
     void givenNullJurisdiction_whenMapsToEnum_thenNullReturned() {
-        // given
-        String invalidJurisdiction = null;
         // when
-        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
+        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(null);
         // then
         assertNull(destinationData);
     }

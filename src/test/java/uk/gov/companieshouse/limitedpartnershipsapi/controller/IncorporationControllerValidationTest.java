@@ -29,7 +29,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANS
 @WebMvcTest(controllers = {IncorporationController.class})
 class IncorporationControllerValidationTest {
 
-    static String postUrl = "/transactions/863851-951242-143528/incorporation/limited-partnership";
+    private static final String POST_URL = "/transactions/863851-951242-143528/incorporation/limited-partnership";
 
     private static final String CORRECT_JSON = """
             {
@@ -77,7 +77,7 @@ class IncorporationControllerValidationTest {
             INCORRECT_JSON_WITH_INVALID_KIND + "$ data.kind $ Kind must be valid"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
-        mockMvc.perform(post(IncorporationControllerValidationTest.postUrl)
+        mockMvc.perform(post(IncorporationControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
@@ -89,7 +89,7 @@ class IncorporationControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
-        mockMvc.perform(post(IncorporationControllerValidationTest.postUrl)
+        mockMvc.perform(post(IncorporationControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)

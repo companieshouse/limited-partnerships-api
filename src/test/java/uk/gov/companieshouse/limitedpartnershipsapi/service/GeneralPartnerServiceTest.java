@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -148,16 +149,13 @@ class GeneralPartnerServiceTest {
 
     @Test
     void givenNullSubmissionUri_whenCreateGeneralPartnerTransactionResource_thenResourceCreatedWithNullLink() {
-        // given
-        String submissionUri = null;
-
-        // when
-        Resource resource = createGeneralPartnerTransactionResource(submissionUri);
+        // given + when
+        Resource resource = createGeneralPartnerTransactionResource(null);
 
         // then
         assertNotNull(resource);
         assertEquals(FILING_KIND_GENERAL_PARTNER, resource.getKind());
-        assertEquals(submissionUri, resource.getLinks().get("resource"));
+        assertNull(resource.getLinks().get("resource"));
     }
 
     @Test

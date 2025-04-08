@@ -27,7 +27,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @Service
 public class LimitedPartnershipIncorporationService {
 
-    private LimitedPartnershipService limitedPartnershipService;
+    private final LimitedPartnershipService limitedPartnershipService;
 
     private final LimitedPartnershipIncorporationRepository repository;
     private final TransactionService transactionService;
