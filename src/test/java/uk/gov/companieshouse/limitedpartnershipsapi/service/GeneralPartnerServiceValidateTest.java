@@ -176,7 +176,7 @@ class GeneralPartnerServiceValidateTest {
         generalPartnerDao.getData().setLegalEntityName(null);
 
         Transaction transaction = buildTransaction();
-        transaction.getResources().values().stream().forEach(r -> r.setKind("INVALID-KIND"));
+        transaction.getResources().values().forEach(r -> r.setKind("INVALID-KIND"));
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 

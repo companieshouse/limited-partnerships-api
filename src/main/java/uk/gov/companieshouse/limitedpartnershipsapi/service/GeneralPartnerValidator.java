@@ -141,7 +141,7 @@ public class GeneralPartnerValidator {
             throws ServiceException {
         Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(generalPartnerDto);
 
-        violations.stream().forEach(v ->
+        violations.forEach(v ->
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
         try {
@@ -154,7 +154,7 @@ public class GeneralPartnerValidator {
     }
 
     private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
-        bindingResult.getFieldErrors().stream().forEach(fe ->
+        bindingResult.getFieldErrors().forEach(fe ->
                 errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
     }
 
