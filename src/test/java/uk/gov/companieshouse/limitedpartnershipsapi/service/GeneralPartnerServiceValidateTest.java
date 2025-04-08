@@ -107,12 +107,13 @@ class GeneralPartnerServiceValidateTest {
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
-        assertEquals(5, results.size());
+        // TODO Change expected size to 5 and uncomment the check below when a service address is being saved for a General Partner Person
+        assertEquals(4, results.size());
         checkForError(results, "Date of birth is required", GeneralPartnerDataDto.DATE_OF_BIRTH_FIELD);
         checkForError(results, "Second nationality must be different from the first", GeneralPartnerDataDto.NATIONALITY2_FIELD);
         checkForError(results, "Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD);
         checkForError(results, "Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD);
-        checkForError(results, "Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD);
+        // checkForError(results, "Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD);
     }
 
     @Test
