@@ -145,7 +145,10 @@
           "200": {
             "description": "Filing Data",
             "schema": {
-              "$ref": "#/definitions/GetFilingsResponse"
+              "items": {
+                "$ref": "#/definitions/GetFilingsResponse"
+              },
+              "type": "array"
             }
           },
           "401": {
@@ -347,7 +350,10 @@
           "200": {
             "description": "Filing Data",
             "schema": {
-              "$ref": "#/definitions/GetFilingsResponse"
+              "items": {
+                "$ref": "#/definitions/GetFilingsResponse"
+              },
+              "type": "array"
             }
           },
           "401": {
@@ -588,7 +594,10 @@
           "200": {
             "description": "Filing Data",
             "schema": {
-              "$ref": "#/definitions/GetFilingsResponse"
+              "items": {
+                "$ref": "#/definitions/GetFilingsResponse"
+              },
+              "type": "array"
             }
           },
           "401": {
@@ -826,7 +835,10 @@
           "200": {
             "description": "Filing Data",
             "schema": {
-              "$ref": "#/definitions/GetFilingsResponse"
+              "items": {
+                "$ref": "#/definitions/GetFilingsResponse"
+              },
+              "type": "array"
             }
           },
           "401": {
