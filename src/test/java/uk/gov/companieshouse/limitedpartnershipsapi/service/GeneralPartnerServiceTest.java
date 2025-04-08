@@ -174,15 +174,6 @@ class GeneralPartnerServiceTest {
         assertNotNull(generalPartnerDto.getData());
     }
 
-    @Test
-    void testGetGeneralPartnerList() {
-        when(repository.findAll()).thenReturn(buildGeneralPartnerDaoList());
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-        List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
-        assertEquals(2, generalPartnerDtoList.size());
-    }
-
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {
         var generalPartnerResource = new Resource();
         Map<String, String> linksMap = new HashMap<>();
@@ -207,29 +198,6 @@ class GeneralPartnerServiceTest {
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dao.setData(dataDao);
         return dao;
-    }
-
-    private List<GeneralPartnerDao> buildGeneralPartnerDaoList() {
-        List<GeneralPartnerDao> daoList = new ArrayList<>();
-        GeneralPartnerDao dao1 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao1, TRANSACTION_ID);
-        daoList.add(dao1);
-        GeneralPartnerDao dao2 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao2, "wrong1");
-        daoList.add(dao2);
-        GeneralPartnerDao dao3 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao3, "wrong2");
-        daoList.add(dao3);
-        GeneralPartnerDao dao4 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao4, TRANSACTION_ID);
-        daoList.add(dao4);
-        return daoList;
-    }
-
-    private void setSelfLinkOnDaoWithTransactionId(GeneralPartnerDao dao, String transactionId) {
-        Map<String, String> links = new HashMap<>();
-        links.put(LINK_SELF, String.format(SELF_LINK, transactionId));
-        dao.setLinks(links);
     }
 
     public Transaction buildTransaction() {

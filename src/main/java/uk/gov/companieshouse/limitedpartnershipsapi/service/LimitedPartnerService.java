@@ -8,6 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -112,10 +113,10 @@ public class LimitedPartnerService {
         return mapper.daoToDto(submissionDao);
     }
 
-    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) {
-        return repository.findAll().stream().
-                filter(gp -> gp.getLinks().get(LINK_SELF).contains(transaction.getId())).
+    public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
+        return repository.findByTransactionId(transaction.getId()).stream().
                 map(mapper::daoToDto).
+                map(dto -> dto.getData()).
                 collect(Collectors.toList());
     }
 }

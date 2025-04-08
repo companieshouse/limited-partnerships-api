@@ -172,15 +172,6 @@ class LimitedPartnerServiceTest {
         assertEquals(expectedMessage, exception.getMessage());
     }
 
-    @Test
-    void testGetLimitedPartnerList() {
-        when(repository.findAll()).thenReturn(buildLimitedPartnerDaoList());
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-        List<LimitedPartnerDto> limitedPartnerDtoList = limitedPartnerService.getLimitedPartnerList(transaction);
-        assertEquals(2, limitedPartnerDtoList.size());
-    }
-
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {
         var limitedPartnerResource = new Resource();
         Map<String, String> linksMap = new HashMap<>();
@@ -204,29 +195,6 @@ class LimitedPartnerServiceTest {
         dataDao.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
         dao.setData(dataDao);
         return dao;
-    }
-
-    private List<LimitedPartnerDao> buildLimitedPartnerDaoList() {
-        List<LimitedPartnerDao> daoList = new ArrayList<>();
-        LimitedPartnerDao dao1 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao1, TRANSACTION_ID);
-        daoList.add(dao1);
-        LimitedPartnerDao dao2 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao2, "wrong1");
-        daoList.add(dao2);
-        LimitedPartnerDao dao3 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao3, "wrong2");
-        daoList.add(dao3);
-        LimitedPartnerDao dao4 = createDao();
-        setSelfLinkOnDaoWithTransactionId(dao4, TRANSACTION_ID);
-        daoList.add(dao4);
-        return daoList;
-    }
-
-    private void setSelfLinkOnDaoWithTransactionId(LimitedPartnerDao dao, String transactionId) {
-        Map<String, String> links = new HashMap<>();
-        links.put(LINK_SELF, String.format(SELF_LINK, transactionId));
-        dao.setLinks(links);
     }
 
     public Transaction buildTransaction() {

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -37,7 +37,7 @@ public class FilingsService {
         this.limitedPartnerService = limitedPartnerService;
     }
 
-    public FilingApi generateLimitedPartnerFilings(Transaction transaction) throws ServiceException {
+    public FilingApi generateLimitedPartnerFiling(Transaction transaction) throws ServiceException {
         var filing = new FilingApi();
         setFilingApiData(filing, transaction);
         return filing;
@@ -51,22 +51,22 @@ public class FilingsService {
         Map<String, Object> data = new HashMap<>();
 
         var limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-        List<GeneralPartnerDto> generalPartnersList = generalPartnerService.getGeneralPartnerList(transaction);
-        List<LimitedPartnerDto> limitedPartnerList = limitedPartnerService.getLimitedPartnerList(transaction);
-        setSubmissionData(data, limitedPartnershipDto, generalPartnersList, limitedPartnerList, logMap);
+        List<GeneralPartnerDataDto> generalPartnersDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
+        List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
+        setSubmissionData(data, limitedPartnershipDto, generalPartnersDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
-        filing.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        filing.setKind(transaction.getFilingMode());
     }
 
     private void setSubmissionData(Map<String, Object> data,
                                    LimitedPartnershipDto limitedPartnershipDto,
-                                   List<GeneralPartnerDto> generalPartnersList,
-                                   List<LimitedPartnerDto> limitedPartnersList,
+                                   List<GeneralPartnerDataDto> generalPartnersDataList,
+                                   List<LimitedPartnerDataDto> limitedPartnersDataList,
                                    Map<String, Object> logMap) {
 
        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
-       data.put(GENERAL_PARTNER_FIELD, generalPartnersList);
-       data.put(LIMITED_PARTNER_FIELD, limitedPartnersList);
+       data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
+       data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
        ApiLogger.info("Submission data has been set on filing", logMap);
     }
 

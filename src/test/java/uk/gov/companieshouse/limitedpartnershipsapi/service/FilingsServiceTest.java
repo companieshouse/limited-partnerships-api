@@ -9,11 +9,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,9 +44,9 @@ class FilingsServiceTest {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
-        when(generalPartnerService.getGeneralPartnerList(transaction)).thenReturn(buildGeneralPartnerDtoList());
-        when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(buildLimitedPartnerDtoList());
-        FilingApi filing = filingsService.generateLimitedPartnerFilings(transaction);
+        when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(buildGeneralPartnerDataDtoList());
+        when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(buildLimitedPartnerDataDtoList());
+        FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
         assertNotNull(filing);
         assertNotNull(filing.getData());
         assertTrue(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
@@ -58,7 +59,7 @@ class FilingsServiceTest {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
-        assertThrows(ServiceException.class, () -> filingsService.generateLimitedPartnerFilings(transaction));
+        assertThrows(ServiceException.class, () -> filingsService.generateLimitedPartnerFiling(transaction));
     }
 
     private LimitedPartnershipDto buildLimitedPartnership() {
@@ -68,13 +69,29 @@ class FilingsServiceTest {
        return limitedPartnershipDto;
     }
 
-    private List<GeneralPartnerDto> buildGeneralPartnerDtoList()
-    {
-        return null;
+    private List<GeneralPartnerDataDto> buildGeneralPartnerDataDtoList() {
+        List<GeneralPartnerDataDto> dtoDataList = new ArrayList<>();
+        GeneralPartnerDataDto data1 = new GeneralPartnerDataDto();
+        dtoDataList.add(data1);
+        GeneralPartnerDataDto data2 = new GeneralPartnerDataDto();
+        dtoDataList.add(data2);
+        GeneralPartnerDataDto data3 = new GeneralPartnerDataDto();
+        dtoDataList.add(data3);
+        GeneralPartnerDataDto data4 = new GeneralPartnerDataDto();
+        dtoDataList.add(data4);
+        return dtoDataList;
     }
 
-    private List<LimitedPartnerDto> buildLimitedPartnerDtoList()
-    {
-        return null;
+    private List<LimitedPartnerDataDto> buildLimitedPartnerDataDtoList() {
+        List<LimitedPartnerDataDto> dtoDataList = new ArrayList<>();
+        LimitedPartnerDataDto data1 = new LimitedPartnerDataDto();
+        dtoDataList.add(data1);
+        LimitedPartnerDataDto data2 = new LimitedPartnerDataDto();
+        dtoDataList.add(data2);
+        LimitedPartnerDataDto data3 = new LimitedPartnerDataDto();
+        dtoDataList.add(data3);
+        LimitedPartnerDataDto data4 = new LimitedPartnerDataDto();
+        dtoDataList.add(data4);
+        return dtoDataList;
     }
 }
