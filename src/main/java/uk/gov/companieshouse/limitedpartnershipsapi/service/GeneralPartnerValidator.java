@@ -40,9 +40,11 @@ public class GeneralPartnerValidator {
                 errorsList.add(createValidationStatusError("Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
             }
 
-            if (dataDto.getServiceAddress() == null) {
-                errorsList.add(createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
-            }
+            // TODO Uncomment this code and related tests when a service address is being saved for a General Partner Person
+            //
+            // if (dataDto.getServiceAddress() == null) {
+            //     errorsList.add(createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
+            // }
         }
 
         return errorsList;
