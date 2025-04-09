@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,15 +15,22 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {FilingsController.class})
@@ -32,10 +38,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class FilingsControllerTest {
 
     private static String URL = "/private/transactions/trn123/incorporation/limited-partnership/sub123/filings";
-    private static String INCORPORATION_ID = "sub123";
-    private static String REQUEST_ID = "req123";
-
-    private static String JSON_FILING = "";
+    private static String KIND = "limited_partnerships";
 
     @Autowired
     private MockMvc mockMvc;
@@ -62,37 +65,56 @@ class FilingsControllerTest {
                 .build();
     }
 
-
     @Test
     void shouldReturn200() throws Exception {
+        when(filingsService.generateLimitedPartnerFiling(any())).thenReturn(buildFilingApi());
         mockMvc.perform(get(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                 )
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value("Test Partnership"))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(PartnershipNameEnding.LP.getDescription()));
     }
 
-    @Test
-    void testWhenFilingIsGenerated() throws ServiceException {
-        var filingApi = new FilingApi();
-        when(filingsService.generateLimitedPartnerFiling(any())).thenReturn(filingApi);
-        var response = filingsController.getFilings(new Transaction(), INCORPORATION_ID, REQUEST_ID, null);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
 
     @Test
-    void testWhenError404IsReturned() throws ServiceException {
+    void shouldReturn404() throws Exception {
         when(filingsService.generateLimitedPartnerFiling(any())).thenThrow(ResourceNotFoundException.class);
-        var response = filingsController.getFilings(new Transaction(), INCORPORATION_ID, REQUEST_ID, null);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        mockMvc.perform(get(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                )
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testWhenError500IsReturned() throws ServiceException {
+    void shouldReturn500() throws Exception {
         when(filingsService.generateLimitedPartnerFiling(any())).thenThrow(ServiceException.class);
-        var response = filingsController.getFilings(new Transaction(), INCORPORATION_ID, REQUEST_ID, null);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        mockMvc.perform(get(URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding("utf-8")
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                )
+                .andExpect(status().isInternalServerError());
+    }
+
+    private FilingApi buildFilingApi() {
+        FilingApi filingApi = new FilingApi();
+        filingApi.setKind(KIND);
+        Map<String, Object> data = new HashMap<>();
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipName("Test Partnership");
+        dataDto.setNameEnding(PartnershipNameEnding.LP);
+        limitedPartnershipDto.setData(dataDto);
+        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
+        filingApi.setData(data);
+        return filingApi;
     }
 }
