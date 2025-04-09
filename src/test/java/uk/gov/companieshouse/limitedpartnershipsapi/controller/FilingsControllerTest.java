@@ -42,7 +42,6 @@ class FilingsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     FilingsController filingsController;
 
@@ -78,7 +77,6 @@ class FilingsControllerTest {
                 .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value("Test Partnership"))
                 .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(PartnershipNameEnding.LP.getDescription()));
     }
-
 
     @Test
     void shouldReturn404() throws Exception {
