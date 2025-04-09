@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
@@ -35,9 +34,6 @@ class InterceptorConfigTest {
     @Mock
     private CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor;
 
-    @Mock
-    private InternalUserInterceptor internalUserInterceptor;
-
     @InjectMocks
     private InterceptorConfig interceptorConfig;
 
@@ -53,6 +49,6 @@ class InterceptorConfigTest {
         inOrder.verify(interceptorRegistry).addInterceptor(customUserAuthenticationInterceptor);
         inOrder.verify(interceptorRegistry).addInterceptor(any(TransactionInterceptor.class));
 
-        verify(interceptorRegistry, times(5)).addInterceptor(any());
+        verify(interceptorRegistry, times(4)).addInterceptor(any());
     }
 }
