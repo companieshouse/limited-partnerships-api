@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 
-@ContextConfiguration(classes = {FilingsController.class})
+@ContextConfiguration(classes = {FilingsController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {FilingsController.class})
 class FilingsControllerTest {
 

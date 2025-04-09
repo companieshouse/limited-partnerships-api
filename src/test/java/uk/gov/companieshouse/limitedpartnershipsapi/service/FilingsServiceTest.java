@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,8 +45,8 @@ class FilingsServiceTest {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
-        when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(buildGeneralPartnerDataDtoList());
-        when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(buildLimitedPartnerDataDtoList());
+        when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+        when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
         assertNotNull(filing);
         assertNotNull(filing.getData());
@@ -67,31 +68,5 @@ class FilingsServiceTest {
        var dataDto = new DataDto();
        limitedPartnershipDto.setData(dataDto);
        return limitedPartnershipDto;
-    }
-
-    private List<GeneralPartnerDataDto> buildGeneralPartnerDataDtoList() {
-        List<GeneralPartnerDataDto> dtoDataList = new ArrayList<>();
-        GeneralPartnerDataDto data1 = new GeneralPartnerDataDto();
-        dtoDataList.add(data1);
-        GeneralPartnerDataDto data2 = new GeneralPartnerDataDto();
-        dtoDataList.add(data2);
-        GeneralPartnerDataDto data3 = new GeneralPartnerDataDto();
-        dtoDataList.add(data3);
-        GeneralPartnerDataDto data4 = new GeneralPartnerDataDto();
-        dtoDataList.add(data4);
-        return dtoDataList;
-    }
-
-    private List<LimitedPartnerDataDto> buildLimitedPartnerDataDtoList() {
-        List<LimitedPartnerDataDto> dtoDataList = new ArrayList<>();
-        LimitedPartnerDataDto data1 = new LimitedPartnerDataDto();
-        dtoDataList.add(data1);
-        LimitedPartnerDataDto data2 = new LimitedPartnerDataDto();
-        dtoDataList.add(data2);
-        LimitedPartnerDataDto data3 = new LimitedPartnerDataDto();
-        dtoDataList.add(data3);
-        LimitedPartnerDataDto data4 = new LimitedPartnerDataDto();
-        dtoDataList.add(data4);
-        return dtoDataList;
     }
 }

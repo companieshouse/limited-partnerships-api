@@ -45,21 +45,13 @@ public class FilingsController {
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String incorporationId,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            HttpServletRequest request) {
+            HttpServletRequest request) throws ServiceException {
 
        var logMap = new HashMap<String, Object>();
        logMap.put(TRANSACTION_KEY, transaction.getId());
        ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
        ApiLogger.infoContext(requestId, "Transaction id is " + transaction.getId(), logMap);
-       try {
-          FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
-          return ResponseEntity.ok(new FilingApi[] { filing });
-       } catch (ResourceNotFoundException e) {
-          ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
-          return ResponseEntity.notFound().build();
-       } catch (ServiceException e) {
-          ApiLogger.errorContext(requestId, "Error getting a Limited Partnership Incorporation Filing", e, logMap);
-          return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-       }
+       FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
+       return ResponseEntity.ok(new FilingApi[] { filing });
     }
 }
