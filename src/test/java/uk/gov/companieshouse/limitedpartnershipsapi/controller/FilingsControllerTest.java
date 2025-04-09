@@ -32,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 
-@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {FilingsController.class})
 @WebMvcTest(controllers = {FilingsController.class})
 class FilingsControllerTest {
@@ -58,15 +57,11 @@ class FilingsControllerTest {
         httpHeaders.add("ERIC-Identity", "123");
 
         transaction = new Transaction();
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(filingsController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
     }
 
     @Test
     void shouldReturn200() throws Exception {
-        when(filingsService.generateLimitedPartnerFiling(any())).thenReturn(buildFilingApi());
+        when(filingsService.generateLimitedPartnerFiling(transaction)).thenReturn(buildFilingApi());
         mockMvc.perform(get(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
