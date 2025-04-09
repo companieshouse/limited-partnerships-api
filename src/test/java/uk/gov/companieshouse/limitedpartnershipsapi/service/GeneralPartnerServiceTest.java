@@ -44,6 +44,7 @@ class GeneralPartnerServiceTest {
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
     private static final String SUBMISSION_ID = "submission123";
+
     @InjectMocks
     private GeneralPartnerService generalPartnerService;
 
