@@ -1,9 +1,10 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.UkPostcode;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
@@ -12,7 +13,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_S
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
 
-
+@UkPostcode
 public class AddressDto {
 
     @JsonProperty("address_line_1")
@@ -41,9 +42,6 @@ public class AddressDto {
     private String locality;
 
     @JsonProperty("postal_code")
-    @NotNull(message = "Postcode must not be null")
-    @Pattern(regexp = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? ?\\d[A-Za-z]{2}$", message = "Invalid postcode format")
-    @Size(max = 15, message = "Postcode " + MAX_SIZE_MESSAGE)
     private String postalCode;
 
     @JsonProperty("premises")

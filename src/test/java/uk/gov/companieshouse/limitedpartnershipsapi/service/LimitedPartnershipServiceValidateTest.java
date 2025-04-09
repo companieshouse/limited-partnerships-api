@@ -10,11 +10,11 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
@@ -84,11 +84,10 @@ class LimitedPartnershipServiceValidateTest {
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
-        assertEquals(6, results.size());
+        assertEquals(5, results.size());
         checkForError(results, "Limited partnership name must not be null", "data.partnershipName");
         checkForError(results, "must be a well-formed email address", "data.email");
         checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
-        checkForError(results, "Invalid postcode format", "data.principalPlaceOfBusinessAddress.postalCode");
         checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");
         checkForError(results, "Address line 1 must not be null", "data.principalPlaceOfBusinessAddress.addressLine1");
     }

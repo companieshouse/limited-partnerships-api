@@ -54,11 +54,8 @@ class LimitedPartnerMapperTest {
 
     @Test
     void givenNullPartnerTypeString_whenMapPartnerTypeToEnum_thenNull() {
-        // given
-        String partnerTypeString = null;
-
         // when
-        LimitedPartnerType result = mapper.mapPartnerTypeToEnum(partnerTypeString);
+        LimitedPartnerType result = mapper.mapPartnerTypeToEnum(null);
 
         // then
         assertNull(result);

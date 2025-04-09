@@ -2,6 +2,9 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -10,12 +13,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
@@ -73,7 +76,7 @@ class GeneralPartnerServiceUpdateTest {
         dataDao.setLegalEntityRegisterName("UK Register");
         dataDao.setLegalEntityRegistrationLocation("United Kingdom");
         dataDao.setRegisteredCompanyNumber("12345678");
-        dataDao.setNotDisqualifiedStatementChecked(true);
+        dataDao.setLegalPersonalityStatementChecked(true);
 
         dao.setData(dataDao);
         dao.setId(GENERAL_PARTNER_ID);
@@ -88,7 +91,7 @@ class GeneralPartnerServiceUpdateTest {
 
         AddressDto principalOfficeAddress = new AddressDto();
         principalOfficeAddress.setAddressLine1("DUNCALF STREET");
-        principalOfficeAddress.setCountry("GB-ENG");
+        principalOfficeAddress.setCountry("England");
         principalOfficeAddress.setLocality("STOKE-ON-TRENT");
         principalOfficeAddress.setPostalCode("ST6 3LJ");
         principalOfficeAddress.setPremises("2");
@@ -110,7 +113,7 @@ class GeneralPartnerServiceUpdateTest {
 
         assertEquals("John", sentSubmission.getData().getForename());
         assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalOfficeAddress().getAddressLine1());
-        assertEquals("GB-ENG", sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
+        assertEquals("England", sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
         assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
         assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalOfficeAddress().getPostalCode());
         assertEquals("2", sentSubmission.getData().getPrincipalOfficeAddress().getPremises());
@@ -198,4 +201,45 @@ class GeneralPartnerServiceUpdateTest {
         assertEquals("England", sentSubmission.getData().getLegalEntityRegistrationLocation());
     }
 
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true, false})
+    void shouldCorrectlyUpdateDisqualificationStatementCheckedValue(Boolean input) throws Exception {
+        GeneralPartnerDao currentlySavedPartnerDao = createGeneralPartnerPersonDao();
+
+        GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
+        partnerDataDtoWithChanges.setNotDisqualifiedStatementChecked(input);
+
+        when(repository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
+
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
+
+        verify(repository).findById(GENERAL_PARTNER_ID);
+        verify(repository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
+
+        assertEquals(input == null || input, newlySavedPartnerDao.getData().isNotDisqualifiedStatementChecked());
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(booleans = {true, false})
+    void shouldCorrectlyUpdateLegalPersonalityStatementCheckedValue(Boolean input) throws Exception {
+        GeneralPartnerDao currentlySavedPartnerDao = createGeneralPartnerLegalEntityDao();
+
+        GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
+        partnerDataDtoWithChanges.setLegalPersonalityStatementChecked(input);
+
+        when(repository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
+
+        service.updateGeneralPartner(GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
+
+        verify(repository).findById(GENERAL_PARTNER_ID);
+        verify(repository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
+
+        assertEquals(input == null || input, newlySavedPartnerDao.getData().isLegalPersonalityStatementChecked());
+    }
 }

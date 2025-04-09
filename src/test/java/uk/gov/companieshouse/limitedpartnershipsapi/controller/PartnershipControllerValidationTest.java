@@ -49,9 +49,9 @@ class PartnershipControllerValidationTest {
 
     private static final String SUBMISSION_ID = "93702824-9062-4c63-a694-716acffccdd5";
 
-    private static String postUrl = "/transactions/863851-951242-143528/limited-partnership/partnership";
-    private static String patchUrl = postUrl + "/" + SUBMISSION_ID;
-    private static String validateStatusUrl = patchUrl + "/validation-status";
+    private static final String POST_URL = "/transactions/863851-951242-143528/limited-partnership/partnership";
+    private static final String PATCH_URL = POST_URL + "/" + SUBMISSION_ID;
+    private static final String VALIDATE_STATUS_URL = PATCH_URL + "/validation-status";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -100,7 +100,7 @@ class PartnershipControllerValidationTest {
 
             String body = objectMapper.writeValueAsString(limitedPartnershipDto);
 
-            mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -121,7 +121,7 @@ class PartnershipControllerValidationTest {
 
             String body = objectMapper.writeValueAsString(limitedPartnershipDto);
 
-            mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -144,7 +144,7 @@ class PartnershipControllerValidationTest {
                 JSON_MISSING_TYPE
         })
         void shouldReturnBadRequest(String body) throws Exception {
-            mockMvc.perform(post(PartnershipControllerValidationTest.postUrl)
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -167,7 +167,7 @@ class PartnershipControllerValidationTest {
                 JSON_WITH_VALID_NULL_JURISDICTION
         })
         void shouldReturn200(String body) throws Exception {
-            mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+            mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -182,7 +182,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn200() throws Exception {
                 String body = "{\"email\":\"test@email.com\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -195,7 +195,7 @@ class PartnershipControllerValidationTest {
             void shouldReturnBadRequestErrorIfEmailBadlyFormated() throws Exception {
                 String body = "{\"email\":\"test@email.\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -211,7 +211,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn200IfNameSizeIsCorrect() throws Exception {
                 String body = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -225,7 +225,7 @@ class PartnershipControllerValidationTest {
                 String longName = StringUtils.repeat("A", 160);
                 String body = "{\"partnership_name\":\"" + longName + "\",\"name_ending\":\"Limited Partnership\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -241,7 +241,7 @@ class PartnershipControllerValidationTest {
             void shouldReturnBadRequestErrorIfNameContainsInvalidChars() throws Exception {
                 String body = "{\"partnership_name\":\"±±\",\"name_ending\":\"Limited Partnership\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -258,7 +258,7 @@ class PartnershipControllerValidationTest {
             void testUpdatePartnershipWithAnInvalidJurisdictionShouldReturn400() throws Exception {
                 String body = "{\"jurisdiction\":\"Croatia\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -275,7 +275,7 @@ class PartnershipControllerValidationTest {
             void testUpdatePartnershipWithAnInvalidPartnershipNameEndingShouldReturn400() throws Exception {
                 String body = "{\"name_ending\":\"Illegal\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -292,7 +292,7 @@ class PartnershipControllerValidationTest {
             void testUpdatePartnershipWithAnInvalidPartnershipTypeShouldReturn400() throws Exception {
                 String body = "{\"partnership_type\":\"Illegal\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -306,46 +306,46 @@ class PartnershipControllerValidationTest {
         @Nested
         class Addresses {
             // registered_office_address
-            private static final String JSON_ROA_POSTCODE_EMPTY = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_POSTCODE_NOT_CORRECT = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_ADDRESS_LINE_1_TOO_SHORT = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_POSTCODE_EMPTY = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_ROA_POSTCODE_NOT_CORRECT = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_ROA_ADDRESS_LINE_1_TOO_SHORT = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
-            private static final String JSON_ROA_MISSING_POSTCODE = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_MISSING_PREMISES = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_MISSING_ADDRESS_LINE_1 = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_MISSING_LOCALITY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_MISSING_POSTCODE = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_ROA_MISSING_PREMISES = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_ROA_MISSING_ADDRESS_LINE_1 = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_ROA_MISSING_LOCALITY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"England\"}}";
             private static final String JSON_ROA_MISSING_COUNTRY = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
 
-            private static final String JSON_ROA_PREMISES_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"±\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_ADDRESS_LINE_1_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"±±DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_ADDRESS_LINE_2_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"±±\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_ADDRESS_LOCALITY_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"±±STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_ADDRESS_REGION_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"±±Herefordshire\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_ROA_ADDRESS_POSTCODE_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"±±ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"Herefordshire\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_ROA_PREMISES_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"±\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_ROA_ADDRESS_LINE_1_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"±±DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_ROA_ADDRESS_LINE_2_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"±±\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_ROA_ADDRESS_LOCALITY_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"±±STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_ROA_ADDRESS_REGION_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"±±Herefordshire\", \"country\":\"England\"}}";
+            private static final String JSON_ROA_ADDRESS_POSTCODE_INVALID_CHARS = "{\"registered_office_address\":{\"postal_code\":\"±±ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"Herefordshire\", \"country\":\"England\"}}";
 
             // principal place of business
-            private static final String JSON_PPOB_POSTCODE_EMPTY = "{\"principal_place_of_business_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_POSTCODE_NOT_CORRECT = "{\"principal_place_of_business_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_ADDRESS_LINE_1_TOO_SHORT = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_POSTCODE_EMPTY = "{\"principal_place_of_business_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_PPOB_POSTCODE_NOT_CORRECT = "{\"principal_place_of_business_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_PPOB_ADDRESS_LINE_1_TOO_SHORT = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
-            private static final String JSON_PPOB_MISSING_POSTCODE = "{\"principal_place_of_business_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_MISSING_PREMISES = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_MISSING_ADDRESS_LINE_1 = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_MISSING_LOCALITY = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_MISSING_POSTCODE = "{\"principal_place_of_business_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_PPOB_MISSING_PREMISES = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_PPOB_MISSING_ADDRESS_LINE_1 = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_PPOB_MISSING_LOCALITY = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"England\"}}";
             private static final String JSON_PPOB_MISSING_COUNTRY = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
 
-            private static final String JSON_PPOB_PREMISES_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"±\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_ADDRESS_LINE_1_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"±±DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_ADDRESS_LINE_2_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"±±\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_ADDRESS_LOCALITY_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"±±STOKE-ON-TRENT\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_ADDRESS_REGION_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"±±Herefordshire\", \"country\":\"GB-ENG\"}}";
-            private static final String JSON_PPOB_ADDRESS_POSTCODE_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"±±ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"Herefordshire\", \"country\":\"GB-ENG\"}}";
+            private static final String JSON_PPOB_PREMISES_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"±\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_PPOB_ADDRESS_LINE_1_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"±±DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_PPOB_ADDRESS_LINE_2_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"±±\",\"locality\":\"STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_PPOB_ADDRESS_LOCALITY_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"±±STOKE-ON-TRENT\", \"country\":\"England\"}}";
+            private static final String JSON_PPOB_ADDRESS_REGION_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"±±Herefordshire\", \"country\":\"England\"}}";
+            private static final String JSON_PPOB_ADDRESS_POSTCODE_INVALID_CHARS = "{\"principal_place_of_business_address\":{\"postal_code\":\"±±ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\", \"region\":\"Herefordshire\", \"country\":\"England\"}}";
 
             @Test
             void shouldReturn200() throws Exception {
-                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -358,9 +358,9 @@ class PartnershipControllerValidationTest {
             @Test
             void shouldReturn400IfAddressLine1IsTooLong() throws Exception {
                 String longAddressLine1 = StringUtils.repeat("A", 51);
-                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"GB-ENG\"}}";
+                String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -379,7 +379,7 @@ class PartnershipControllerValidationTest {
                     JSON_PPOB_ADDRESS_LINE_1_TOO_SHORT
             })
             void shouldReturn400IfFieldIncorrect(String body) throws Exception {
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -402,7 +402,7 @@ class PartnershipControllerValidationTest {
                     JSON_PPOB_MISSING_COUNTRY
             })
             void shouldReturn400IfRequiredFieldIsMissing(String body) throws Exception {
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -414,7 +414,7 @@ class PartnershipControllerValidationTest {
             @ParameterizedTest
             @MethodSource("provideInvalidCharsInputsAndMessages")
             void shouldReturn400IfFieldHasInvalidChars(String body, String fieldName, String expectedErrorMessage) throws Exception {
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -479,7 +479,7 @@ class PartnershipControllerValidationTest {
                     JSON_TERM_NONE,
             })
             void shouldReturn200(String body) throws Exception {
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -492,7 +492,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn400IfTermIncorrect() throws Exception {
                 String body = "{\"term\":\"wrong-term\"}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -509,7 +509,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn200IfSicCodesIsCorrect() throws Exception {
                 String body = "{\"sic_codes\":[\"12345\"]}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -522,7 +522,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn400IfSicCodesIncorrect() throws Exception {
                 String body = "{\"sic_codes\":[\"abcde\", \"123A5\", \"123\", \"123456\", \"12345\"]}";
 
-                mockMvc.perform(patch(PartnershipControllerValidationTest.patchUrl)
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("utf-8")
                                 .headers(httpHeaders)
@@ -545,7 +545,7 @@ class PartnershipControllerValidationTest {
             when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
                     .thenReturn(new ArrayList<>());
 
-            mockMvc.perform(get(PartnershipControllerValidationTest.validateStatusUrl)
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -562,7 +562,7 @@ class PartnershipControllerValidationTest {
             errorsList.add(new ValidationStatusError("Invalid data format", "there", null, null));
             when(service.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(errorsList);
 
-            mockMvc.perform(get(PartnershipControllerValidationTest.validateStatusUrl)
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -581,7 +581,7 @@ class PartnershipControllerValidationTest {
             when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
                     .thenThrow(new ResourceNotFoundException("Error"));
 
-            mockMvc.perform(get(PartnershipControllerValidationTest.validateStatusUrl)
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)

@@ -11,12 +11,12 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
@@ -25,11 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -83,9 +80,11 @@ class GeneralPartnerServiceValidateTest {
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
-        assertEquals(2, results.size());
-        checkForError(results, "Date of birth must be in the past", "data.dateOfBirth");
-        checkForError(results, "First nationality must be valid", "data.nationality1");
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Date of birth must be in the past", "data.dateOfBirth"),
+                        tuple("First nationality must be valid", "data.nationality1"));
     }
 
     @Test
@@ -107,12 +106,16 @@ class GeneralPartnerServiceValidateTest {
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
-        assertEquals(5, results.size());
-        checkForError(results, "Date of birth is required", GeneralPartnerDataDto.DATE_OF_BIRTH_FIELD);
-        checkForError(results, "Second nationality must be different from the first", GeneralPartnerDataDto.NATIONALITY2_FIELD);
-        checkForError(results, "Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD);
-        checkForError(results, "Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD);
-        checkForError(results, "Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD);
+
+        // TODO Uncomment the final check below when a service address is being saved for a General Partner Person
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Date of birth is required", GeneralPartnerDataDto.DATE_OF_BIRTH_FIELD),
+                        tuple("Second nationality must be different from the first", GeneralPartnerDataDto.NATIONALITY2_FIELD),
+                        tuple("Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD),
+                        tuple("Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+        // tuple("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
     }
 
     @Test
@@ -133,11 +136,13 @@ class GeneralPartnerServiceValidateTest {
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
-        assertEquals(4, results.size());
-        checkForError(results, "Governing Law is required", GeneralPartnerDataDto.GOVERNING_LAW_FIELD);
-        checkForError(results, "Legal Personality Statement must be checked", GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD);
-        checkForError(results, "Registered Company Number is required", GeneralPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD);
-        checkForError(results, "Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD);
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Governing Law is required", GeneralPartnerDataDto.GOVERNING_LAW_FIELD),
+                        tuple("Legal Personality Statement must be checked", GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD),
+                        tuple("Registered Company Number is required", GeneralPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
+                        tuple("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
     }
 
     @Test
@@ -156,9 +161,11 @@ class GeneralPartnerServiceValidateTest {
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
-        assertEquals(2, results.size());
-        checkForError(results, "Registered company number must be greater than 1", "data.registeredCompanyNumber");
-        checkForError(results, "Legal Entity Name is required", GeneralPartnerDataDto.LEGAL_ENTITY_NAME_FIELD);
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
+                        tuple("Legal Entity Name is required", GeneralPartnerDataDto.LEGAL_ENTITY_NAME_FIELD));
     }
 
     @Test
@@ -169,7 +176,7 @@ class GeneralPartnerServiceValidateTest {
         generalPartnerDao.getData().setLegalEntityName(null);
 
         Transaction transaction = buildTransaction();
-        transaction.getResources().values().stream().forEach(r -> r.setKind("INVALID-KIND"));
+        transaction.getResources().values().forEach(r -> r.setKind("INVALID-KIND"));
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
@@ -239,11 +246,5 @@ class GeneralPartnerServiceValidateTest {
         dao.setPostalCode("BM1 2EH");
 
         return dao;
-    }
-
-    private void checkForError(List<ValidationStatusError> results, String errorMessage, String location) {
-        assertThat(results, hasItem(allOf(
-                hasProperty("error", is(errorMessage)),
-                hasProperty("location", is(location)))));
     }
 }

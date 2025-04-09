@@ -40,9 +40,11 @@ public class GeneralPartnerValidator {
                 errorsList.add(createValidationStatusError("Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
             }
 
-            if (dataDto.getServiceAddress() == null) {
-                errorsList.add(createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
-            }
+            // TODO Uncomment this code and related tests when a service address is being saved for a General Partner Person
+            //
+            // if (dataDto.getServiceAddress() == null) {
+            //     errorsList.add(createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
+            // }
         }
 
         return errorsList;
@@ -56,13 +58,13 @@ public class GeneralPartnerValidator {
 
         if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(generalPartnerDataDto, bindingResult);
-            if (!generalPartnerDataDto.isLegalPersonalityStatementChecked()) {
+            if (Boolean.FALSE.equals(generalPartnerDataDto.isLegalPersonalityStatementChecked())) {
                 addError(GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
             }
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(generalPartnerDto, bindingResult);
-            if (!generalPartnerDataDto.isNotDisqualifiedStatementChecked()) {
+            if (Boolean.FALSE.equals(generalPartnerDataDto.isNotDisqualifiedStatementChecked())) {
                 addError(GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
             }
         } else {
@@ -139,7 +141,7 @@ public class GeneralPartnerValidator {
             throws ServiceException {
         Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(generalPartnerDto);
 
-        violations.stream().forEach(v ->
+        violations.forEach(v ->
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
         try {
@@ -152,7 +154,7 @@ public class GeneralPartnerValidator {
     }
 
     private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
-        bindingResult.getFieldErrors().stream().forEach(fe ->
+        bindingResult.getFieldErrors().forEach(fe ->
                 errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
     }
 

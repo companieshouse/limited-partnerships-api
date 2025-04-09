@@ -7,12 +7,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidEnum;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class DataDto {
     @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
     @NotNull(message = "Name ending must not be null")
-    @ValidEnum(message = "Name ending must be valid")
+    @EnumValid(message = "Name ending must be valid")
     private PartnershipNameEnding nameEnding;
 
     @JsonProperty("email")
@@ -49,12 +50,12 @@ public class DataDto {
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_type")
     @NotNull(message = "Partnership type must not be null")
-    @ValidEnum(message = "Partnership type must be valid")
+    @EnumValid(message = "Partnership type must be valid")
     private PartnershipType partnershipType;
 
     @JsonInclude(NON_NULL)
     @JsonProperty("jurisdiction")
-    @ValidEnum(message = "Jurisdiction must be valid")
+    @EnumValid(message = "Jurisdiction must be valid")
     private Jurisdiction jurisdiction;
 
     @JsonProperty("registered_office_address")
@@ -62,7 +63,7 @@ public class DataDto {
     private AddressDto registeredOfficeAddress;
 
     @JsonProperty("term")
-    @ValidEnum(message = "Term must be valid")
+    @EnumValid(message = "Term must be valid")
     private Term term;
 
     @JsonProperty("principal_place_of_business_address")

@@ -6,10 +6,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.ValidEnum;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
 
@@ -63,18 +63,18 @@ public class GeneralPartnerDataDto {
     private LocalDate dateOfBirth;
 
     @JsonProperty(NATIONALITY1_FIELD)
-    @ValidEnum(message = "First nationality must be valid")
+    @EnumValid(message = "First nationality must be valid")
     private Nationality nationality1;
 
     @JsonProperty(NATIONALITY2_FIELD)
-    @ValidEnum(message = "Second nationality must be valid")
+    @EnumValid(message = "Second nationality must be valid")
     private Nationality nationality2;
 
     @JsonProperty(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)
-    private boolean isNotDisqualifiedStatementChecked;
+    private Boolean isNotDisqualifiedStatementChecked;
 
     @JsonProperty(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)
-    private boolean isLegalPersonalityStatementChecked;
+    private Boolean isLegalPersonalityStatementChecked;
 
     @JsonProperty("date_effective_from")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -99,7 +99,7 @@ public class GeneralPartnerDataDto {
     private String legalEntityRegisterName;
 
     @JsonProperty(LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD)
-    @ValidEnum(message = "Legal entity registration location must be valid")
+    @EnumValid(message = "Legal entity registration location must be valid")
     private Country legalEntityRegistrationLocation;
 
     @JsonProperty(LEGAL_FORM_FIELD)
@@ -182,19 +182,19 @@ public class GeneralPartnerDataDto {
         this.nationality2 = nationality2;
     }
 
-    public boolean isNotDisqualifiedStatementChecked() {
+    public Boolean isNotDisqualifiedStatementChecked() {
         return isNotDisqualifiedStatementChecked;
     }
 
-    public void setNotDisqualifiedStatementChecked(boolean notDisqualifiedStatementChecked) {
+    public void setNotDisqualifiedStatementChecked(Boolean notDisqualifiedStatementChecked) {
         isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 
-    public boolean isLegalPersonalityStatementChecked() {
+    public Boolean isLegalPersonalityStatementChecked() {
         return isLegalPersonalityStatementChecked;
     }
 
-    public void setLegalPersonalityStatementChecked(boolean legalPersonalityStatementChecked) {
+    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
         isLegalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 

@@ -2,25 +2,25 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 
-public class EnumValidator implements ConstraintValidator<ValidEnum, Enum> {
+public class EnumValidator implements ConstraintValidator<EnumValid, Enum> {
     public boolean isValid(Enum enumeration, ConstraintValidatorContext context) {
         return switch (enumeration) {
             case null -> true;
-            case Jurisdiction jurisdiction -> !Jurisdiction.UNKNOWN.equals(enumeration);
-            case Term term -> !Term.UNKNOWN.equals(enumeration);
-            case Nationality nationality -> !Nationality.UNKNOWN.equals(enumeration);
-            case Country country -> !Country.UNKNOWN.equals(enumeration);
-            case IncorporationKind incorporationKind -> !IncorporationKind.UNKNOWN.equals(enumeration);
-            case PartnershipType partnershipType -> !PartnershipType.UNKNOWN.equals(enumeration);
-            case PartnershipNameEnding partnershipNameEnding -> !PartnershipNameEnding.UNKNOWN.equals(enumeration);
+            case Jurisdiction jurisdiction -> !Jurisdiction.UNKNOWN.equals(jurisdiction);
+            case Term term -> !Term.UNKNOWN.equals(term);
+            case Nationality nationality -> !Nationality.UNKNOWN.equals(nationality);
+            case Country country -> !Country.UNKNOWN.equals(country);
+            case IncorporationKind incorporationKind -> !IncorporationKind.UNKNOWN.equals(incorporationKind);
+            case PartnershipType partnershipType -> !PartnershipType.UNKNOWN.equals(partnershipType);
+            case PartnershipNameEnding partnershipNameEnding -> !PartnershipNameEnding.UNKNOWN.equals(partnershipNameEnding);
             default -> false;
         };
     }
