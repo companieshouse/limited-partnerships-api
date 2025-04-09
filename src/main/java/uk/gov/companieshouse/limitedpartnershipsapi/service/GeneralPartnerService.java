@@ -139,7 +139,7 @@ public class GeneralPartnerService {
     public List<GeneralPartnerDataDto> getGeneralPartnerDataList(Transaction transaction) {
         return repository.findByTransactionId(transaction.getId()).stream().
                 map(mapper::daoToDto).
-                map(dto -> dto.getData()).
+                map(GeneralPartnerDto::getData).
                 collect(Collectors.toList());
     }
 

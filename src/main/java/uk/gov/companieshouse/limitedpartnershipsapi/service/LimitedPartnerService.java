@@ -116,7 +116,7 @@ public class LimitedPartnerService {
     public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
         return repository.findByTransactionId(transaction.getId()).stream().
                 map(mapper::daoToDto).
-                map(dto -> dto.getData()).
+                map(LimitedPartnerDto::getData).
                 collect(Collectors.toList());
     }
 }

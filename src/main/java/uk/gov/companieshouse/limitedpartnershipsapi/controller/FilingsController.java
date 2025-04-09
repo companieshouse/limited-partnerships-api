@@ -54,14 +54,12 @@ public class FilingsController {
        try {
           FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
           return ResponseEntity.ok(new FilingApi[] { filing });
+       } catch (ResourceNotFoundException e) {
+          ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+          return ResponseEntity.notFound().build();
        } catch (ServiceException e) {
-           if (e instanceof ResourceNotFoundException) {
-               ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
-               return ResponseEntity.notFound().build();
-           } else {
-               ApiLogger.errorContext(requestId, "Error getting a Limited Partnership Incorporation Filing", e, logMap);
-               return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-           }
+          ApiLogger.errorContext(requestId, "Error getting a Limited Partnership Incorporation Filing", e, logMap);
+          return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
        }
     }
 }
