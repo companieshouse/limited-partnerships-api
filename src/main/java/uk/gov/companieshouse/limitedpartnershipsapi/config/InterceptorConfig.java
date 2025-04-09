@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
@@ -41,8 +42,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns(TRANSACTIONS);
         registry.addInterceptor(customUserAuthenticationInterceptor)
                 .addPathPatterns(TRANSACTIONS);
+        registry.addInterceptor(internalUserInterceptor());
         registry.addInterceptor(transactionInterceptor())
                 .addPathPatterns(FILINGS, TRANSACTIONS);
+    }
+
+    @Bean
+    public InternalUserInterceptor internalUserInterceptor() {
+        return new InternalUserInterceptor();
     }
 
     @Bean
