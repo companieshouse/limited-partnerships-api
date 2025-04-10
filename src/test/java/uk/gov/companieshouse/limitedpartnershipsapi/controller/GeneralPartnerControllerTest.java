@@ -17,9 +17,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -147,5 +149,13 @@ class GeneralPartnerControllerTest {
                 new GeneralPartnerDataDto(),
                 REQUEST_ID,
                 USER_ID));
+    }
+
+    @Test
+    void testGetPartnersReturnsList() {
+        var response = generalPartnerController.getGeneralPartners(transaction, REQUEST_ID);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertInstanceOf(List.class, response.getBody());
     }
 }
