@@ -136,11 +136,17 @@ public class GeneralPartnerService {
         return generalPartnerValidator.validate(dto);
     }
 
+    public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {
+        return repository.findByTransactionId(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .collect(Collectors.toList());
+    }
+
     public List<GeneralPartnerDataDto> getGeneralPartnerDataList(Transaction transaction) {
-        return repository.findByTransactionId(transaction.getId()).stream().
-                map(mapper::daoToDto).
-                map(GeneralPartnerDto::getData).
-                collect(Collectors.toList());
+        return repository.findByTransactionId(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .map(GeneralPartnerDto::getData)
+                .collect(Collectors.toList());
     }
 
     private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {

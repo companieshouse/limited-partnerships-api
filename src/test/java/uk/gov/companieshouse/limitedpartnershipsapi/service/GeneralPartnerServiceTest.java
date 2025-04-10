@@ -21,6 +21,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,7 +170,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testGetGeneralPartnerList() {
+    void testGetGeneralPartnerDataList() {
         var transactionId = "trns123";
         when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao()));
         when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(createDto());
@@ -177,6 +178,31 @@ class GeneralPartnerServiceTest {
         transaction.setId(transactionId);
         List<GeneralPartnerDataDto> generalPartnerDataDtoList = generalPartnerService.getGeneralPartnerDataList(transaction);
         assertEquals(1, generalPartnerDataDtoList.size());
+    }
+
+    @Test
+    void testGetGeneralPartnerList() {
+        var transactionId = "9324234-234324-324";
+        when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao(), createDao()));
+        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(createDto());
+
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
+
+        assertEquals(2, generalPartnerDtoList.size());
+    }
+
+    @Test
+    void testGetGeneralPartnerList_Empty() {
+        var transactionId = "9324234-234324-324";
+        when(repository.findByTransactionId(transactionId)).thenReturn(new ArrayList<>());
+
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
+
+        assertEquals(0, generalPartnerDtoList.size());
     }
 
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {

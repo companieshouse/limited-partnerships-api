@@ -152,10 +152,16 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testGetPartnersReturnsList() {
+    void testGetGeneralPartnersReturnsList() {
+        when(generalPartnerService.getGeneralPartnerList(transaction)).thenReturn(List.of(new GeneralPartnerDto(), new GeneralPartnerDto()));
+
         var response = generalPartnerController.getGeneralPartners(transaction, REQUEST_ID);
+
+        assertNotNull(response);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
-        assertNotNull(response.getBody());
-        assertInstanceOf(List.class, response.getBody());
+        var responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertInstanceOf(List.class, responseBody);
+        assertEquals(2, responseBody.size());
     }
 }

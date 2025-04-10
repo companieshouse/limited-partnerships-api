@@ -133,14 +133,11 @@ public class GeneralPartnerController {
     @GetMapping("/general-partners")
     public ResponseEntity<List<GeneralPartnerDto>> getGeneralPartners(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                       @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
-
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        ApiLogger.infoContext(requestId, "Retrieving list of general partners", logMap);
+        ApiLogger.infoContext(requestId, String.format("Retrieving list of general partners for transactionId %s", transactionId), logMap);
 
-        // TODO get list of general partners
-
-        return ResponseEntity.ok().body(new ArrayList<>());
+        return ResponseEntity.ok().body(generalPartnerService.getGeneralPartnerList(transaction));
     }
 }
