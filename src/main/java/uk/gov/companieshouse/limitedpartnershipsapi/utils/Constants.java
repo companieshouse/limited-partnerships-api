@@ -38,6 +38,11 @@ public class Constants {
 
     public static final String INVALID_CHARACTERS_MESSAGE = "must only include letters a to z, numbers and common special characters such as hyphens, spaces and apostrophes";
 
+    public static final String LIMITED_PARTNERSHIP_FIELD = "limited_partnership";
+    public static final String GENERAL_PARTNER_FIELD = "general_partners";
+    public static final String LIMITED_PARTNER_FIELD = "limited_partners";
+
+
     private Constants() {
     }
 }

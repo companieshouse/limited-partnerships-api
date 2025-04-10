@@ -8,6 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -16,7 +17,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -108,5 +111,12 @@ public class LimitedPartnerService {
         var submission = repository.findById(submissionId);
         LimitedPartnerDao submissionDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("No limited partner found with id %s", submissionId)));
         return mapper.daoToDto(submissionDao);
+    }
+
+    public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
+        return repository.findByTransactionId(transaction.getId()).stream().
+                map(mapper::daoToDto).
+                map(LimitedPartnerDto::getData).
+                collect(Collectors.toList());
     }
 }
