@@ -27,7 +27,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
