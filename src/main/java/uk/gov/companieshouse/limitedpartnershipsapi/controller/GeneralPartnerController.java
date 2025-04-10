@@ -141,8 +141,6 @@ public class GeneralPartnerController {
 
         // TODO get list of general partners
 
-        List<GeneralPartnerDto> generalPartnerList = new ArrayList<>();
-
-        return ResponseEntity.ok().body(generalPartnerList);
+        return ResponseEntity.ok().body(new ArrayList<>());
     }
 }
