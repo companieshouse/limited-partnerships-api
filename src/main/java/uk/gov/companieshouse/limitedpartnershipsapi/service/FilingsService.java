@@ -22,7 +22,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANS
 @Service
 public class FilingsService {
 
-    private final LimitedPartnershipService  limitedPartnershipService;
+    private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
 
