@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -165,6 +166,17 @@ class GeneralPartnerServiceTest {
         generalPartnerDto.setData(generalPartnerData);
 
         assertNotNull(generalPartnerDto.getData());
+    }
+
+    @Test
+    void testGetGeneralPartnerList() {
+        var transactionId = "trns123";
+        when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao()));
+        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(createDto());
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<GeneralPartnerDataDto> generalPartnerDataDtoList = generalPartnerService.getGeneralPartnerDataList(transaction);
+        assertEquals(1, generalPartnerDataDtoList.size());
     }
 
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {
