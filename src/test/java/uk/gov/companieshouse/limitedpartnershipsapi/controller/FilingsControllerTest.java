@@ -41,11 +41,13 @@ class FilingsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
     @Autowired
-    FilingsController filingsController;
+    private FilingsController filingsController;
 
     @MockitoBean
-    FilingsService filingsService;
+    private FilingsService filingsService;
+
     private HttpHeaders httpHeaders;
     private Transaction transaction;
 
