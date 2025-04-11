@@ -135,7 +135,7 @@ public class GeneralPartnerController {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        ApiLogger.infoContext(requestId, String.format("Retrieving list of general partners for transactionId %s", transactionId), logMap);
+        ApiLogger.infoContext(requestId, "Retrieving list of general partners", logMap);
 
         return ResponseEntity.ok().body(generalPartnerService.getGeneralPartnerList(transaction));
     }
