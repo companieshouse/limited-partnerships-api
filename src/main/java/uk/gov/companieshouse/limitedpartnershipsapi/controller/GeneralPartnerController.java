@@ -111,6 +111,7 @@ public class GeneralPartnerController {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
+        logMap.put(URL_PARAM_GENERAL_PARTNER_ID, generalPartnerId);
 
         ApiLogger.infoContext(requestId, "Calling service to validate a General Partner", logMap);
         var validationStatus = new ValidationStatusResponse();

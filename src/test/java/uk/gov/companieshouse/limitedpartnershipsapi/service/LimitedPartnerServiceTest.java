@@ -7,12 +7,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.LimitedPartnerType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -51,6 +52,9 @@ class LimitedPartnerServiceTest {
     @Mock
     private TransactionService transactionService;
 
+    @Mock
+    private LimitedPartnerValidator limitedPartnerValidator;
+
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
@@ -61,8 +65,35 @@ class LimitedPartnerServiceTest {
     private TransactionUtils transactionUtils;
 
     @Test
-    void testCreateLimitedPartnerIsSuccessful() throws ServiceException {
-        // given
+    void testGetLimitedPartnerSuccess() throws ServiceException {
+        LimitedPartnerDao dao = createDao();
+
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.of(dao));
+
+        when(mapper.daoToDto(dao)).thenReturn(createDto());
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(Transaction.class), any(String.class), any(String.class))).thenReturn(true)
+                .thenReturn(true);
+
+        var dto = limitedPartnerService.getLimitedPartner(buildTransaction(), SUBMISSION_ID);
+        assertEquals("John", dto.getData().getForename());
+        assertEquals("Doe", dto.getData().getSurname());
+    }
+
+    @Test
+    void testGetLimitedPartnerNotFound() {
+        Transaction transaction = new Transaction();
+        transaction.setId("transaction442");
+
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.empty());
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID));
+        assertEquals("Limited partner submission with id abc-123 not found", resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testCreateLinksForLimitedPartnerIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDto limitedPartnerDto = createDto();
         LimitedPartnerDao limitedPartnerDao = createDao();
         limitedPartnerDao.setId(SUBMISSION_ID);
@@ -72,10 +103,8 @@ class LimitedPartnerServiceTest {
 
         Transaction testTransaction = buildTransaction();
 
-        // when
         String submissionId = limitedPartnerService.createLimitedPartner(testTransaction, limitedPartnerDto, REQUEST_ID, USER_ID);
 
-        // then
         verify(mapper, times(1)).dtoToDao(limitedPartnerDto);
         verify(repository, times(1)).insert(limitedPartnerDao);
         verify(repository, times(1)).save(submissionCaptor.capture());
@@ -84,9 +113,7 @@ class LimitedPartnerServiceTest {
         assertEquals(USER_ID, sentSubmission.getCreatedBy());
         assertEquals(FILING_KIND_LIMITED_PARTNER, sentSubmission.getData().getKind());
         assertEquals(SUBMISSION_ID, submissionId);
-        assertEquals(LimitedPartnerType.LEGAL_ENTITY, sentSubmission.getData().getPartnerType());
 
-        // Assert self link
         String expectedUri = String.format(URL_GET_LIMITED_PARTNER, testTransaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
     }
@@ -129,26 +156,6 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    void testGetLimitedPartner_Success() throws ResourceNotFoundException {
-        // Arrange
-        Transaction transaction = new Transaction();
-        transaction.setId("txn-123");
-        String submissionId = "sub-456";
-        LimitedPartnerDao submissionDao = new LimitedPartnerDao();
-        LimitedPartnerDto dto = new LimitedPartnerDto();
-
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
-        when(repository.findById(submissionId)).thenReturn(Optional.of(submissionDao));
-        when(mapper.daoToDto(submissionDao)).thenReturn(dto);
-
-        // Act
-        LimitedPartnerDto result = limitedPartnerService.getLimitedPartner(transaction, submissionId);
-
-        // Assert
-        assertEquals(dto, result);
-    }
-
-    @Test
     void testGetLimitedPartner_TransactionNotLinked() {
         // Arrange
         Transaction transaction = new Transaction();
@@ -162,7 +169,7 @@ class LimitedPartnerServiceTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             limitedPartnerService.getLimitedPartner(transaction, submissionId);
         });
-        String expectedMessage = String.format("Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId);
+        String expectedMessage = String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), submissionId);
         assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -178,7 +185,9 @@ class LimitedPartnerServiceTest {
     private LimitedPartnerDto createDto() {
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
-        dataDto.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
+        dataDto.setForename("John");
+        dataDto.setSurname("Doe");
+        dataDto.setNationality1(Nationality.BELGIAN);
         dto.setData(dataDto);
         return dto;
     }
@@ -186,7 +195,6 @@ class LimitedPartnerServiceTest {
     private LimitedPartnerDao createDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
         LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
-        dataDao.setPartnerType(LimitedPartnerType.LEGAL_ENTITY);
         dao.setData(dataDao);
         return dao;
     }
