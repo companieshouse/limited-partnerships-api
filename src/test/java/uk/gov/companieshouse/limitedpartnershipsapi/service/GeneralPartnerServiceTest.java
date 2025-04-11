@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -183,14 +184,20 @@ class GeneralPartnerServiceTest {
     @Test
     void testGetGeneralPartnerList() {
         var transactionId = "9324234-234324-324";
-        when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao(), createDao()));
-        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(createDto());
+        GeneralPartnerDao generalPartnerDao1 = createDao();
+        GeneralPartnerDao generalPartnerDao2 = createDao();
+        List<GeneralPartnerDao> generalPartnerDaoList = List.of(generalPartnerDao1, generalPartnerDao2);
+        when(repository.findByTransactionId(transactionId)).thenReturn(generalPartnerDaoList);
+        GeneralPartnerDto generalPartnerDto1 = createDto();
+        GeneralPartnerDto generalPartnerDto2 = createDto();
+        when(mapper.daoToDto(generalPartnerDao1)).thenReturn(generalPartnerDto1);
+        when(mapper.daoToDto(generalPartnerDao2)).thenReturn(generalPartnerDto2);
 
         Transaction transaction = new Transaction();
         transaction.setId(transactionId);
         List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
 
-        assertEquals(2, generalPartnerDtoList.size());
+        assertThat(generalPartnerDtoList).containsExactly(generalPartnerDto1, generalPartnerDto2);
     }
 
     @Test
