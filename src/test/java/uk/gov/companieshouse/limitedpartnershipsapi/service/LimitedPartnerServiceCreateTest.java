@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -154,6 +155,7 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setGoverningLaw("Act of law");
             dataDto.setLegalEntityRegisterName("Register of United States");
             dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
+            dataDto.setContributionCurrencyType(Currency.ENGLAND);
             dataDto.setRegisteredCompanyNumber("12345678");
 
             dto.setData(dataDto);
@@ -169,6 +171,7 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setGoverningLaw("Act of law");
             dataDao.setLegalEntityRegisterName("UK Register");
             dataDao.setLegalEntityRegistrationLocation("United Kingdom");
+            dataDao.setContributionCurrencyType("British Pound");
             dataDao.setRegisteredCompanyNumber("12345678");
 
             dao.setData(dataDao);
@@ -263,6 +266,7 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setSurname("Doe");
             dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
             dataDto.setNationality1(Nationality.AMERICAN);
+            dataDto.setContributionCurrencyType(Currency.ENGLAND);
 
             dto.setData(dataDto);
 
@@ -277,6 +281,7 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setSurname("Doe");
             dataDao.setDateOfBirth(LocalDate.of(1980, 1, 1));
             dataDao.setNationality1("American");
+            dataDao.setContributionCurrencyType("British Pound");
 
             dao.setData(dataDao);
             dao.setId(SUBMISSION_ID);
