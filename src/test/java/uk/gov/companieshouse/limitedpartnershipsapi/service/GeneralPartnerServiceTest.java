@@ -21,12 +21,16 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -148,16 +152,13 @@ class GeneralPartnerServiceTest {
 
     @Test
     void givenNullSubmissionUri_whenCreateGeneralPartnerTransactionResource_thenResourceCreatedWithNullLink() {
-        // given
-        String submissionUri = null;
-
-        // when
-        Resource resource = createGeneralPartnerTransactionResource(submissionUri);
+        // given + when
+        Resource resource = createGeneralPartnerTransactionResource(null);
 
         // then
         assertNotNull(resource);
         assertEquals(FILING_KIND_GENERAL_PARTNER, resource.getKind());
-        assertEquals(submissionUri, resource.getLinks().get("resource"));
+        assertNull(resource.getLinks().get("resource"));
     }
 
     @Test
@@ -167,6 +168,48 @@ class GeneralPartnerServiceTest {
         generalPartnerDto.setData(generalPartnerData);
 
         assertNotNull(generalPartnerDto.getData());
+    }
+
+    @Test
+    void testGetGeneralPartnerDataList() {
+        var transactionId = "trns123";
+        when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao()));
+        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(createDto());
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<GeneralPartnerDataDto> generalPartnerDataDtoList = generalPartnerService.getGeneralPartnerDataList(transaction);
+        assertEquals(1, generalPartnerDataDtoList.size());
+    }
+
+    @Test
+    void testGetGeneralPartnerList() {
+        var transactionId = "9324234-234324-324";
+        GeneralPartnerDao generalPartnerDao1 = createDao();
+        GeneralPartnerDao generalPartnerDao2 = createDao();
+        List<GeneralPartnerDao> generalPartnerDaoList = List.of(generalPartnerDao1, generalPartnerDao2);
+        when(repository.findByTransactionId(transactionId)).thenReturn(generalPartnerDaoList);
+        GeneralPartnerDto generalPartnerDto1 = createDto();
+        GeneralPartnerDto generalPartnerDto2 = createDto();
+        when(mapper.daoToDto(generalPartnerDao1)).thenReturn(generalPartnerDto1);
+        when(mapper.daoToDto(generalPartnerDao2)).thenReturn(generalPartnerDto2);
+
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
+
+        assertThat(generalPartnerDtoList).containsExactly(generalPartnerDto1, generalPartnerDto2);
+    }
+
+    @Test
+    void testGetGeneralPartnerList_Empty() {
+        var transactionId = "9324234-234324-324";
+        when(repository.findByTransactionId(transactionId)).thenReturn(new ArrayList<>());
+
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
+
+        assertEquals(0, generalPartnerDtoList.size());
     }
 
     private Resource createGeneralPartnerTransactionResource(String submissionUri) {

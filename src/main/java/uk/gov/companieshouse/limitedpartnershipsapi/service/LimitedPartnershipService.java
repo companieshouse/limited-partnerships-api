@@ -192,7 +192,7 @@ public class LimitedPartnershipService {
         }
 
         var submission = repository.findById(submissionId);
-        LimitedPartnershipDao limitedPartnershipDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
+        var limitedPartnershipDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
         return mapper.daoToDto(limitedPartnershipDao);
     }
 
@@ -210,7 +210,7 @@ public class LimitedPartnershipService {
             throw new ServiceException(String.format("More than one limited partnership found for transaction id %s", transaction.getId()));
         }
 
-        LimitedPartnershipDao limitedPartnershipDao = limitedPartnerships.getFirst();
+        var limitedPartnershipDao = limitedPartnerships.getFirst();
 
         return mapper.daoToDto(limitedPartnershipDao);
     }

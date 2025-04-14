@@ -26,6 +26,7 @@ import java.util.Objects;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -246,7 +247,8 @@ class PartnershipControllerTest {
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
 
         ValidationStatusResponse validationStatusResponse = response.getBody();
-        assertEquals(true, validationStatusResponse.isValid());
+        assert validationStatusResponse != null;
+        assertTrue(validationStatusResponse.isValid());
         assertNull(validationStatusResponse.getValidationStatusError());
     }
 
@@ -254,7 +256,7 @@ class PartnershipControllerTest {
     void testValidationStatusWhenPartnershipDataIsNotValid() throws ResourceNotFoundException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        List errors = new ArrayList<ValidationStatusError>();
+        List<ValidationStatusError> errors = new ArrayList<>();
         errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));
         errors.add(new ValidationStatusError("Email must not be null", "data.email", null, null));
         when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(errors);
@@ -270,6 +272,7 @@ class PartnershipControllerTest {
 
         ValidationStatusResponse validationStatusResponse = response.getBody();
 
+        assert validationStatusResponse != null;
         assertThat(validationStatusResponse.getValidationStatusError())
                 .hasSize(2)
                 .satisfiesExactly(

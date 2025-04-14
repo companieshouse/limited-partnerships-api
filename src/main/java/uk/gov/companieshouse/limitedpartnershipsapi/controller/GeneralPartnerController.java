@@ -28,6 +28,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -37,7 +38,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
-@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/general-partner")
+@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership")
 public class GeneralPartnerController {
 
     private final GeneralPartnerService generalPartnerService;
@@ -47,7 +48,7 @@ public class GeneralPartnerController {
         this.generalPartnerService = generalPartnerService;
     }
 
-    @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
+    @GetMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
     public ResponseEntity<GeneralPartnerDto> getGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
                                                                @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
@@ -62,7 +63,7 @@ public class GeneralPartnerController {
         return ResponseEntity.ok().body(dto);
     }
 
-    @PostMapping
+    @PostMapping("/general-partner")
     public ResponseEntity<GeneralPartnerSubmissionCreatedResponseDto> createGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                                            @Valid @RequestBody GeneralPartnerDto generalPartnerDto,
                                                                                            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
@@ -84,7 +85,7 @@ public class GeneralPartnerController {
         }
     }
 
-    @PatchMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
+    @PatchMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
     public ResponseEntity<Object> updateGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                        @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
                                                        @Valid @RequestBody GeneralPartnerDataDto generalPartnerDataDto,
@@ -103,7 +104,7 @@ public class GeneralPartnerController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}/validation-status")
+    @GetMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}/validation-status")
     public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                         @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
                                                                         @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
@@ -127,5 +128,16 @@ public class GeneralPartnerController {
         }
 
         return ResponseEntity.ok().body(validationStatus);
+    }
+
+    @GetMapping("/general-partners")
+    public ResponseEntity<List<GeneralPartnerDto>> getGeneralPartners(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                                      @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        ApiLogger.infoContext(requestId, "Retrieving list of general partners", logMap);
+
+        return ResponseEntity.ok().body(generalPartnerService.getGeneralPartnerList(transaction));
     }
 }

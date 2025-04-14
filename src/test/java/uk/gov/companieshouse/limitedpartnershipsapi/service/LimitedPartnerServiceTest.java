@@ -22,11 +22,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -134,16 +136,13 @@ class LimitedPartnerServiceTest {
 
     @Test
     void givenNullSubmissionUri_whenCreateLimitedPartnerTransactionResource_thenResourceCreatedWithNullLink() {
-        // given
-        String submissionUri = null;
-
-        // when
-        Resource resource = createLimitedPartnerTransactionResource(submissionUri);
+        // given + when
+        Resource resource = createLimitedPartnerTransactionResource(null);
 
         // then
         assertNotNull(resource);
         assertEquals(FILING_KIND_LIMITED_PARTNER, resource.getKind());
-        assertEquals(submissionUri, resource.getLinks().get("resource"));
+        assertNull(resource.getLinks().get("resource"));
     }
 
     @Test
@@ -171,6 +170,17 @@ class LimitedPartnerServiceTest {
         });
         String expectedMessage = String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), submissionId);
         assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void testGetLimitedPartnerList() {
+        var transactionId = "trns123";
+        when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao()));
+        when(mapper.daoToDto(any(LimitedPartnerDao.class))).thenReturn(createDto());
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<LimitedPartnerDataDto> limitedPartnerDataDtoList = limitedPartnerService.getLimitedPartnerDataList(transaction);
+        assertEquals(1, limitedPartnerDataDtoList.size());
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {

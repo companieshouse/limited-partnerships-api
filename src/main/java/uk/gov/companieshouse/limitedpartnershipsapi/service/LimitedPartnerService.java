@@ -10,6 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.*;
 
@@ -120,5 +122,12 @@ public class LimitedPartnerService {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches limited partner id: %s", transactionId, limitedPartnerId));
         }
+    }
+
+    public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
+        return repository.findByTransactionId(transaction.getId()).stream().
+                map(mapper::daoToDto).
+                map(LimitedPartnerDto::getData).
+                collect(Collectors.toList());
     }
 }

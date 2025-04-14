@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -133,6 +134,19 @@ public class GeneralPartnerService {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
         return generalPartnerValidator.validate(dto);
+    }
+
+    public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {
+        return repository.findByTransactionId(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<GeneralPartnerDataDto> getGeneralPartnerDataList(Transaction transaction) {
+        return repository.findByTransactionId(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .map(GeneralPartnerDto::getData)
+                .collect(Collectors.toList());
     }
 
     private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
