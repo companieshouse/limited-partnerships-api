@@ -64,10 +64,7 @@ public class LimitedPartnerController {
             var location = URI.create(String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId));
             var response = new LimitedPartnerSubmissionCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
-        } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, "ServiceException occurred while creating Limited Partner", e, logMap);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (NoSuchMethodException e) {
+        } catch (ServiceException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating Limited Partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
