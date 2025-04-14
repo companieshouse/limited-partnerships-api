@@ -6,5 +6,5 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import java.util.List;
 
 public interface GeneralPartnerRepository extends MongoRepository<GeneralPartnerDao, String> {
-    List<GeneralPartnerDao> findAllByTransactionId(String transactionId);
+    List<GeneralPartnerDao> findAllByTransactionIdOrderByUpdatedAtDesc(String transactionId);
 }

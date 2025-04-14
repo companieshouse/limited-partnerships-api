@@ -21,7 +21,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +70,7 @@ public class GeneralPartnerService {
         dao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
         dao.setCreatedAt(LocalDateTime.now());
+        dao.setUpdatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
         dao.setTransactionId(transaction.getId());
 
@@ -138,14 +138,13 @@ public class GeneralPartnerService {
     }
 
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {
-        return repository.findAllByTransactionId(transaction.getId()).stream()
-                .sorted(Comparator.comparing(GeneralPartnerDao::getUpdatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
                 .collect(Collectors.toList());
     }
 
     public List<GeneralPartnerDataDto> getGeneralPartnerDataList(Transaction transaction) {
-        return repository.findAllByTransactionId(transaction.getId()).stream()
+        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
                 .map(GeneralPartnerDto::getData)
                 .collect(Collectors.toList());
