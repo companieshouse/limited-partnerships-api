@@ -1,12 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.LimitedPartnerType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
