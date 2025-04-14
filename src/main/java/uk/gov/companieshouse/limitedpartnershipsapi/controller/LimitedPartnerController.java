@@ -47,7 +47,7 @@ public class LimitedPartnerController {
             @Valid @RequestBody LimitedPartnerDto limitedPartnerDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId)
-    throws ServiceException, MethodArgumentNotValidException {
+    throws MethodArgumentNotValidException {
 
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
