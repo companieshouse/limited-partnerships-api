@@ -171,7 +171,7 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setGoverningLaw("Act of law");
             dataDao.setLegalEntityRegisterName("UK Register");
             dataDao.setLegalEntityRegistrationLocation("United Kingdom");
-            dataDao.setContributionCurrencyType("GBP");
+            dataDao.setContributionCurrencyType(Currency.GBP);
             dataDao.setRegisteredCompanyNumber("12345678");
 
             dao.setData(dataDao);
@@ -281,7 +281,7 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setSurname("Doe");
             dataDao.setDateOfBirth(LocalDate.of(1980, 1, 1));
             dataDao.setNationality1("American");
-            dataDao.setContributionCurrencyType("British Pound");
+            dataDao.setContributionCurrencyType(Currency.GBP);
 
             dao.setData(dataDao);
             dao.setId(SUBMISSION_ID);

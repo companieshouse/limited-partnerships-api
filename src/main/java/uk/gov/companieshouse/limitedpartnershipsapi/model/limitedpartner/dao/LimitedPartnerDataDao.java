@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 
 import java.time.LocalDate;
 
@@ -11,7 +12,7 @@ public class LimitedPartnerDataDao {
     private String appointmentId;
 
     @Field("contribution_currency_type")
-    private String contributionCurrencyType;
+    private Currency contributionCurrencyType;
 
     @Field("contribution_currency_value")
     private String contributionCurrencyValue;
@@ -81,11 +82,11 @@ public class LimitedPartnerDataDao {
         this.appointmentId = appointmentId;
     }
 
-    public String getContributionCurrencyType() {
+    public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
     }
 
-    public void setContributionCurrencyType(String contributionCurrencyType) {
+    public void setContributionCurrencyType(Currency contributionCurrencyType) {
         this.contributionCurrencyType = contributionCurrencyType;
     }
 
