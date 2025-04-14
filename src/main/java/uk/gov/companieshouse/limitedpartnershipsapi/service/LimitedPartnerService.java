@@ -97,10 +97,6 @@ public class LimitedPartnerService {
         transactionService.updateTransaction(transaction, requestID);
     }
 
-    private String getSubmissionUri(String transactionId, String submissionId) {
-        return String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId);
-    }
-
     public List<ValidationStatusError> validateLimitedPartner(Transaction transaction, String limitedPartnerId)
             throws ServiceException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
