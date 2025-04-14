@@ -58,13 +58,13 @@ public class GeneralPartnerValidator {
 
         if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(generalPartnerDataDto, bindingResult);
-            if (Boolean.FALSE.equals(generalPartnerDataDto.isLegalPersonalityStatementChecked())) {
+            if (Boolean.FALSE.equals(generalPartnerDataDto.getLegalPersonalityStatementChecked())) {
                 addError(GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
             }
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(generalPartnerDto, bindingResult);
-            if (Boolean.FALSE.equals(generalPartnerDataDto.isNotDisqualifiedStatementChecked())) {
+            if (Boolean.FALSE.equals(generalPartnerDataDto.getNotDisqualifiedStatementChecked())) {
                 addError(GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
             }
         } else {
