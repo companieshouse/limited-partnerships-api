@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -47,26 +46,6 @@ class LimitedPartnerMapperTest {
         String sourceData = Country.ENGLAND.getDescription();
 
         Country destinationData = mapper.mapCountryToEnum(sourceData);
-
-        assertEquals(sourceData, destinationData.getDescription());
-    }
-
-    @Test
-    void limitedPartnerCurrencyEnumToString() {
-        Currency sourceData = Currency.ENGLAND;
-
-        String destinationData = mapper.mapCurrencyToString(sourceData);
-
-        assertEquals(sourceData.getDescription().toLowerCase(), destinationData.toLowerCase());
-
-    }
-
-    @Test
-    void limitedPartnerCurrencyStringToEnum() {
-
-        String sourceData = Currency.ENGLAND.getDescription();
-
-        Currency destinationData = mapper.mapCurrencyToEnum(sourceData);
 
         assertEquals(sourceData, destinationData.getDescription());
     }

@@ -155,7 +155,7 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setGoverningLaw("Act of law");
             dataDto.setLegalEntityRegisterName("Register of United States");
             dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
-            dataDto.setContributionCurrencyType(Currency.ENGLAND);
+            dataDto.setContributionCurrencyType(Currency.GBP);
             dataDto.setRegisteredCompanyNumber("12345678");
 
             dto.setData(dataDto);
@@ -171,7 +171,7 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setGoverningLaw("Act of law");
             dataDao.setLegalEntityRegisterName("UK Register");
             dataDao.setLegalEntityRegistrationLocation("United Kingdom");
-            dataDao.setContributionCurrencyType("British Pound");
+            dataDao.setContributionCurrencyType("GBP");
             dataDao.setRegisteredCompanyNumber("12345678");
 
             dao.setData(dataDao);
@@ -266,7 +266,7 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setSurname("Doe");
             dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
             dataDto.setNationality1(Nationality.AMERICAN);
-            dataDto.setContributionCurrencyType(Currency.ENGLAND);
+            dataDto.setContributionCurrencyType(Currency.GBP);
 
             dto.setData(dataDto);
 

@@ -4,7 +4,6 @@ import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
@@ -35,13 +34,5 @@ public interface LimitedPartnerMapper {
 
     default Country mapCountryToEnum(String country) {
         return country != null ? Country.fromDescription(country) : null;
-    }
-
-    default String mapCurrencyToString(Currency currency) {
-        return currency.getDescription();
-    }
-
-    default Currency mapCurrencyToEnum(String currency) {
-        return currency != null ? Currency.fromDescription(currency) : null;
     }
 }
