@@ -173,7 +173,7 @@ class GeneralPartnerServiceTest {
     @Test
     void testGetGeneralPartnerDataList() {
         var transactionId = "trns123";
-        when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao()));
+        when(repository.findAllByTransactionId(transactionId)).thenReturn(List.of(createDao()));
         when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(createDto());
         Transaction transaction = new Transaction();
         transaction.setId(transactionId);
@@ -187,7 +187,7 @@ class GeneralPartnerServiceTest {
         GeneralPartnerDao generalPartnerDao1 = createDao();
         GeneralPartnerDao generalPartnerDao2 = createDao();
         List<GeneralPartnerDao> generalPartnerDaoList = List.of(generalPartnerDao1, generalPartnerDao2);
-        when(repository.findByTransactionId(transactionId)).thenReturn(generalPartnerDaoList);
+        when(repository.findAllByTransactionId(transactionId)).thenReturn(generalPartnerDaoList);
         GeneralPartnerDto generalPartnerDto1 = createDto();
         GeneralPartnerDto generalPartnerDto2 = createDto();
         when(mapper.daoToDto(generalPartnerDao1)).thenReturn(generalPartnerDto1);
@@ -203,7 +203,7 @@ class GeneralPartnerServiceTest {
     @Test
     void testGetGeneralPartnerList_Empty() {
         var transactionId = "9324234-234324-324";
-        when(repository.findByTransactionId(transactionId)).thenReturn(new ArrayList<>());
+        when(repository.findAllByTransactionId(transactionId)).thenReturn(new ArrayList<>());
 
         Transaction transaction = new Transaction();
         transaction.setId(transactionId);
