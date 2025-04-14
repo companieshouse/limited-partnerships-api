@@ -58,7 +58,9 @@ public class LimitedPartnerController {
             var location = URI.create(String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId));
             var response = new LimitedPartnerSubmissionCreatedResponseDto(submissionId);
             return ResponseEntity.created(location).body(response);
-
+        } catch (ServiceException e) {
+            ApiLogger.errorContext(requestId, "ServiceException occurred while creating Limited Partner", e, logMap);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating Limited Partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -70,15 +72,20 @@ public class LimitedPartnerController {
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
-    throws ResourceNotFoundException {
+    {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         logMap.put(URL_PARAM_SUBMISSION_ID, limitedPartnerId);
 
         ApiLogger.infoContext(requestId, "Retrieving a limited partner", logMap);
-        var dto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
-        return ResponseEntity.ok().body(dto);
+        try {
+            var dto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
+            return ResponseEntity.ok().body(dto);
+        } catch (ResourceNotFoundException ex) {
+            ApiLogger.errorContext(requestId, "Resource not found", ex, logMap);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @GetMapping("/{" + URL_PARAM_LIMITED_PARTNER_ID + "}/validation-status")

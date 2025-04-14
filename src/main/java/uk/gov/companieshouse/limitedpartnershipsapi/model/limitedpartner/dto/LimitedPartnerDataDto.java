@@ -6,10 +6,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
@@ -35,9 +35,11 @@ public class LimitedPartnerDataDto {
     public static final String PRINCIPAL_OFFICE_ADDRESS_FIELD = "principal_office_address";
 
     @JsonProperty("contribution_currency_type")
-    private String contributionCurrencyType;
+    @EnumValid
+    private Currency contributionCurrencyType;
 
     @JsonProperty("contribution_currency_value")
+    @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "Value must be a valid decimal number")
     private String contributionCurrencyValue;
 
     @JsonProperty("contribution_non_monetary_value")
@@ -127,11 +129,11 @@ public class LimitedPartnerDataDto {
         return getLegalEntityRegisterName() != null || getLegalForm() != null;
     }
 
-    public String getContributionCurrencyType() {
+    public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
     }
 
-    public void setContributionCurrencyType(String contributionCurrencyType) {
+    public void setContributionCurrencyType(Currency contributionCurrencyType) {
         this.contributionCurrencyType = contributionCurrencyType;
     }
 

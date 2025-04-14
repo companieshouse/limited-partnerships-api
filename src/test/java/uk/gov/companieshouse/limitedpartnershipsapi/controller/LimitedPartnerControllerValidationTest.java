@@ -40,8 +40,8 @@ class LimitedPartnerControllerValidationTest {
 
     private static final String LIMITED_PARTNER_ID = "93702824-9062-4c63-a694-716acffccdd5";
 
-    private static String postUrl = "/transactions/863851-951242-143528/limited-partnership/limited-partner";
-    private static String validateStatusUrl = postUrl + "/" + LIMITED_PARTNER_ID + "/validation-status";
+    private static final String postUrl = "/transactions/863851-951242-143528/limited-partnership/limited-partner";
+    private static final String validateStatusUrl = postUrl + "/" + LIMITED_PARTNER_ID + "/validation-status";
 
     // PERSON
     private static final String JSON_CORRECT = """

@@ -5,23 +5,22 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.LimitedPartnerType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 
 @Component
 @Mapper(componentModel = "spring")
 public interface LimitedPartnerMapper {
 
-    LimitedPartnerMapper INSTANCE = Mappers.getMapper(LimitedPartnerMapper.class);
-
     LimitedPartnerDto daoToDto(LimitedPartnerDao dao);
 
     LimitedPartnerDao dtoToDao(LimitedPartnerDto dto);
 
-    default String mapPartnerTypeToString(LimitedPartnerType partnerType) {
-        return partnerType.getDescription();
-    }
+    LimitedPartnerDataDto map(LimitedPartnerDataDto dto);
+
 
     // ENUMS
     default String mapNationalityToString(Nationality nationality) {
