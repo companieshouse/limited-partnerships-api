@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum Currency {
@@ -174,7 +175,17 @@ public enum Currency {
     CNY,
     ZWD,
     PLN,
-
     @JsonEnumDefaultValue
-    UNKNOWN
+    UNKNOWN;
+
+    @JsonCreator
+    public static Currency fromName(String code) {
+        for (Currency currency : Currency.values()) {
+            if (currency.name().equals(code)) {
+                return currency;
+            }
+        }
+
+        return Currency.UNKNOWN;
+    }
 }
