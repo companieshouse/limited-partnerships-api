@@ -19,7 +19,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @Disabled("Disabled until we have a test container for MongoDB")
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
-public class GeneralPartnerRepositoryTest {
+class GeneralPartnerRepositoryTest {
     private static final String TRANSACTION_ID = "transaction-123";
 
     @Autowired
@@ -31,7 +31,7 @@ public class GeneralPartnerRepositoryTest {
     }
 
     @Test
-    public void testGetGeneralPartnerListOrderedByUpdatedAtDesc() {
+    void testGetGeneralPartnerListOrderedByUpdatedAtDesc() {
         GeneralPartnerDao generalPartnerPerson = createGeneralPartnerPersonDao();
         GeneralPartnerDao generalPartnerLegalEntity = createGeneralPartnerLegalEntityDao();
 
