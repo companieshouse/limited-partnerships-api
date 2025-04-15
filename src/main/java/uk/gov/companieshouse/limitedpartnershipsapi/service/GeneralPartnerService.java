@@ -148,6 +148,7 @@ public class GeneralPartnerService {
                 .map(mapper::daoToDto)
                 .map(GeneralPartnerDto::getData)
                 .collect(Collectors.toList());
+        
     }
 
     private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
