@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
+@Disabled("Disabled until we have a test container for MongoDB")
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
 public class GeneralPartnerRepositoryTest {
