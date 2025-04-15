@@ -45,16 +45,15 @@ class LimitedPartnerControllerValidationTest {
 
     // PERSON
     private static final String JSON_CORRECT = """
-            {
-                "data": {
-                  "forename": "Joe",
-                  "surname": "Bloggs",
-                  "date_of_birth": "2001-01-01",
-                  "nationality1": "BRITISH",
-                  "nationality2": null,
-                  "not_disqualified_statement_checked": "true"
-                }
-            }""";
+        {
+            "data": {
+              "forename": "Joe",
+              "surname": "Bloggs",
+              "date_of_birth": "2001-01-01",
+              "nationality1": "BRITISH",
+              "nationality2": null
+            }
+        }""";
 
     private static final String JSON_WITH_BELOW_MIN_FORENAME = "{ \"data\": { \"forename\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
 
@@ -78,30 +77,30 @@ class LimitedPartnerControllerValidationTest {
 
     // LEGAL ENTITY
     private static final String JSON_LIMITED_LEGAL_ENTITY_CORRECT = """
-            {
-              "data": {
-                "legal_entity_name": "My Company Name",
-                "legal_form": "Form ABC",
-                "governing_law": "Act of law",
-                "legal_entity_register_name": "Register of somewhere",
-                "legal_entity_registration_location": "Scotland",
-                "registered_company_number": "12345678",
-                "not_disqualified_statement_checked": true
-              }
-            }""";
+        {
+          "data": {
+            "contribution_currency_type": "GBP",
+            "contribution_currency_value": "200.20",
+            "legal_entity_name": "My Company Name",
+            "legal_form": "Form ABC",
+            "governing_law": "Act of law",
+            "legal_entity_register_name": "Register of somewhere",
+            "legal_entity_registration_location": "Scotland",
+            "registered_company_number": "12345678"
+          }
+        }""";
 
     private static final String JSON_LIMITED_LEGAL_ENTITY_INVALID_COUNTRY = """
-            {
-              "data": {
-                "legal_entity_name": "My Company Name",
-                "legal_form": "Form ABC",
-                "governing_law": "Act of law",
-                "legal_entity_register_name": "Register of somewhere",
-                "legal_entity_registration_location": "Wrong Country",
-                "registered_company_number": "12345678",
-                "not_disqualified_statement_checked": true
-              }
-            }""";
+        {
+          "data": {
+            "legal_entity_name": "My Company Name",
+            "legal_form": "Form ABC",
+            "governing_law": "Act of law",
+            "legal_entity_register_name": "Register of somewhere",
+            "legal_entity_registration_location": "Wrong Country",
+            "registered_company_number": "12345678"
+          }
+        }""";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;

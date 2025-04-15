@@ -44,7 +44,7 @@ public class LimitedPartnerValidator {
         return errorsList;
     }
 
-    public void isValid(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void dataValidator(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
@@ -134,7 +134,7 @@ public class LimitedPartnerValidator {
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
         try {
-            isValid(limitedPartnerDto);
+            dataValidator(limitedPartnerDto);
         } catch (MethodArgumentNotValidException e) {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

@@ -19,8 +19,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerServic
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
@@ -98,7 +102,7 @@ class LimitedPartnerControllerTest {
     @Test
     void testGetPartnerIsSuccessful() throws ServiceException {
         LimitedPartnerDto dto = new LimitedPartnerDto();
-        when(limitedPartnerService.getLimitedPartner(any(Transaction.class), anyString()))
+        when(limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID))
                 .thenReturn(dto);
 
         var response = limitedPartnerController.getLimitedPartner(
