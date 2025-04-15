@@ -70,8 +70,9 @@ public class GeneralPartnerService {
         dao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
         dao.setCreatedAt(LocalDateTime.now());
-        dao.setUpdatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
+        dao.setUpdatedAt(LocalDateTime.now());
+        dao.setUpdatedBy(userId);
         dao.setTransactionId(transaction.getId());
 
         GeneralPartnerDao insertedSubmission = repository.insert(dao);
@@ -148,7 +149,7 @@ public class GeneralPartnerService {
                 .map(mapper::daoToDto)
                 .map(GeneralPartnerDto::getData)
                 .collect(Collectors.toList());
-        
+
     }
 
     private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
