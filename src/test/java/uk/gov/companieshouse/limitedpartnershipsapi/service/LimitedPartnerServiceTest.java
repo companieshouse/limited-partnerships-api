@@ -20,11 +20,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -166,7 +168,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    void testGetLimitedPartnerList() {
+    void testGetLimitedPartnerDataList() {
         var transactionId = "trns123";
         when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao()));
         when(mapper.daoToDto(any(LimitedPartnerDao.class))).thenReturn(createDto());
@@ -174,6 +176,35 @@ class LimitedPartnerServiceTest {
         transaction.setId(transactionId);
         List<LimitedPartnerDataDto> limitedPartnerDataDtoList = limitedPartnerService.getLimitedPartnerDataList(transaction);
         assertEquals(1, limitedPartnerDataDtoList.size());
+    }
+
+    @Test
+    void testGetLimitedPartnerList() {
+        var transactionid = "12345-12241-214214";
+        List<LimitedPartnerDao> limitedPartnerDaos = List.of(createDao(), createDao());
+        when(repository.findByTransactionId(transactionid)).thenReturn(limitedPartnerDaos);
+
+        List<LimitedPartnerDto> limitedPartnerDtos = List.of(createDto(), createDto());
+        when(mapper.daoToDto(limitedPartnerDaos.get(0))).thenReturn(limitedPartnerDtos.get(0));
+        when(mapper.daoToDto(limitedPartnerDaos.get(1))).thenReturn(limitedPartnerDtos.get(1));
+
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionid);
+        List<LimitedPartnerDto> limitedPartnerDtoList = limitedPartnerService.getLimitedPartnerList(transaction);
+
+        assertThat(limitedPartnerDtoList).containsExactly(limitedPartnerDtos.get(0), limitedPartnerDtos.get(1));
+    }
+
+    @Test
+    void testGetLimitedPartnerEmptyList() {
+        var transactionId = "trns123";
+        when(repository.findByTransactionId(transactionId)).thenReturn(Collections.emptyList());
+
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionId);
+        List<LimitedPartnerDataDto> limitedPartnerDtoList = limitedPartnerService.getLimitedPartnerDataList(transaction);
+
+        assertEquals(0, limitedPartnerDtoList.size());
     }
 
     private Resource createLimitedPartnerTransactionResource(String submissionUri) {

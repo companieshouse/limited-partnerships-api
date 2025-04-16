@@ -16,6 +16,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -138,5 +139,29 @@ class LimitedPartnerControllerTest {
         // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
         assertNull(response.getBody());
+    }
+
+    @Test
+    void testGetLimitedPartnersReturnsList() {
+        List<LimitedPartnerDto> limitedPartnerDtoList = List.of(new LimitedPartnerDto(), new LimitedPartnerDto());
+        when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(limitedPartnerDtoList);
+
+        var response = limitedPartnerController.getLimitedPartners(
+                transaction,
+                REQUEST_ID);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertEquals(limitedPartnerDtoList, response.getBody());
+    }
+
+    @Test
+    void testGetLimitedPartnerReturnsEmptyList() {
+        List<LimitedPartnerDto> limitedPartnerDtoList = List.of();
+        when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(limitedPartnerDtoList);
+
+        var response = limitedPartnerController.getLimitedPartners(
+                transaction,
+                REQUEST_ID);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertEquals(limitedPartnerDtoList, response.getBody());
     }
 }
