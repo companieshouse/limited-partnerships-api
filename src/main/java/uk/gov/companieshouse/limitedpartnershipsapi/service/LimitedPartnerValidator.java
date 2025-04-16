@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -9,14 +8,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Component
 public class LimitedPartnerValidator {
@@ -24,27 +17,7 @@ public class LimitedPartnerValidator {
     @Autowired
     private Validator validator;
 
-
-    public List<ValidationStatusError> validate(LimitedPartnerDto limitedPartnerDto) throws ServiceException {
-        List<ValidationStatusError> errorsList = new ArrayList<>();
-
-        executeJavaBeansValidation(limitedPartnerDto, errorsList);
-
-        var dataDto = limitedPartnerDto.getData();
-        if (dataDto.isLegalEntity()) {
-            if (dataDto.getPrincipalOfficeAddress() == null) {
-                errorsList.add(createValidationStatusError("Principal office address is required", LimitedPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
-            }
-        } else {
-            if (dataDto.getUsualResidentialAddress() == null) {
-                errorsList.add(createValidationStatusError("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
-            }
-        }
-
-        return errorsList;
-    }
-
-    public void dataValidator(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validate(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
@@ -124,34 +97,6 @@ public class LimitedPartnerValidator {
     private void addError(String fieldName, String defaultMessage, BindingResult bindingResult) {
         var fieldError = new FieldError(LimitedPartnerDataDto.class.getName(), fieldName, defaultMessage);
         bindingResult.addError(fieldError);
-    }
-
-    private void executeJavaBeansValidation(LimitedPartnerDto limitedPartnerDto, List<ValidationStatusError> errorsList)
-            throws ServiceException {
-        Set<ConstraintViolation<LimitedPartnerDto>> violations = validator.validate(limitedPartnerDto);
-
-        violations.stream().forEach(v ->
-                errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
-
-        try {
-            dataValidator(limitedPartnerDto);
-        } catch (MethodArgumentNotValidException e) {
-            convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
-        } catch (NoSuchMethodException e) {
-            throw new ServiceException(e.getMessage());
-        }
-    }
-
-    private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
-        bindingResult.getFieldErrors().stream().forEach(fe ->
-                errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
-    }
-
-    private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
-        var error = new ValidationStatusError();
-        error.setError(errorMessage);
-        error.setLocation(location);
-        return error;
     }
 }
 

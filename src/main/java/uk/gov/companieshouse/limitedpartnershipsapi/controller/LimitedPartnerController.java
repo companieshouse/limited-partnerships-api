@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
@@ -66,7 +62,7 @@ public class LimitedPartnerController {
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating Limited Partner", e, logMap);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -85,35 +81,9 @@ public class LimitedPartnerController {
         try {
             var dto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
             return ResponseEntity.ok().body(dto);
-        } catch (ResourceNotFoundException ex) {
-            ApiLogger.errorContext(requestId, "Resource not found", ex, logMap);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (ResourceNotFoundException e) {
+            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
+            return ResponseEntity.notFound().build();
         }
-    }
-
-    @GetMapping("/{" + URL_PARAM_LIMITED_PARTNER_ID + "}/validation-status")
-    public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                                        @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
-                                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
-            throws ServiceException {
-
-        var logMap = new HashMap<String, Object>();
-        logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
-        logMap.put(URL_PARAM_LIMITED_PARTNER_ID, limitedPartnerId);
-
-        ApiLogger.infoContext(requestId, "Calling service to validate a Limited Partner", logMap);
-        var validationStatus = new ValidationStatusResponse();
-        validationStatus.setValid(true);
-
-        var validationErrors = limitedPartnerService.validateLimitedPartner(transaction, limitedPartnerId);
-
-        if (!validationErrors.isEmpty()) {
-            ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
-                    new GsonBuilder().create().toJson(validationErrors)), null, logMap);
-            validationStatus.setValid(false);
-            validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
-        }
-
-        return ResponseEntity.ok().body(validationStatus);
     }
 }

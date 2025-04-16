@@ -5,7 +5,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
@@ -49,7 +48,7 @@ public class LimitedPartnerService {
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        limitedPartnerValidator.dataValidator(limitedPartnerDto);
+        limitedPartnerValidator.validate(limitedPartnerDto);
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -96,14 +95,6 @@ public class LimitedPartnerService {
 
         transactionService.updateTransaction(transaction, requestID);
     }
-
-    public List<ValidationStatusError> validateLimitedPartner(Transaction transaction, String limitedPartnerId)
-            throws ServiceException {
-        LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
-
-        return limitedPartnerValidator.validate(dto);
-    }
-
 
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         checkLimitedPartnerIsLinkedToPartnership(transaction, limitedPartnerId);
