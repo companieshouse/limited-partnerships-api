@@ -26,10 +26,10 @@ public class GeneralPartnerDataDao {
     private String nationality2;
 
     @Field("not_disqualified_statement_checked")
-    private boolean isNotDisqualifiedStatementChecked;
+    private boolean notDisqualifiedStatementChecked;
 
     @Field("legal_personality_statement_checked")
-    private boolean isLegalPersonalityStatementChecked;
+    private boolean legalPersonalityStatementChecked;
 
     @Field("kind")
     private String kind;
@@ -137,20 +137,20 @@ public class GeneralPartnerDataDao {
         this.nationality2 = nationality2;
     }
 
-    public boolean isNotDisqualifiedStatementChecked() {
-        return isNotDisqualifiedStatementChecked;
+    public boolean getNotDisqualifiedStatementChecked() {
+        return notDisqualifiedStatementChecked;
     }
 
     public void setNotDisqualifiedStatementChecked(boolean notDisqualifiedStatementChecked) {
-        isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
+        this.notDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 
-    public boolean isLegalPersonalityStatementChecked() {
-        return isLegalPersonalityStatementChecked;
+    public boolean getLegalPersonalityStatementChecked() {
+        return legalPersonalityStatementChecked;
     }
 
     public void setLegalPersonalityStatementChecked(boolean legalPersonalityStatementChecked) {
-        isLegalPersonalityStatementChecked = legalPersonalityStatementChecked;
+        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public String getAppointmentId() {
