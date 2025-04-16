@@ -1,13 +1,11 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao;
 
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 
 import java.time.LocalDate;
 
-@Document(collection = "limited_partners")
 public class LimitedPartnerDataDao {
 
     @Field("appointment_id")

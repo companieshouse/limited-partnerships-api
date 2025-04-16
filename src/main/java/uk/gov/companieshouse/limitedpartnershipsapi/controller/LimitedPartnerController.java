@@ -28,7 +28,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_LIMITED_PARTNER_ID;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_SUBMISSION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 
@@ -75,7 +74,7 @@ public class LimitedPartnerController {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        logMap.put(URL_PARAM_SUBMISSION_ID, limitedPartnerId);
+        logMap.put(URL_PARAM_LIMITED_PARTNER_ID, limitedPartnerId);
 
         ApiLogger.infoContext(requestId, "Retrieving a limited partner", logMap);
         try {
