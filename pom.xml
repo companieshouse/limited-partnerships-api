@@ -34,6 +34,13 @@
         <encoder.version>1.3.1</encoder.version>
         <skip.unit.tests>false</skip.unit.tests>
         <flapdoodle.version>4.20.0</flapdoodle.version>
+
+        <!--  Sonar -->
+        <sonar.projectName>limited-partnerships-api</sonar.projectName>
+        <sonar.projectKey>uk.gov.companieshouse:limited-partnerships-api</sonar.projectKey>
+        <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+        <sonar.login></sonar.login>
+        <sonar.password></sonar.password>
     </properties>
 
     <profiles>
