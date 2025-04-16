@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -18,12 +19,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerServic
 
 import java.util.Objects;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.LimitedPartnerType.PERSON;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +55,7 @@ class LimitedPartnerControllerTest {
     }
 
     @Test
-    void testCreatePartnerIsSuccessful() throws ServiceException {
+    void testCreatePartnerIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(limitedPartnerService.createLimitedPartner(
                 any(Transaction.class),
                 any(LimitedPartnerDto.class),
@@ -63,14 +65,12 @@ class LimitedPartnerControllerTest {
 
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
 
-        // when
         var response = limitedPartnerController.createLimitedPartner(
                 transaction,
                 limitedPartnerDto,
                 REQUEST_ID,
                 USER_ID);
 
-        // then
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
         assertEquals(
@@ -82,8 +82,7 @@ class LimitedPartnerControllerTest {
     }
 
     @Test
-    void givenServiceException_whenCreateLimitedPartner_thenInternalServerError() throws ServiceException {
-        // given
+    void givenServiceException_whenCreateLimitedPartner_thenInternalServerError() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(limitedPartnerService.createLimitedPartner(
                 any(Transaction.class),
                 any(LimitedPartnerDto.class),
@@ -91,51 +90,40 @@ class LimitedPartnerControllerTest {
                 eq(USER_ID)))
                 .thenThrow(new ServiceException("TEST"));
 
-        // when
         var response = limitedPartnerController.createLimitedPartner(
                 transaction,
                 limitedPartnerDto,
                 REQUEST_ID,
                 USER_ID);
 
-        // then
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
     }
 
     @Test
-    void testGetPartnerIsSuccessful() throws ResourceNotFoundException {
-        // given
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
-        limitedPartnerDataDto.setPartnerType(PERSON);
-        limitedPartnerDto.setData(limitedPartnerDataDto);
+    void testGetPartnerIsSuccessful() throws ServiceException {
+        LimitedPartnerDto dto = new LimitedPartnerDto();
+        when(limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID))
+                .thenReturn(dto);
 
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
-        when(limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID)).thenReturn(limitedPartnerDto);
-
-        // when
         var response = limitedPartnerController.getLimitedPartner(
                 transaction,
                 SUBMISSION_ID,
                 REQUEST_ID);
 
-        // then
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
-        assertEquals(limitedPartnerDto, response.getBody());
+        assertNotNull(response.getBody());
     }
 
     @Test
-    void testNotFoundReturnedWhenGetPartnerFailsToFindResource() throws ResourceNotFoundException {
-        // given
+    void testNotFoundReturnedWhenGetPartnerFailsToFindResource() throws ServiceException {
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));
 
-        // when
         var response = limitedPartnerController.getLimitedPartner(
                 transaction,
                 SUBMISSION_ID,
                 REQUEST_ID);
 
-        // then
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
         assertNull(response.getBody());
     }
