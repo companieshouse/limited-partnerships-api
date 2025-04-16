@@ -90,7 +90,6 @@ public class LimitedPartnerController {
     @GetMapping("/limited-partner/{" + URL_PARAM_SUBMISSION_ID + "}")
     public ResponseEntity<Object> getLimitedPartners(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
     {
         String transactionId = transaction.getId();
