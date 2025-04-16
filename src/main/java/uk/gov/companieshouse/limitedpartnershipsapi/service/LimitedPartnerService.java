@@ -22,7 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.*;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
+
 
 @Service
 public class LimitedPartnerService {
