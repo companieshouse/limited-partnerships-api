@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import jakarta.validation.Validator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -13,9 +11,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 
 @Component
 public class LimitedPartnerValidator {
-
-    @Autowired
-    private Validator validator;
 
     public void validate(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
