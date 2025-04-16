@@ -107,15 +107,14 @@ class GeneralPartnerServiceValidateTest {
         // then
         verify(repository).findById(generalPartnerDao.getId());
 
-        // TODO Uncomment the final check below when a service address is being saved for a General Partner Person
         assertThat(results)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Date of birth is required", GeneralPartnerDataDto.DATE_OF_BIRTH_FIELD),
                         tuple("Second nationality must be different from the first", GeneralPartnerDataDto.NATIONALITY2_FIELD),
                         tuple("Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD),
-                        tuple("Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
-        // tuple("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
+                        tuple("Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD),
+                        tuple("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
     }
 
     @Test
