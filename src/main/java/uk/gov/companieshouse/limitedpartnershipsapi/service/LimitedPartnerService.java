@@ -114,9 +114,15 @@ public class LimitedPartnerService {
     }
 
     public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
-        return repository.findByTransactionId(transaction.getId()).stream().
-                map(mapper::daoToDto).
-                map(LimitedPartnerDto::getData).
-                collect(Collectors.toList());
+        return repository.findByTransactionId(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .map(LimitedPartnerDto::getData)
+                .collect(Collectors.toList());
+    }
+
+    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) {
+        return repository.findByTransactionId(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .collect(Collectors.toList());
     }
 }
