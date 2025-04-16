@@ -219,7 +219,7 @@ class GeneralPartnerServiceUpdateTest {
 
         GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
 
-        assertEquals(input == null || input, newlySavedPartnerDao.getData().isNotDisqualifiedStatementChecked());
+        assertEquals(input == null || input, newlySavedPartnerDao.getData().getNotDisqualifiedStatementChecked());
     }
 
     @ParameterizedTest
@@ -240,6 +240,6 @@ class GeneralPartnerServiceUpdateTest {
 
         GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
 
-        assertEquals(input == null || input, newlySavedPartnerDao.getData().isLegalPersonalityStatementChecked());
+        assertEquals(input == null || input, newlySavedPartnerDao.getData().getLegalPersonalityStatementChecked());
     }
 }

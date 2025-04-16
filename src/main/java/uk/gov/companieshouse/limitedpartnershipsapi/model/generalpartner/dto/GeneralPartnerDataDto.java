@@ -71,10 +71,10 @@ public class GeneralPartnerDataDto {
     private Nationality nationality2;
 
     @JsonProperty(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)
-    private Boolean isNotDisqualifiedStatementChecked;
+    private Boolean notDisqualifiedStatementChecked;
 
     @JsonProperty(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)
-    private Boolean isLegalPersonalityStatementChecked;
+    private Boolean legalPersonalityStatementChecked;
 
     @JsonProperty("date_effective_from")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -182,20 +182,20 @@ public class GeneralPartnerDataDto {
         this.nationality2 = nationality2;
     }
 
-    public Boolean isNotDisqualifiedStatementChecked() {
-        return isNotDisqualifiedStatementChecked;
+    public Boolean getNotDisqualifiedStatementChecked() {
+        return notDisqualifiedStatementChecked;
     }
 
     public void setNotDisqualifiedStatementChecked(Boolean notDisqualifiedStatementChecked) {
-        isNotDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
+        this.notDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 
-    public Boolean isLegalPersonalityStatementChecked() {
-        return isLegalPersonalityStatementChecked;
+    public Boolean getLegalPersonalityStatementChecked() {
+        return legalPersonalityStatementChecked;
     }
 
     public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        isLegalPersonalityStatementChecked = legalPersonalityStatementChecked;
+        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public LocalDate getDateEffectiveFrom() {
