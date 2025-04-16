@@ -32,7 +32,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
-@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/limited-partner")
+@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership")
 public class LimitedPartnerController {
 
     private final LimitedPartnerService limitedPartnerService;
@@ -42,7 +42,7 @@ public class LimitedPartnerController {
         this.limitedPartnerService = limitedPartnerService;
     }
 
-    @PostMapping
+    @PostMapping("/limited-partner")
     public ResponseEntity<LimitedPartnerSubmissionCreatedResponseDto> createLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @Valid @RequestBody LimitedPartnerDto limitedPartnerDto,
@@ -70,7 +70,7 @@ public class LimitedPartnerController {
         }
     }
 
-    @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}")
+    @GetMapping("/limited-partner/{" + URL_PARAM_SUBMISSION_ID + "}")
     public ResponseEntity<Object> getLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
