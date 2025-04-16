@@ -1,7 +1,7 @@
 # limited-partnerships-api
 
 ### Overview
-API service for limited partnerships
+API service for limited partnerships 
 
 ### Requirements
 In order to run the service locally you will need the following:
