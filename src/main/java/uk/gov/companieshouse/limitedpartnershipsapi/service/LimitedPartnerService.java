@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -69,6 +68,8 @@ public class LimitedPartnerService {
         dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
         dao.setTransactionId(transaction.getId());
+        dao.setUpdatedAt(LocalDateTime.now());
+        dao.setUpdatedBy(userId);
 
         LimitedPartnerDao insertedSubmission = repository.insert(dao);
         ApiLogger.infoContext(requestId, String.format("Limited Partner submission created with id: %s", insertedSubmission.getId()));
@@ -116,9 +117,15 @@ public class LimitedPartnerService {
     }
 
     public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
-        return repository.findByTransactionId(transaction.getId()).stream().
-                map(mapper::daoToDto).
-                map(LimitedPartnerDto::getData).
-                collect(Collectors.toList());
+        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .map(LimitedPartnerDto::getData)
+                .toList();
+    }
+
+    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) {
+        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .toList();
     }
 }
