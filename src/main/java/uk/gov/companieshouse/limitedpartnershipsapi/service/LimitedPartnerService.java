@@ -68,6 +68,8 @@ public class LimitedPartnerService {
         dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
         dao.setTransactionId(transaction.getId());
+        dao.setUpdatedAt(LocalDateTime.now());
+        dao.setUpdatedBy(userId);
 
         LimitedPartnerDao insertedSubmission = repository.insert(dao);
         ApiLogger.infoContext(requestId, String.format("Limited Partner submission created with id: %s", insertedSubmission.getId()));
