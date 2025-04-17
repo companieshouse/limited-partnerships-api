@@ -177,7 +177,7 @@ class LimitedPartnerServiceTest {
     @Test
     void testGetLimitedPartnerDataList() {
         var transactionId = "trns123";
-        when(repository.findByTransactionId(transactionId)).thenReturn(List.of(createDao()));
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionId)).thenReturn(List.of(createDao()));
         when(mapper.daoToDto(any(LimitedPartnerDao.class))).thenReturn(createDto());
         Transaction transaction = new Transaction();
         transaction.setId(transactionId);
@@ -189,7 +189,7 @@ class LimitedPartnerServiceTest {
     void testGetLimitedPartnerList() {
         var transactionid = "12345-12241-214214";
         List<LimitedPartnerDao> limitedPartnerDaos = List.of(createDao(), createDao());
-        when(repository.findByTransactionId(transactionid)).thenReturn(limitedPartnerDaos);
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionid)).thenReturn(limitedPartnerDaos);
 
         List<LimitedPartnerDto> limitedPartnerDtos = List.of(createDto(), createDto());
         when(mapper.daoToDto(limitedPartnerDaos.get(0))).thenReturn(limitedPartnerDtos.get(0));
@@ -205,7 +205,7 @@ class LimitedPartnerServiceTest {
     @Test
     void testGetLimitedPartnerEmptyList() {
         var transactionId = "trns123";
-        when(repository.findByTransactionId(transactionId)).thenReturn(Collections.emptyList());
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionId)).thenReturn(Collections.emptyList());
 
         Transaction transaction = new Transaction();
         transaction.setId(transactionId);
