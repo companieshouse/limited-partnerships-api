@@ -5,7 +5,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,9 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -42,8 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {PartnershipController.class})
+@ContextConfiguration(classes = {PartnershipController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
 
@@ -65,9 +61,6 @@ class PartnershipControllerValidationTest {
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
 
-    @Autowired
-    private PartnershipController partnershipController;
-
     @MockitoBean
     private LimitedPartnershipService service;
 
@@ -79,11 +72,6 @@ class PartnershipControllerValidationTest {
         httpHeaders.add("ERIC-Identity", "123");
 
         transaction = new Transaction();
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(partnershipController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
-
     }
 
     @Nested

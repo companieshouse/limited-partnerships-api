@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
@@ -24,8 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {LimitedPartnerController.class})
+@ContextConfiguration(classes = {LimitedPartnerController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 class LimitedPartnerControllerValidationTest {
 
@@ -96,9 +92,6 @@ class LimitedPartnerControllerValidationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private LimitedPartnerController limitedPartnerController;
-
     @MockitoBean
     private LimitedPartnerService limitedPartnerService;
 
@@ -113,10 +106,6 @@ class LimitedPartnerControllerValidationTest {
         httpHeaders.add("ERIC-Identity", "123");
 
         transaction = new Transaction();
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(limitedPartnerController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
     }
 
     @ParameterizedTest
