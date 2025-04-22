@@ -61,7 +61,6 @@ class GeneralPartnerControllerUpdateTest {
 
     private static final String JSON_INVALID_NATIONALITY = "{ \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null }";
 
-    //    private static final String PATCH_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String GENERAL_PARTNER_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
 
