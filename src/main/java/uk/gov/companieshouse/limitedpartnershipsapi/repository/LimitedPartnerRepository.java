@@ -6,6 +6,5 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import java.util.List;
 
 public interface LimitedPartnerRepository extends MongoRepository<LimitedPartnerDao, String> {
-
-    List<LimitedPartnerDao> findByTransactionId(String transactionId);
+    List<LimitedPartnerDao> findAllByTransactionIdOrderByUpdatedAtDesc(String transactionId);
 }

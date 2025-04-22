@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -30,9 +31,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_LIMITED_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
-
 @RestController
-@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/limited-partner")
+@RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership")
 public class LimitedPartnerController {
 
     private final LimitedPartnerService limitedPartnerService;
@@ -42,7 +42,7 @@ public class LimitedPartnerController {
         this.limitedPartnerService = limitedPartnerService;
     }
 
-    @PostMapping
+    @PostMapping("/limited-partner")
     public ResponseEntity<LimitedPartnerSubmissionCreatedResponseDto> createLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @Valid @RequestBody LimitedPartnerDto limitedPartnerDto,
@@ -65,7 +65,7 @@ public class LimitedPartnerController {
         }
     }
 
-    @GetMapping("/{" + URL_PARAM_LIMITED_PARTNER_ID + "}")
+    @GetMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}")
     public ResponseEntity<Object> getLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
@@ -84,5 +84,16 @@ public class LimitedPartnerController {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/limited-partners")
+    public ResponseEntity<List<LimitedPartnerDto>> getLimitedPartners(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                                      @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        ApiLogger.infoContext(requestId, "Retrieving list of general partners", logMap);
+
+        return ResponseEntity.ok().body(limitedPartnerService.getLimitedPartnerList(transaction));
     }
 }
