@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,7 +138,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -149,7 +150,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn201() throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_CORRECT))
@@ -160,7 +161,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn201WhenCreatingGeneralPartnerLegalEntity() throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_GENERAL_LEGAL_ENTITY_CORRECT))
@@ -171,7 +172,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithWrongCountry() throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_GENERAL_LEGAL_ENTITY_INVALID_COUNTRY))
@@ -185,7 +186,7 @@ class GeneralPartnerControllerValidationTest {
         void shouldReturn200IfNoErrors() throws Exception {
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -202,7 +203,7 @@ class GeneralPartnerControllerValidationTest {
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -221,7 +222,7 @@ class GeneralPartnerControllerValidationTest {
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -235,7 +236,7 @@ class GeneralPartnerControllerValidationTest {
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))

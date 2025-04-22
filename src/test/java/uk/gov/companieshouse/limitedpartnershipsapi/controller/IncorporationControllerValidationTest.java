@@ -16,6 +16,8 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,7 +70,7 @@ class IncorporationControllerValidationTest {
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mockMvc.perform(post(IncorporationControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr(TRANSACTION_KEY, transaction)
                         .content(body))
@@ -80,7 +82,7 @@ class IncorporationControllerValidationTest {
     void shouldReturn201() throws Exception {
         mockMvc.perform(post(IncorporationControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr(TRANSACTION_KEY, transaction)
                         .content(CORRECT_JSON))

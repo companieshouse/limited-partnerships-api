@@ -21,6 +21,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -97,7 +99,7 @@ class GeneralPartnerControllerUpdateTest {
     void shouldReturn200(String body) throws Exception {
         mockMvc.perform(patch(GENERAL_PARTNER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -114,7 +116,7 @@ class GeneralPartnerControllerUpdateTest {
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mockMvc.perform(patch(GENERAL_PARTNER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -160,7 +162,7 @@ class GeneralPartnerControllerUpdateTest {
         void shouldReturn200(String body) throws Exception {
             mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -174,7 +176,7 @@ class GeneralPartnerControllerUpdateTest {
 
             mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -193,7 +195,7 @@ class GeneralPartnerControllerUpdateTest {
         void shouldReturn400IfFieldIncorrect(String body, String field, String errorMessage) throws Exception {
             mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -217,7 +219,7 @@ class GeneralPartnerControllerUpdateTest {
         void shouldReturn400IfRequiredFieldIsMissing(String body, String field, String errorMessage) throws Exception {
             mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -232,7 +234,7 @@ class GeneralPartnerControllerUpdateTest {
         void shouldReturn204() throws Exception {
             mockMvc.perform(delete(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isNoContent());
@@ -246,7 +248,7 @@ class GeneralPartnerControllerUpdateTest {
 
             mockMvc.perform(delete(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isNotFound());

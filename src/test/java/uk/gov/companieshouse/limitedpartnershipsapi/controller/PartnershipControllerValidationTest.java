@@ -27,6 +27,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -90,7 +91,7 @@ class PartnershipControllerValidationTest {
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -111,7 +112,7 @@ class PartnershipControllerValidationTest {
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -134,7 +135,7 @@ class PartnershipControllerValidationTest {
         void shouldReturnBadRequest(String body) throws Exception {
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -157,7 +158,7 @@ class PartnershipControllerValidationTest {
         void shouldReturn200(String body) throws Exception {
             mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -172,7 +173,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -185,7 +186,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -201,7 +202,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -215,7 +216,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -231,7 +232,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -248,7 +249,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -265,7 +266,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -282,7 +283,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -335,7 +336,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -350,7 +351,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -369,7 +370,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn400IfFieldIncorrect(String body) throws Exception {
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -392,7 +393,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn400IfRequiredFieldIsMissing(String body) throws Exception {
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -404,7 +405,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn400IfFieldHasInvalidChars(String body, String fieldName, String expectedErrorMessage) throws Exception {
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -469,7 +470,7 @@ class PartnershipControllerValidationTest {
             void shouldReturn200(String body) throws Exception {
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -482,7 +483,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -499,7 +500,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -512,7 +513,7 @@ class PartnershipControllerValidationTest {
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8")
+                                .characterEncoding(StandardCharsets.UTF_8)
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
@@ -535,7 +536,7 @@ class PartnershipControllerValidationTest {
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -552,7 +553,7 @@ class PartnershipControllerValidationTest {
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -571,7 +572,7 @@ class PartnershipControllerValidationTest {
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))

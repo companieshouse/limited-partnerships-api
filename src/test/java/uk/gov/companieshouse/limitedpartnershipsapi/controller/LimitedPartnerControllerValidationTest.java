@@ -16,6 +16,8 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -124,7 +126,7 @@ class LimitedPartnerControllerValidationTest {
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -136,7 +138,7 @@ class LimitedPartnerControllerValidationTest {
     void shouldReturn201() throws Exception {
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_CORRECT))
@@ -147,7 +149,7 @@ class LimitedPartnerControllerValidationTest {
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_LIMITED_LEGAL_ENTITY_CORRECT))
@@ -158,7 +160,7 @@ class LimitedPartnerControllerValidationTest {
     void shouldReturn400WhenCreatingLimitedPartnerLegalEntityWithWrongCountry() throws Exception {
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_LIMITED_LEGAL_ENTITY_INVALID_COUNTRY))
