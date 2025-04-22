@@ -266,6 +266,9 @@ class GeneralPartnerServiceUpdateTest {
 
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
+            // transaction before
+            assertEquals(1, transaction.getResources().size());
+
             when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
             service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID, USER_ID);
@@ -275,8 +278,11 @@ class GeneralPartnerServiceUpdateTest {
             Transaction transactionUpdated = transactionCaptor.getValue();
 
             assertEquals(0, transactionUpdated.getResources().size());
+            
+            // transaction after
+            assertEquals(0, transaction.getResources().size());
         }
-        
+
         @Test
         void shouldThrowServiceExceptionWhenGeneralPartnerNotFound() {
             Transaction transaction = buildTransaction();
