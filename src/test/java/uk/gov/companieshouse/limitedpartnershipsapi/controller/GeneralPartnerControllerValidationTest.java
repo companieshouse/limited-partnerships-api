@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -23,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {GeneralPartnerController.class})
+@ContextConfiguration(classes = {GeneralPartnerController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerValidationTest {
 
@@ -109,9 +106,6 @@ class GeneralPartnerControllerValidationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private GeneralPartnerController generalPartnerController;
-
     @MockitoBean
     private GeneralPartnerService generalPartnerService;
 
@@ -126,10 +120,6 @@ class GeneralPartnerControllerValidationTest {
         httpHeaders.add("ERIC-Identity", "123");
 
         transaction = new Transaction();
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(generalPartnerController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
     }
 
     @ParameterizedTest
@@ -148,7 +138,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -160,7 +150,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn201() throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_CORRECT))
@@ -171,7 +161,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn201WhenCreatingGeneralPartnerLegalEntity() throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_GENERAL_LEGAL_ENTITY_CORRECT))
@@ -182,7 +172,7 @@ class GeneralPartnerControllerValidationTest {
     void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithWrongCountry() throws Exception {
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_GENERAL_LEGAL_ENTITY_INVALID_COUNTRY))
@@ -196,7 +186,7 @@ class GeneralPartnerControllerValidationTest {
         void shouldReturn200IfNoErrors() throws Exception {
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -213,7 +203,7 @@ class GeneralPartnerControllerValidationTest {
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -232,7 +222,7 @@ class GeneralPartnerControllerValidationTest {
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
@@ -246,7 +236,7 @@ class GeneralPartnerControllerValidationTest {
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))

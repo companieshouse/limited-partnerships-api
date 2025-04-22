@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -14,21 +13,25 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {GeneralPartnerController.class})
+@ContextConfiguration(classes = {GeneralPartnerController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerUpdateTest {
 
@@ -60,7 +63,8 @@ class GeneralPartnerControllerUpdateTest {
 
     private static final String JSON_INVALID_NATIONALITY = "{ \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null }";
 
-    private static final String PATCH_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private static final String GENERAL_PARTNER_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -68,11 +72,11 @@ class GeneralPartnerControllerUpdateTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private GeneralPartnerController generalPartnerController;
-
     @MockitoBean
     private GeneralPartnerService generalPartnerService;
+
+    @MockitoBean
+    private GeneralPartnerRepository generalPartnerRepository;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -85,10 +89,6 @@ class GeneralPartnerControllerUpdateTest {
         httpHeaders.add("ERIC-Identity", "123");
 
         transaction = new Transaction();
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(generalPartnerController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
     }
 
     @ParameterizedTest
@@ -97,9 +97,9 @@ class GeneralPartnerControllerUpdateTest {
             JSON_GENERAL_LEGAL_ENTITY
     })
     void shouldReturn200(String body) throws Exception {
-        mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+        mockMvc.perform(patch(GENERAL_PARTNER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -114,9 +114,9 @@ class GeneralPartnerControllerUpdateTest {
             JSON_INVALID_NATIONALITY + "$ nationality1 $ First nationality must be valid"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
-        mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+        mockMvc.perform(patch(GENERAL_PARTNER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
@@ -160,9 +160,9 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE
         })
         void shouldReturn200(String body) throws Exception {
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -174,9 +174,9 @@ class GeneralPartnerControllerUpdateTest {
             String longAddressLine1 = StringUtils.repeat("A", 51);
             String body = "{\"principal_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -193,9 +193,9 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_SA_ADDRESS_LINE_1_TOO_SHORT + "$ serviceAddress.addressLine1 $ Address line 1 must be greater than 1"
         }, delimiter = '$')
         void shouldReturn400IfFieldIncorrect(String body, String field, String errorMessage) throws Exception {
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
@@ -217,14 +217,41 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_SA_MISSING_COUNTRY + "$ serviceAddress.country $ Country must not be null"
         }, delimiter = '$')
         void shouldReturn400IfRequiredFieldIsMissing(String body, String field, String errorMessage) throws Exception {
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
+                            .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+        }
+    }
+
+    @Nested
+    class DeleteGeneralPartner {
+        @Test
+        void shouldReturn204() throws Exception {
+            mockMvc.perform(delete(GENERAL_PARTNER_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            doThrow(new ResourceNotFoundException("General partner with id %s not found " + GENERAL_PARTNER_ID))
+                    .when(generalPartnerService)
+                    .deleteGeneralPartner(any(), any(), any());
+
+            mockMvc.perform(delete(GENERAL_PARTNER_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andExpect(status().isNotFound());
         }
     }
 }

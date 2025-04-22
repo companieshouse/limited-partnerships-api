@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,21 +10,20 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {IncorporationController.class})
+@ContextConfiguration(classes = {IncorporationController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {IncorporationController.class})
 class IncorporationControllerValidationTest {
 
@@ -48,9 +46,6 @@ class IncorporationControllerValidationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private IncorporationController generalPartnerController;
-
     @MockitoBean
     private LimitedPartnershipIncorporationService limitedPartnershipIncorporationService;
 
@@ -65,10 +60,6 @@ class IncorporationControllerValidationTest {
         httpHeaders.add("ERIC-Identity", "123");
 
         transaction = new Transaction();
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(generalPartnerController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
     }
 
     @ParameterizedTest
@@ -79,7 +70,7 @@ class IncorporationControllerValidationTest {
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mockMvc.perform(post(IncorporationControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr(TRANSACTION_KEY, transaction)
                         .content(body))
@@ -91,7 +82,7 @@ class IncorporationControllerValidationTest {
     void shouldReturn201() throws Exception {
         mockMvc.perform(post(IncorporationControllerValidationTest.POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr(TRANSACTION_KEY, transaction)
                         .content(CORRECT_JSON))
