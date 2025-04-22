@@ -230,8 +230,6 @@ class GeneralPartnerControllerUpdateTest {
     class DeleteGeneralPartner {
         private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
         private static final String DELETE_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
-        private static final String REQUEST_ID = "request123";
-        private static final String USER_ID = "user123";
 
         @Test
         void shouldReturn204() throws Exception {
@@ -247,7 +245,7 @@ class GeneralPartnerControllerUpdateTest {
         void shouldReturn404() throws Exception {
             doThrow(new ResourceNotFoundException("General partner with id %s not found " + GENERAL_PARTNER_ID))
                     .when(generalPartnerService)
-                    .deleteGeneralPartner(any(), any(), any(), any());
+                    .deleteGeneralPartner(any(), any(), any());
 
             mockMvc.perform(delete(DELETE_URL)
                             .contentType(MediaType.APPLICATION_JSON)

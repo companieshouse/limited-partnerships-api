@@ -193,8 +193,8 @@ public class GeneralPartnerService {
         }
     }
 
-    public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId, String userId) throws ServiceException {
-        GeneralPartnerDao generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
+    public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId) throws ServiceException {
+        repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
 
         repository.deleteById(generalPartnerId);
 

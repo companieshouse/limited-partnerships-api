@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
@@ -271,14 +270,14 @@ class GeneralPartnerServiceUpdateTest {
 
             when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-            service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID, USER_ID);
+            service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID);
 
             verify(transactionService).updateTransaction(transactionCaptor.capture(), eq(REQUEST_ID));
 
             Transaction transactionUpdated = transactionCaptor.getValue();
 
             assertEquals(0, transactionUpdated.getResources().size());
-            
+
             // transaction after
             assertEquals(0, transaction.getResources().size());
         }
@@ -290,7 +289,7 @@ class GeneralPartnerServiceUpdateTest {
             when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                    service.deleteGeneralPartner(transaction, "wrong-id", REQUEST_ID, USER_ID)
+                    service.deleteGeneralPartner(transaction, "wrong-id", REQUEST_ID)
             );
 
             assertEquals("General partner with id wrong-id not found", exception.getMessage());
@@ -311,35 +310,6 @@ class GeneralPartnerServiceUpdateTest {
             transaction.setResources(resourceMap);
 
             return transaction;
-        }
-
-        private GeneralPartnerDao createPersonDao() {
-            GeneralPartnerDao dao = new GeneralPartnerDao();
-
-            dao.setId(GENERAL_PARTNER_ID);
-            GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-            dataDao.setForename("Jack");
-            dataDao.setSurname("Jones");
-            dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
-            dataDao.setNationality1(Nationality.EMIRATI.getDescription());
-            dataDao.setNotDisqualifiedStatementChecked(true);
-            dataDao.setUsualResidentialAddress(createAddressDao());
-            dataDao.setServiceAddress(createAddressDao());
-            dao.setData(dataDao);
-
-            return dao;
-        }
-
-        private AddressDao createAddressDao() {
-            AddressDao dao = new AddressDao();
-
-            dao.setPremises("33");
-            dao.setAddressLine1("Acacia Avenue");
-            dao.setLocality("Birmingham");
-            dao.setCountry("England");
-            dao.setPostalCode("BM1 2EH");
-
-            return dao;
         }
     }
 }

@@ -145,8 +145,7 @@ public class GeneralPartnerController {
     @DeleteMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
     public ResponseEntity<Object> deleteGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                        @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
-                                                       @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-                                                       @RequestHeader(value = ERIC_IDENTITY) String userId)
+                                                       @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
             throws ServiceException {
 
         String transactionId = transaction.getId();
@@ -156,7 +155,7 @@ public class GeneralPartnerController {
 
         ApiLogger.infoContext(requestId, "Delete a general partner", logMap);
 
-        generalPartnerService.deleteGeneralPartner(transaction, generalPartnerId, requestId, userId);
+        generalPartnerService.deleteGeneralPartner(transaction, generalPartnerId, requestId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
