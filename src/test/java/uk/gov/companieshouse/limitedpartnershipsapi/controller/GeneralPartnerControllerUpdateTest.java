@@ -61,7 +61,9 @@ class GeneralPartnerControllerUpdateTest {
 
     private static final String JSON_INVALID_NATIONALITY = "{ \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null }";
 
-    private static final String PATCH_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    //    private static final String PATCH_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private static final String GENERAL_PARTNER_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -94,7 +96,7 @@ class GeneralPartnerControllerUpdateTest {
             JSON_GENERAL_LEGAL_ENTITY
     })
     void shouldReturn200(String body) throws Exception {
-        mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+        mockMvc.perform(patch(GENERAL_PARTNER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
@@ -111,7 +113,7 @@ class GeneralPartnerControllerUpdateTest {
             JSON_INVALID_NATIONALITY + "$ nationality1 $ First nationality must be valid"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
-        mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+        mockMvc.perform(patch(GENERAL_PARTNER_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .headers(httpHeaders)
@@ -157,7 +159,7 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE
         })
         void shouldReturn200(String body) throws Exception {
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -171,7 +173,7 @@ class GeneralPartnerControllerUpdateTest {
             String longAddressLine1 = StringUtils.repeat("A", 51);
             String body = "{\"principal_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -190,7 +192,7 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_SA_ADDRESS_LINE_1_TOO_SHORT + "$ serviceAddress.addressLine1 $ Address line 1 must be greater than 1"
         }, delimiter = '$')
         void shouldReturn400IfFieldIncorrect(String body, String field, String errorMessage) throws Exception {
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -214,7 +216,7 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_SA_MISSING_COUNTRY + "$ serviceAddress.country $ Country must not be null"
         }, delimiter = '$')
         void shouldReturn400IfRequiredFieldIsMissing(String body, String field, String errorMessage) throws Exception {
-            mockMvc.perform(patch(GeneralPartnerControllerUpdateTest.PATCH_URL)
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -227,12 +229,9 @@ class GeneralPartnerControllerUpdateTest {
 
     @Nested
     class DeleteGeneralPartner {
-        private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
-        private static final String DELETE_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
-
         @Test
         void shouldReturn204() throws Exception {
-            mockMvc.perform(delete(DELETE_URL)
+            mockMvc.perform(delete(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
@@ -246,7 +245,7 @@ class GeneralPartnerControllerUpdateTest {
                     .when(generalPartnerService)
                     .deleteGeneralPartner(any(), any(), any());
 
-            mockMvc.perform(delete(DELETE_URL)
+            mockMvc.perform(delete(GENERAL_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
