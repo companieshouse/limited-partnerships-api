@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -14,21 +13,24 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {GeneralPartnerController.class})
+@ContextConfiguration(classes = {GeneralPartnerController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerUpdateTest {
 
@@ -68,11 +70,11 @@ class GeneralPartnerControllerUpdateTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private GeneralPartnerController generalPartnerController;
-
     @MockitoBean
     private GeneralPartnerService generalPartnerService;
+
+    @MockitoBean
+    private GeneralPartnerRepository generalPartnerRepository;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -85,10 +87,6 @@ class GeneralPartnerControllerUpdateTest {
         httpHeaders.add("ERIC-Identity", "123");
 
         transaction = new Transaction();
-
-        this.mockMvc = MockMvcBuilders.standaloneSetup(generalPartnerController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
     }
 
     @ParameterizedTest
@@ -225,6 +223,39 @@ class GeneralPartnerControllerUpdateTest {
                             .content(body))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+        }
+    }
+
+    @Nested
+    class DeleteGeneralPartner {
+        private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+        private static final String DELETE_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
+        private static final String REQUEST_ID = "request123";
+        private static final String USER_ID = "user123";
+
+        @Test
+        void shouldReturn204() throws Exception {
+            mockMvc.perform(delete(DELETE_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            doThrow(new ResourceNotFoundException("General partner with id %s not found " + GENERAL_PARTNER_ID))
+                    .when(generalPartnerService)
+                    .deleteGeneralPartner(any(), any(), any(), any());
+
+            mockMvc.perform(delete(DELETE_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
         }
     }
 }

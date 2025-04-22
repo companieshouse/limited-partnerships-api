@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -139,5 +140,24 @@ public class GeneralPartnerController {
         ApiLogger.infoContext(requestId, "Retrieving list of general partners", logMap);
 
         return ResponseEntity.ok().body(generalPartnerService.getGeneralPartnerList(transaction));
+    }
+
+    @DeleteMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
+    public ResponseEntity<Object> deleteGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                       @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
+                                                       @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+                                                       @RequestHeader(value = ERIC_IDENTITY) String userId)
+            throws ServiceException {
+
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        logMap.put(URL_PARAM_GENERAL_PARTNER_ID, generalPartnerId);
+
+        ApiLogger.infoContext(requestId, "Delete a general partner", logMap);
+
+        generalPartnerService.deleteGeneralPartner(transaction, generalPartnerId, requestId, userId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

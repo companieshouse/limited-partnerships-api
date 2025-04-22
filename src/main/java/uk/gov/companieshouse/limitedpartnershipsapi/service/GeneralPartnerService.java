@@ -192,5 +192,22 @@ public class GeneralPartnerService {
                     "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
         }
     }
+
+    public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId, String userId) throws ServiceException {
+        GeneralPartnerDao generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
+
+        repository.deleteById(generalPartnerId);
+
+        var resources = transaction.getResources();
+
+        var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
+
+        resources.remove(submissionUri);
+
+        transactionService.updateTransaction(transaction, requestId);
+
+        ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
+
+    }
 }
 
