@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ContextConfiguration(classes = {LimitedPartnerController.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
-public class LimitedPartnerUpdateTest {
+public class LimitedPartnerControllerUpdateTest {
     private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String LIMITED_PARTNER_URL = "/transactions/863851-951242-143528/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
 

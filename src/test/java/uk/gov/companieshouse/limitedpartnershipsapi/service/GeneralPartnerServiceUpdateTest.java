@@ -42,15 +42,15 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class GeneralPartnerServiceUpdateTest {
+    private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String USER_ID = "xbJf0l";
-    private static final String GENERAL_PARTNER_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
     @Autowired
     private GeneralPartnerService service;
 
     @MockitoBean
-    private GeneralPartnerRepository repository;
+    private GeneralPartnerRepository limitedPartnerRepository;
 
     @MockitoBean
     private TransactionService transactionService;
@@ -110,15 +110,15 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
         generalPartnerDataDto.setPrincipalOfficeAddress(principalOfficeAddress);
 
-        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // dao principal office address is null before mapping/update
         assertNull(generalPartnerDao.getData().getPrincipalOfficeAddress());
 
         service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(repository).findById(GENERAL_PARTNER_ID);
-        verify(repository).save(submissionCaptor.capture());
+        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -141,7 +141,7 @@ class GeneralPartnerServiceUpdateTest {
         generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(Nationality.AMERICAN);
 
-        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                 service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID)
@@ -158,11 +158,11 @@ class GeneralPartnerServiceUpdateTest {
         generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
 
-        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(repository).save(submissionCaptor.capture());
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -178,11 +178,11 @@ class GeneralPartnerServiceUpdateTest {
         generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(null);
 
-        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(repository).save(submissionCaptor.capture());
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -197,15 +197,15 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
         generalPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
-        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // dao principal office address before mapping/update
         assertEquals("United Kingdom", generalPartnerDao.getData().getLegalEntityRegistrationLocation());
 
         service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(repository).findById(GENERAL_PARTNER_ID);
-        verify(repository).save(submissionCaptor.capture());
+        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -221,12 +221,12 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
         partnerDataDtoWithChanges.setNotDisqualifiedStatementChecked(input);
 
-        when(repository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
+        when(limitedPartnerRepository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
 
         service.updateGeneralPartner(GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
 
-        verify(repository).findById(GENERAL_PARTNER_ID);
-        verify(repository).save(submissionCaptor.capture());
+        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
 
@@ -242,12 +242,12 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
         partnerDataDtoWithChanges.setLegalPersonalityStatementChecked(input);
 
-        when(repository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
+        when(limitedPartnerRepository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
 
         service.updateGeneralPartner(GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
 
-        verify(repository).findById(GENERAL_PARTNER_ID);
-        verify(repository).save(submissionCaptor.capture());
+        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
 
@@ -268,7 +268,7 @@ class GeneralPartnerServiceUpdateTest {
             // transaction before
             assertEquals(1, transaction.getResources().size());
 
-            when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
             service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID);
 
@@ -286,7 +286,7 @@ class GeneralPartnerServiceUpdateTest {
         void shouldThrowServiceExceptionWhenGeneralPartnerNotFound() {
             Transaction transaction = buildTransaction();
 
-            when(repository.findById("wrong-id")).thenReturn(Optional.empty());
+            when(limitedPartnerRepository.findById("wrong-id")).thenReturn(Optional.empty());
 
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
                     service.deleteGeneralPartner(transaction, "wrong-id", REQUEST_ID)
@@ -302,7 +302,7 @@ class GeneralPartnerServiceUpdateTest {
             Resource resource = new Resource();
             resource.setKind(FILING_KIND_GENERAL_PARTNER);
             Map<String, String> links = new HashMap<>();
-            links.put("resource", "/transactions/txn-456/limited-partnership/general-partner/abc-123");
+            links.put("resource", String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID));
             resource.setLinks(links);
 
             Map<String, Resource> resourceMap = new HashMap<>();
