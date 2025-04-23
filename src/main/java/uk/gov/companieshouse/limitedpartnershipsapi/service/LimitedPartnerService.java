@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -127,5 +128,26 @@ public class LimitedPartnerService {
         return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
                 .toList();
+    }
+
+    public void deleteLimitedPartner(Transaction transaction, String limitedPartnerId, String requestId) throws ServiceException {
+        Optional<LimitedPartnerDao> limitedPartnerDao = repository.findById(limitedPartnerId);
+
+        if (limitedPartnerDao.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId));
+        }
+
+        repository.deleteById(limitedPartnerId);
+
+        var resources = transaction.getResources();
+
+        var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
+
+        resources.remove(submissionUri);
+
+        transactionService.updateTransaction(transaction, requestId);
+
+        ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
+
     }
 }

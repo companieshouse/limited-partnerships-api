@@ -2,8 +2,10 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -92,8 +94,26 @@ public class LimitedPartnerController {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        ApiLogger.infoContext(requestId, "Retrieving list of general partners", logMap);
+        ApiLogger.infoContext(requestId, "Retrieving list of limited partners", logMap);
 
         return ResponseEntity.ok().body(limitedPartnerService.getLimitedPartnerList(transaction));
+    }
+
+    @DeleteMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}")
+    public ResponseEntity<Object> deleteLimitedPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                       @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
+                                                       @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
+            throws ServiceException {
+
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        logMap.put(URL_PARAM_LIMITED_PARTNER_ID, limitedPartnerId);
+
+        ApiLogger.infoContext(requestId, "Delete a limited partner", logMap);
+
+        limitedPartnerService.deleteLimitedPartner(transaction, limitedPartnerId, requestId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
