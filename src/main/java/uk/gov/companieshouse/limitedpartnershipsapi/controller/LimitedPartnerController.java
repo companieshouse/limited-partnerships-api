@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
@@ -65,6 +67,25 @@ public class LimitedPartnerController {
             ApiLogger.errorContext(requestId, "Error creating Limited Partner", e, logMap);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PatchMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}")
+    public ResponseEntity<Object> updateLimitedPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                       @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
+                                                       @Valid @RequestBody LimitedPartnerDataDto limitedPartnerDataDto,
+                                                       @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+                                                       @RequestHeader(value = ERIC_IDENTITY) String userId)
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+
+        ApiLogger.infoContext(requestId, "Update a limited partner", logMap);
+
+        limitedPartnerService.updateLimitedPartner(limitedPartnerId, limitedPartnerDataDto, requestId, userId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}")

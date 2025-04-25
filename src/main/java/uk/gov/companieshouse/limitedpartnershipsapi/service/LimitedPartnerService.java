@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -102,6 +105,28 @@ public class LimitedPartnerService {
         transactionService.updateTransaction(transaction, requestID);
     }
 
+    public void updateLimitedPartner(String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        var limitedPartnerDaoBeforePatch = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", limitedPartnerId)));
+
+        var limitedPartnerDto = mapper.daoToDto(limitedPartnerDaoBeforePatch);
+
+        mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+
+        isSecondNationalityDifferent(limitedPartnerDto);
+        handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+
+        var limitedPartnerDaoAfterPatch = mapper.dtoToDao(limitedPartnerDto);
+
+        // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
+        copyMetaDataForUpdate(limitedPartnerDaoBeforePatch, limitedPartnerDaoAfterPatch);
+
+        setAuditDetailsForUpdate(userId, limitedPartnerDaoAfterPatch);
+
+        ApiLogger.infoContext(requestId, String.format("Limited Partner updated with id: %s", limitedPartnerId));
+
+        repository.save(limitedPartnerDaoAfterPatch);
+    }
+
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         checkLimitedPartnerIsLinkedToPartnership(transaction, limitedPartnerId);
         var limitedPartnerDao = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner submission with id %s not found", limitedPartnerId)));
@@ -149,5 +174,37 @@ public class LimitedPartnerService {
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
 
+    }
+
+    private void isSecondNationalityDifferent(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
+        limitedPartnerValidator.isSecondNationalityDifferent(limitedPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,
+                                                    LimitedPartnerDataDto limitedPartnerDataDto) {
+        // The first 'not null' check here ensures that second nationality isn't wiped if, for example, only address data is being updated
+        if (limitedPartnerChangesDataDto.getNationality1() != null && limitedPartnerChangesDataDto.getNationality2() == null) {
+            limitedPartnerDataDto.setNationality2(null);
+        }
+    }
+
+    private void copyMetaDataForUpdate(LimitedPartnerDao limitedPartnerDaoBeforePatch,
+                                       LimitedPartnerDao limitedPartnerDaoAfterPatch) {
+        limitedPartnerDaoAfterPatch.setId(limitedPartnerDaoBeforePatch.getId());
+        limitedPartnerDaoAfterPatch.setCreatedAt(limitedPartnerDaoBeforePatch.getCreatedAt());
+        limitedPartnerDaoAfterPatch.setCreatedBy(limitedPartnerDaoBeforePatch.getCreatedBy());
+        limitedPartnerDaoAfterPatch.setLinks(limitedPartnerDaoBeforePatch.getLinks());
+        limitedPartnerDaoAfterPatch.setTransactionId(limitedPartnerDaoBeforePatch.getTransactionId());
+    }
+
+    private void setAuditDetailsForUpdate(String userId, LimitedPartnerDao limitedPartnerDaoAfterPatch) {
+        limitedPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
+        limitedPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 }
