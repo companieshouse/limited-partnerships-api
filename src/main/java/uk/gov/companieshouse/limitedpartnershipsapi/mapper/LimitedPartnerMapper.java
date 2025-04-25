@@ -1,6 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
@@ -9,7 +12,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 
 @Component
-@Mapper(componentModel = "spring")
+@Mapper(uses = JsonNullableMapper.class,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        componentModel = "spring")
 public interface LimitedPartnerMapper {
 
     LimitedPartnerDto daoToDto(LimitedPartnerDao dao);
@@ -18,6 +23,8 @@ public interface LimitedPartnerMapper {
 
     LimitedPartnerDataDto map(LimitedPartnerDataDto dto);
 
+    @InheritConfiguration
+    void update(LimitedPartnerDataDto update, @MappingTarget LimitedPartnerDataDto destination);
 
     // ENUMS
     default String mapNationalityToString(Nationality nationality) {
