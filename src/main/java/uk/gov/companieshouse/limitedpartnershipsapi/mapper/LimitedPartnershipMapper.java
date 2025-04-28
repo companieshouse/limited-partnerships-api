@@ -27,10 +27,10 @@ public interface LimitedPartnershipMapper {
     }
 
     default String mapJurisdictionToString(Jurisdiction jurisdiction) {
-        return jurisdiction.getDescription();
+        return jurisdiction.getApiKey();
     }
 
     default Jurisdiction mapJurisdictionToEnum(String jurisdiction) {
-        return jurisdiction != null ? Jurisdiction.fromDescription(jurisdiction) : null;
+        return jurisdiction != null ? Jurisdiction.fromApiKey(jurisdiction) : null;
     }
 }

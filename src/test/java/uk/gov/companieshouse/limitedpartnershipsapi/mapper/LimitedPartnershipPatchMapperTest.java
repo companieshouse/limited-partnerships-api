@@ -46,9 +46,9 @@ class LimitedPartnershipPatchMapperTest {
     @ParameterizedTest
     @CsvSource(value = {
             // Fields NOT present in the JSON - no update:
-            JSON_WITH_MISSING_FIELDS + "$ Asset Strippers $ test@test.com $ Scotland $ PFLP $ L.P.",
+            JSON_WITH_MISSING_FIELDS + "$ Asset Strippers $ test@test.com $ scotland $ PFLP $ L.P.",
             // Fields ARE present in the JSON - set the new string value:
-            JSON_WITH_VALID_FIELDS_ALL_PRESENT + "$ Asset Adders $ test@test.com $ Scotland $ PFLP $ L.P.",
+            JSON_WITH_VALID_FIELDS_ALL_PRESENT + "$ Asset Adders $ test@test.com $ scotland $ PFLP $ L.P.",
             // Enum fields are invalid in the JSON - set the 'UNKNOWN' value:
             JSON_WITH_INVALID_ENUM_VALUES + "$ Asset Adders $ test@test.com $ UNKNOWN $ UNKNOWN $ UNKNOWN"
     }, delimiter = '$')

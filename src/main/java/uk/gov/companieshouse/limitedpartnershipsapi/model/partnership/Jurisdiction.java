@@ -4,27 +4,27 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum Jurisdiction {
-    ENGLAND_AND_WALES("England and Wales"),
-    NORTHERN_IRELAND("Northern Ireland"),
-    SCOTLAND("Scotland"),
+    ENGLAND_AND_WALES("england-wales"),
+    NORTHERN_IRELAND("northern-ireland"),
+    SCOTLAND("scotland"),
 
     @JsonEnumDefaultValue
     UNKNOWN("UNKNOWN");
 
-    private final String description;
+    private final String apiKey;
 
-    Jurisdiction(String description) {
-        this.description = description;
+    Jurisdiction(String apiKey) {
+        this.apiKey = apiKey;
     }
 
-    public String getDescription() {
-        return description;
+    public String getApiKey() {
+        return apiKey;
     }
 
     @JsonCreator
-    public static Jurisdiction fromDescription(String description) {
+    public static Jurisdiction fromApiKey(String apiKey) {
         for (Jurisdiction jurisdiction : Jurisdiction.values()) {
-            if (jurisdiction.getDescription().equalsIgnoreCase(description)) {
+            if (jurisdiction.getApiKey().equalsIgnoreCase(apiKey)) {
                 return jurisdiction;
             }
         }

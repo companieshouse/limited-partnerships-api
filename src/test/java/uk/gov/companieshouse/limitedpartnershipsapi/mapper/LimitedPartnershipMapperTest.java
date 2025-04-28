@@ -71,17 +71,17 @@ class LimitedPartnershipMapperTest {
         // when
         String destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToString(sourceData);
         // then
-        assertEquals(sourceData.getDescription(), destinationData);
+        assertEquals(sourceData.getApiKey(), destinationData);
     }
 
     @Test
     void givenJurisdictionString_whenMapsToEnum_thenCorrect() {
         // given
-        String sourceData = Jurisdiction.NORTHERN_IRELAND.getDescription();
+        String sourceData = Jurisdiction.NORTHERN_IRELAND.getApiKey();
         // when
         Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(sourceData);
         // then
-        assertEquals(sourceData, destinationData.getDescription());
+        assertEquals(sourceData, destinationData.getApiKey());
     }
 
     @Test
@@ -91,7 +91,7 @@ class LimitedPartnershipMapperTest {
         // when
         Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
         // then
-        assertEquals(Jurisdiction.UNKNOWN.getDescription(), destinationData.getDescription());
+        assertEquals(Jurisdiction.UNKNOWN.getApiKey(), destinationData.getApiKey());
     }
 
     @Test
