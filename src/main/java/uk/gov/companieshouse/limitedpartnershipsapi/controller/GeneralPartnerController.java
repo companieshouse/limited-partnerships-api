@@ -100,7 +100,7 @@ public class GeneralPartnerController {
 
         ApiLogger.infoContext(requestId, "Update a general partner", logMap);
 
-        generalPartnerService.updateGeneralPartner(generalPartnerId, generalPartnerDataDto, requestId, userId);
+        generalPartnerService.updateGeneralPartner(transaction, generalPartnerId, generalPartnerDataDto, requestId, userId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

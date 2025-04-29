@@ -45,9 +45,18 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class GeneralPartnerServiceUpdateTest {
+    private static final String TRANSACTION_ID = "863851-951242-143528";
     private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String USER_ID = "xbJf0l";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
+
+    Transaction transaction = buildTransaction();
+
+    @BeforeEach
+    void setUp() {
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+                .thenReturn(true);
+    }
 
     @Autowired
     private GeneralPartnerService service;
@@ -121,7 +130,7 @@ class GeneralPartnerServiceUpdateTest {
         // dao principal office address is null before mapping/update
         assertNull(generalPartnerDao.getData().getPrincipalOfficeAddress());
 
-        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
@@ -150,7 +159,7 @@ class GeneralPartnerServiceUpdateTest {
         when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
-                service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID)
+                service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID)
         );
 
         assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
@@ -166,7 +175,7 @@ class GeneralPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
-        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
@@ -186,7 +195,7 @@ class GeneralPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
-        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
@@ -208,7 +217,7 @@ class GeneralPartnerServiceUpdateTest {
         // dao principal office address before mapping/update
         assertEquals("United Kingdom", generalPartnerDao.getData().getLegalEntityRegistrationLocation());
 
-        service.updateGeneralPartner(GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
@@ -229,7 +238,7 @@ class GeneralPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
 
-        service.updateGeneralPartner(GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
@@ -250,7 +259,7 @@ class GeneralPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
 
-        service.updateGeneralPartner(GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
@@ -260,19 +269,42 @@ class GeneralPartnerServiceUpdateTest {
         assertEquals(input == null || input, newlySavedPartnerDao.getData().getLegalPersonalityStatementChecked());
     }
 
+    @Test
+    void testGeneralUpdateLimitedPartnerLinkFails() {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerLegalEntityDao();
+
+        GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
+        partnerDataDtoWithChanges.setLegalEntityRegistrationLocation(Country.ENGLAND);
+
+        when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+                .thenReturn(false);
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID));
+
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), GENERAL_PARTNER_ID), resourceNotFoundException.getMessage());
+    }
+
+    private Transaction buildTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setId(TRANSACTION_ID);
+
+        Resource resource = new Resource();
+        resource.setKind(FILING_KIND_GENERAL_PARTNER);
+        Map<String, String> links = new HashMap<>();
+        links.put("resource", String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID));
+        resource.setLinks(links);
+
+        Map<String, Resource> resourceMap = new HashMap<>();
+        resourceMap.put(String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID), resource);
+        transaction.setResources(resourceMap);
+
+        return transaction;
+    }
+
     @Nested
     class DeleteGeneralPartner {
-        private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
-        private static final String TRANSACTION_ID = "863851-951242-143528";
-
-        Transaction transaction = buildTransaction();
-
-        @BeforeEach
-        void setUp() {
-            when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
-                    .thenReturn(true);
-        }
-
         @Test
         void shouldDeleteGeneralPartner() throws ServiceException {
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
@@ -306,7 +338,7 @@ class GeneralPartnerServiceUpdateTest {
         }
 
         @Test
-        void testGetGeneralPartnerLinkFails() {
+        void testDeleteGeneralPartnerLinkFails() {
             Transaction transaction = buildTransaction();
 
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
@@ -318,23 +350,6 @@ class GeneralPartnerServiceUpdateTest {
 
             ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID));
             assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), GENERAL_PARTNER_ID), resourceNotFoundException.getMessage());
-        }
-
-        private Transaction buildTransaction() {
-            Transaction transaction = new Transaction();
-            transaction.setId(TRANSACTION_ID);
-
-            Resource resource = new Resource();
-            resource.setKind(FILING_KIND_GENERAL_PARTNER);
-            Map<String, String> links = new HashMap<>();
-            links.put("resource", String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID));
-            resource.setLinks(links);
-
-            Map<String, Resource> resourceMap = new HashMap<>();
-            resourceMap.put(String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID), resource);
-            transaction.setResources(resourceMap);
-
-            return transaction;
         }
     }
 }

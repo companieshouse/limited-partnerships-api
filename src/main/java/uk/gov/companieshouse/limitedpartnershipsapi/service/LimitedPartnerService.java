@@ -105,7 +105,9 @@ public class LimitedPartnerService {
         transactionService.updateTransaction(transaction, requestID);
     }
 
-    public void updateLimitedPartner(String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    public void updateLimitedPartner(Transaction transaction, String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
+
         var limitedPartnerDaoBeforePatch = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", limitedPartnerId)));
 
         var limitedPartnerDto = mapper.daoToDto(limitedPartnerDaoBeforePatch);
@@ -129,7 +131,7 @@ public class LimitedPartnerService {
 
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
-        
+
         var limitedPartnerDao = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner submission with id %s not found", limitedPartnerId)));
         return mapper.daoToDto(limitedPartnerDao);
     }
