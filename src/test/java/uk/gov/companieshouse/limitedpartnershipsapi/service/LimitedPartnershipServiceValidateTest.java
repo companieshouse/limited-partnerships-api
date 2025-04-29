@@ -166,7 +166,7 @@ class LimitedPartnershipServiceValidateTest {
         dataDao.setPartnershipName("Asset Adders");
         dataDao.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription());
         dataDao.setEmail("some@where.com");
-        dataDao.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES.getDescription());
+        dataDao.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES.getApiKey());
         dataDao.setRegisteredOfficeAddress(createAddressDao());
         dataDao.setPrincipalPlaceOfBusinessAddress(createAddressDao());
         dao.setData(dataDao);

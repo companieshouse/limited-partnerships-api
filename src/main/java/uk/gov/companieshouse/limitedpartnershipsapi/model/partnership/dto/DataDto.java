@@ -107,7 +107,7 @@ public class DataDto {
     }
 
     public String getJurisdiction() {
-        return jurisdiction != null ? jurisdiction.getDescription() : null;
+        return jurisdiction != null ? jurisdiction.getApiKey() : null;
     }
 
     public void setJurisdiction(Jurisdiction jurisdiction) {
