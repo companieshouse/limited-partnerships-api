@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -31,6 +33,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,6 +54,9 @@ public class LimitedPartnerServiceUpdateTest {
 
     @MockitoBean
     private TransactionService transactionService;
+
+    @MockitoBean
+    private TransactionUtils transactionUtils;
 
     @Captor
     private ArgumentCaptor<Transaction> transactionCaptor;
@@ -212,10 +218,16 @@ public class LimitedPartnerServiceUpdateTest {
         private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
         private static final String TRANSACTION_ID = "863851-951242-143528";
 
+        Transaction transaction = buildTransaction();
+
+        @BeforeEach
+        void setUp() {
+            when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+                    .thenReturn(true);
+        }
+
         @Test
         void shouldDeleteLimitedPartner() throws ServiceException {
-            Transaction transaction = buildTransaction();
-
             LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
             // transaction before
@@ -237,8 +249,6 @@ public class LimitedPartnerServiceUpdateTest {
 
         @Test
         void shouldThrowServiceExceptionWhenLimitedPartnerNotFound() {
-            Transaction transaction = buildTransaction();
-
             when(limitedPartnerRepository.findById("wrong-id")).thenReturn(Optional.empty());
 
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
@@ -246,6 +256,19 @@ public class LimitedPartnerServiceUpdateTest {
             );
 
             assertEquals("Limited partner with id wrong-id not found", exception.getMessage());
+        }
+
+        @Test
+        void testGetLimitedPartnerLinkFails() {
+            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
+
+            when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+                    .thenReturn(false);
+
+            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID));
+            assertEquals(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), LIMITED_PARTNER_ID), resourceNotFoundException.getMessage());
         }
 
         private Transaction buildTransaction() {

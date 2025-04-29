@@ -127,7 +127,8 @@ public class GeneralPartnerService {
     }
 
     public GeneralPartnerDto getGeneralPartner(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
-        checkGeneralPartnerIsLinkedToPartnership(transaction, generalPartnerId);
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId);
+
         var generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", generalPartnerId)));
         return mapper.daoToDto(generalPartnerDao);
     }
@@ -150,6 +151,29 @@ public class GeneralPartnerService {
                 .map(mapper::daoToDto)
                 .map(GeneralPartnerDto::getData)
                 .collect(Collectors.toList());
+
+    }
+
+    public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId) throws ServiceException {
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId);
+
+        Optional<GeneralPartnerDao> generalPartnerDao = repository.findById(generalPartnerId);
+
+        if (generalPartnerDao.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId));
+        }
+
+        repository.deleteById(generalPartnerId);
+
+        var resources = transaction.getResources();
+
+        var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
+
+        resources.remove(submissionUri);
+
+        transactionService.updateTransaction(transaction, requestId);
+
+        ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
 
     }
 
@@ -185,34 +209,14 @@ public class GeneralPartnerService {
         generalPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
-    private void checkGeneralPartnerIsLinkedToPartnership(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
+    private void checkGeneralPartnerIsLinkedToTransaction(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
         String transactionId = transaction.getId();
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
+
         if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
         }
-    }
-
-    public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId) throws ServiceException {
-        Optional<GeneralPartnerDao> generalPartnerDao = repository.findById(generalPartnerId);
-
-        if (generalPartnerDao.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId));
-        }
-
-        repository.deleteById(generalPartnerId);
-
-        var resources = transaction.getResources();
-
-        var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
-
-        resources.remove(submissionUri);
-
-        transactionService.updateTransaction(transaction, requestId);
-
-        ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
-
     }
 }
 

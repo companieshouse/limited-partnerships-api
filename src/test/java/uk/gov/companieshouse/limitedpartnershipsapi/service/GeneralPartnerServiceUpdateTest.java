@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,6 +57,9 @@ class GeneralPartnerServiceUpdateTest {
 
     @MockitoBean
     private TransactionService transactionService;
+
+    @MockitoBean
+    private TransactionUtils transactionUtils;
 
     @Captor
     private ArgumentCaptor<Transaction> transactionCaptor;
@@ -259,10 +265,16 @@ class GeneralPartnerServiceUpdateTest {
         private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
         private static final String TRANSACTION_ID = "863851-951242-143528";
 
+        Transaction transaction = buildTransaction();
+
+        @BeforeEach
+        void setUp() {
+            when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+                    .thenReturn(true);
+        }
+
         @Test
         void shouldDeleteGeneralPartner() throws ServiceException {
-            Transaction transaction = buildTransaction();
-
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
             // transaction before
@@ -284,8 +296,6 @@ class GeneralPartnerServiceUpdateTest {
 
         @Test
         void shouldThrowServiceExceptionWhenGeneralPartnerNotFound() {
-            Transaction transaction = buildTransaction();
-
             when(limitedPartnerRepository.findById("wrong-id")).thenReturn(Optional.empty());
 
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
@@ -293,6 +303,21 @@ class GeneralPartnerServiceUpdateTest {
             );
 
             assertEquals("General partner with id wrong-id not found", exception.getMessage());
+        }
+
+        @Test
+        void testGetGeneralPartnerLinkFails() {
+            Transaction transaction = buildTransaction();
+
+            GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+
+            when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+                    .thenReturn(false);
+
+            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID));
+            assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), GENERAL_PARTNER_ID), resourceNotFoundException.getMessage());
         }
 
         private Transaction buildTransaction() {

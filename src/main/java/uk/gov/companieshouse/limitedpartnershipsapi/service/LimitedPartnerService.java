@@ -128,18 +128,10 @@ public class LimitedPartnerService {
     }
 
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
-        checkLimitedPartnerIsLinkedToPartnership(transaction, limitedPartnerId);
+        checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
+        
         var limitedPartnerDao = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner submission with id %s not found", limitedPartnerId)));
         return mapper.daoToDto(limitedPartnerDao);
-    }
-
-    private void checkLimitedPartnerIsLinkedToPartnership(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
-        String transactionId = transaction.getId();
-        var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId);
-        if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_LIMITED_PARTNER)) {
-            throw new ResourceNotFoundException(String.format(
-                    "Transaction id: %s does not have a resource that matches limited partner id: %s", transactionId, limitedPartnerId));
-        }
     }
 
     public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
@@ -156,6 +148,8 @@ public class LimitedPartnerService {
     }
 
     public void deleteLimitedPartner(Transaction transaction, String limitedPartnerId, String requestId) throws ServiceException {
+        checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
+
         Optional<LimitedPartnerDao> limitedPartnerDao = repository.findById(limitedPartnerId);
 
         if (limitedPartnerDao.isEmpty()) {
@@ -206,5 +200,15 @@ public class LimitedPartnerService {
     private void setAuditDetailsForUpdate(String userId, LimitedPartnerDao limitedPartnerDaoAfterPatch) {
         limitedPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         limitedPartnerDaoAfterPatch.setUpdatedBy(userId);
+    }
+
+    private void checkLimitedPartnerIsLinkedToTransaction(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
+        String transactionId = transaction.getId();
+        var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId);
+
+        if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_LIMITED_PARTNER)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches limited partner id: %s", transactionId, limitedPartnerId));
+        }
     }
 }
