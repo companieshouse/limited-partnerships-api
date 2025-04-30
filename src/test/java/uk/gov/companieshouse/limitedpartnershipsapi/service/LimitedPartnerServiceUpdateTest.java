@@ -95,8 +95,8 @@ public class LimitedPartnerServiceUpdateTest {
     }
 
     private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
+        Transaction trx = new Transaction();
+        trx.setId(TRANSACTION_ID);
 
         Resource resource = new Resource();
         resource.setKind(FILING_KIND_LIMITED_PARTNER);
@@ -109,9 +109,9 @@ public class LimitedPartnerServiceUpdateTest {
 
         Map<String, Resource> resourceMap = new HashMap<>();
         resourceMap.put(uri, resource);
-        transaction.setResources(resourceMap);
+        trx.setResources(resourceMap);
 
-        return transaction;
+        return trx;
     }
 
     @Test

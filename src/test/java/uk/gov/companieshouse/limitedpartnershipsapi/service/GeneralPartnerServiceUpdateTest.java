@@ -100,8 +100,8 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
+        Transaction trx = new Transaction();
+        trx.setId(TRANSACTION_ID);
 
         Resource resource = new Resource();
         resource.setKind(FILING_KIND_GENERAL_PARTNER);
@@ -114,9 +114,9 @@ class GeneralPartnerServiceUpdateTest {
 
         Map<String, Resource> resourceMap = new HashMap<>();
         resourceMap.put(uri, resource);
-        transaction.setResources(resourceMap);
+        trx.setResources(resourceMap);
 
-        return transaction;
+        return trx;
     }
 
     @Test
@@ -328,8 +328,6 @@ class GeneralPartnerServiceUpdateTest {
 
         @Test
         void testDeleteGeneralPartnerLinkFails() {
-            Transaction transaction = buildTransaction();
-
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
             when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
