@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,13 +36,17 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 public class LimitedPartnerServiceUpdateTest {
+    private static final String TRANSACTION_ID = "863851-951242-143528";
     private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String USER_ID = "xbJf0l";
+
+    Transaction transaction = buildTransaction();
 
     @Autowired
     private LimitedPartnerService service;
@@ -90,6 +95,26 @@ public class LimitedPartnerServiceUpdateTest {
         return dao;
     }
 
+    private Transaction buildTransaction() {
+        Transaction trx = new Transaction();
+        trx.setId(TRANSACTION_ID);
+
+        Resource resource = new Resource();
+        resource.setKind(FILING_KIND_LIMITED_PARTNER);
+
+        String uri = String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
+
+        Map<String, String> links = new HashMap<>();
+        links.put("resource", uri);
+        resource.setLinks(links);
+
+        Map<String, Resource> resourceMap = new HashMap<>();
+        resourceMap.put(uri, resource);
+        trx.setResources(resourceMap);
+
+        return trx;
+    }
+
     @Test
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
@@ -110,7 +135,7 @@ public class LimitedPartnerServiceUpdateTest {
         // dao principal office address is null before mapping/update
         assertNull(limitedPartnerDao.getData().getPrincipalOfficeAddress());
 
-        service.updateLimitedPartner(LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).findById(LIMITED_PARTNER_ID);
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
@@ -139,7 +164,7 @@ public class LimitedPartnerServiceUpdateTest {
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
         MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
-                service.updateLimitedPartner(LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID)
+                service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID)
         );
 
         assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
@@ -155,7 +180,7 @@ public class LimitedPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
-        service.updateLimitedPartner(LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
@@ -175,7 +200,7 @@ public class LimitedPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
-        service.updateLimitedPartner(LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
@@ -197,7 +222,7 @@ public class LimitedPartnerServiceUpdateTest {
         // dao principal office address before mapping/update
         assertEquals("United Kingdom", limitedPartnerDao.getData().getLegalEntityRegistrationLocation());
 
-        service.updateLimitedPartner(LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).findById(LIMITED_PARTNER_ID);
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
@@ -207,15 +232,24 @@ public class LimitedPartnerServiceUpdateTest {
         assertEquals("England", sentSubmission.getData().getLegalEntityRegistrationLocation());
     }
 
+    @Test
+    void testLimitedPartnerUpdateLimitedPartnerLinkFails() {
+        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        limitedPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
+
+        when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
+
+        assertThatThrownBy(() -> service.updateLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", limitedPartnerDataDto, REQUEST_ID, USER_ID))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"));
+    }
+
     @Nested
     class DeleteLimitedPartner {
-        private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
-        private static final String TRANSACTION_ID = "863851-951242-143528";
-
         @Test
         void shouldDeleteLimitedPartner() throws ServiceException {
-            Transaction transaction = buildTransaction();
-
             LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
             // transaction before
@@ -237,32 +271,22 @@ public class LimitedPartnerServiceUpdateTest {
 
         @Test
         void shouldThrowServiceExceptionWhenLimitedPartnerNotFound() {
-            Transaction transaction = buildTransaction();
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.empty());
 
-            when(limitedPartnerRepository.findById("wrong-id")).thenReturn(Optional.empty());
-
-            ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                    service.deleteLimitedPartner(transaction, "wrong-id", REQUEST_ID)
-            );
-
-            assertEquals("Limited partner with id wrong-id not found", exception.getMessage());
+            assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining(String.format("Limited partner with id %s not found", LIMITED_PARTNER_ID));
         }
 
-        private Transaction buildTransaction() {
-            Transaction transaction = new Transaction();
-            transaction.setId(TRANSACTION_ID);
+        @Test
+        void testDeleteLimitedPartnerLinkFails() {
+            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
-            Resource resource = new Resource();
-            resource.setKind(FILING_KIND_LIMITED_PARTNER);
-            Map<String, String> links = new HashMap<>();
-            links.put("resource", String.format("/transactions/%s/limited-partnership/limited-partner/%s", TRANSACTION_ID, LIMITED_PARTNER_ID));
-            resource.setLinks(links);
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-            Map<String, Resource> resourceMap = new HashMap<>();
-            resourceMap.put(String.format("/transactions/%s/limited-partnership/limited-partner/%s", TRANSACTION_ID, LIMITED_PARTNER_ID), resource);
-            transaction.setResources(resourceMap);
-
-            return transaction;
+            assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"));
         }
     }
 }

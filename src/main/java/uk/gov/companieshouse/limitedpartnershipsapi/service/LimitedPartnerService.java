@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -105,7 +104,9 @@ public class LimitedPartnerService {
         transactionService.updateTransaction(transaction, requestID);
     }
 
-    public void updateLimitedPartner(String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    public void updateLimitedPartner(Transaction transaction, String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
+
         var limitedPartnerDaoBeforePatch = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", limitedPartnerId)));
 
         var limitedPartnerDto = mapper.daoToDto(limitedPartnerDaoBeforePatch);
@@ -128,18 +129,10 @@ public class LimitedPartnerService {
     }
 
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
-        checkLimitedPartnerIsLinkedToPartnership(transaction, limitedPartnerId);
+        checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
+
         var limitedPartnerDao = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner submission with id %s not found", limitedPartnerId)));
         return mapper.daoToDto(limitedPartnerDao);
-    }
-
-    private void checkLimitedPartnerIsLinkedToPartnership(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
-        String transactionId = transaction.getId();
-        var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId);
-        if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_LIMITED_PARTNER)) {
-            throw new ResourceNotFoundException(String.format(
-                    "Transaction id: %s does not have a resource that matches limited partner id: %s", transactionId, limitedPartnerId));
-        }
     }
 
     public List<LimitedPartnerDataDto> getLimitedPartnerDataList(Transaction transaction) {
@@ -156,13 +149,12 @@ public class LimitedPartnerService {
     }
 
     public void deleteLimitedPartner(Transaction transaction, String limitedPartnerId, String requestId) throws ServiceException {
-        Optional<LimitedPartnerDao> limitedPartnerDao = repository.findById(limitedPartnerId);
+        checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
 
-        if (limitedPartnerDao.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId));
-        }
+        LimitedPartnerDao limitedPartnerDao = repository.findById(limitedPartnerId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId)));
 
-        repository.deleteById(limitedPartnerId);
+        repository.deleteById(limitedPartnerDao.getId());
 
         var resources = transaction.getResources();
 
@@ -206,5 +198,15 @@ public class LimitedPartnerService {
     private void setAuditDetailsForUpdate(String userId, LimitedPartnerDao limitedPartnerDaoAfterPatch) {
         limitedPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         limitedPartnerDaoAfterPatch.setUpdatedBy(userId);
+    }
+
+    private void checkLimitedPartnerIsLinkedToTransaction(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
+        String transactionId = transaction.getId();
+        var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId);
+
+        if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_LIMITED_PARTNER)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches limited partner id: %s", transactionId, limitedPartnerId));
+        }
     }
 }

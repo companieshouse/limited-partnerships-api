@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -122,6 +121,7 @@ class GeneralPartnerControllerTest {
     @Test
     void testUpdatePartnerThrowsServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         doThrow(new ServiceException("Test")).when(generalPartnerService).updateGeneralPartner(
+                eq(transaction),
                 eq(GENERAL_PARTNER_ID),
                 any(GeneralPartnerDataDto.class),
                 eq(REQUEST_ID),
@@ -138,6 +138,7 @@ class GeneralPartnerControllerTest {
     @Test
     void testUpdatePartnerThrowsResourceNotFoundException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         doThrow(new ResourceNotFoundException("Test")).when(generalPartnerService).updateGeneralPartner(
+                eq(transaction),
                 eq(GENERAL_PARTNER_ID),
                 any(GeneralPartnerDataDto.class),
                 eq(REQUEST_ID),

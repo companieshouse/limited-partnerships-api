@@ -83,7 +83,7 @@ public class LimitedPartnerController {
 
         ApiLogger.infoContext(requestId, "Update a limited partner", logMap);
 
-        limitedPartnerService.updateLimitedPartner(limitedPartnerId, limitedPartnerDataDto, requestId, userId);
+        limitedPartnerService.updateLimitedPartner(transaction, limitedPartnerId, limitedPartnerDataDto, requestId, userId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
