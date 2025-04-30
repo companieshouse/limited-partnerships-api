@@ -233,7 +233,7 @@ public class LimitedPartnerServiceUpdateTest {
     }
 
     @Test
-    void testGUpdateLimitedPartnerLinkFails() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testLimitedPartnerUpdateLimitedPartnerLinkFails() {
         LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
