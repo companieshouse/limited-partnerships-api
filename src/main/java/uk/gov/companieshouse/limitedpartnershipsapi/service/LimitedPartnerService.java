@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -152,13 +151,10 @@ public class LimitedPartnerService {
     public void deleteLimitedPartner(Transaction transaction, String limitedPartnerId, String requestId) throws ServiceException {
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
 
-        Optional<LimitedPartnerDao> limitedPartnerDao = repository.findById(limitedPartnerId);
+        LimitedPartnerDao limitedPartnerDao = repository.findById(limitedPartnerId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId)));
 
-        if (limitedPartnerDao.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId));
-        }
-
-        repository.deleteById(limitedPartnerId);
+        repository.deleteById(limitedPartnerDao.getId());
 
         var resources = transaction.getResources();
 

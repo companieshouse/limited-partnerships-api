@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
@@ -159,13 +158,10 @@ public class GeneralPartnerService {
     public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId) throws ServiceException {
         checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId);
 
-        Optional<GeneralPartnerDao> generalPartnerDao = repository.findById(generalPartnerId);
+        GeneralPartnerDao generalPartnerDao = repository.findById(generalPartnerId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
 
-        if (generalPartnerDao.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId));
-        }
-
-        repository.deleteById(generalPartnerId);
+        repository.deleteById(generalPartnerDao.getId());
 
         var resources = transaction.getResources();
 
