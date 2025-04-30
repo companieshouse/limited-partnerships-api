@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +21,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -33,11 +31,11 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -49,12 +47,6 @@ public class LimitedPartnerServiceUpdateTest {
 
     Transaction transaction = buildTransaction();
 
-    @BeforeEach
-    void setUp() {
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
-                .thenReturn(true);
-    }
-
     @Autowired
     private LimitedPartnerService service;
 
@@ -63,9 +55,6 @@ public class LimitedPartnerServiceUpdateTest {
 
     @MockitoBean
     private TransactionService transactionService;
-
-    @MockitoBean
-    private TransactionUtils transactionUtils;
 
     @Captor
     private ArgumentCaptor<Transaction> transactionCaptor;
@@ -103,6 +92,26 @@ public class LimitedPartnerServiceUpdateTest {
         dao.setId(LIMITED_PARTNER_ID);
 
         return dao;
+    }
+
+    private Transaction buildTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setId(TRANSACTION_ID);
+
+        Resource resource = new Resource();
+        resource.setKind(FILING_KIND_LIMITED_PARTNER);
+
+        String uri = String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
+
+        Map<String, String> links = new HashMap<>();
+        links.put("resource", uri);
+        resource.setLinks(links);
+
+        Map<String, Resource> resourceMap = new HashMap<>();
+        resourceMap.put(uri, resource);
+        transaction.setResources(resourceMap);
+
+        return transaction;
     }
 
     @Test
@@ -231,29 +240,9 @@ public class LimitedPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
-                .thenReturn(false);
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.updateLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", limitedPartnerDataDto, REQUEST_ID, USER_ID));
 
-        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID));
-
-        assertEquals(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), LIMITED_PARTNER_ID), resourceNotFoundException.getMessage());
-    }
-
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", String.format("/transactions/%s/limited-partnership/limited-partner/%s", TRANSACTION_ID, LIMITED_PARTNER_ID));
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/limited-partner/%s", TRANSACTION_ID, LIMITED_PARTNER_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
     }
 
     @Nested
@@ -281,13 +270,13 @@ public class LimitedPartnerServiceUpdateTest {
 
         @Test
         void shouldThrowServiceExceptionWhenLimitedPartnerNotFound() {
-            when(limitedPartnerRepository.findById("wrong-id")).thenReturn(Optional.empty());
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.empty());
 
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                    service.deleteLimitedPartner(transaction, "wrong-id", REQUEST_ID)
+                    service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID)
             );
 
-            assertEquals("Limited partner with id wrong-id not found", exception.getMessage());
+            assertEquals(String.format("Limited partner with id %s not found", LIMITED_PARTNER_ID), exception.getMessage());
         }
 
         @Test
@@ -296,11 +285,8 @@ public class LimitedPartnerServiceUpdateTest {
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-            when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
-                    .thenReturn(false);
-
-            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID));
-            assertEquals(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), LIMITED_PARTNER_ID), resourceNotFoundException.getMessage());
+            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID));
+            assertEquals(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
         }
     }
 }

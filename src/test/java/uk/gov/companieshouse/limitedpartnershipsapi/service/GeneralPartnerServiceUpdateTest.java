@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -36,11 +34,11 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -52,12 +50,6 @@ class GeneralPartnerServiceUpdateTest {
 
     Transaction transaction = buildTransaction();
 
-    @BeforeEach
-    void setUp() {
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
-                .thenReturn(true);
-    }
-
     @Autowired
     private GeneralPartnerService service;
 
@@ -66,9 +58,6 @@ class GeneralPartnerServiceUpdateTest {
 
     @MockitoBean
     private TransactionService transactionService;
-
-    @MockitoBean
-    private TransactionUtils transactionUtils;
 
     @Captor
     private ArgumentCaptor<Transaction> transactionCaptor;
@@ -108,6 +97,26 @@ class GeneralPartnerServiceUpdateTest {
         dao.setId(GENERAL_PARTNER_ID);
 
         return dao;
+    }
+
+    private Transaction buildTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setId(TRANSACTION_ID);
+
+        Resource resource = new Resource();
+        resource.setKind(FILING_KIND_GENERAL_PARTNER);
+
+        String uri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, GENERAL_PARTNER_ID);
+
+        Map<String, String> links = new HashMap<>();
+        links.put("resource", uri);
+        resource.setLinks(links);
+
+        Map<String, Resource> resourceMap = new HashMap<>();
+        resourceMap.put(uri, resource);
+        transaction.setResources(resourceMap);
+
+        return transaction;
     }
 
     @Test
@@ -278,29 +287,9 @@ class GeneralPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
-                .thenReturn(false);
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.updateGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", partnerDataDtoWithChanges, REQUEST_ID, USER_ID));
 
-        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID));
-
-        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), GENERAL_PARTNER_ID), resourceNotFoundException.getMessage());
-    }
-
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_GENERAL_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID));
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
     }
 
     @Nested
@@ -328,13 +317,13 @@ class GeneralPartnerServiceUpdateTest {
 
         @Test
         void shouldThrowServiceExceptionWhenGeneralPartnerNotFound() {
-            when(limitedPartnerRepository.findById("wrong-id")).thenReturn(Optional.empty());
+            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.empty());
 
             ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                    service.deleteGeneralPartner(transaction, "wrong-id", REQUEST_ID)
+                    service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID)
             );
 
-            assertEquals("General partner with id wrong-id not found", exception.getMessage());
+            assertEquals(String.format("General partner with id %s not found", GENERAL_PARTNER_ID), exception.getMessage());
         }
 
         @Test
@@ -345,11 +334,8 @@ class GeneralPartnerServiceUpdateTest {
 
             when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-            when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
-                    .thenReturn(false);
-
-            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID));
-            assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), GENERAL_PARTNER_ID), resourceNotFoundException.getMessage());
+            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID));
+            assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
         }
     }
 }
