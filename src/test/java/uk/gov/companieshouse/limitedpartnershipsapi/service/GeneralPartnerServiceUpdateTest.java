@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -287,9 +288,9 @@ class GeneralPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.updateGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", partnerDataDtoWithChanges, REQUEST_ID, USER_ID));
-
-        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
+        assertThatThrownBy(() -> service.updateGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", partnerDataDtoWithChanges, REQUEST_ID, USER_ID))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"));
     }
 
     @Nested
@@ -319,11 +320,9 @@ class GeneralPartnerServiceUpdateTest {
         void shouldThrowServiceExceptionWhenGeneralPartnerNotFound() {
             when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.empty());
 
-            ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                    service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID)
-            );
-
-            assertEquals(String.format("General partner with id %s not found", GENERAL_PARTNER_ID), exception.getMessage());
+            assertThatThrownBy(() -> service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessage(String.format("General partner with id %s not found", GENERAL_PARTNER_ID));
         }
 
         @Test
@@ -332,8 +331,9 @@ class GeneralPartnerServiceUpdateTest {
 
             when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID));
-            assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
+            assertThatThrownBy(() -> service.deleteGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessage(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"));
         }
     }
 }

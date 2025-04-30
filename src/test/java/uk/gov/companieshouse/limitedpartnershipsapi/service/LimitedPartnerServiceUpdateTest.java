@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -232,7 +233,7 @@ public class LimitedPartnerServiceUpdateTest {
     }
 
     @Test
-    void testGUpdateLimitedPartnerLinkFails() {
+    void testGUpdateLimitedPartnerLinkFails() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
@@ -240,9 +241,9 @@ public class LimitedPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.updateLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", limitedPartnerDataDto, REQUEST_ID, USER_ID));
-
-        assertEquals(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
+        assertThatThrownBy(() -> service.updateLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", limitedPartnerDataDto, REQUEST_ID, USER_ID))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"));
     }
 
     @Nested
@@ -272,11 +273,9 @@ public class LimitedPartnerServiceUpdateTest {
         void shouldThrowServiceExceptionWhenLimitedPartnerNotFound() {
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.empty());
 
-            ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () ->
-                    service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID)
-            );
-
-            assertEquals(String.format("Limited partner with id %s not found", LIMITED_PARTNER_ID), exception.getMessage());
+            assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining(String.format("Limited partner with id %s not found", LIMITED_PARTNER_ID));
         }
 
         @Test
@@ -285,8 +284,9 @@ public class LimitedPartnerServiceUpdateTest {
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-            ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> service.deleteLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID));
-            assertEquals(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"), resourceNotFoundException.getMessage());
+            assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID))
+                    .isInstanceOf(ResourceNotFoundException.class)
+                    .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"));
         }
     }
 }
