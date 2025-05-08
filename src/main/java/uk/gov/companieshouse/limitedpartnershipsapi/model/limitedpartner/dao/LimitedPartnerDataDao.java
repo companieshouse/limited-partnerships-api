@@ -41,6 +41,9 @@ public class LimitedPartnerDataDao {
     @Field("governing_law")
     private String governingLaw;
 
+    @Field("legal_personality_statement_checked")
+    private boolean legalPersonalityStatementChecked;
+
     @Field("kind")
     private String kind;
 
@@ -160,6 +163,14 @@ public class LimitedPartnerDataDao {
 
     public void setGoverningLaw(String governingLaw) {
         this.governingLaw = governingLaw;
+    }
+
+    public boolean getLegalPersonalityStatementChecked() {
+        return legalPersonalityStatementChecked;
+    }
+
+    public void setLegalPersonalityStatementChecked(boolean legalPersonalityStatementChecked) {
+        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public String getKind() {
