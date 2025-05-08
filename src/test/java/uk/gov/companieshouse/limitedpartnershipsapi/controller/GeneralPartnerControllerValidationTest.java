@@ -181,7 +181,7 @@ class GeneralPartnerControllerValidationTest {
     }
 
     @Nested
-    class ValidatePartnership {
+    class ValidatePartner {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
             mockMvc.perform(get(VALIDATE_STATUS_URL)
