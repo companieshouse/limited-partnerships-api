@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
@@ -27,6 +28,7 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 
 @Service
@@ -53,7 +55,7 @@ public class LimitedPartnerService {
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        limitedPartnerValidator.validate(limitedPartnerDto);
+        limitedPartnerValidator.isValid(limitedPartnerDto);
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -87,13 +89,13 @@ public class LimitedPartnerService {
 
     private void updateTransactionWithLinksForLimitedPartner(String requestID,
                                                              Transaction transaction,
-                                                             String submissionUri
-                                                             ) throws ServiceException {
+                                                             String submissionUri)
+            throws ServiceException {
         var limitedPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
-//        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX); // TODO - add this when validation status is implemented
+        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
 
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
@@ -165,6 +167,13 @@ public class LimitedPartnerService {
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
 
+    }
+
+    public List<ValidationStatusError> validateLimitedPartner(Transaction transaction, String limitedPartnerId)
+            throws ServiceException {
+        LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
+
+        return limitedPartnerValidator.validate(dto);
     }
 
     private void isSecondNationalityDifferent(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
