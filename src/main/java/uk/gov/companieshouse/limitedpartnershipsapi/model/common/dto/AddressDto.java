@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.UkPostcode;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONGER_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.PREMISES_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT_MAX_SIZE;
 
@@ -48,7 +48,7 @@ public class AddressDto {
     @JsonProperty("premises")
     @NotNull(message = "Property name or number must not be null")
     @Size(min = MIN_SIZE, message = "Property name or number " + MIN_SIZE_MESSAGE)
-    @Size(max = LONGER_MAX_SIZE, message = "Property name or number " + MAX_SIZE_MESSAGE)
+    @Size(max = PREMISES_MAX_SIZE, message = "Property name or number " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Property name or number " + INVALID_CHARACTERS_MESSAGE)
     private String premises;
 

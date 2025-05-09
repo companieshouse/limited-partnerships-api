@@ -34,7 +34,7 @@ public class Constants {
     public static final int POSTAL_CODE_MAX_SIZE = 15;
     public static final int SHORT_MAX_SIZE = 50;
     public static final int LONG_MAX_SIZE = 160;
-    public static final int LONGER_MAX_SIZE = 200;
+    public static final int PREMISES_MAX_SIZE = 200;
     public static final String MAX_SIZE_MESSAGE = "must be less than {max}";
     public static final String REG_EXP_FOR_ALLOWED_CHARACTERS = "^[-,.:; 0-9A-Z&@$£¥€'\"«»?!/\\\\()\\[\\]{}<>*=#%+ÀÁÂÃÄÅĀĂĄÆǼÇĆĈĊČÞĎÐÈÉÊËĒĔĖĘĚĜĞĠĢĤĦÌÍÎÏĨĪĬĮİĴĶĹĻĽĿŁÑŃŅŇŊÒÓÔÕÖØŌŎŐǾŒŔŖŘŚŜŞŠŢŤŦÙÚÛÜŨŪŬŮŰŲŴẀẂẄỲÝŶŸŹŻŽa-zſƒǺàáâãäåāăąæǽçćĉċčþďðèéêëēĕėęěĝģğġĥħìíîïĩīĭįĵķĺļľŀłñńņňŋòóôõöøōŏőǿœŕŗřśŝşšţťŧùúûüũūŭůűųŵẁẃẅỳýŷÿźżž]*$";
 
