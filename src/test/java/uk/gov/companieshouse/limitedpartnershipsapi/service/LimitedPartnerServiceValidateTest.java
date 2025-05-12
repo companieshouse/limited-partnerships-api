@@ -109,9 +109,8 @@ class LimitedPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Date of birth is required", LimitedPartnerDataDto.DATE_OF_BIRTH_FIELD),
-                        tuple("Second nationality must be different from the first", LimitedPartnerDataDto.NATIONALITY2_FIELD));
-                        // TODO Uncomment when URA is persisted to Mongo:
-//                        tuple("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+                        tuple("Second nationality must be different from the first", LimitedPartnerDataDto.NATIONALITY2_FIELD),
+                        tuple("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
     }
 
     @Test
@@ -119,8 +118,7 @@ class LimitedPartnerServiceValidateTest {
         // given
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
         limitedPartnerDao.getData().setGoverningLaw(null);
-        // TODO Uncomment when legal personality statement is persisted to Mongo:
-//        limitedPartnerDao.getData().setLegalPersonalityStatementChecked(false);
+        limitedPartnerDao.getData().setLegalPersonalityStatementChecked(false);
         limitedPartnerDao.getData().setRegisteredCompanyNumber(null);
         limitedPartnerDao.getData().setPrincipalOfficeAddress(null);
 
@@ -137,8 +135,7 @@ class LimitedPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Governing Law is required", LimitedPartnerDataDto.GOVERNING_LAW_FIELD),
-                        // TODO Uncomment when legal personality statement is persisted to Mongo:
-//                        tuple("Legal Personality Statement must be checked", LimitedPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD),
+                        tuple("Legal Personality Statement must be checked", LimitedPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD),
                         tuple("Registered Company Number is required", LimitedPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
                         tuple("Principal office address is required", LimitedPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
     }
@@ -225,8 +222,7 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setGoverningLaw("UK");
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
         dataDao.setRegisteredCompanyNumber("LP111222");
-        // TODO Uncomment when legal personality statement is persisted to Mongo:
-//        dataDao.setLegalPersonalityStatementChecked(true);
+        dataDao.setLegalPersonalityStatementChecked(true);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
         dao.setData(dataDao);
 

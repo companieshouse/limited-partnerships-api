@@ -36,10 +36,9 @@ public class LimitedPartnerValidator {
                 errorsList.add(createValidationStatusError("Principal office address is required", LimitedPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
             }
         } else {
-            // TODO Uncomment when URA is persisted to Mongo:
-//            if (dataDto.getUsualResidentialAddress() == null) {
-//                errorsList.add(createValidationStatusError("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
-//            }
+            if (dataDto.getUsualResidentialAddress() == null) {
+                errorsList.add(createValidationStatusError("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+            }
         }
 
         return errorsList;
@@ -53,10 +52,9 @@ public class LimitedPartnerValidator {
 
         if (limitedPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(limitedPartnerDataDto, bindingResult);
-            // TODO Uncomment when legal personality statement is persisted to Mongo:
-//            if (Boolean.FALSE.equals(limitedPartnerDataDto.getLegalPersonalityStatementChecked())) {
-//                addError(LimitedPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
-//            }
+            if (Boolean.FALSE.equals(limitedPartnerDataDto.getLegalPersonalityStatementChecked())) {
+                addError(LimitedPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
+            }
         } else if (limitedPartnerDataDto.getForename() != null || limitedPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(limitedPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(limitedPartnerDto, bindingResult);
