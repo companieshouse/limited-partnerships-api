@@ -31,6 +31,7 @@ public class LimitedPartnerDataDto {
     public static final String LEGAL_FORM_FIELD = "legal_form";
     public static final String REGISTERED_COMPANY_NUMBER_FIELD = "registered_company_number";
     public static final String GOVERNING_LAW_FIELD = "governing_law";
+    public static final String LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD = "legal_personality_statement_checked";
     public static final String USUAL_RESIDENTIAL_ADDRESS_FIELD = "usual_residential_address";
     public static final String PRINCIPAL_OFFICE_ADDRESS_FIELD = "principal_office_address";
 
@@ -120,6 +121,9 @@ public class LimitedPartnerDataDto {
     @JsonProperty("resignation_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate resignationDate;
+
+    @JsonProperty(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)
+    private Boolean legalPersonalityStatementChecked;
 
     @JsonProperty(USUAL_RESIDENTIAL_ADDRESS_FIELD)
     @Valid
@@ -272,6 +276,14 @@ public class LimitedPartnerDataDto {
 
     public void setResignationDate(LocalDate resignationDate) {
         this.resignationDate = resignationDate;
+    }
+
+    public Boolean getLegalPersonalityStatementChecked() {
+        return legalPersonalityStatementChecked;
+    }
+
+    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
+        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public AddressDto getUsualResidentialAddress() {
