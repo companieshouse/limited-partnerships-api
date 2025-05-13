@@ -55,7 +55,7 @@ public class GeneralPartnerService {
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        generalPartnerValidator.isValid(generalPartnerDto);
+        generalPartnerValidator.validatePartial(generalPartnerDto);
 
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -138,7 +138,7 @@ public class GeneralPartnerService {
             throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
-        return generalPartnerValidator.validate(dto);
+        return generalPartnerValidator.validateFull(dto);
     }
 
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {

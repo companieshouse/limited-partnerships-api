@@ -37,8 +37,8 @@ class LimitedPartnerControllerValidationTest {
 
     private static final String LIMITED_PARTNER_ID = "863851-951242-143528";
 
-    private static final String POST_URL = "/transactions/" + LIMITED_PARTNER_ID + "/limited-partnership/limited-partner";
-    private static final String VALIDATE_STATUS_URL = POST_URL + "/" + LIMITED_PARTNER_ID + "/validation-status";
+    private static final String BASE_URL = "/transactions/" + LIMITED_PARTNER_ID + "/limited-partnership/limited-partner";
+    private static final String VALIDATE_STATUS_URL = BASE_URL + "/" + LIMITED_PARTNER_ID + "/validation-status";
 
     // PERSON
     private static final String JSON_CORRECT = """
@@ -135,7 +135,7 @@ class LimitedPartnerControllerValidationTest {
             JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
-        mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
+        mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
@@ -147,7 +147,7 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
-        mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
+        mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
@@ -158,7 +158,7 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
-        mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
+        mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
@@ -169,7 +169,7 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn400WhenCreatingLimitedPartnerLegalEntityWithWrongCountry() throws Exception {
-        mockMvc.perform(post(LimitedPartnerControllerValidationTest.POST_URL)
+        mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)

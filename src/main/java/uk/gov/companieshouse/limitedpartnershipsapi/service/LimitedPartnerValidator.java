@@ -26,10 +26,10 @@ public class LimitedPartnerValidator extends PartnerValidator {
         super(validator);
     }
 
-    public List<ValidationStatusError> validate(LimitedPartnerDto limitedPartnerDto) throws ServiceException {
+    public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        executeJavaBeansValidation(limitedPartnerDto, errorsList);
+        checkFieldConstraints(limitedPartnerDto, errorsList);
 
         var dataDto = limitedPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
@@ -45,7 +45,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         return errorsList;
     }
 
-    public void isValid(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validatePartial(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
@@ -129,7 +129,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         bindingResult.addError(fieldError);
     }
 
-    private void executeJavaBeansValidation(LimitedPartnerDto limitedPartnerDto, List<ValidationStatusError> errorsList)
+    private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, List<ValidationStatusError> errorsList)
             throws ServiceException {
         Set<ConstraintViolation<LimitedPartnerDto>> violations = validator.validate(limitedPartnerDto);
 
@@ -137,7 +137,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
         try {
-            isValid(limitedPartnerDto);
+            validatePartial(limitedPartnerDto);
         } catch (MethodArgumentNotValidException e) {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

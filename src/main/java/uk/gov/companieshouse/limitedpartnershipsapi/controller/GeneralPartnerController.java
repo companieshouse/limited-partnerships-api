@@ -125,7 +125,7 @@ public class GeneralPartnerController {
             ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
                     new GsonBuilder().create().toJson(validationErrors)), null, logMap);
             validationStatus.setValid(false);
-            validationStatus.setValidationStatusError(validationErrors.toArray(new ValidationStatusError[0]));
+            validationStatus.setValidationStatusError(validationErrors.toArray(ValidationStatusError[]::new));
         }
 
         return ResponseEntity.ok().body(validationStatus);
