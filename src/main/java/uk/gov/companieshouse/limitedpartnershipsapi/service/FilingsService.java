@@ -16,12 +16,13 @@ import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FILING_DESCRIPTION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 
 @Service
 public class FilingsService {
+
+    public static final String LIMITED_PARTNERSHIP_FILING_DESCRIPTION = "Register a Limited Partnership";
 
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
@@ -72,11 +73,7 @@ public class FilingsService {
     }
 
     private void setDescriptionFields(FilingApi filing) {
-        filing.setDescriptionIdentifier(filing.getDescriptionIdentifier());
-
         filing.setDescription(LIMITED_PARTNERSHIP_FILING_DESCRIPTION);
-
-        Map<String, String> values = new HashMap<>();
-        filing.setDescriptionValues(values);
+        filing.setDescriptionValues(new HashMap<>());
     }
 }
