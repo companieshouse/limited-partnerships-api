@@ -21,9 +21,12 @@ import java.util.Set;
 @Component
 public class GeneralPartnerValidator {
 
-    @Autowired
     private Validator validator;
 
+    @Autowired
+    public GeneralPartnerValidator(Validator validator) {
+        this.validator = validator;
+    }
 
     public List<ValidationStatusError> validate(GeneralPartnerDto generalPartnerDto) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();

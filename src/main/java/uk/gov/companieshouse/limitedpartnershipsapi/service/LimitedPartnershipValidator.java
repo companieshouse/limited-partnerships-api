@@ -15,9 +15,12 @@ import java.util.Set;
 @Component
 public class LimitedPartnershipValidator {
 
-    @Autowired
     private Validator validator;
 
+    @Autowired
+    public LimitedPartnershipValidator(Validator validator) {
+        this.validator = validator;
+    }
 
     public List<ValidationStatusError> validate(LimitedPartnershipDto limitedPartnershipDto) {
         Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);

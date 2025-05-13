@@ -11,7 +11,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 
@@ -22,8 +21,12 @@ import java.util.Set;
 @Component
 public class LimitedPartnerValidator {
 
-    @Autowired
     private Validator validator;
+
+    @Autowired
+    public LimitedPartnerValidator(Validator validator) {
+        this.validator = validator;
+    }
 
     public List<ValidationStatusError> validate(LimitedPartnerDto limitedPartnerDto) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
