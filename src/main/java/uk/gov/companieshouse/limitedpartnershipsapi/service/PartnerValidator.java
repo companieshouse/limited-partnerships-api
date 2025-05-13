@@ -7,12 +7,12 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 
 import java.util.List;
 
-abstract public class PartnerValidator {
+public abstract class PartnerValidator {
 
     protected Validator validator;
 
     @Autowired
-    public PartnerValidator(Validator validator) {
+    protected PartnerValidator(Validator validator) {
         this.validator = validator;
     }
 
