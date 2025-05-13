@@ -19,13 +19,11 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class LimitedPartnerValidator {
-
-    private Validator validator;
+public class LimitedPartnerValidator extends PartnerValidator {
 
     @Autowired
     public LimitedPartnerValidator(Validator validator) {
-        this.validator = validator;
+        super(validator);
     }
 
     public List<ValidationStatusError> validate(LimitedPartnerDto limitedPartnerDto) throws ServiceException {
@@ -145,18 +143,6 @@ public class LimitedPartnerValidator {
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
         }
-    }
-
-    private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
-        bindingResult.getFieldErrors().forEach(fe ->
-                errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
-    }
-
-    private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
-        var error = new ValidationStatusError();
-        error.setError(errorMessage);
-        error.setLocation(location);
-        return error;
     }
 }
 
