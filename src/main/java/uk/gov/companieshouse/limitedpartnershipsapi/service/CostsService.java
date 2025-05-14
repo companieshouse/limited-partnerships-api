@@ -22,8 +22,6 @@ public class CostsService {
     private static final String KEY = "Key";
     private static final String VALUE = "Value";
 
-
-
     public Cost getCost() {
         return getCostForRegistration();
     }
