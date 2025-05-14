@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.payment.Cost;
 
@@ -7,7 +8,9 @@ import java.util.Collections;
 
 @Service
 public class CostsService {
-    private static final String REGISTER_COST_AMOUNT = "100.00";
+    @Value("${LP_REGISTRATION_COST}")
+    private String registrationCostAmount;
+
     private static final String REGISTER_COST_DESCRIPTION = "Register Limited Partnership fee";
 
     private static final String PAYMENT_ACCOUNT = "data-maintenance";
@@ -19,6 +22,8 @@ public class CostsService {
     private static final String KEY = "Key";
     private static final String VALUE = "Value";
 
+
+
     public Cost getCost() {
         return getCostForRegistration();
     }
@@ -26,7 +31,7 @@ public class CostsService {
     public Cost getCostForRegistration() {
         Cost cost = new Cost();
 
-        cost.setAmount(REGISTER_COST_AMOUNT);
+        cost.setAmount(registrationCostAmount);
         cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
         cost.setClassOfPayment(Collections.singletonList(PAYMENT_ACCOUNT));
         cost.setDescription(REGISTER_COST_DESCRIPTION);
