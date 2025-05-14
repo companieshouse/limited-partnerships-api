@@ -33,7 +33,7 @@ import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTIT
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_FILING_RESOURCE_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_INCORPORATION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
@@ -73,10 +73,10 @@ public class IncorporationController {
         }
     }
 
-    @GetMapping("/{" + URL_PARAM_FILING_RESOURCE_ID + "}")
+    @GetMapping("/{" + URL_PARAM_INCORPORATION_ID + "}")
     public ResponseEntity<Object> getIncorporation(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String filingResourceId,
+            @PathVariable(URL_PARAM_INCORPORATION_ID) String incorporationId,
             @RequestParam(value = "include_sub_resources", required = false) boolean includeSubResources,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId
     ) {
@@ -86,7 +86,7 @@ public class IncorporationController {
         ApiLogger.infoContext(requestId, "Calling service to get a Limited Partnership Incorporation, include_sub_resources = " + includeSubResources, logMap);
 
         try {
-            LimitedPartnershipIncorporationDto dto = incorporationService.getIncorporation(transaction, filingResourceId, includeSubResources);
+            LimitedPartnershipIncorporationDto dto = incorporationService.getIncorporation(transaction, incorporationId, includeSubResources);
             return ResponseEntity.ok().body(dto);
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
@@ -97,7 +97,7 @@ public class IncorporationController {
         }
     }
 
-    @GetMapping("/costs")
+    @GetMapping("/{" + URL_PARAM_INCORPORATION_ID + "}/costs")
     public ResponseEntity<List<Cost>> getCosts(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {

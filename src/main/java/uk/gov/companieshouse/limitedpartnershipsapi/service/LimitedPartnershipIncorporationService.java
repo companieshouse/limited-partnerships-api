@@ -84,6 +84,7 @@ public class LimitedPartnershipIncorporationService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", incorporationUri);
+        linksMap.put("costs", incorporationUri + "/costs");
 
         incorporationResource.setLinks(linksMap);
         incorporationResource.setKind(kind);
@@ -93,16 +94,16 @@ public class LimitedPartnershipIncorporationService {
 
 
     public LimitedPartnershipIncorporationDto getIncorporation(Transaction transaction,
-                                                               String filingResourceId,
+                                                               String incorporationId,
                                                                boolean includeSubResources) throws ServiceException {
-        String submissionUri = getSubmissionUri(transaction.getId(), filingResourceId);
+        String submissionUri = getSubmissionUri(transaction.getId(), incorporationId);
         if (!transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
-                    "Transaction id: %s does not have a resource that matches incorporation id: %s", transaction.getId(), filingResourceId));
+                    "Transaction id: %s does not have a resource that matches incorporation id: %s", transaction.getId(), incorporationId));
         }
 
-        var incorporation = repository.findById(filingResourceId);
-        LimitedPartnershipIncorporationDao incorporationDao = incorporation.orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", filingResourceId)));
+        var incorporation = repository.findById(incorporationId);
+        LimitedPartnershipIncorporationDao incorporationDao = incorporation.orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
 
         LimitedPartnershipIncorporationDto incorporationDto = mapper.daoToDto(incorporationDao);
 
