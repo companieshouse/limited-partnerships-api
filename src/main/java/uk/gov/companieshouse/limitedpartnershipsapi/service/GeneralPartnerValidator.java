@@ -19,16 +19,17 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class GeneralPartnerValidator {
+public class GeneralPartnerValidator extends PartnerValidator {
 
     @Autowired
-    private Validator validator;
+    public GeneralPartnerValidator(Validator validator) {
+        super(validator);
+    }
 
-
-    public List<ValidationStatusError> validate(GeneralPartnerDto generalPartnerDto) throws ServiceException {
+    public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        executeJavaBeansValidation(generalPartnerDto, errorsList);
+        checkFieldConstraints(generalPartnerDto, errorsList);
 
         var dataDto = generalPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
@@ -48,7 +49,7 @@ public class GeneralPartnerValidator {
         return errorsList;
     }
 
-    public void isValid(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validatePartial(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
@@ -135,7 +136,7 @@ public class GeneralPartnerValidator {
         bindingResult.addError(fieldError);
     }
 
-    private void executeJavaBeansValidation(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
+    private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
             throws ServiceException {
         Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(generalPartnerDto);
 
@@ -143,23 +144,11 @@ public class GeneralPartnerValidator {
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
         try {
-            isValid(generalPartnerDto);
+            validatePartial(generalPartnerDto);
         } catch (MethodArgumentNotValidException e) {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
         }
-    }
-
-    private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
-        bindingResult.getFieldErrors().forEach(fe ->
-                errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
-    }
-
-    private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
-        var error = new ValidationStatusError();
-        error.setError(errorMessage);
-        error.setLocation(location);
-        return error;
     }
 }
