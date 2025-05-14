@@ -22,6 +22,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANS
 @Service
 public class FilingsService {
 
+    public static final String LIMITED_PARTNERSHIP_FILING_DESCRIPTION = "Register a Limited Partnership";
+
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
@@ -55,6 +57,7 @@ public class FilingsService {
         setSubmissionData(data, limitedPartnershipDto, generalPartnersDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
+        setDescriptionFields(filing);
     }
 
     private void setSubmissionData(Map<String, Object> data,
@@ -67,5 +70,10 @@ public class FilingsService {
        data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
        data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
        ApiLogger.info("Submission data has been set on filing", logMap);
+    }
+
+    private void setDescriptionFields(FilingApi filing) {
+        filing.setDescription(LIMITED_PARTNERSHIP_FILING_DESCRIPTION);
+        filing.setDescriptionValues(new HashMap<>());
     }
 }
