@@ -13,14 +13,19 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 
 @ContextConfiguration(classes = {IncorporationController.class, CostsService.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {IncorporationController.class})
@@ -41,6 +46,9 @@ public class IncorporationControllerUpdateTest {
     private LimitedPartnershipIncorporationService limitedPartnershipIncorporationService;
 
     @MockitoBean
+    LimitedPartnershipIncorporationRepository repository;
+
+    @MockitoBean
     private TransactionInterceptor transactionInterceptor;
 
     @BeforeEach
@@ -58,6 +66,13 @@ public class IncorporationControllerUpdateTest {
 
         @Test
         void shouldReturn200() throws Exception {
+
+            LimitedPartnershipIncorporationDao incorporationDao = new LimitedPartnershipIncorporationDao();
+            incorporationDao.setId(INCORPORATION_ID);
+            incorporationDao.getData().setKind(REGISTRATION.getDescription());
+
+            when(repository.findById(INCORPORATION_ID)).thenReturn(Optional.of(incorporationDao));
+
 
             mockMvc.perform(get(INCORPORATION_COSTS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
