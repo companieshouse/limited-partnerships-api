@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -22,10 +21,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIn
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
@@ -74,7 +71,6 @@ public class IncorporationControllerUpdateTest {
             incorporationDao.getData().setKind(REGISTRATION.getDescription());
 
             when(repository.findById(INCORPORATION_ID)).thenReturn(Optional.of(incorporationDao));
-
 
             mockMvc.perform(get(INCORPORATION_COSTS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
