@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -21,8 +22,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIn
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
@@ -81,6 +84,19 @@ public class IncorporationControllerUpdateTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.[0].amount").value("100.00"))
                     .andExpect(jsonPath("$.[0].description").value("Register Limited Partnership fee"));
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            when(repository.findById(INCORPORATION_ID)).thenReturn(Optional.empty());
+
+            mockMvc.perform(get(INCORPORATION_COSTS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andDo(print())
+                    .andExpect(status().isNotFound());
         }
     }
 
