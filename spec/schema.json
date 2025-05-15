@@ -163,6 +163,45 @@
         }
       }
     },
+    "/transactions/{transaction_id}/incorporation/limited-partnership/{incorporation_id}/costs": {
+      "get": {
+        "tags": [
+          "Costs"
+        ],
+        "summary": "Get payment costs for limited partnership",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "incorporation_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of costs",
+            "schema": {
+              "$ref": "#/definitions/CostsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/transactions/{transaction_id}/limited-partnership/partnership": {
       "post": {
         "tags": [
@@ -1688,6 +1727,64 @@
       "properties": {
         "id": {
           "type": "string"
+        }
+      }
+    },
+    "CostsResponse": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string"
+        },
+        "availablePaymentMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "classOfPayment": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "descriptionIdentifier": {
+          "type": "string"
+        },
+        "descriptionValues": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        "isVariablePayment": {
+          "type": "boolean"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "resourceKind": {
+          "type": "string"
+        },
+        "productType": {
+          "type": "string"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "self": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
         }
       }
     }

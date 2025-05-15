@@ -3,11 +3,22 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.Collections;
 
 @Service
 public class CostsService {
+
+    private final LimitedPartnershipIncorporationRepository repository;
+
+    public CostsService(LimitedPartnershipIncorporationRepository repository) {
+        this.repository = repository;
+    }
+
     @Value("${LP_REGISTRATION_COST}")
     private String registrationCostAmount;
 
@@ -22,7 +33,11 @@ public class CostsService {
     private static final String KEY = "Key";
     private static final String VALUE = "Value";
 
-    public Cost getCost() {
+    public Cost getCost(String incorporationId, String requestId) throws ResourceNotFoundException {
+        LimitedPartnershipIncorporationDao incorporationDao = repository.findById(incorporationId).orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
+
+        ApiLogger.infoContext(requestId, String.format("Cost for incorporation with id: %s and kind %s", incorporationId, incorporationDao.getData().getKind()));
+
         return getCostForRegistration();
     }
 
