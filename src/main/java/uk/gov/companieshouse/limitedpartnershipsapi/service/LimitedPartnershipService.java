@@ -38,7 +38,6 @@ public class LimitedPartnershipService {
     private final TransactionUtils transactionUtils;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
 
-
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
                                      LimitedPartnershipPatchMapper patchMapper,
@@ -137,8 +136,7 @@ public class LimitedPartnershipService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
         linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-
-        // TODO Add 'cost' link here later
+        linksMap.put("costs", submissionUri + "/costs"); // TODO to be removed
 
         limitedPartnershipResource.setLinks(linksMap);
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
@@ -179,7 +177,7 @@ public class LimitedPartnershipService {
     }
 
     private void updateLimitedPartnershipWithSelfLink(LimitedPartnershipDao limitedPartnershipDao,
-                                                                String submissionUri) {
+                                                      String submissionUri) {
         limitedPartnershipDao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(limitedPartnershipDao);
     }

@@ -19,6 +19,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import java.nio.charset.StandardCharsets;
@@ -80,6 +81,9 @@ class GeneralPartnerControllerUpdateTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
+
+    @MockitoBean
+    private CostsService costsService; // TODO to be removed
 
     @BeforeEach
     void setUp() {

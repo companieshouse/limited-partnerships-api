@@ -25,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
 import java.nio.charset.StandardCharsets;
@@ -64,6 +65,9 @@ class PartnershipControllerValidationTest {
 
     @MockitoBean
     private LimitedPartnershipService service;
+
+    @MockitoBean
+    private CostsService costsService; // TODO to be removed
 
     @BeforeEach
     void setUp() {
@@ -123,7 +127,6 @@ class PartnershipControllerValidationTest {
         private static final String JSON_INVALID_CHARS_PARTNERSHIP_NAME = "{\"data\":{\"partnership_name\":\"±±±Name test\", \"name_ending\":\"Limited Partnership\",\"partnership_type\":\"LP\"}}";
         private static final String JSON_MISSING_NAME_ENDING = "{\"data\":{\"partnership_name\":\"Name test\", \"partnership_type\":\"LP\"}}";
         private static final String JSON_MISSING_TYPE = "{\"data\":{\"partnership_name\":\"Name test\", \"name_ending\":\"Limited Partnership\"}}";
-
 
         @ParameterizedTest
         @ValueSource(strings = {
@@ -343,7 +346,6 @@ class PartnershipControllerValidationTest {
                         .andExpect(status().isOk());
             }
 
-
             @Test
             void shouldReturn400IfAddressLine1IsTooLong() throws Exception {
                 String longAddressLine1 = StringUtils.repeat("A", 51);
@@ -525,7 +527,6 @@ class PartnershipControllerValidationTest {
             }
         }
     }
-
 
     @Nested
     class ValidatePartnership {

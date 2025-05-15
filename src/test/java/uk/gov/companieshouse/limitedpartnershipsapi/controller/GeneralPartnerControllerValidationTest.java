@@ -18,6 +18,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import java.nio.charset.StandardCharsets;
@@ -111,6 +112,9 @@ class GeneralPartnerControllerValidationTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
+
+    @MockitoBean
+    private CostsService costsService; // TODO to be removed
 
     @BeforeEach
     void setUp() {

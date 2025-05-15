@@ -36,7 +36,7 @@ public class CostsService {
     public Cost getCost(String incorporationId, String requestId) throws ResourceNotFoundException {
         LimitedPartnershipIncorporationDao incorporationDao = repository.findById(incorporationId).orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
 
-        ApiLogger.infoContext(requestId, String.format("Cost for incorporation with id: %s and kind %s", incorporationId, incorporationDao.getData().getKind()));
+        ApiLogger.infoContext(requestId, String.format("Cost for incorporation with id: %s and kind: %s", incorporationId, incorporationDao.getData().getKind()));
 
         return getCostForRegistration();
     }
@@ -48,6 +48,25 @@ public class CostsService {
         cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
         cost.setClassOfPayment(Collections.singletonList(PAYMENT_ACCOUNT));
         cost.setDescription(REGISTER_COST_DESCRIPTION);
+        cost.setDescriptionIdentifier(DESCRIPTION_IDENTIFIER);
+        cost.setDescriptionValues(Collections.singletonMap(KEY, VALUE));
+        cost.setKind(PAYMENT_SESSION);
+        cost.setResourceKind(RESOURCE_KIND);
+        cost.setProductType(REGISTER_PRODUCT_TYPE);
+
+        return cost;
+    }
+
+    public Cost getCostHack(String id, String requestId) {
+
+        ApiLogger.infoContext(requestId, String.format("Cost for entity with id: %s and kind: hack", id));
+
+        Cost cost = new Cost();
+
+        cost.setAmount(registrationCostAmount);
+        cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
+        cost.setClassOfPayment(Collections.singletonList("0.00"));
+        cost.setDescription(REGISTER_COST_DESCRIPTION + " - hack");
         cost.setDescriptionIdentifier(DESCRIPTION_IDENTIFIER);
         cost.setDescriptionValues(Collections.singletonMap(KEY, VALUE));
         cost.setKind(PAYMENT_SESSION);
