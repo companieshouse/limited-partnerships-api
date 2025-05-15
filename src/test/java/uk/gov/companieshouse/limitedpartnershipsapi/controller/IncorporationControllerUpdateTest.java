@@ -33,8 +33,7 @@ public class IncorporationControllerUpdateTest {
     private static final String TRANSACTION_ID = "12321123";
     private static final String INCORPORATION_ID = "09876543";
 
-    private static final String INCORPORATION_URL = "/transactions/" + TRANSACTION_ID + "/incorporation/limited-partnership/" + INCORPORATION_ID;
-    private static final String INCORPORATION_COSTS_URL = INCORPORATION_URL + "/costs";
+    private static final String INCORPORATION_COSTS_URL = "/transactions/" + TRANSACTION_ID + "/incorporation/limited-partnership/" + INCORPORATION_ID + "/costs";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
