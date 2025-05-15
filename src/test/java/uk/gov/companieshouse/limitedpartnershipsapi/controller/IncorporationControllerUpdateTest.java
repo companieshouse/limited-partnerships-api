@@ -95,7 +95,6 @@ public class IncorporationControllerUpdateTest {
                             .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
-                    .andDo(print())
                     .andExpect(status().isNotFound());
         }
     }
