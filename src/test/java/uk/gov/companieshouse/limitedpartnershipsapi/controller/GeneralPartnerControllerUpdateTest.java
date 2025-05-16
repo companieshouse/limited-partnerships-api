@@ -19,6 +19,8 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 
 import java.nio.charset.StandardCharsets;
@@ -26,12 +28,13 @@ import java.nio.charset.StandardCharsets;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {GeneralPartnerController.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {GeneralPartnerController.class, CostsService.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerUpdateTest {
 
@@ -65,6 +68,7 @@ class GeneralPartnerControllerUpdateTest {
 
     private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String GENERAL_PARTNER_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
+    private static final String GENERAL_PARTNER_COST_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -80,6 +84,9 @@ class GeneralPartnerControllerUpdateTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
+
+    @MockitoBean
+    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @BeforeEach
     void setUp() {
@@ -252,6 +259,22 @@ class GeneralPartnerControllerUpdateTest {
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    class Costs {
+
+        @Test
+        void shouldReturn200() throws Exception {
+            mockMvc.perform(get(GENERAL_PARTNER_COST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.[0].amount").value("0.00"))
+                    .andExpect(jsonPath("$.[0].description").value("General Partner fee"));
         }
     }
 }

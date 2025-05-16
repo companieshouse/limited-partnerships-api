@@ -30,7 +30,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
-
 @Service
 public class LimitedPartnerService {
 
@@ -96,6 +95,7 @@ public class LimitedPartnerService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
         linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+        linksMap.put("costs", submissionUri + "/costs");
 
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);

@@ -18,6 +18,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 
 import java.nio.charset.StandardCharsets;
@@ -42,15 +43,15 @@ class LimitedPartnerControllerValidationTest {
 
     // PERSON
     private static final String JSON_CORRECT = """
-        {
-            "data": {
-              "forename": "Joe",
-              "surname": "Bloggs",
-              "date_of_birth": "2001-01-01",
-              "nationality1": "BRITISH",
-              "nationality2": null
-            }
-        }""";
+            {
+                "data": {
+                  "forename": "Joe",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null
+                }
+            }""";
 
     private static final String JSON_WITH_BELOW_MIN_FORENAME = "{ \"data\": { \"forename\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
 
@@ -74,30 +75,30 @@ class LimitedPartnerControllerValidationTest {
 
     // LEGAL ENTITY
     private static final String JSON_LIMITED_LEGAL_ENTITY_CORRECT = """
-        {
-          "data": {
-            "contribution_currency_type": "GBP",
-            "contribution_currency_value": "200.20",
-            "legal_entity_name": "My Company Name",
-            "legal_form": "Form ABC",
-            "governing_law": "Act of law",
-            "legal_entity_register_name": "Register of somewhere",
-            "legal_entity_registration_location": "Scotland",
-            "registered_company_number": "12345678"
-          }
-        }""";
+            {
+              "data": {
+                "contribution_currency_type": "GBP",
+                "contribution_currency_value": "200.20",
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
+                "governing_law": "Act of law",
+                "legal_entity_register_name": "Register of somewhere",
+                "legal_entity_registration_location": "Scotland",
+                "registered_company_number": "12345678"
+              }
+            }""";
 
     private static final String JSON_LIMITED_LEGAL_ENTITY_INVALID_COUNTRY = """
-        {
-          "data": {
-            "legal_entity_name": "My Company Name",
-            "legal_form": "Form ABC",
-            "governing_law": "Act of law",
-            "legal_entity_register_name": "Register of somewhere",
-            "legal_entity_registration_location": "Wrong Country",
-            "registered_company_number": "12345678"
-          }
-        }""";
+            {
+              "data": {
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
+                "governing_law": "Act of law",
+                "legal_entity_register_name": "Register of somewhere",
+                "legal_entity_registration_location": "Wrong Country",
+                "registered_company_number": "12345678"
+              }
+            }""";
 
     private HttpHeaders httpHeaders;
     private Transaction transaction;
@@ -110,6 +111,9 @@ class LimitedPartnerControllerValidationTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
+
+    @MockitoBean
+    private CostsService costsService;
 
     @BeforeEach
     void setUp() {
