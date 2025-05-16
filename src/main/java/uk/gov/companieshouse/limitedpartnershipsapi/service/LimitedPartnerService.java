@@ -95,7 +95,7 @@ public class LimitedPartnerService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
         linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        linksMap.put("costs", submissionUri + "/costs"); // TODO to be removed
+        linksMap.put("costs", submissionUri + "/costs");
 
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);

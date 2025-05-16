@@ -67,7 +67,7 @@ class PartnershipControllerValidationTest {
     private LimitedPartnershipService service;
 
     @MockitoBean
-    private CostsService costsService; // TODO to be removed
+    private CostsService costsService;
 
     @BeforeEach
     void setUp() {

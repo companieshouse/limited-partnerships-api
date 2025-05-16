@@ -156,7 +156,7 @@ public class PartnershipController {
     public ResponseEntity<List<Cost>> getCosts(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ResourceNotFoundException {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());

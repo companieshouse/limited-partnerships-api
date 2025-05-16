@@ -114,7 +114,7 @@ class GeneralPartnerControllerValidationTest {
     private TransactionInterceptor transactionInterceptor;
 
     @MockitoBean
-    private CostsService costsService; // TODO to be removed
+    private CostsService costsService;
 
     @BeforeEach
     void setUp() {
