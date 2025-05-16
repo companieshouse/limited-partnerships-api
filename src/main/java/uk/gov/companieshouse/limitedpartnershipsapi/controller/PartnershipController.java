@@ -36,7 +36,6 @@ import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTIT
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_INCORPORATION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_SUBMISSION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
@@ -156,7 +155,7 @@ public class PartnershipController {
     @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}/costs")
     public ResponseEntity<List<Cost>> getCosts(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_INCORPORATION_ID) String submissionId,
+            @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ResourceNotFoundException {
 
         var logMap = new HashMap<String, Object>();

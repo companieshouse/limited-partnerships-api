@@ -63,9 +63,9 @@ public class CostsService {
 
         Cost cost = new Cost();
 
-        cost.setAmount(registrationCostAmount);
+        cost.setAmount("0.00");
         cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
-        cost.setClassOfPayment(Collections.singletonList("0.00"));
+        cost.setClassOfPayment(Collections.singletonList(PAYMENT_ACCOUNT));
         cost.setDescription(REGISTER_COST_DESCRIPTION + " - hack");
         cost.setDescriptionIdentifier(DESCRIPTION_IDENTIFIER);
         cost.setDescriptionValues(Collections.singletonMap(KEY, VALUE));

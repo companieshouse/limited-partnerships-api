@@ -38,7 +38,6 @@ import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTIT
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_INCORPORATION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_LIMITED_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
@@ -172,11 +171,11 @@ public class LimitedPartnerController {
         return ResponseEntity.ok().body(validationStatus);
     }
 
-    @GetMapping("/{" + URL_PARAM_LIMITED_PARTNER_ID + "}/costs")
+    @GetMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}/costs")
     public ResponseEntity<List<Cost>> getCosts(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_INCORPORATION_ID) String submissionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ResourceNotFoundException {
+            @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String submissionId,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());
