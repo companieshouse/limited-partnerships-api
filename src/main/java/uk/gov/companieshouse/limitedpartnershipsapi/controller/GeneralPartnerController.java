@@ -168,14 +168,14 @@ public class GeneralPartnerController {
     @GetMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}/costs")
     public ResponseEntity<List<Cost>> getCosts(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String submissionId,
+            @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());
         ApiLogger.infoContext(requestId, "Calling CostsService to retrieve costs", logMap);
 
-        Cost cost = costsService.getCostHack(submissionId, requestId);
+        Cost cost = costsService.getCostHack(generalPartnerId, requestId);
 
         return ResponseEntity.ok(Collections.singletonList(cost));
     }
