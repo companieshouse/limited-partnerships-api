@@ -175,7 +175,7 @@ public class GeneralPartnerController {
         logMap.put(TRANSACTION_KEY, transaction.getId());
         ApiLogger.infoContext(requestId, "Calling CostsService to retrieve costs", logMap);
 
-        Cost cost = costsService.getCostHack(generalPartnerId, requestId);
+        Cost cost = costsService.getTemporaryZeroCost(generalPartnerId, "General Partner", requestId);
 
         return ResponseEntity.ok(Collections.singletonList(cost));
     }

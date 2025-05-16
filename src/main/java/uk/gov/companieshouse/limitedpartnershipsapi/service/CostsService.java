@@ -57,7 +57,8 @@ public class CostsService {
         return cost;
     }
 
-    public Cost getCostHack(String id, String requestId) {
+    // TODO - to be removed
+    public Cost getTemporaryZeroCost(String id, String entity, String requestId) {
 
         ApiLogger.infoContext(requestId, String.format("Cost for entity with id: %s and kind: hack", id));
 
@@ -66,7 +67,7 @@ public class CostsService {
         cost.setAmount("0.00");
         cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
         cost.setClassOfPayment(Collections.singletonList(PAYMENT_ACCOUNT));
-        cost.setDescription(REGISTER_COST_DESCRIPTION + " - hack");
+        cost.setDescription(entity + " fee");
         cost.setDescriptionIdentifier(DESCRIPTION_IDENTIFIER);
         cost.setDescriptionValues(Collections.singletonMap(KEY, VALUE));
         cost.setKind(PAYMENT_SESSION);

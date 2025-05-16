@@ -68,7 +68,7 @@ public class PartnershipControllerUpdateTest {
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.[0].amount").value("0.00"))
-                    .andExpect(jsonPath("$.[0].description").value("Register Limited Partnership fee - hack"));
+                    .andExpect(jsonPath("$.[0].description").value("Limited Partnership fee"));
         }
     }
 

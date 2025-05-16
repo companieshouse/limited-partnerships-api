@@ -162,7 +162,7 @@ public class PartnershipController {
         logMap.put(TRANSACTION_KEY, transaction.getId());
         ApiLogger.infoContext(requestId, "Calling CostsService to retrieve costs", logMap);
 
-        Cost cost = costsService.getCostHack(submissionId, requestId);
+        Cost cost = costsService.getTemporaryZeroCost(submissionId, "Limited Partnership", requestId);
 
         return ResponseEntity.ok(Collections.singletonList(cost));
     }
