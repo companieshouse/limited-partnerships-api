@@ -48,7 +48,9 @@ public class FilingsController {
        var logMap = new HashMap<String, Object>();
        logMap.put(TRANSACTION_KEY, transaction.getId());
        ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
-       FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
+        ApiLogger.infoContext(requestId, "TEST", logMap);
+
+        FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
        return ResponseEntity.ok(new FilingApi[] { filing });
     }
 }
