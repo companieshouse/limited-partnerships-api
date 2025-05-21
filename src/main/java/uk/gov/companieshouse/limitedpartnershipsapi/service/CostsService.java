@@ -26,7 +26,7 @@ public class CostsService {
 
     private static final String PAYMENT_ACCOUNT = "data-maintenance";
     private static final String RESOURCE_KIND = "limited-partnership";
-    private static final String REGISTER_PRODUCT_TYPE = "register-limited-partnership-entity";
+    private static final String REGISTER_PRODUCT_TYPE = "register-limited-partnership"; // used by payment-reconciliation-consumer
     private static final String CREDIT_CARD = "credit-card";
     private static final String DESCRIPTION_IDENTIFIER = "description-identifier";
     private static final String PAYMENT_SESSION = "payment-session#payment-session";
