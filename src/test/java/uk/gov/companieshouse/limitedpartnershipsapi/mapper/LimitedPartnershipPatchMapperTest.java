@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class LimitedPartnershipPatchMapperTest {
 
     private static final String JSON_WITH_MISSING_FIELDS = "{\"email\":\"test@test.com\"}";
-    private static final String JSON_WITH_VALID_FIELDS_ALL_PRESENT = "{\"partnership_name\":\"Asset Adders\", \"name_ending\":\"L.P.\",\"partnership_type\":\"PFLP\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\"}";
+    private static final String JSON_WITH_VALID_FIELDS_ALL_PRESENT = "{\"partnership_name\":\"Asset Adders\", \"name_ending\":\"L.P.\",\"partnership_type\":\"PFLP\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\", \"lawful_purpose_statement_checked\":\"true\"}";
     private static final String JSON_WITH_INVALID_ENUM_VALUES = "{\"partnership_name\":\"Asset Adders\", \"name_ending\":\"ILLEGAL\", \"partnership_type\":\"SHADY\", \"email\":\"test@test.com\", \"jurisdiction\":\"MONGOLIA\"}";
 
 
@@ -41,6 +41,7 @@ class LimitedPartnershipPatchMapperTest {
         assertNull(mapper.readValue("{\"partnership_name\":null}",
                 LimitedPartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getPartnershipName());
+        assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getLawfulPurposeStatementChecked());
     }
 
     @ParameterizedTest

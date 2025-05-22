@@ -63,6 +63,9 @@ public class LimitedPartnershipPatchDto {
     @Size(min = 1, max = 4, message = "Sic codes list must contain at least 1 sic code, and no more than 4 sic codes")
     private List<@Pattern(regexp = "\\d{5}", message = "Sic code must be 5 numeric characters") String> sicCodes;
 
+    @JsonProperty("lawful_purpose_statement_checked")
+    private Boolean lawfulPurposeStatementChecked;
+
     public String getPartnershipName() {
         return partnershipName;
     }
@@ -131,5 +134,29 @@ public class LimitedPartnershipPatchDto {
 
     public void setSicCodes(List<String> sicCodes ) {
         this.sicCodes = sicCodes;
+    }
+
+    public Boolean getLawfulPurposeStatementChecked() {
+        return lawfulPurposeStatementChecked;
+    }
+
+    public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
+        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
+    }
+
+    @Override
+    public String toString() {
+        return "LimitedPartnershipPatchDto{" +
+                "partnershipName='" + partnershipName + '\'' +
+                ", nameEnding=" + nameEnding +
+                ", email='" + email + '\'' +
+                ", partnershipType=" + partnershipType +
+                ", jurisdiction=" + jurisdiction +
+                ", registeredOfficeAddress=" + registeredOfficeAddress +
+                ", term=" + term +
+                ", principalPlaceOfBusinessAddress=" + principalPlaceOfBusinessAddress +
+                ", sicCodes=" + sicCodes +
+                ", lawfulPurposeStatementChecked=" + lawfulPurposeStatementChecked +
+                '}';
     }
 }

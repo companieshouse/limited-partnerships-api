@@ -90,6 +90,9 @@ public class PartnershipController {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
+
+        ApiLogger.debugContext(requestId, String.format("Patching partnership with data %s", limitedPartnershipPatchDto), logMap);
 
         try {
             limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, limitedPartnershipPatchDto, requestId, userId);
@@ -125,9 +128,10 @@ public class PartnershipController {
     }
 
     @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}/validation-status")
-    public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                                        @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-                                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+    public ResponseEntity<ValidationStatusResponse> getValidationStatus(
+            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
 
