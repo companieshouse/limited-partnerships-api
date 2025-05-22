@@ -29,32 +29,41 @@ public class LimitedPartnershipValidator {
         violations.forEach(v ->
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
-        // TODO These checks are valid for Partnership Types PFLP and SPFLP (the LP7D CHIPS transaction). Code will
-        //      need changing when other Partnership Types need to be validated and sent to CHIPS
-
         final var dataDto = limitedPartnershipDto.getData();
+        if (dataDto.getEmail() == null) {
+            errorsList.add(createValidationStatusError("Email is required", "data.email"));
+        }
+
+        if (dataDto.getJurisdiction() == null) {
+            errorsList.add(createValidationStatusError("Jurisdiction is required", "data.jurisdiction"));
+        }
+
+        if (dataDto.getRegisteredOfficeAddress() == null) {
+            errorsList.add(createValidationStatusError("Registered office address is required",
+                    "data.registeredOfficeAddress"));
+        }
+
+        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null) {
+            errorsList.add(createValidationStatusError("Principal place of business address is required",
+                    "data.principalPlaceOfBusinessAddress"));
+        }
+
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
-            if (dataDto.getEmail() == null) {
-                errorsList.add(createValidationStatusError("Email is required", "data.email"));
-            }
-
-            if (dataDto.getJurisdiction() == null) {
-                errorsList.add(createValidationStatusError("Jurisdiction is required", "data.jurisdiction"));
-            }
-
-            if (dataDto.getRegisteredOfficeAddress() == null) {
-                errorsList.add(createValidationStatusError("Registered office address is required",
-                        "data.registeredOfficeAddress"));
-            }
-
-            if (dataDto.getPrincipalPlaceOfBusinessAddress() == null) {
-                errorsList.add(createValidationStatusError("Principal place of business address is required",
-                        "data.principalPlaceOfBusinessAddress"));
-            }
-
             if (dataDto.getTerm() != null) {
                 errorsList.add(createValidationStatusError("Term is not required", "data.term"));
+            }
+
+            if (dataDto.getSicCodes() != null) {
+                errorsList.add(createValidationStatusError("SIC codes are not required", "data.sicCodes"));
+            }
+        } else {
+            if (dataDto.getTerm() == null) {
+                errorsList.add(createValidationStatusError("Term is required", "data.term"));
+            }
+
+            if (dataDto.getSicCodes() == null || dataDto.getSicCodes().size() == 0) {
+                errorsList.add(createValidationStatusError("SIC codes are required", "data.sicCodes"));
             }
         }
 
