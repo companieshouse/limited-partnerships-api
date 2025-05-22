@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.util.ArrayList;
@@ -30,6 +31,14 @@ public class LimitedPartnershipValidator {
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
         final var dataDto = limitedPartnershipDto.getData();
+
+        checkCommonFields(dataDto, errorsList);
+        checkTypeSpecificFields(dataDto, errorsList);
+
+        return errorsList;
+    }
+
+    private void checkCommonFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
         if (dataDto.getEmail() == null) {
             errorsList.add(createValidationStatusError("Email is required", "data.email"));
         }
@@ -47,7 +56,9 @@ public class LimitedPartnershipValidator {
             errorsList.add(createValidationStatusError("Principal place of business address is required",
                     "data.principalPlaceOfBusinessAddress"));
         }
+    }
 
+    private void checkTypeSpecificFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
             if (dataDto.getTerm() != null) {
@@ -62,12 +73,10 @@ public class LimitedPartnershipValidator {
                 errorsList.add(createValidationStatusError("Term is required", "data.term"));
             }
 
-            if (dataDto.getSicCodes() == null || dataDto.getSicCodes().size() == 0) {
+            if (dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) {
                 errorsList.add(createValidationStatusError("SIC codes are required", "data.sicCodes"));
             }
         }
-
-        return errorsList;
     }
 
     private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
