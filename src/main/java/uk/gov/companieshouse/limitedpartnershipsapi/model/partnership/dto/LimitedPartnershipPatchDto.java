@@ -136,12 +136,12 @@ public class LimitedPartnershipPatchDto {
         this.sicCodes = sicCodes;
     }
 
-    public Boolean getLawfulPurposeStatementChecked() {
-        return lawfulPurposeStatementChecked;
-    }
-
     public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
         this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
+    }
+
+    public Boolean getLawfulPurposeStatementChecked() {
+        return lawfulPurposeStatementChecked;
     }
 
     @Override
