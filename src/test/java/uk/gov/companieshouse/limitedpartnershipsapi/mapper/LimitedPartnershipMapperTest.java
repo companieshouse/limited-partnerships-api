@@ -22,7 +22,6 @@ class LimitedPartnershipMapperTest {
         sourceData.setPartnershipName("Joe Bloggs");
         sourceData.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
         sourceData.setPartnershipType(PartnershipType.LP);
-        sourceData.setLawfulPurposeStatementChecked(Boolean.TRUE);
         source.setData(sourceData);
 
         // when
@@ -33,7 +32,6 @@ class LimitedPartnershipMapperTest {
         assertEquals(sourceData.getPartnershipName(), destinationData.getPartnershipName());
         assertEquals(sourceData.getNameEnding(), destinationData.getNameEnding());
         assertEquals(sourceData.getPartnershipType(), destinationData.getPartnershipType());
-        assertEquals(sourceData.getLawfulPurposeStatementChecked(), destinationData.getLawfulPurposeStatementChecked());
     }
 
     @Test

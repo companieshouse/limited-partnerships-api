@@ -106,6 +106,7 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().setJurisdiction(null);
         limitedPartnershipSubmissionDao.getData().setRegisteredOfficeAddress(null);
         limitedPartnershipSubmissionDao.getData().setPrincipalPlaceOfBusinessAddress(null);
+        limitedPartnershipSubmissionDao.getData().setLawfulPurposeStatementChecked(false);
 
         var errorMessageAddition = "";
         if (LP.equals(type) || SLP.equals(type)) {
@@ -126,13 +127,14 @@ class LimitedPartnershipServiceValidateTest {
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
-        assertEquals(6, results.size());
+        assertEquals(7, results.size());
         checkForError(results, "Email is required", "data.email");
         checkForError(results, "Jurisdiction is required", "data.jurisdiction");
         checkForError(results, "Registered office address is required", "data.registeredOfficeAddress");
         checkForError(results, "Principal place of business address is required", "data.principalPlaceOfBusinessAddress");
         checkForError(results, "Term is " + errorMessageAddition + "required", "data.term");
         checkForError(results, "SIC codes are " + errorMessageAddition + "required", "data.sicCodes");
+        checkForError(results, "Lawful purpose statement checked is required", "data.lawfulPurposeStatementChecked");
     }
 
     @ParameterizedTest
@@ -192,6 +194,7 @@ class LimitedPartnershipServiceValidateTest {
         dataDao.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES.getApiKey());
         dataDao.setRegisteredOfficeAddress(createAddressDao());
         dataDao.setPrincipalPlaceOfBusinessAddress(createAddressDao());
+        dataDao.setLawfulPurposeStatementChecked(true);
         dao.setData(dataDao);
 
         return dao;
