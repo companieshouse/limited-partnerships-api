@@ -388,8 +388,8 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
 
-                // dao lawful purpose statement check is false before mapping/update
-                assertFalse(limitedPartnershipDao.getData().getLawfulPurposeStatementChecked());
+                // dao lawful purpose statement check is null before mapping/update
+                assertNull(limitedPartnershipDao.getData().getLawfulPurposeStatementChecked());
 
                 // when
                 service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
