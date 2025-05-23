@@ -57,7 +57,7 @@ public class LimitedPartnershipValidator {
                     "data.principalPlaceOfBusinessAddress"));
         }
 
-        if (!Boolean.TRUE.equals(dataDto.getLawfulPurposeStatementChecked())) {
+        if (dataDto.getLawfulPurposeStatementChecked() == null) {
             errorsList.add(createValidationStatusError("Lawful purpose statement checked is required",
                     "data.lawfulPurposeStatementChecked"));
         }

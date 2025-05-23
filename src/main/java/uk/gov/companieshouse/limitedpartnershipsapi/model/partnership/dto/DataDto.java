@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -75,6 +76,7 @@ public class DataDto {
     private List<@Pattern(regexp = "\\d{5}", message = "Sic code must be 5 numeric characters") String> sicCodes;
 
     @JsonProperty("lawful_purpose_statement_checked")
+    @AssertTrue(message = "Lawful purpose statement must be checked")
     private Boolean lawfulPurposeStatementChecked;
 
     public String getPartnershipName() {

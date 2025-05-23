@@ -13,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 
+import jakarta.validation.constraints.AssertTrue;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
@@ -64,6 +65,7 @@ public class LimitedPartnershipPatchDto {
     private List<@Pattern(regexp = "\\d{5}", message = "Sic code must be 5 numeric characters") String> sicCodes;
 
     @JsonProperty("lawful_purpose_statement_checked")
+    @AssertTrue(message = "Lawful purpose statement must be checked")
     private Boolean lawfulPurposeStatementChecked;
 
     public String getPartnershipName() {
