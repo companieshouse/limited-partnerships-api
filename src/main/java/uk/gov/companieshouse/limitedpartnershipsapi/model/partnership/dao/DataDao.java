@@ -36,6 +36,9 @@ public class DataDao {
     @Field("sic_codes")
     private List<String> sicCodes;
 
+    @Field("lawful_purpose_statement_checked")
+    private Boolean lawfulPurposeStatementChecked;
+
     public String getPartnershipName() {
         return partnershipName;
     }
@@ -106,5 +109,13 @@ public class DataDao {
 
     public void setSicCodes(List<String> sicCodes) {
         this.sicCodes = sicCodes;
+    }
+
+    public Boolean getLawfulPurposeStatementChecked() {
+        return lawfulPurposeStatementChecked;
+    }
+
+    public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
+        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
     }
 }

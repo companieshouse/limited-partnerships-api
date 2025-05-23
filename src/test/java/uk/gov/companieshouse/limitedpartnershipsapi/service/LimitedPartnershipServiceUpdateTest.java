@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
@@ -104,7 +105,7 @@ class LimitedPartnershipServiceUpdateTest {
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
 
-                // dao name before mapping/update
+                // dao partnership name before mapping/update
                 assertEquals("Asset Strippers", limitedPartnershipDao.getData().getPartnershipName());
 
                 // when
@@ -150,12 +151,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
 
-                AddressDto registeredOfficeAddress = new AddressDto();
-                registeredOfficeAddress.setAddressLine1("DUNCALF STREET");
-                registeredOfficeAddress.setCountry("England");
-                registeredOfficeAddress.setLocality("STOKE-ON-TRENT");
-                registeredOfficeAddress.setPostalCode("ST6 3LJ");
-                registeredOfficeAddress.setPremises("2");
+                AddressDto registeredOfficeAddress = getAddressDto();
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setRegisteredOfficeAddress(registeredOfficeAddress);
@@ -187,12 +183,7 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 Transaction transaction = buildTransaction();
 
-                AddressDao registeredOfficeAddress = new AddressDao();
-                registeredOfficeAddress.setAddressLine1("DUNCALF STREET");
-                registeredOfficeAddress.setCountry("England");
-                registeredOfficeAddress.setLocality("STOKE-ON-TRENT");
-                registeredOfficeAddress.setPostalCode("ST6 3LJ");
-                registeredOfficeAddress.setPremises("2");
+                AddressDao registeredOfficeAddress = getAddressDao();
 
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
                 limitedPartnershipDao.getData().setRegisteredOfficeAddress(registeredOfficeAddress);
@@ -229,7 +220,7 @@ class LimitedPartnershipServiceUpdateTest {
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
 
-                // dao registered office address is null before mapping/update
+                // dao term is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getTerm());
 
                 // when
@@ -275,12 +266,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
 
-                AddressDto principalPlaceOfBusinessAddress = new AddressDto();
-                principalPlaceOfBusinessAddress.setAddressLine1("DUNCALF STREET");
-                principalPlaceOfBusinessAddress.setCountry("England");
-                principalPlaceOfBusinessAddress.setLocality("STOKE-ON-TRENT");
-                principalPlaceOfBusinessAddress.setPostalCode("ST6 3LJ");
-                principalPlaceOfBusinessAddress.setPremises("2");
+                AddressDto principalPlaceOfBusinessAddress = getAddressDto();
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
@@ -288,7 +274,7 @@ class LimitedPartnershipServiceUpdateTest {
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
 
-                // dao registered office address is null before mapping/update
+                // dao principal place of business address is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress());
 
                 // when
@@ -312,12 +298,7 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 Transaction transaction = buildTransaction();
 
-                AddressDao principalPlaceOfBusinessAddress = new AddressDao();
-                principalPlaceOfBusinessAddress.setAddressLine1("DUNCALF STREET");
-                principalPlaceOfBusinessAddress.setCountry("England");
-                principalPlaceOfBusinessAddress.setLocality("STOKE-ON-TRENT");
-                principalPlaceOfBusinessAddress.setPostalCode("ST6 3LJ");
-                principalPlaceOfBusinessAddress.setPremises("2");
+                AddressDao principalPlaceOfBusinessAddress = getAddressDao();
 
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
                 limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
@@ -355,7 +336,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
 
-                // dao registered office address is null before mapping/update
+                // dao sic codes is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getSicCodes());
 
                 // when
@@ -391,5 +372,74 @@ class LimitedPartnershipServiceUpdateTest {
                 assertEquals(sicCodes, retrievedDto.getData().getSicCodes());
             }
         }
+
+        @Nested
+        class UpdateLawfulPurposeStatementChecked {
+            @Test
+            void shouldUpdateTheDao() throws ServiceException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                LimitedPartnershipDao limitedPartnershipDao = createDao();
+
+                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+                limitedPartnershipPatchDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
+
+                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+
+                // dao lawful purpose statement check is null before mapping/update
+                assertNull(limitedPartnershipDao.getData().getLawfulPurposeStatementChecked());
+
+                // when
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+                // then
+                verify(repository).findById(SUBMISSION_ID);
+                verify(repository).save(submissionCaptor.capture());
+
+                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+
+                assertTrue(sentSubmission.getData().getLawfulPurposeStatementChecked());
+            }
+
+            @Test
+            void shouldReturnDtoContainingLawfulPurposeStatementChecked() throws ResourceNotFoundException {
+                // given
+                Transaction transaction = buildTransaction();
+
+                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(true);
+
+                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+
+                // when
+                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+
+                // then
+                verify(repository).findById(limitedPartnershipDao.getId());
+
+                assertTrue(retrievedDto.getData().getLawfulPurposeStatementChecked());
+            }
+        }
+    }
+
+    private static AddressDao getAddressDao() {
+        AddressDao addressDao = new AddressDao();
+        addressDao.setAddressLine1("DUNCALF STREET");
+        addressDao.setCountry("England");
+        addressDao.setLocality("STOKE-ON-TRENT");
+        addressDao.setPostalCode("ST6 3LJ");
+        addressDao.setPremises("2");
+        return addressDao;
+    }
+
+    private static AddressDto getAddressDto() {
+        AddressDto addressDto = new AddressDto();
+        addressDto.setAddressLine1("DUNCALF STREET");
+        addressDto.setCountry("England");
+        addressDto.setLocality("STOKE-ON-TRENT");
+        addressDto.setPostalCode("ST6 3LJ");
+        addressDto.setPremises("2");
+        return addressDto;
     }
 }

@@ -16,7 +16,7 @@ import java.util.Set;
 @Component
 public class LimitedPartnershipValidator {
 
-    private Validator validator;
+    private final Validator validator;
 
     @Autowired
     public LimitedPartnershipValidator(Validator validator) {
@@ -33,7 +33,7 @@ public class LimitedPartnershipValidator {
         final var dataDto = limitedPartnershipDto.getData();
 
         checkCommonFields(dataDto, errorsList);
-        checkTypeSpecificFields(dataDto, errorsList);
+        checkPartnershipTypeSpecificFields(dataDto, errorsList);
 
         return errorsList;
     }
@@ -56,9 +56,14 @@ public class LimitedPartnershipValidator {
             errorsList.add(createValidationStatusError("Principal place of business address is required",
                     "data.principalPlaceOfBusinessAddress"));
         }
+
+        if (dataDto.getLawfulPurposeStatementChecked() == null) {
+            errorsList.add(createValidationStatusError("Lawful purpose statement checked is required",
+                    "data.lawfulPurposeStatementChecked"));
+        }
     }
 
-    private void checkTypeSpecificFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
+    private void checkPartnershipTypeSpecificFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
             if (dataDto.getTerm() != null) {

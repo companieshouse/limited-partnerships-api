@@ -41,6 +41,7 @@ class LimitedPartnershipPatchMapperTest {
         assertNull(mapper.readValue("{\"partnership_name\":null}",
                 LimitedPartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getPartnershipName());
+        assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getLawfulPurposeStatementChecked());
     }
 
     @ParameterizedTest
