@@ -1,7 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +33,8 @@ import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.LP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.SLP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,10 +51,11 @@ class LimitedPartnershipServiceValidateTest {
     private LimitedPartnershipRepository repository;
 
 
-    @Test
-    void shouldReturnNoErrorsWhenPflpAndSpflpPartnershipDataIsValid() throws ResourceNotFoundException {
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ResourceNotFoundException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
 
         Transaction transaction = buildTransaction();
 
@@ -65,10 +69,11 @@ class LimitedPartnershipServiceValidateTest {
         assertEquals(0, results.size());
     }
 
-    @Test
-    void shouldReturnErrorsWhenPflpAndSpflpPartnershipDataIsInvalidAndJavaBeanChecksFail() throws ResourceNotFoundException {
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ResourceNotFoundException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setPartnershipName(null);
         limitedPartnershipSubmissionDao.getData().setEmail("invalid-email-address-format");
         limitedPartnershipSubmissionDao.getData().getRegisteredOfficeAddress().setAddressLine1(null);
@@ -92,15 +97,25 @@ class LimitedPartnershipServiceValidateTest {
         checkForError(results, "Address line 1 must not be null", "data.principalPlaceOfBusinessAddress.addressLine1");
     }
 
-    @Test
-    void shouldReturnErrorsWhenPflpAndSpflpPartnershipDataIsInvalidAndCustomChecksFail() throws ResourceNotFoundException {
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndCustomChecksFail(PartnershipType type) throws ResourceNotFoundException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setEmail(null);
         limitedPartnershipSubmissionDao.getData().setJurisdiction(null);
         limitedPartnershipSubmissionDao.getData().setRegisteredOfficeAddress(null);
         limitedPartnershipSubmissionDao.getData().setPrincipalPlaceOfBusinessAddress(null);
-        limitedPartnershipSubmissionDao.getData().setTerm(Term.BY_AGREEMENT);
+
+        var errorMessageAddition = "";
+        if (LP.equals(type) || SLP.equals(type)) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        } else {
+            limitedPartnershipSubmissionDao.getData().setTerm(Term.BY_AGREEMENT);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(List.of("12345", "88222", "12334", "45457"));
+            errorMessageAddition = "not ";
+        }
 
         Transaction transaction = buildTransaction();
 
@@ -111,18 +126,20 @@ class LimitedPartnershipServiceValidateTest {
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
-        assertEquals(5, results.size());
+        assertEquals(6, results.size());
         checkForError(results, "Email is required", "data.email");
         checkForError(results, "Jurisdiction is required", "data.jurisdiction");
         checkForError(results, "Registered office address is required", "data.registeredOfficeAddress");
         checkForError(results, "Principal place of business address is required", "data.principalPlaceOfBusinessAddress");
-        checkForError(results, "Term is not required", "data.term");
+        checkForError(results, "Term is " + errorMessageAddition + "required", "data.term");
+        checkForError(results, "SIC codes are " + errorMessageAddition + "required", "data.sicCodes");
     }
 
-    @Test
-    void shouldReturnErrorsWhenPflpAndSpflpPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail() throws ResourceNotFoundException {
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ResourceNotFoundException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setPartnershipName("");
         limitedPartnershipSubmissionDao.getData().setEmail(null);
 
@@ -157,12 +174,18 @@ class LimitedPartnershipServiceValidateTest {
         return transaction;
     }
 
-    private LimitedPartnershipDao createDao() {
+    private LimitedPartnershipDao createDao(PartnershipType type) {
         LimitedPartnershipDao dao = new LimitedPartnershipDao();
 
         dao.setId(SUBMISSION_ID);
         DataDao dataDao = new DataDao();
-        dataDao.setPartnershipType(PartnershipType.PFLP);
+        dataDao.setPartnershipType(type);
+
+        if (LP.equals(type) || SLP.equals(type)) {
+            dataDao.setTerm(Term.BY_AGREEMENT);
+            dataDao.setSicCodes(List.of("12345"));
+        }
+
         dataDao.setPartnershipName("Asset Adders");
         dataDao.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription());
         dataDao.setEmail("some@where.com");

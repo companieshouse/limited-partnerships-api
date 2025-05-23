@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.util.ArrayList;
@@ -29,36 +30,53 @@ public class LimitedPartnershipValidator {
         violations.forEach(v ->
                 errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
 
-        // TODO These checks are valid for Partnership Types PFLP and SPFLP (the LP7D CHIPS transaction). Code will
-        //      need changing when other Partnership Types need to be validated and sent to CHIPS
-
         final var dataDto = limitedPartnershipDto.getData();
+
+        checkCommonFields(dataDto, errorsList);
+        checkTypeSpecificFields(dataDto, errorsList);
+
+        return errorsList;
+    }
+
+    private void checkCommonFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
+        if (dataDto.getEmail() == null) {
+            errorsList.add(createValidationStatusError("Email is required", "data.email"));
+        }
+
+        if (dataDto.getJurisdiction() == null) {
+            errorsList.add(createValidationStatusError("Jurisdiction is required", "data.jurisdiction"));
+        }
+
+        if (dataDto.getRegisteredOfficeAddress() == null) {
+            errorsList.add(createValidationStatusError("Registered office address is required",
+                    "data.registeredOfficeAddress"));
+        }
+
+        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null) {
+            errorsList.add(createValidationStatusError("Principal place of business address is required",
+                    "data.principalPlaceOfBusinessAddress"));
+        }
+    }
+
+    private void checkTypeSpecificFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
-            if (dataDto.getEmail() == null) {
-                errorsList.add(createValidationStatusError("Email is required", "data.email"));
-            }
-
-            if (dataDto.getJurisdiction() == null) {
-                errorsList.add(createValidationStatusError("Jurisdiction is required", "data.jurisdiction"));
-            }
-
-            if (dataDto.getRegisteredOfficeAddress() == null) {
-                errorsList.add(createValidationStatusError("Registered office address is required",
-                        "data.registeredOfficeAddress"));
-            }
-
-            if (dataDto.getPrincipalPlaceOfBusinessAddress() == null) {
-                errorsList.add(createValidationStatusError("Principal place of business address is required",
-                        "data.principalPlaceOfBusinessAddress"));
-            }
-
             if (dataDto.getTerm() != null) {
                 errorsList.add(createValidationStatusError("Term is not required", "data.term"));
             }
-        }
 
-        return errorsList;
+            if (dataDto.getSicCodes() != null) {
+                errorsList.add(createValidationStatusError("SIC codes are not required", "data.sicCodes"));
+            }
+        } else {
+            if (dataDto.getTerm() == null) {
+                errorsList.add(createValidationStatusError("Term is required", "data.term"));
+            }
+
+            if (dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) {
+                errorsList.add(createValidationStatusError("SIC codes are required", "data.sicCodes"));
+            }
+        }
     }
 
     private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
