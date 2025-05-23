@@ -143,20 +143,4 @@ public class LimitedPartnershipPatchDto {
     public Boolean getLawfulPurposeStatementChecked() {
         return lawfulPurposeStatementChecked;
     }
-
-    @Override
-    public String toString() {
-        return "LimitedPartnershipPatchDto{" +
-                "partnershipName='" + partnershipName + '\'' +
-                ", nameEnding=" + nameEnding +
-                ", email='" + email + '\'' +
-                ", partnershipType=" + partnershipType +
-                ", jurisdiction=" + jurisdiction +
-                ", registeredOfficeAddress=" + registeredOfficeAddress +
-                ", term=" + term +
-                ", principalPlaceOfBusinessAddress=" + principalPlaceOfBusinessAddress +
-                ", sicCodes=" + sicCodes +
-                ", lawfulPurposeStatementChecked=" + lawfulPurposeStatementChecked +
-                '}';
-    }
 }

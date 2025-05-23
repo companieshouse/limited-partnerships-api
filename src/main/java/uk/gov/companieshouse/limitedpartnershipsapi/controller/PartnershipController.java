@@ -92,8 +92,6 @@ public class PartnershipController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
 
-        ApiLogger.debugContext(requestId, String.format("Patching partnership with data %s", limitedPartnershipPatchDto), logMap);
-
         try {
             limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, limitedPartnershipPatchDto, requestId, userId);
 
