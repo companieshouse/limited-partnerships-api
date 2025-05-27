@@ -26,8 +26,12 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RequestMapping("/private/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/incorporation/limited-partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
 public class FilingsController {
 
+    private final FilingsService filingsService;
+
     @Autowired
-    private FilingsService filingsService;
+    public FilingsController(FilingsService filingsService) {
+        this.filingsService = filingsService;
+    }
 
     /**
      *

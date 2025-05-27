@@ -11,7 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 
-public class EnumValidator implements ConstraintValidator<EnumValid, Enum> {
+public class EnumValidator implements ConstraintValidator<EnumValid, Enum<?>> {
     public boolean isValid(Enum enumeration, ConstraintValidatorContext context) {
         return switch (enumeration) {
             case null -> true;

@@ -145,15 +145,14 @@ public class GeneralPartnerService {
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {
         return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<GeneralPartnerDataDto> getGeneralPartnerDataList(Transaction transaction) {
         return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
                 .map(GeneralPartnerDto::getData)
-                .collect(Collectors.toList());
-
+                .toList();
     }
 
     public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId) throws ServiceException {
