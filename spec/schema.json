@@ -955,6 +955,9 @@
             "Northern Ireland",
             "Scotland"
           ]
+        },
+        "lawful_purpose_statement_checked": {
+          "type": "boolean"
         }
       }
     },
