@@ -71,7 +71,7 @@ public class GeneralPartnerController {
 
     @PostMapping("/general-partner")
     public ResponseEntity<GeneralPartnerSubmissionCreatedResponseDto> createGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                                                           @Valid @RequestBody GeneralPartnerDto generalPartnerDto,
+                                                                                           @RequestBody GeneralPartnerDto generalPartnerDto,
                                                                                            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
                                                                                            @RequestHeader(value = ERIC_IDENTITY) String userId)
             throws ServiceException, MethodArgumentNotValidException {

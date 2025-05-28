@@ -14,31 +14,46 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Optional;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {GeneralPartnerController.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {GeneralPartnerController.class, GeneralPartnerService.class, GeneralPartnerValidator.class, GeneralPartnerMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerValidationTest {
 
     private static final String GENERAL_PARTNER_ID = "93702824-9062-4c63-a694-716acffccdd5";
+    private static final String TRANSACTION_ID = "863851-951242-143528";
 
-    private static final String BASE_URL = "/transactions/863851-951242-143528/limited-partnership/general-partner";
+    private static final String BASE_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner";
     private static final String VALIDATE_STATUS_URL = BASE_URL + "/" + GENERAL_PARTNER_ID + "/validation-status";
 
     // PERSON
@@ -108,7 +123,13 @@ class GeneralPartnerControllerValidationTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private GeneralPartnerService generalPartnerService;
+    private GeneralPartnerRepository repository;
+
+    @MockitoBean
+    private TransactionService transactionService;
+
+    @MockitoBean
+    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -152,6 +173,9 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
+
+        mocks();
+
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -163,6 +187,8 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201WhenCreatingGeneralPartnerLegalEntity() throws Exception {
+        mocks();
+
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -174,6 +200,8 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithWrongCountry() throws Exception {
+        mocks();
+
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -188,6 +216,8 @@ class GeneralPartnerControllerValidationTest {
     class ValidatePartner {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
+            mocks();
+
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -200,10 +230,14 @@ class GeneralPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            List<ValidationStatusError> errorsList = new ArrayList<>();
-            errorsList.add(new ValidationStatusError("Forename must be greater than 1", "here", null, null));
-            errorsList.add(new ValidationStatusError("First nationality must be valid", "there", null, null));
-            when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(errorsList);
+            GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+            generalPartnerDao.getData().setForename("");
+            generalPartnerDao.getData().setNationality1("UNKNOWN");
+            GeneralPartnerDto generalPartnerDto = createGeneralPartnerPersonDto();
+            generalPartnerDto.getData().setForename("");
+            generalPartnerDto.getData().setNationality1(Nationality.UNKNOWN);
+
+            mocks(generalPartnerDao, generalPartnerDto);
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -211,18 +245,18 @@ class GeneralPartnerControllerValidationTest {
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(""))
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("is_valid").value("false"))
-                    .andExpect(jsonPath("$.['errors'][0].['location']").value("here"))
-                    .andExpect(jsonPath("$.['errors'][0].['error']").value("Forename must be greater than 1"))
-                    .andExpect(jsonPath("$.['errors'][1].['location']").value("there"))
-                    .andExpect(jsonPath("$.['errors'][1].['error']").value("First nationality must be valid"));
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "data.forename"), hasEntry("error", "Forename must be greater than 1")),
+                            allOf(hasEntry("location", "data.nationality1"), hasEntry("error", "First nationality must be valid"))
+                    )));
         }
 
         @Test
         void shouldReturn404IfGeneralPartnerNotFound() throws Exception {
-            when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID))
-                    .thenThrow(new ResourceNotFoundException("Error"));
+            when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.empty());
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -232,19 +266,80 @@ class GeneralPartnerControllerValidationTest {
                             .content(""))
                     .andExpect(status().isNotFound());
         }
+    }
 
-        @Test
-        void shouldReturn500IfUnexpectedServiceExceptionThrown() throws Exception {
-            when(generalPartnerService.validateGeneralPartner(transaction, GENERAL_PARTNER_ID))
-                    .thenThrow(new ServiceException("Error"));
+    private void mocks(GeneralPartnerDao generalPartnerDao, GeneralPartnerDto generalPartnerDto) {
+        when(repository.insert((GeneralPartnerDao) any())).thenReturn(generalPartnerDao);
+        when(repository.save(any())).thenReturn(generalPartnerDao);
+        when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-            mockMvc.perform(get(VALIDATE_STATUS_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction)
-                            .content(""))
-                    .andExpect(status().isInternalServerError());
-        }
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+    }
+
+    private void mocks() {
+        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+        GeneralPartnerDto generalPartnerDto = createGeneralPartnerPersonDto();
+
+        mocks(generalPartnerDao, generalPartnerDto);
+    }
+
+    private GeneralPartnerDao createGeneralPartnerPersonDao() {
+        GeneralPartnerDao dao = new GeneralPartnerDao();
+
+        dao.setId(GENERAL_PARTNER_ID);
+        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
+        dataDao.setForename("Jack");
+        dataDao.setSurname("Jones");
+        dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
+        dataDao.setNationality1(Nationality.EMIRATI.getDescription());
+        dataDao.setNotDisqualifiedStatementChecked(true);
+        dataDao.setUsualResidentialAddress(createAddressDao());
+        dataDao.setServiceAddress(createAddressDao());
+        dao.setData(dataDao);
+
+        return dao;
+    }
+
+    private AddressDao createAddressDao() {
+        AddressDao dao = new AddressDao();
+
+        dao.setPremises("33");
+        dao.setAddressLine1("Acacia Avenue");
+        dao.setLocality("Birmingham");
+        dao.setCountry("England");
+        dao.setPostalCode("BM1 2EH");
+
+        return dao;
+    }
+
+    private GeneralPartnerDto createGeneralPartnerPersonDto() {
+        GeneralPartnerDto dto = new GeneralPartnerDto();
+
+        GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
+        dataDto.setForename("John");
+        dataDto.setSurname("Doe");
+        dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
+        dataDto.setNationality1(Nationality.AMERICAN);
+        dataDto.setNotDisqualifiedStatementChecked(true);
+        dataDto.setUsualResidentialAddress(createAddressDto());
+        dataDto.setServiceAddress(createAddressDto());
+        dto.setData(dataDto);
+
+        dto.setData(dataDto);
+
+        return dto;
+    }
+
+    private AddressDto createAddressDto() {
+        AddressDto dto = new AddressDto();
+
+        dto.setPremises("33");
+        dto.setAddressLine1("Acacia Avenue");
+        dto.setLocality("Birmingham");
+        dto.setCountry("England");
+        dto.setPostalCode("BM1 2EH");
+
+        return dto;
     }
 }

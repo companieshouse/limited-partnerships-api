@@ -53,6 +53,15 @@ public class GeneralPartnerValidator extends PartnerValidator {
         var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
+        Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(
+                generalPartnerDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+            );
+        }
+
         var generalPartnerDataDto = generalPartnerDto.getData();
 
         if (generalPartnerDataDto.isLegalEntity()) {
@@ -138,11 +147,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
     private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
             throws ServiceException {
-        Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(generalPartnerDto);
-
-        violations.forEach(v ->
-                errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
-
         try {
             validatePartial(generalPartnerDto);
         } catch (MethodArgumentNotValidException e) {
