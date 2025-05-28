@@ -27,7 +27,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMIT
 @SpringBootTest
 class FilingsServiceTest {
 
-    private static String TRANSACTION_ID = "trns123";
+    private static final String TRANSACTION_ID = "trns123";
+
     @Autowired
     private FilingsService filingsService;
     @MockitoBean

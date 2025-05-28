@@ -2,14 +2,11 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
@@ -36,8 +33,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMIT
 @WebMvcTest(controllers = {FilingsController.class})
 class FilingsControllerTest {
 
-    private static String URL = "/private/transactions/trn123/incorporation/limited-partnership/sub123/filings";
-    private static String KIND = "limited_partnerships";
+    private static final String URL = "/private/transactions/trn123/incorporation/limited-partnership/sub123/filings";
+    private static final String KIND = "limited_partnerships";
 
     @Autowired
     private MockMvc mockMvc;

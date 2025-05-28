@@ -40,7 +40,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class LimitedPartnerServiceUpdateTest {
+class LimitedPartnerServiceUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
     private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
