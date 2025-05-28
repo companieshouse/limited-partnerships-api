@@ -10,14 +10,16 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_
 public class NameSizeValidator implements ConstraintValidator<NameSize, Object> {
 
     public boolean isValid(Object object, ConstraintValidatorContext context) {
-        if (object instanceof DataDto dto) {
-            return isSizeCorrect(dto.getPartnershipName(), dto.getNameEnding());
+        switch (object) {
+            case DataDto dto -> {
+                return isSizeCorrect(dto.getPartnershipName(), dto.getNameEnding());
+            }
+            case LimitedPartnershipPatchDto dto -> {
+                String nameEnding = dto.getNameEnding() != null ? dto.getNameEnding().getDescription() : "";
+                return isSizeCorrect(dto.getPartnershipName(), nameEnding);
+            }
+            default -> throw new IllegalArgumentException("@NameSize only applies to DataDto or LimitedPartnershipPatchDto object");
         }
-        if (object instanceof LimitedPartnershipPatchDto dto) {
-            String nameEnding = dto.getNameEnding() == null ? "" : dto.getNameEnding().getDescription();
-            return isSizeCorrect(dto.getPartnershipName(), nameEnding);
-        }
-        throw new IllegalArgumentException("@NameSize only applies to DataDto or LimitedPartnershipPatchDto object");
     }
 
     private boolean isSizeCorrect(String partnershipName, String nameEnding) {
