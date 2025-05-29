@@ -14,17 +14,30 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Optional;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {LimitedPartnerController.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 class LimitedPartnerControllerValidationTest {
 
@@ -107,7 +120,13 @@ class LimitedPartnerControllerValidationTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LimitedPartnerService limitedPartnerService;
+    private LimitedPartnerRepository limitedPartnerRepository;
+
+    @MockitoBean
+    private TransactionService transactionService;
+
+    @MockitoBean
+    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -151,6 +170,8 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
+        mocks();
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -162,6 +183,8 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
+        mocks();
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -187,6 +210,8 @@ class LimitedPartnerControllerValidationTest {
     class ValidatePartner {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
+            mocks();
+
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -199,10 +224,14 @@ class LimitedPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            List<ValidationStatusError> errorsList = new ArrayList<>();
-            errorsList.add(new ValidationStatusError("Forename must be greater than 1", "here", null, null));
-            errorsList.add(new ValidationStatusError("First nationality must be valid", "there", null, null));
-            when(limitedPartnerService.validateLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(errorsList);
+            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+            limitedPartnerDao.getData().setForename("");
+            limitedPartnerDao.getData().setNationality1("UNKNOWN");
+            LimitedPartnerDto limitedPartnerDto = createLimitedPartnerPersonDto();
+            limitedPartnerDto.getData().setForename("");
+            limitedPartnerDto.getData().setNationality1(Nationality.UNKNOWN);
+
+            mocks(limitedPartnerDao, limitedPartnerDto);
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -212,16 +241,15 @@ class LimitedPartnerControllerValidationTest {
                             .content(""))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("is_valid").value("false"))
-                    .andExpect(jsonPath("$.['errors'][0].['location']").value("here"))
-                    .andExpect(jsonPath("$.['errors'][0].['error']").value("Forename must be greater than 1"))
-                    .andExpect(jsonPath("$.['errors'][1].['location']").value("there"))
-                    .andExpect(jsonPath("$.['errors'][1].['error']").value("First nationality must be valid"));
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "data.forename"), hasEntry("error", "Forename must be greater than 1")),
+                            allOf(hasEntry("location", "data.nationality1"), hasEntry("error", "First nationality must be valid"))
+                    )));
         }
 
         @Test
-        void shouldReturn404IfGeneralPartnerNotFound() throws Exception {
-            when(limitedPartnerService.validateLimitedPartner(transaction, LIMITED_PARTNER_ID))
-                    .thenThrow(new ResourceNotFoundException("Error"));
+        void shouldReturn404IfLimitedPartnerNotFound() throws Exception {
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.empty());
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -231,19 +259,75 @@ class LimitedPartnerControllerValidationTest {
                             .content(""))
                     .andExpect(status().isNotFound());
         }
+    }
 
-        @Test
-        void shouldReturn500IfUnexpectedServiceExceptionThrown() throws Exception {
-            when(limitedPartnerService.validateLimitedPartner(transaction, LIMITED_PARTNER_ID))
-                    .thenThrow(new ServiceException("Error"));
+    private void mocks(LimitedPartnerDao limitedPartnerDao, LimitedPartnerDto limitedPartnerDto) {
+        when(limitedPartnerRepository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
+        when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
+        when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-            mockMvc.perform(get(VALIDATE_STATUS_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction)
-                            .content(""))
-                    .andExpect(status().isInternalServerError());
-        }
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+    }
+
+    private void mocks() {
+        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+
+        LimitedPartnerDto limitedPartnerDto = createLimitedPartnerPersonDto();
+
+        mocks(limitedPartnerDao, limitedPartnerDto);
+    }
+
+    private LimitedPartnerDao createLimitedPartnerPersonDao() {
+        LimitedPartnerDao dao = new LimitedPartnerDao();
+
+        dao.setId(LIMITED_PARTNER_ID);
+        LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
+        dataDao.setForename("Jack");
+        dataDao.setSurname("Jones");
+        dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
+        dataDao.setNationality1(Nationality.EMIRATI.getDescription());
+        dataDao.setUsualResidentialAddress(createAddressDao());
+        dao.setData(dataDao);
+
+        return dao;
+    }
+
+    private LimitedPartnerDto createLimitedPartnerPersonDto() {
+        LimitedPartnerDto dto = new LimitedPartnerDto();
+
+        dto.setId(LIMITED_PARTNER_ID);
+        LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
+        dataDto.setForename("Jack");
+        dataDto.setSurname("Jones");
+        dataDto.setDateOfBirth(LocalDate.of(2000, 10, 3));
+        dataDto.setNationality1(Nationality.EMIRATI);
+        dataDto.setUsualResidentialAddress(createAddressDto());
+        dto.setData(dataDto);
+
+        return dto;
+    }
+
+    private AddressDao createAddressDao() {
+        AddressDao dao = new AddressDao();
+
+        dao.setPremises("33");
+        dao.setAddressLine1("Acacia Avenue");
+        dao.setLocality("Birmingham");
+        dao.setCountry("England");
+        dao.setPostalCode("BM1 2EH");
+
+        return dao;
+    }
+
+    private AddressDto createAddressDto() {
+        AddressDto dto = new AddressDto();
+
+        dto.setPremises("33");
+        dto.setAddressLine1("Acacia Avenue");
+        dto.setLocality("Birmingham");
+        dto.setCountry("England");
+        dto.setPostalCode("BM1 2EH");
+
+        return dto;
     }
 }

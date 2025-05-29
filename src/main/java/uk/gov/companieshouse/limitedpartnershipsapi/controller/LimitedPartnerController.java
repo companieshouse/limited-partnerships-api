@@ -80,7 +80,7 @@ public class LimitedPartnerController {
     @PatchMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}")
     public ResponseEntity<Object> updateLimitedPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                        @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
-                                                       @Valid @RequestBody LimitedPartnerDataDto limitedPartnerDataDto,
+                                                       @RequestBody LimitedPartnerDataDto limitedPartnerDataDto,
                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
                                                        @RequestHeader(value = ERIC_IDENTITY) String userId)
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
