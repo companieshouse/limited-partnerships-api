@@ -50,17 +50,9 @@ public class GeneralPartnerValidator extends PartnerValidator {
     }
 
     public void validatePartial(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
-        var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
-        Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(
-                generalPartnerDto);
-
-        if (!violations.isEmpty()) {
-            violations.forEach(violation ->
-                    addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
-            );
-        }
+        dtoValidation(generalPartnerDto, bindingResult);
 
         var generalPartnerDataDto = generalPartnerDto.getData();
 
@@ -80,14 +72,25 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
 
         if (bindingResult.hasErrors()) {
+            var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
 
     public void validateUpdate(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
-        var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
+        dtoValidation(generalPartnerDto, bindingResult);
+
+        isSecondNationalityDifferent(generalPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    private void dtoValidation(GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) {
         Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(
                 generalPartnerDto);
 
@@ -95,12 +98,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
             violations.forEach(violation ->
                     addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
             );
-        }
-
-        isSecondNationalityDifferent(generalPartnerDto, bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
 
