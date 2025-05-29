@@ -12,7 +12,7 @@ public class TransactionBuilder {
     public static final String TRANSACTION_ID = "863851-951242-143528";
     public static final String SUBMISSION_ID = "abc-123";
 
-    private Transaction build() {
+    public Transaction build() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
 

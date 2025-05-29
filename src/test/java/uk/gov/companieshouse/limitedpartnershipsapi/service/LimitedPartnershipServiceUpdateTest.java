@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
@@ -24,9 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,11 +32,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class LimitedPartnershipServiceUpdateTest {
+
+    Transaction transaction = new TransactionBuilder().build();
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
@@ -56,23 +55,6 @@ class LimitedPartnershipServiceUpdateTest {
 
     @Captor
     private ArgumentCaptor<LimitedPartnershipDao> submissionCaptor;
-
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/partnership/abc-123");
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, SUBMISSION_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
-    }
 
     private LimitedPartnershipDao createDao() {
         LimitedPartnershipDao dao = new LimitedPartnershipDao();
@@ -98,7 +80,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipDao.setData(dataDao);
                 limitedPartnershipDao.setCreatedBy("5fd36577288e");
 
-                Transaction transaction = buildTransaction();
+                Transaction transaction = new TransactionBuilder().build();
                 var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setPartnershipName("Asset Strippers Updated");
 
@@ -128,8 +110,6 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
                 limitedPartnershipDao.getData().setPartnershipName("Asset Strippers Updated");
 
-                Transaction transaction = buildTransaction();
-
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
 
@@ -147,8 +127,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
 
                 AddressDto registeredOfficeAddress = getAddressDto();
@@ -181,8 +159,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingRegisteredOfficeAddress() throws ResourceNotFoundException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 AddressDao registeredOfficeAddress = getAddressDao();
 
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
@@ -210,8 +186,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
@@ -238,8 +212,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingRegisteredOfficeAddress() throws ResourceNotFoundException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
                 limitedPartnershipDao.getData().setTerm(Term.BY_AGREEMENT);
 
@@ -262,8 +234,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
 
                 AddressDto principalPlaceOfBusinessAddress = getAddressDto();
@@ -296,8 +266,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingRegisteredOfficeAddress() throws ResourceNotFoundException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 AddressDao principalPlaceOfBusinessAddress = getAddressDao();
 
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
@@ -325,8 +293,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
 
                 List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
@@ -354,8 +320,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingSicCodes() throws ResourceNotFoundException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
 
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
@@ -378,8 +342,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
@@ -405,8 +367,6 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingLawfulPurposeStatementChecked() throws ResourceNotFoundException {
                 // given
-                Transaction transaction = buildTransaction();
-
                 LimitedPartnershipDao limitedPartnershipDao = createDao();
                 limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(true);
 
