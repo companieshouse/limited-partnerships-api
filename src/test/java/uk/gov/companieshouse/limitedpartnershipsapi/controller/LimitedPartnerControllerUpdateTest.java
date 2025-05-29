@@ -15,14 +15,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -32,9 +30,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -54,12 +49,16 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 public class LimitedPartnerControllerUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
-    private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String LIMITED_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
     private static final String LIMITED_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
-    private final Transaction transaction = buildTransaction();
+    private final Transaction transaction = new TransactionBuilder().build(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LIMITED_PARTNER_ID
+    );
 
     @Autowired
     private MockMvc mockMvc;
@@ -325,55 +324,8 @@ public class LimitedPartnerControllerUpdateTest {
     }
 
     private void mocks() {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);
-    }
-
-    private LimitedPartnerDao createLimitedPartnerPersonDao() {
-        LimitedPartnerDao dao = new LimitedPartnerDao();
-
-        dao.setId(LIMITED_PARTNER_ID);
-        LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
-        dataDao.setForename("Jack");
-        dataDao.setSurname("Jones");
-        dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDao.setNationality1(Nationality.EMIRATI.getDescription());
-        dataDao.setUsualResidentialAddress(createAddressDao());
-        dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
-
-        return dao;
-    }
-
-    private Transaction buildTransaction() {
-        Transaction trx = new Transaction();
-        trx.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNER);
-
-        String uri = String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
-
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", uri);
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(uri, resource);
-        trx.setResources(resourceMap);
-
-        return trx;
     }
 }

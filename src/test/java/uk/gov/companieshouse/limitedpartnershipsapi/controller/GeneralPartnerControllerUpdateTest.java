@@ -15,14 +15,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -32,9 +30,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -81,12 +76,16 @@ class GeneralPartnerControllerUpdateTest {
     private static final String JSON_INVALID_NATIONALITY = "{ \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null }";
 
     private static final String TRANSACTION_ID = "863851-951242-143528";
-    private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String GENERAL_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
     private static final String GENERAL_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
-    private final Transaction transaction = buildTransaction();
+    private final Transaction transaction = new TransactionBuilder().build(
+            FILING_KIND_GENERAL_PARTNER,
+            URL_GET_GENERAL_PARTNER,
+            GENERAL_PARTNER_ID
+    );
 
     @Autowired
     private MockMvc mockMvc;
@@ -315,57 +314,8 @@ class GeneralPartnerControllerUpdateTest {
     }
 
     private void mocks() {
-        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
 
         mocks(generalPartnerDao);
-    }
-
-    private GeneralPartnerDao createGeneralPartnerPersonDao() {
-        GeneralPartnerDao dao = new GeneralPartnerDao();
-
-        dao.setId(GENERAL_PARTNER_ID);
-        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-        dataDao.setForename("Jack");
-        dataDao.setSurname("Jones");
-        dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDao.setNationality1(Nationality.EMIRATI.getDescription());
-        dataDao.setNotDisqualifiedStatementChecked(true);
-        dataDao.setUsualResidentialAddress(createAddressDao());
-        dataDao.setServiceAddress(createAddressDao());
-        dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
-
-        return dao;
-    }
-
-    private Transaction buildTransaction() {
-        Transaction trx = new Transaction();
-        trx.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_GENERAL_PARTNER);
-
-        String uri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, GENERAL_PARTNER_ID);
-
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", uri);
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(uri, resource);
-        trx.setResources(resourceMap);
-
-        return trx;
     }
 }

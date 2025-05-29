@@ -14,12 +14,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
@@ -28,7 +26,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.allOf;
@@ -46,7 +43,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerValidationTest {
 
-    private static final String GENERAL_PARTNER_ID = "93702824-9062-4c63-a694-716acffccdd5";
+    private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String TRANSACTION_ID = "863851-951242-143528";
 
     private static final String BASE_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner";
@@ -226,7 +223,7 @@ class GeneralPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+            GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
             generalPartnerDao.getData().setForename("");
             generalPartnerDao.getData().setNationality1("UNKNOWN");
 
@@ -269,37 +266,8 @@ class GeneralPartnerControllerValidationTest {
     }
 
     private void mocks() {
-        GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
 
         mocks(generalPartnerDao);
-    }
-
-    private GeneralPartnerDao createGeneralPartnerPersonDao() {
-        GeneralPartnerDao dao = new GeneralPartnerDao();
-
-        dao.setId(GENERAL_PARTNER_ID);
-        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-        dataDao.setForename("Jack");
-        dataDao.setSurname("Jones");
-        dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDao.setNationality1(Nationality.EMIRATI.getDescription());
-        dataDao.setNotDisqualifiedStatementChecked(true);
-        dataDao.setUsualResidentialAddress(createAddressDao());
-        dataDao.setServiceAddress(createAddressDao());
-        dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
-
-        return dao;
     }
 }

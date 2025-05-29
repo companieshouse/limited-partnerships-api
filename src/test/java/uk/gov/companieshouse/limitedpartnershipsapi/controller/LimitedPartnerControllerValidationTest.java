@@ -14,12 +14,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
@@ -28,7 +26,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.allOf;
@@ -46,7 +43,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 class LimitedPartnerControllerValidationTest {
 
-    private static final String LIMITED_PARTNER_ID = "863851-951242-143528";
+    private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
 
     private static final String BASE_URL = "/transactions/" + LIMITED_PARTNER_ID + "/limited-partnership/limited-partner";
     private static final String VALIDATE_STATUS_URL = BASE_URL + "/" + LIMITED_PARTNER_ID + "/validation-status";
@@ -221,7 +218,7 @@ class LimitedPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
             limitedPartnerDao.getData().setForename("");
             limitedPartnerDao.getData().setNationality1("UNKNOWN");
 
@@ -264,35 +261,8 @@ class LimitedPartnerControllerValidationTest {
     }
 
     private void mocks() {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);
-    }
-
-    private LimitedPartnerDao createLimitedPartnerPersonDao() {
-        LimitedPartnerDao dao = new LimitedPartnerDao();
-
-        dao.setId(LIMITED_PARTNER_ID);
-        LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
-        dataDao.setForename("Jack");
-        dataDao.setSurname("Jones");
-        dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDao.setNationality1(Nationality.EMIRATI.getDescription());
-        dataDao.setUsualResidentialAddress(createAddressDao());
-        dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
-
-        return dao;
     }
 }
