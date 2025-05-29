@@ -84,6 +84,26 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
+    public void validateUpdate(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+        var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
+
+        Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(
+                generalPartnerDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+            );
+        }
+
+        isSecondNationalityDifferent(generalPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
     private void checkNotNullLegalEntity(GeneralPartnerDataDto generalPartnerDataDto,
                                          BindingResult bindingResult) {
 
