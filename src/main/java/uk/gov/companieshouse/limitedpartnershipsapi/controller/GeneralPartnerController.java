@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import com.google.gson.GsonBuilder;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,7 +70,7 @@ public class GeneralPartnerController {
 
     @PostMapping("/general-partner")
     public ResponseEntity<GeneralPartnerSubmissionCreatedResponseDto> createGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                                                           @Valid @RequestBody GeneralPartnerDto generalPartnerDto,
+                                                                                           @RequestBody GeneralPartnerDto generalPartnerDto,
                                                                                            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
                                                                                            @RequestHeader(value = ERIC_IDENTITY) String userId)
             throws ServiceException, MethodArgumentNotValidException {
@@ -94,7 +93,7 @@ public class GeneralPartnerController {
     @PatchMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
     public ResponseEntity<Object> updateGeneralPartner(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                        @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
-                                                       @Valid @RequestBody GeneralPartnerDataDto generalPartnerDataDto,
+                                                       @RequestBody GeneralPartnerDataDto generalPartnerDataDto,
                                                        @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
                                                        @RequestHeader(value = ERIC_IDENTITY) String userId)
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {

@@ -14,17 +14,24 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,11 +39,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {LimitedPartnerController.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 class LimitedPartnerControllerValidationTest {
 
-    private static final String LIMITED_PARTNER_ID = "863851-951242-143528";
+    private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
 
     private static final String BASE_URL = "/transactions/" + LIMITED_PARTNER_ID + "/limited-partnership/limited-partner";
     private static final String VALIDATE_STATUS_URL = BASE_URL + "/" + LIMITED_PARTNER_ID + "/validation-status";
@@ -107,7 +114,13 @@ class LimitedPartnerControllerValidationTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LimitedPartnerService limitedPartnerService;
+    private LimitedPartnerRepository limitedPartnerRepository;
+
+    @MockitoBean
+    private TransactionService transactionService;
+
+    @MockitoBean
+    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -151,6 +164,8 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
+        mocks();
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -162,6 +177,8 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
+        mocks();
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -187,6 +204,8 @@ class LimitedPartnerControllerValidationTest {
     class ValidatePartner {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
+            mocks();
+
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -199,10 +218,11 @@ class LimitedPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            List<ValidationStatusError> errorsList = new ArrayList<>();
-            errorsList.add(new ValidationStatusError("Forename must be greater than 1", "here", null, null));
-            errorsList.add(new ValidationStatusError("First nationality must be valid", "there", null, null));
-            when(limitedPartnerService.validateLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(errorsList);
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+            limitedPartnerDao.getData().setForename("");
+            limitedPartnerDao.getData().setNationality1("UNKNOWN");
+
+            mocks(limitedPartnerDao);
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -212,16 +232,15 @@ class LimitedPartnerControllerValidationTest {
                             .content(""))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("is_valid").value("false"))
-                    .andExpect(jsonPath("$.['errors'][0].['location']").value("here"))
-                    .andExpect(jsonPath("$.['errors'][0].['error']").value("Forename must be greater than 1"))
-                    .andExpect(jsonPath("$.['errors'][1].['location']").value("there"))
-                    .andExpect(jsonPath("$.['errors'][1].['error']").value("First nationality must be valid"));
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "data.forename"), hasEntry("error", "Forename must be greater than 1")),
+                            allOf(hasEntry("location", "data.nationality1"), hasEntry("error", "First nationality must be valid"))
+                    )));
         }
 
         @Test
-        void shouldReturn404IfGeneralPartnerNotFound() throws Exception {
-            when(limitedPartnerService.validateLimitedPartner(transaction, LIMITED_PARTNER_ID))
-                    .thenThrow(new ResourceNotFoundException("Error"));
+        void shouldReturn404IfLimitedPartnerNotFound() throws Exception {
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.empty());
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -231,19 +250,19 @@ class LimitedPartnerControllerValidationTest {
                             .content(""))
                     .andExpect(status().isNotFound());
         }
+    }
 
-        @Test
-        void shouldReturn500IfUnexpectedServiceExceptionThrown() throws Exception {
-            when(limitedPartnerService.validateLimitedPartner(transaction, LIMITED_PARTNER_ID))
-                    .thenThrow(new ServiceException("Error"));
+    private void mocks(LimitedPartnerDao limitedPartnerDao) {
+        when(limitedPartnerRepository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
+        when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
+        when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-            mockMvc.perform(get(VALIDATE_STATUS_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction)
-                            .content(""))
-                    .andExpect(status().isInternalServerError());
-        }
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+    }
+
+    private void mocks() {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+
+        mocks(limitedPartnerDao);
     }
 }

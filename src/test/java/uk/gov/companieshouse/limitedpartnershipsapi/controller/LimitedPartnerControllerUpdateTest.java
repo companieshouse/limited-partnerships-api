@@ -16,43 +16,60 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
-@ContextConfiguration(classes = {LimitedPartnerController.class, CostsService.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, CostsService.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 public class LimitedPartnerControllerUpdateTest {
-    private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
-    private static final String LIMITED_PARTNER_URL = "/transactions/863851-951242-143528/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
-    private static final String LIMITED_PARTNER_COST_URL = "/transactions/863851-951242-143528/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/costs";
+    private static final String TRANSACTION_ID = "863851-951242-143528";
+    private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
+    private static final String LIMITED_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
+    private static final String LIMITED_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().build(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LIMITED_PARTNER_ID
+    );
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LimitedPartnerService limitedPartnerService;
+    private LimitedPartnerRepository limitedPartnerRepository;
 
     @MockitoBean
-    private LimitedPartnerRepository limitedPartnerRepository;
+    private TransactionService transactionService;
+
+    @MockitoBean
+    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -66,8 +83,6 @@ public class LimitedPartnerControllerUpdateTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
-
-        transaction = new Transaction();
     }
 
     @Nested
@@ -89,7 +104,8 @@ public class LimitedPartnerControllerUpdateTest {
                     "governing_law": "Act of law",
                     "legal_entity_register_name": "US Register",
                     "legal_entity_registration_location": "United States",
-                    "registered_company_number": "12345678"
+                    "registered_company_number": "12345678",
+                    "legal_personality_statement_checked": true
                 }""";
 
         private static final String JSON_WITH_BELOW_MIN_FORENAME = "{ \"forename\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null }";
@@ -106,6 +122,8 @@ public class LimitedPartnerControllerUpdateTest {
                 JSON_LIMITED_LEGAL_ENTITY
         })
         void shouldReturn200(String body) throws Exception {
+            mocks();
+
             mockMvc.perform(patch(LIMITED_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -117,12 +135,14 @@ public class LimitedPartnerControllerUpdateTest {
 
         @ParameterizedTest
         @CsvSource(value = {
-                JSON_WITH_BELOW_MIN_FORENAME + "$ forename $ Forename must be greater than 1",
-                JSON_WITH_ABOVE_MAX_SURNAME + "$ surname $ Surname must be less than 160",
-                JSON_INVALID_FORMER_NAMES + "$ formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
-                JSON_INVALID_NATIONALITY + "$ nationality1 $ First nationality must be valid"
+                JSON_WITH_BELOW_MIN_FORENAME + "$ data.forename $ Forename must be greater than 1",
+                JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
+                JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
+                JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid"
         }, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
+            mocks();
+
             mockMvc.perform(patch(LIMITED_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -170,6 +190,8 @@ public class LimitedPartnerControllerUpdateTest {
                     JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE
             })
             void shouldReturn200(String body) throws Exception {
+                mocks();
+
                 mockMvc.perform(patch(LIMITED_PARTNER_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(StandardCharsets.UTF_8)
@@ -181,6 +203,8 @@ public class LimitedPartnerControllerUpdateTest {
 
             @Test
             void shouldReturn400IfAddressLine1IsTooLong() throws Exception {
+                mocks();
+
                 String longAddressLine1 = StringUtils.repeat("A", 51);
                 String body = "{\"principal_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"" + longAddressLine1 + "\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
@@ -195,14 +219,16 @@ public class LimitedPartnerControllerUpdateTest {
 
             @ParameterizedTest
             @CsvSource(value = {
-                    JSON_POA_POSTCODE_EMPTY + "$ principalOfficeAddress.postalCode $ Postcode must not be null",
-                    JSON_POA_POSTCODE_NOT_CORRECT + "$ principalOfficeAddress.postalCode $ Invalid postcode format",
-                    JSON_POA_ADDRESS_LINE_1_TOO_SHORT + "$ principalOfficeAddress.addressLine1 $ Address line 1 must be greater than 1",
-                    JSON_URA_POSTCODE_EMPTY + "$ usualResidentialAddress.postalCode $ Postcode must not be null",
-                    JSON_URA_POSTCODE_NOT_CORRECT + "$ usualResidentialAddress.postalCode $ Invalid postcode format",
-                    JSON_URA_ADDRESS_LINE_1_TOO_SHORT + "$ usualResidentialAddress.addressLine1 $ Address line 1 must be greater than 1"
+                    JSON_POA_POSTCODE_EMPTY + "$ data.principalOfficeAddress.postalCode $ Postcode must not be null",
+                    JSON_POA_POSTCODE_NOT_CORRECT + "$ data.principalOfficeAddress.postalCode $ Invalid postcode format",
+                    JSON_POA_ADDRESS_LINE_1_TOO_SHORT + "$ data.principalOfficeAddress.addressLine1 $ Address line 1 must be greater than 1",
+                    JSON_URA_POSTCODE_EMPTY + "$ data.usualResidentialAddress.postalCode $ Postcode must not be null",
+                    JSON_URA_POSTCODE_NOT_CORRECT + "$ data.usualResidentialAddress.postalCode $ Invalid postcode format",
+                    JSON_URA_ADDRESS_LINE_1_TOO_SHORT + "$ data.usualResidentialAddress.addressLine1 $ Address line 1 must be greater than 1"
             }, delimiter = '$')
             void shouldReturn400IfFieldIncorrect(String body, String field, String errorMessage) throws Exception {
+                mocks();
+
                 mockMvc.perform(patch(LIMITED_PARTNER_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(StandardCharsets.UTF_8)
@@ -215,18 +241,20 @@ public class LimitedPartnerControllerUpdateTest {
 
             @ParameterizedTest
             @CsvSource(value = {
-                    JSON_POA_MISSING_POSTCODE + "$ principalOfficeAddress.postalCode $ Postcode must not be null",
-                    JSON_POA_MISSING_PREMISES + "$ principalOfficeAddress.premises $ Property name or number must not be null",
-                    JSON_POA_MISSING_ADDRESS_LINE_1 + "$ principalOfficeAddress.addressLine1 $ Address line 1 must not be null",
-                    JSON_POA_MISSING_LOCALITY + "$ principalOfficeAddress.locality $ Town or city must not be null",
-                    JSON_POA_MISSING_COUNTRY + "$ principalOfficeAddress.country $ Country must not be null",
-                    JSON_URA_MISSING_POSTCODE + "$ usualResidentialAddress.postalCode $ Postcode must not be null",
-                    JSON_URA_MISSING_PREMISES + "$ usualResidentialAddress.premises $ Property name or number must not be null",
-                    JSON_URA_MISSING_ADDRESS_LINE_1 + "$ usualResidentialAddress.addressLine1 $ Address line 1 must not be null",
-                    JSON_URA_MISSING_LOCALITY + "$ usualResidentialAddress.locality $ Town or city must not be null",
-                    JSON_URA_MISSING_COUNTRY + "$ usualResidentialAddress.country $ Country must not be null"
+                    JSON_POA_MISSING_POSTCODE + "$ data.principalOfficeAddress.postalCode $ Postcode must not be null",
+                    JSON_POA_MISSING_PREMISES + "$ data.principalOfficeAddress.premises $ Property name or number must not be null",
+                    JSON_POA_MISSING_ADDRESS_LINE_1 + "$ data.principalOfficeAddress.addressLine1 $ Address line 1 must not be null",
+                    JSON_POA_MISSING_LOCALITY + "$ data.principalOfficeAddress.locality $ Town or city must not be null",
+                    JSON_POA_MISSING_COUNTRY + "$ data.principalOfficeAddress.country $ Country must not be null",
+                    JSON_URA_MISSING_POSTCODE + "$ data.usualResidentialAddress.postalCode $ Postcode must not be null",
+                    JSON_URA_MISSING_PREMISES + "$ data.usualResidentialAddress.premises $ Property name or number must not be null",
+                    JSON_URA_MISSING_ADDRESS_LINE_1 + "$ data.usualResidentialAddress.addressLine1 $ Address line 1 must not be null",
+                    JSON_URA_MISSING_LOCALITY + "$ data.usualResidentialAddress.locality $ Town or city must not be null",
+                    JSON_URA_MISSING_COUNTRY + "$ data.usualResidentialAddress.country $ Country must not be null"
             }, delimiter = '$')
             void shouldReturn400IfRequiredFieldIsMissing(String body, String field, String errorMessage) throws Exception {
+                mocks();
+
                 mockMvc.perform(patch(LIMITED_PARTNER_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(StandardCharsets.UTF_8)
@@ -243,6 +271,8 @@ public class LimitedPartnerControllerUpdateTest {
     class DeleteLimitedPartner {
         @Test
         void shouldReturn204() throws Exception {
+            mocks();
+
             mockMvc.perform(delete(LIMITED_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -253,9 +283,9 @@ public class LimitedPartnerControllerUpdateTest {
 
         @Test
         void shouldReturn404() throws Exception {
-            doThrow(new ResourceNotFoundException("Limited partner with id %s not found " + LIMITED_PARTNER_ID))
-                    .when(limitedPartnerService)
-                    .deleteLimitedPartner(any(), any(), any());
+            mocks();
+
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.empty());
 
             mockMvc.perform(delete(LIMITED_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -276,10 +306,24 @@ public class LimitedPartnerControllerUpdateTest {
                             .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
-                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.[0].amount").value("0.00"))
                     .andExpect(jsonPath("$.[0].description").value("Limited Partner fee"));
         }
+    }
+
+    private void mocks(LimitedPartnerDao limitedPartnerDao) {
+        when(limitedPartnerRepository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
+        when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
+        when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
+        doNothing().when(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
+
+        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+    }
+
+    private void mocks() {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+
+        mocks(limitedPartnerDao);
     }
 }

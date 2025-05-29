@@ -49,6 +49,8 @@ public class LimitedPartnerValidator extends PartnerValidator {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
+        dtoValidation(limitedPartnerDto, bindingResult);
+
         var limitedPartnerDataDto = limitedPartnerDto.getData();
 
         if (limitedPartnerDataDto.isLegalEntity()) {
@@ -65,6 +67,30 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    public void validateUpdate(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
+
+        dtoValidation(limitedPartnerDto, bindingResult);
+
+        isSecondNationalityDifferent(limitedPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    private void dtoValidation(LimitedPartnerDto limitedPartnerDto, BindingResult bindingResult) {
+        Set<ConstraintViolation<LimitedPartnerDto>> violations = validator.validate(
+                limitedPartnerDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+            );
         }
     }
 
@@ -131,11 +157,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
     private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, List<ValidationStatusError> errorsList)
             throws ServiceException {
-        Set<ConstraintViolation<LimitedPartnerDto>> violations = validator.validate(limitedPartnerDto);
-
-        violations.forEach(v ->
-                errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
-
         try {
             validatePartial(limitedPartnerDto);
         } catch (MethodArgumentNotValidException e) {
