@@ -18,11 +18,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
@@ -227,11 +224,8 @@ class LimitedPartnerControllerValidationTest {
             LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
             limitedPartnerDao.getData().setForename("");
             limitedPartnerDao.getData().setNationality1("UNKNOWN");
-            LimitedPartnerDto limitedPartnerDto = createLimitedPartnerPersonDto();
-            limitedPartnerDto.getData().setForename("");
-            limitedPartnerDto.getData().setNationality1(Nationality.UNKNOWN);
 
-            mocks(limitedPartnerDao, limitedPartnerDto);
+            mocks(limitedPartnerDao);
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -261,7 +255,7 @@ class LimitedPartnerControllerValidationTest {
         }
     }
 
-    private void mocks(LimitedPartnerDao limitedPartnerDao, LimitedPartnerDto limitedPartnerDto) {
+    private void mocks(LimitedPartnerDao limitedPartnerDao) {
         when(limitedPartnerRepository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
@@ -272,9 +266,7 @@ class LimitedPartnerControllerValidationTest {
     private void mocks() {
         LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
-        LimitedPartnerDto limitedPartnerDto = createLimitedPartnerPersonDto();
-
-        mocks(limitedPartnerDao, limitedPartnerDto);
+        mocks(limitedPartnerDao);
     }
 
     private LimitedPartnerDao createLimitedPartnerPersonDao() {
@@ -292,21 +284,6 @@ class LimitedPartnerControllerValidationTest {
         return dao;
     }
 
-    private LimitedPartnerDto createLimitedPartnerPersonDto() {
-        LimitedPartnerDto dto = new LimitedPartnerDto();
-
-        dto.setId(LIMITED_PARTNER_ID);
-        LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
-        dataDto.setForename("Jack");
-        dataDto.setSurname("Jones");
-        dataDto.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDto.setNationality1(Nationality.EMIRATI);
-        dataDto.setUsualResidentialAddress(createAddressDto());
-        dto.setData(dataDto);
-
-        return dto;
-    }
-
     private AddressDao createAddressDao() {
         AddressDao dao = new AddressDao();
 
@@ -317,17 +294,5 @@ class LimitedPartnerControllerValidationTest {
         dao.setPostalCode("BM1 2EH");
 
         return dao;
-    }
-
-    private AddressDto createAddressDto() {
-        AddressDto dto = new AddressDto();
-
-        dto.setPremises("33");
-        dto.setAddressLine1("Acacia Avenue");
-        dto.setLocality("Birmingham");
-        dto.setCountry("England");
-        dto.setPostalCode("BM1 2EH");
-
-        return dto;
     }
 }

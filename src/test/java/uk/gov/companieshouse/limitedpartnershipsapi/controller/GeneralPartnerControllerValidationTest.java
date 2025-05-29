@@ -18,11 +18,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
@@ -232,11 +229,8 @@ class GeneralPartnerControllerValidationTest {
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
             generalPartnerDao.getData().setForename("");
             generalPartnerDao.getData().setNationality1("UNKNOWN");
-            GeneralPartnerDto generalPartnerDto = createGeneralPartnerPersonDto();
-            generalPartnerDto.getData().setForename("");
-            generalPartnerDto.getData().setNationality1(Nationality.UNKNOWN);
 
-            mocks(generalPartnerDao, generalPartnerDto);
+            mocks(generalPartnerDao);
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -266,7 +260,7 @@ class GeneralPartnerControllerValidationTest {
         }
     }
 
-    private void mocks(GeneralPartnerDao generalPartnerDao, GeneralPartnerDto generalPartnerDto) {
+    private void mocks(GeneralPartnerDao generalPartnerDao) {
         when(repository.insert((GeneralPartnerDao) any())).thenReturn(generalPartnerDao);
         when(repository.save(any())).thenReturn(generalPartnerDao);
         when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
@@ -277,9 +271,7 @@ class GeneralPartnerControllerValidationTest {
     private void mocks() {
         GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
-        GeneralPartnerDto generalPartnerDto = createGeneralPartnerPersonDto();
-
-        mocks(generalPartnerDao, generalPartnerDto);
+        mocks(generalPartnerDao);
     }
 
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
@@ -309,35 +301,5 @@ class GeneralPartnerControllerValidationTest {
         dao.setPostalCode("BM1 2EH");
 
         return dao;
-    }
-
-    private GeneralPartnerDto createGeneralPartnerPersonDto() {
-        GeneralPartnerDto dto = new GeneralPartnerDto();
-
-        GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
-        dataDto.setForename("John");
-        dataDto.setSurname("Doe");
-        dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
-        dataDto.setNationality1(Nationality.AMERICAN);
-        dataDto.setNotDisqualifiedStatementChecked(true);
-        dataDto.setUsualResidentialAddress(createAddressDto());
-        dataDto.setServiceAddress(createAddressDto());
-        dto.setData(dataDto);
-
-        dto.setData(dataDto);
-
-        return dto;
-    }
-
-    private AddressDto createAddressDto() {
-        AddressDto dto = new AddressDto();
-
-        dto.setPremises("33");
-        dto.setAddressLine1("Acacia Avenue");
-        dto.setLocality("Birmingham");
-        dto.setCountry("England");
-        dto.setPostalCode("BM1 2EH");
-
-        return dto;
     }
 }
