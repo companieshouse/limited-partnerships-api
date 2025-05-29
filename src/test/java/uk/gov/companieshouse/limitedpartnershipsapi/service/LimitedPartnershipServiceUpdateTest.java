@@ -79,8 +79,7 @@ class LimitedPartnershipServiceUpdateTest {
                 dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
                 limitedPartnershipDao.setData(dataDao);
                 limitedPartnershipDao.setCreatedBy("5fd36577288e");
-
-                Transaction transaction = new TransactionBuilder().build();
+                
                 var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setPartnershipName("Asset Strippers Updated");
 
