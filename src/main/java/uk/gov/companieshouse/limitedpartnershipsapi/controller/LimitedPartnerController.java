@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import com.google.gson.GsonBuilder;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +56,7 @@ public class LimitedPartnerController {
     @PostMapping("/limited-partner")
     public ResponseEntity<LimitedPartnerSubmissionCreatedResponseDto> createLimitedPartner(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @Valid @RequestBody LimitedPartnerDto limitedPartnerDto,
+            @RequestBody LimitedPartnerDto limitedPartnerDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId)
             throws MethodArgumentNotValidException {
