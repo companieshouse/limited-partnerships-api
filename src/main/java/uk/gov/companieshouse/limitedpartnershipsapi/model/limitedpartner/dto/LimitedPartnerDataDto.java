@@ -9,6 +9,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 public class LimitedPartnerDataDto extends PartnerDataDto {
 
     // Legal Entity
+
     @JsonProperty("contribution_currency_type")
     @EnumValid
     private Currency contributionCurrencyType;
