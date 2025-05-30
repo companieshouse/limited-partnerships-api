@@ -6,6 +6,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 
 import java.util.List;
 
@@ -79,6 +80,15 @@ public abstract class PartnerValidator {
 
         if (partnerDataDto.getNationality1() == null) {
             addError(className, PartnerDataDto.NATIONALITY1_FIELD, "Nationality1 is required", bindingResult);
+        }
+    }
+
+    protected void isSecondNationalityDifferent(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
+        String nationality1 = partnerDataDto.getNationality1();
+        String nationality2 = partnerDataDto.getNationality2();
+
+        if (nationality1 != null && nationality1.equals(nationality2)) {
+            addError(className, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
         }
     }
 
