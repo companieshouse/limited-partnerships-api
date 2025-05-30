@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDate;
 
-public class PartnerDataDao {
+public abstract class PartnerDataDao {
     @Field("kind")
     private String kind;
 
