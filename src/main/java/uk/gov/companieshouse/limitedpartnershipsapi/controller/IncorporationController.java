@@ -77,7 +77,7 @@ public class IncorporationController {
     public ResponseEntity<Object> getIncorporation(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_INCORPORATION_ID) String incorporationId,
-            @RequestParam(value = "include_sub_resources", required = false) boolean includeSubResources,
+            @RequestParam(value = "include_sub_resources", required = false) Boolean includeSubResources,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId
     ) {
         var transactionId = transaction.getId();

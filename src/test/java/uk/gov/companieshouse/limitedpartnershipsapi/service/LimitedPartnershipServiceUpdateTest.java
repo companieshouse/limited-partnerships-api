@@ -42,7 +42,6 @@ class LimitedPartnershipServiceUpdateTest {
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String TRANSACTION_ID = "txn-456";
 
     @Autowired
     private LimitedPartnershipService service;

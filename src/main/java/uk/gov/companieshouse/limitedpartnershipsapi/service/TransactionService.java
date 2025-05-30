@@ -16,7 +16,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANS
 @Service
 public class TransactionService {
 
-    @Autowired
     private final ApiClientService apiClientService;
 
     @Autowired
