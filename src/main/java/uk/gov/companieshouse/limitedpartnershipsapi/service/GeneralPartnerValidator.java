@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 
@@ -34,11 +35,11 @@ public class GeneralPartnerValidator extends PartnerValidator {
         var dataDto = generalPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
             if (dataDto.getPrincipalOfficeAddress() == null) {
-                errorsList.add(createValidationStatusError("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+                errorsList.add(createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
             }
         } else {
             if (dataDto.getUsualResidentialAddress() == null) {
-                errorsList.add(createValidationStatusError("Usual residential address is required", GeneralPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+                errorsList.add(createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
             }
 
             if (dataDto.getServiceAddress() == null) {
@@ -59,7 +60,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(CLASS_NAME, generalPartnerDataDto, bindingResult);
             if (Boolean.FALSE.equals(generalPartnerDataDto.getLegalPersonalityStatementChecked())) {
-                addError(CLASS_NAME, GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
+                addError(CLASS_NAME, PartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
             }
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
@@ -106,7 +107,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         String nationality2 = generalPartnerDto.getData().getNationality2();
 
         if (nationality1 != null && nationality1.equals(nationality2)) {
-            addError(CLASS_NAME, GeneralPartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
+            addError(CLASS_NAME, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
         }
     }
 
