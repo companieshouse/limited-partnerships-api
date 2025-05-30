@@ -6,7 +6,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 
 import java.util.List;
 
