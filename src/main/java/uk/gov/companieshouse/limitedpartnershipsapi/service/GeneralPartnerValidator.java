@@ -7,7 +7,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -20,6 +19,7 @@ import java.util.Set;
 
 @Component
 public class GeneralPartnerValidator extends PartnerValidator {
+    private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
 
     @Autowired
     public GeneralPartnerValidator(Validator validator) {
@@ -57,18 +57,18 @@ public class GeneralPartnerValidator extends PartnerValidator {
         var generalPartnerDataDto = generalPartnerDto.getData();
 
         if (generalPartnerDataDto.isLegalEntity()) {
-            checkNotNullLegalEntity(generalPartnerDataDto, bindingResult);
+            checkNotNullLegalEntity(CLASS_NAME, generalPartnerDataDto, bindingResult);
             if (Boolean.FALSE.equals(generalPartnerDataDto.getLegalPersonalityStatementChecked())) {
-                addError(GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
+                addError(CLASS_NAME, GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
             }
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
-            checkNotNullPerson(generalPartnerDataDto, bindingResult);
+            checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(generalPartnerDto, bindingResult);
             if (Boolean.FALSE.equals(generalPartnerDataDto.getNotDisqualifiedStatementChecked())) {
-                addError(GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
+                addError(CLASS_NAME, GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
             }
         } else {
-            addError("", "Some fields are missing", bindingResult);
+            addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
 
         if (bindingResult.hasErrors()) {
@@ -96,55 +96,8 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         if (!violations.isEmpty()) {
             violations.forEach(violation ->
-                    addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+                    addError(CLASS_NAME, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
             );
-        }
-    }
-
-    private void checkNotNullLegalEntity(GeneralPartnerDataDto generalPartnerDataDto,
-                                         BindingResult bindingResult) {
-
-        if (generalPartnerDataDto.getLegalEntityName() == null) {
-            addError(GeneralPartnerDataDto.LEGAL_ENTITY_NAME_FIELD, "Legal Entity Name is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getLegalForm() == null) {
-            addError(GeneralPartnerDataDto.LEGAL_FORM_FIELD, "Legal Form is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getGoverningLaw() == null) {
-            addError(GeneralPartnerDataDto.GOVERNING_LAW_FIELD, "Governing Law is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getLegalEntityRegisterName() == null) {
-            addError(GeneralPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD, "Legal Entity Register Name is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getLegalEntityRegistrationLocation() == null) {
-            addError(GeneralPartnerDataDto.LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD, "Legal Entity Registration Location is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getRegisteredCompanyNumber() == null) {
-            addError(GeneralPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD, "Registered Company Number is required", bindingResult);
-        }
-    }
-
-    private void checkNotNullPerson(GeneralPartnerDataDto generalPartnerDataDto,
-                                    BindingResult bindingResult) {
-        if (generalPartnerDataDto.getForename() == null) {
-            addError(GeneralPartnerDataDto.FORENAME_FIELD, "Forename is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getSurname() == null) {
-            addError(GeneralPartnerDataDto.SURNAME_FIELD, "Surname is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getDateOfBirth() == null) {
-            addError(GeneralPartnerDataDto.DATE_OF_BIRTH_FIELD, "Date of birth is required", bindingResult);
-        }
-
-        if (generalPartnerDataDto.getNationality1() == null) {
-            addError(GeneralPartnerDataDto.NATIONALITY1_FIELD, "Nationality1 is required", bindingResult);
         }
     }
 
@@ -153,13 +106,8 @@ public class GeneralPartnerValidator extends PartnerValidator {
         String nationality2 = generalPartnerDto.getData().getNationality2();
 
         if (nationality1 != null && nationality1.equals(nationality2)) {
-            addError(GeneralPartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
+            addError(CLASS_NAME, GeneralPartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
         }
-    }
-
-    private void addError(String fieldName, String defaultMessage, BindingResult bindingResult) {
-        var fieldError = new FieldError(GeneralPartnerDataDto.class.getName(), fieldName, defaultMessage);
-        bindingResult.addError(fieldError);
     }
 
     private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
