@@ -1,9 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -114,7 +111,6 @@ public class GeneralPartnerService {
 
         generalPartnerValidator.validateUpdate(generalPartnerDto);
 
-        isSecondNationalityDifferent(generalPartnerDto);
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
@@ -174,16 +170,6 @@ public class GeneralPartnerService {
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
 
-    }
-
-    private void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
-        var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
-        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
-        generalPartnerValidator.isSecondNationalityDifferent(generalPartnerDto, bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
-        }
     }
 
     private void handleSecondNationalityOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto,

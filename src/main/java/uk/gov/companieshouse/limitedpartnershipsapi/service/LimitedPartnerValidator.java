@@ -61,7 +61,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
             }
         } else if (limitedPartnerDataDto.getForename() != null || limitedPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, limitedPartnerDataDto, bindingResult);
-            isSecondNationalityDifferent(limitedPartnerDto, bindingResult);
+            isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDataDto, bindingResult);
         } else {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
@@ -77,7 +77,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         dtoValidation(limitedPartnerDto, bindingResult);
 
-        isSecondNationalityDifferent(limitedPartnerDto, bindingResult);
+        isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
@@ -92,15 +92,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
             violations.forEach(violation ->
                     addError(CLASS_NAME, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
             );
-        }
-    }
-
-    public void isSecondNationalityDifferent(LimitedPartnerDto limitedPartnerDto, BindingResult bindingResult) {
-        String nationality1 = limitedPartnerDto.getData().getNationality1();
-        String nationality2 = limitedPartnerDto.getData().getNationality2();
-
-        if (nationality1 != null && nationality1.equals(nationality2)) {
-            addError(CLASS_NAME, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
         }
     }
 

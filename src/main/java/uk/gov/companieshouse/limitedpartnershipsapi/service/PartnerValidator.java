@@ -82,4 +82,13 @@ public abstract class PartnerValidator {
         }
     }
 
+    protected void isSecondNationalityDifferent(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
+        String nationality1 = partnerDataDto.getNationality1();
+        String nationality2 = partnerDataDto.getNationality2();
+
+        if (nationality1 != null && nationality1.equals(nationality2)) {
+            addError(className, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
+        }
+    }
+
 }
