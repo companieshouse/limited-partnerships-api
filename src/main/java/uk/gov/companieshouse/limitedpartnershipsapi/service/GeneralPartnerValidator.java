@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -16,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class GeneralPartnerValidator extends PartnerValidator {
@@ -53,7 +51,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
     public void validatePartial(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
-        dtoValidation(generalPartnerDto, bindingResult);
+        dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
         var generalPartnerDataDto = generalPartnerDto.getData();
 
@@ -81,24 +79,13 @@ public class GeneralPartnerValidator extends PartnerValidator {
     public void validateUpdate(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
-        dtoValidation(generalPartnerDto, bindingResult);
+        dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
         isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
-        }
-    }
-
-    private void dtoValidation(GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) {
-        Set<ConstraintViolation<GeneralPartnerDto>> violations = validator.validate(
-                generalPartnerDto);
-
-        if (!violations.isEmpty()) {
-            violations.forEach(violation ->
-                    addError(CLASS_NAME, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
-            );
         }
     }
 

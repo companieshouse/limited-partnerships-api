@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -16,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class LimitedPartnerValidator extends PartnerValidator {
@@ -50,7 +48,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
-        dtoValidation(limitedPartnerDto, bindingResult);
+        dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
 
         var limitedPartnerDataDto = limitedPartnerDto.getData();
 
@@ -75,7 +73,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
-        dtoValidation(limitedPartnerDto, bindingResult);
+        dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
 
         isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
 
@@ -83,18 +81,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
-
-    private void dtoValidation(LimitedPartnerDto limitedPartnerDto, BindingResult bindingResult) {
-        Set<ConstraintViolation<LimitedPartnerDto>> violations = validator.validate(
-                limitedPartnerDto);
-
-        if (!violations.isEmpty()) {
-            violations.forEach(violation ->
-                    addError(CLASS_NAME, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
-            );
-        }
-    }
-
+    
     private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
