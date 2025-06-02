@@ -1,9 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -116,7 +113,6 @@ public class LimitedPartnerService {
 
         limitedPartnerValidator.validateUpdate(limitedPartnerDto);
 
-        isSecondNationalityDifferent(limitedPartnerDto);
         handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         var limitedPartnerDaoAfterPatch = mapper.dtoToDao(limitedPartnerDto);
@@ -176,16 +172,6 @@ public class LimitedPartnerService {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
         return limitedPartnerValidator.validateFull(dto);
-    }
-
-    private void isSecondNationalityDifferent(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
-        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
-        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
-        limitedPartnerValidator.isSecondNationalityDifferent(limitedPartnerDto, bindingResult);
-
-        if (bindingResult.hasErrors()) {
-            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
-        }
     }
 
     private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,

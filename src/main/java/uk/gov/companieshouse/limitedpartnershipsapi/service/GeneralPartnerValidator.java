@@ -64,7 +64,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
             }
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
-            isSecondNationalityDifferent(generalPartnerDto, bindingResult);
+            isSecondNationalityDifferent(CLASS_NAME, generalPartnerDataDto, bindingResult);
             if (Boolean.FALSE.equals(generalPartnerDataDto.getNotDisqualifiedStatementChecked())) {
                 addError(CLASS_NAME, GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
             }
@@ -83,7 +83,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         dtoValidation(generalPartnerDto, bindingResult);
 
-        isSecondNationalityDifferent(generalPartnerDto, bindingResult);
+        isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
@@ -99,15 +99,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
             violations.forEach(violation ->
                     addError(CLASS_NAME, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
             );
-        }
-    }
-
-    public void isSecondNationalityDifferent(GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) {
-        String nationality1 = generalPartnerDto.getData().getNationality1();
-        String nationality2 = generalPartnerDto.getData().getNationality2();
-
-        if (nationality1 != null && nationality1.equals(nationality2)) {
-            addError(CLASS_NAME, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
         }
     }
 
