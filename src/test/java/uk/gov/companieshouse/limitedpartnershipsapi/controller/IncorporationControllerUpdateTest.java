@@ -12,6 +12,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
@@ -30,13 +31,13 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.I
 @ContextConfiguration(classes = {IncorporationController.class, CostsService.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {IncorporationController.class})
 public class IncorporationControllerUpdateTest {
-    private static final String TRANSACTION_ID = "12321123";
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String INCORPORATION_ID = "09876543";
 
     private static final String INCORPORATION_COSTS_URL = "/transactions/" + TRANSACTION_ID + "/incorporation/limited-partnership/" + INCORPORATION_ID + "/costs";
 
     private HttpHeaders httpHeaders;
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().build();
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,8 +57,6 @@ public class IncorporationControllerUpdateTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
-
-        transaction = new Transaction();
     }
 
     @Nested

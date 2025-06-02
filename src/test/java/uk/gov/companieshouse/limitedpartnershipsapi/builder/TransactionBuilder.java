@@ -12,17 +12,25 @@ public class TransactionBuilder {
     public static final String TRANSACTION_ID = "863851-951242-143528";
     public static final String SUBMISSION_ID = "abc-123";
 
+    private String kind = FILING_KIND_LIMITED_PARTNERSHIP;
+    String uri = String.format("/transactions/%s/limited-partnership/partnership/%s",
+            TRANSACTION_ID,
+            SUBMISSION_ID
+    );
+
+    public TransactionBuilder forPartner(String kind, String url, String id) {
+        this.kind = kind;
+        this.uri = String.format(url, TRANSACTION_ID, id);
+
+        return this;
+    }
+
     public Transaction build() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
 
         Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-
-        String uri = String.format("/transactions/%s/limited-partnership/partnership/%s",
-                TRANSACTION_ID,
-                SUBMISSION_ID
-        );
+        resource.setKind(kind);
 
         Map<String, String> links = new HashMap<>();
         links.put("resource", uri);
@@ -33,25 +41,5 @@ public class TransactionBuilder {
         transaction.setResources(resourceMap);
 
         return transaction;
-    }
-
-    public Transaction build(String kind, String url, String id) {
-        Transaction trx = new Transaction();
-        trx.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(kind);
-
-        String uri = String.format(url, TRANSACTION_ID, id);
-
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", uri);
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(uri, resource);
-        trx.setResources(resourceMap);
-
-        return trx;
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
@@ -37,15 +38,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 class LimitedPartnerControllerValidationTest {
 
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
 
-    private static final String BASE_URL = "/transactions/" + LIMITED_PARTNER_ID + "/limited-partnership/limited-partner";
+    private static final String BASE_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner";
     private static final String VALIDATE_STATUS_URL = BASE_URL + "/" + LIMITED_PARTNER_ID + "/validation-status";
 
     // PERSON
@@ -108,7 +112,11 @@ class LimitedPartnerControllerValidationTest {
             }""";
 
     private HttpHeaders httpHeaders;
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LIMITED_PARTNER_ID
+    ).build();
 
     @Autowired
     private MockMvc mockMvc;
@@ -134,8 +142,6 @@ class LimitedPartnerControllerValidationTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
-
-        transaction = new Transaction();
     }
 
     @ParameterizedTest
