@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
@@ -37,14 +38,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ContextConfiguration(classes = {GeneralPartnerController.class, GeneralPartnerService.class, GeneralPartnerValidator.class, GeneralPartnerMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerValidationTest {
 
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
-    private static final String TRANSACTION_ID = "863851-951242-143528";
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     private static final String BASE_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner";
     private static final String VALIDATE_STATUS_URL = BASE_URL + "/" + GENERAL_PARTNER_ID + "/validation-status";
@@ -110,7 +113,11 @@ class GeneralPartnerControllerValidationTest {
             }""";
 
     private HttpHeaders httpHeaders;
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            GENERAL_PARTNER_ID
+    ).build();
 
     @Autowired
     private MockMvc mockMvc;
@@ -136,8 +143,6 @@ class GeneralPartnerControllerValidationTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
-
-        transaction = new Transaction();
     }
 
     @ParameterizedTest

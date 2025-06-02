@@ -13,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
@@ -42,7 +43,7 @@ class IncorporationControllerValidationTest {
     private static final String INCORRECT_JSON_WITH_INVALID_KIND = "{ \"data\": { \"kind\": \"something-dodgy\" } }";
 
     private HttpHeaders httpHeaders;
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().build();
 
     @Autowired
     private MockMvc mockMvc;
@@ -62,8 +63,6 @@ class IncorporationControllerValidationTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
-
-        transaction = new Transaction();
     }
 
     @ParameterizedTest

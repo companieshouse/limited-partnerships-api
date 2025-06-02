@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
@@ -45,14 +46,15 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
 
-    private static final String SUBMISSION_ID = "93702824-9062-4c63-a694-716acffccdd5";
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+    private static final String SUBMISSION_ID = TransactionBuilder.SUBMISSION_ID;
 
-    private static final String POST_URL = "/transactions/863851-951242-143528/limited-partnership/partnership";
+    private static final String POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/partnership";
     private static final String PATCH_URL = POST_URL + "/" + SUBMISSION_ID;
     private static final String VALIDATE_STATUS_URL = PATCH_URL + "/validation-status";
 
     private HttpHeaders httpHeaders;
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().build();
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,8 +77,6 @@ class PartnershipControllerValidationTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
-
-        transaction = new Transaction();
     }
 
     @Nested

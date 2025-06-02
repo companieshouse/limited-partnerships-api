@@ -81,11 +81,11 @@ class GeneralPartnerControllerUpdateTest {
     private static final String GENERAL_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
-    private final Transaction transaction = new TransactionBuilder().build(
+    private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
             GENERAL_PARTNER_ID
-    );
+    ).build();
 
     @Autowired
     private MockMvc mockMvc;
