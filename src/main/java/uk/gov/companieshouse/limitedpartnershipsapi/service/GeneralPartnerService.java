@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +90,10 @@ public class GeneralPartnerService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
-        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
+        //      incorporation journey (registration or transition)
+
         linksMap.put("costs", submissionUri + "/costs");
 
         generalPartnerResource.setLinks(linksMap);
@@ -137,6 +141,20 @@ public class GeneralPartnerService {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
         return generalPartnerValidator.validateFull(dto);
+    }
+
+    public List<ValidationStatusError> validateGeneralPartners(Transaction transaction) throws ServiceException {
+        List<GeneralPartnerDto> generalPartners = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
+                transaction.getId()).stream().map(mapper::daoToDto).toList();
+
+        ApiLogger.info("\n\n*** Validate GPs ***\n\n");
+
+        List<ValidationStatusError> errors = new ArrayList<>();
+        for (GeneralPartnerDto partner : generalPartners) {
+            errors.addAll(generalPartnerValidator.validateFull(partner));
+        }
+
+        return errors;
     }
 
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {

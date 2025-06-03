@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
@@ -19,10 +20,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipIncorporationService {
@@ -31,6 +34,8 @@ public class LimitedPartnershipIncorporationService {
 
     private final LimitedPartnershipIncorporationRepository repository;
     private final TransactionService transactionService;
+    private GeneralPartnerService generalPartnerService;
+    private LimitedPartnerService limitedPartnerService;
 
     private final LimitedPartnershipIncorporationMapper mapper;
 
@@ -41,12 +46,16 @@ public class LimitedPartnershipIncorporationService {
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
             TransactionUtils transactionUtils,
-            TransactionService transactionService) {
+            TransactionService transactionService,
+            GeneralPartnerService generalPartnerService,
+            LimitedPartnerService limitedPartnerService) {
         this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
         this.mapper = mapper;
         this.transactionUtils = transactionUtils;
         this.transactionService = transactionService;
+        this.generalPartnerService = generalPartnerService;
+        this.limitedPartnerService = limitedPartnerService;
     }
 
     public String createIncorporation(Transaction transaction, IncorporationDto incorporationDto, String requestId, String userId)
@@ -84,6 +93,7 @@ public class LimitedPartnershipIncorporationService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", incorporationUri);
+        linksMap.put("validation_status", incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
         linksMap.put("costs", incorporationUri + "/costs");
 
         incorporationResource.setLinks(linksMap);
@@ -91,7 +101,6 @@ public class LimitedPartnershipIncorporationService {
 
         return incorporationResource;
     }
-
 
     public LimitedPartnershipIncorporationDto getIncorporation(Transaction transaction,
                                                                String incorporationId,
@@ -121,6 +130,17 @@ public class LimitedPartnershipIncorporationService {
         }
 
         return incorporationDto;
+    }
+
+    public List<ValidationStatusError> validateIncorporation(Transaction transaction, String incorporationId)
+            throws ServiceException {
+        List<ValidationStatusError> errors = new ArrayList<>();
+
+        errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction));
+        errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
+        errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
+
+        return errors;
     }
 
     private void updateIncorporationTypeWithSelfLink(LimitedPartnershipIncorporationDao incorporationDao,

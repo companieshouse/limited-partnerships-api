@@ -135,7 +135,10 @@ public class LimitedPartnershipService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
-        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
+        //      incorporation journey (registration or transition)
+
         linksMap.put("costs", submissionUri + "/costs");
 
         limitedPartnershipResource.setLinks(linksMap);
@@ -213,9 +216,11 @@ public class LimitedPartnershipService {
         return mapper.daoToDto(limitedPartnershipDao);
     }
 
-    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction, String submissionId)
-            throws ResourceNotFoundException {
-        LimitedPartnershipDto dto = getLimitedPartnership(transaction, submissionId);
+    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction) throws ServiceException {
+
+        ApiLogger.info("\n\n*** Validate Partnership ***\n\n");
+
+        LimitedPartnershipDto dto = getLimitedPartnership(transaction);
 
         return limitedPartnershipValidator.validate(dto);
     }

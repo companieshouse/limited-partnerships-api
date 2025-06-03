@@ -532,7 +532,7 @@ class PartnershipControllerValidationTest {
     class ValidatePartnership {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
+            when(service.validateLimitedPartnership(transaction))
                     .thenReturn(new ArrayList<>());
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
@@ -550,7 +550,7 @@ class PartnershipControllerValidationTest {
             List<ValidationStatusError> errorsList = new ArrayList<>();
             errorsList.add(new ValidationStatusError("Term must be valid", "here", null, null));
             errorsList.add(new ValidationStatusError("Invalid data format", "there", null, null));
-            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(errorsList);
+            when(service.validateLimitedPartnership(transaction)).thenReturn(errorsList);
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -568,7 +568,7 @@ class PartnershipControllerValidationTest {
 
         @Test
         void shouldReturn404IfPartnershipNotFound() throws Exception {
-            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
+            when(service.validateLimitedPartnership(transaction))
                     .thenThrow(new ResourceNotFoundException("Error"));
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)

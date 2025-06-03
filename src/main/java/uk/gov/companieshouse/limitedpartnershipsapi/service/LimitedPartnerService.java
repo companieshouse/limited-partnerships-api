@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +92,10 @@ public class LimitedPartnerService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
-        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
+        //      incorporation journey (registration or transition)
+
         linksMap.put("costs", submissionUri + "/costs");
 
         limitedPartnerResource.setLinks(linksMap);
@@ -172,6 +176,20 @@ public class LimitedPartnerService {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
         return limitedPartnerValidator.validateFull(dto);
+    }
+
+    public List<ValidationStatusError> validateLimitedPartners(Transaction transaction) throws ServiceException {
+        List<LimitedPartnerDto> limitedPartners = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
+                transaction.getId()).stream().map(mapper::daoToDto).toList();
+
+        ApiLogger.info("\n\n*** validate LPs ***\n\n");
+
+        List<ValidationStatusError> errors = new ArrayList<>();
+        for (LimitedPartnerDto partner : limitedPartners) {
+            errors.addAll(limitedPartnerValidator.validateFull(partner));
+        }
+
+        return errors;
     }
 
     private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,
