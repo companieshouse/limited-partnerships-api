@@ -11,11 +11,13 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.IncorporationDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
@@ -23,8 +25,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -61,6 +66,12 @@ class LimitedPartnershipIncorporationServiceTest {
 
     @Mock
     private LimitedPartnershipService limitedPartnershipService;
+
+    @Mock
+    private LimitedPartnerService limitedPartnerService;
+
+    @Mock
+    private GeneralPartnerService generalPartnerService;
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
@@ -122,11 +133,15 @@ class LimitedPartnershipIncorporationServiceTest {
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         LimitedPartnershipDto limitedPartnershipDto = createLimitedPartnershipSubmissionDto();
+        List<LimitedPartnerDto> limitedPartnerList = List.of(new LimitedPartnerDto());
+        List<GeneralPartnerDto> generalPartnerList = List.of(new GeneralPartnerDto());
         when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
         when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(
                 limitedPartnershipDto);
+        when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(limitedPartnerList);
+        when(generalPartnerService.getGeneralPartnerList(transaction)).thenReturn(generalPartnerList);
 
         // when
         var limitedPartnershipIncorporationDto = incorporationService.getIncorporation(transaction, SUBMISSION_ID, true);
@@ -137,6 +152,8 @@ class LimitedPartnershipIncorporationServiceTest {
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources());
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources().getPartnership());
         assertEquals(limitedPartnershipDto.getData(), limitedPartnershipIncorporationDto.getSubResources().getPartnership().getData());
+        assertThat(limitedPartnershipIncorporationDto.getSubResources().getLimitedPartners(), containsInAnyOrder(limitedPartnerList.toArray()));
+        assertThat(limitedPartnershipIncorporationDto.getSubResources().getGeneralPartners(), containsInAnyOrder(generalPartnerList.toArray()));
     }
 
     @Test
