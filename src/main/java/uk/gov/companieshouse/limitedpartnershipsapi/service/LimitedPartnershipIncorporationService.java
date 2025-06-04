@@ -11,12 +11,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.Limi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +24,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 
 @Service
 public class LimitedPartnershipIncorporationService {
+
+    private final GeneralPartnerService generalpartnerService;
+
+    private final LimitedPartnerService limitedPartnerService;
 
     private final LimitedPartnershipService limitedPartnershipService;
 
@@ -37,11 +39,15 @@ public class LimitedPartnershipIncorporationService {
     private final TransactionUtils transactionUtils;
 
     public LimitedPartnershipIncorporationService(
+            GeneralPartnerService generalpartnerService,
+            LimitedPartnerService limitedPartnerService,
             LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
             TransactionUtils transactionUtils,
             TransactionService transactionService) {
+        this.generalpartnerService = generalpartnerService;
+        this.limitedPartnerService = limitedPartnerService;
         this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
         this.mapper = mapper;
@@ -110,12 +116,9 @@ public class LimitedPartnershipIncorporationService {
         if (includeSubResources) {
             var subResourcesDto = new IncorporationSubResourcesDto();
 
-            // TODO Set collections of actual General Partners and Limited Partners once implemented
-            subResourcesDto.setGeneralPartners(new ArrayList<>());
-            subResourcesDto.setLimitedPartners(new ArrayList<>());
-
-            LimitedPartnershipDto partnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-            subResourcesDto.setPartnership(partnershipDto);
+            subResourcesDto.setGeneralPartners(generalpartnerService.getGeneralPartnerList(transaction));
+            subResourcesDto.setLimitedPartners(limitedPartnerService.getLimitedPartnerList(transaction));
+            subResourcesDto.setPartnership(limitedPartnershipService.getLimitedPartnership(transaction));
 
             incorporationDto.setSubResources(subResourcesDto);
         }
