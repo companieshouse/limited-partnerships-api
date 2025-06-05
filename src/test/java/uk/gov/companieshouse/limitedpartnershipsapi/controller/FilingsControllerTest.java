@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,7 +61,7 @@ class FilingsControllerTest {
 
     @Test
     void shouldReturn200() throws Exception {
-        when(filingsService.generateLimitedPartnerFiling(transaction)).thenReturn(buildFilingApi());
+        when(filingsService.generateLimitedPartnershipFiling(eq(transaction), any())).thenReturn(buildFilingApi());
         mockMvc.perform(get(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
@@ -74,7 +75,7 @@ class FilingsControllerTest {
 
     @Test
     void shouldReturn404() throws Exception {
-        when(filingsService.generateLimitedPartnerFiling(any())).thenThrow(ResourceNotFoundException.class);
+        when(filingsService.generateLimitedPartnershipFiling(any(), any())).thenThrow(ResourceNotFoundException.class);
         mockMvc.perform(get(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
@@ -86,7 +87,7 @@ class FilingsControllerTest {
 
     @Test
     void shouldReturn500() throws Exception {
-        when(filingsService.generateLimitedPartnerFiling(any())).thenThrow(ServiceException.class);
+        when(filingsService.generateLimitedPartnershipFiling(any(), any())).thenThrow(ServiceException.class);
         mockMvc.perform(get(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")

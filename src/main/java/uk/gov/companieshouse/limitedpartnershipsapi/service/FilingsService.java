@@ -1,14 +1,15 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENER
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 @Service
 public class FilingsService {
@@ -27,18 +29,26 @@ public class FilingsService {
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
+    private final TransactionUtils transactionUtils;
 
-    @Autowired
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
-                          LimitedPartnerService limitedPartnerService){
+                          LimitedPartnerService limitedPartnerService,
+                          TransactionUtils transactionUtils){
 
         this.limitedPartnershipService = limitedPartnershipService;
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
+        this.transactionUtils = transactionUtils;
     }
 
-    public FilingApi generateLimitedPartnerFiling(Transaction transaction) throws ServiceException {
+    public FilingApi generateLimitedPartnershipFiling(Transaction transaction, String incorporationId) throws ServiceException {
+        String submissionUri = String.format(URL_GET_INCORPORATION, transaction.getId(), incorporationId);
+        if (!transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches incorporation id: %s", transaction.getId(), incorporationId));
+        }
+
         var filing = new FilingApi();
         setFilingApiData(filing, transaction);
         return filing;
