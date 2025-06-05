@@ -154,6 +154,9 @@
           "401": {
             "description": "Unauthorised"
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "404": {
             "description": "Not Found"
           },
@@ -192,6 +195,9 @@
           },
           "401": {
             "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "404": {
             "description": "Not Found"
@@ -397,6 +403,9 @@
           },
           "401": {
             "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "404": {
             "description": "Not Found"
@@ -642,6 +651,9 @@
           "401": {
             "description": "Unauthorised"
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "404": {
             "description": "Not Found"
           },
@@ -882,6 +894,9 @@
           },
           "401": {
             "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "404": {
             "description": "Not Found"
