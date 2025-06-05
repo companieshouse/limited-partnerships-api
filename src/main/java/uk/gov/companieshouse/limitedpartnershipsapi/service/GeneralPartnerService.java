@@ -139,20 +139,16 @@ public class GeneralPartnerService {
         return generalPartnerValidator.validateFull(dto);
     }
 
-    public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {
-        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
-                .map(mapper::daoToDto)
-                .map(generalPartnerDto -> {
-                    try {
-                        boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto).isEmpty();
-                        generalPartnerDto.getData().setCompleted(isCompleted);
-                    } catch (ServiceException e) {
-                        throw new RuntimeException("Failed to validate general partner", e);
-                    }
+    public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) throws ServiceException {
+        List<GeneralPartnerDto> generalPartnerDtos = repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+                .map(mapper::daoToDto).toList();
 
-                    return generalPartnerDto;
-                })
-                .toList();
+        for (GeneralPartnerDto generalPartnerDto : generalPartnerDtos) {
+            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto).isEmpty();
+            generalPartnerDto.getData().setCompleted(isCompleted);
+        }
+
+        return generalPartnerDtos;
     }
 
     public List<GeneralPartnerDataDto> getGeneralPartnerDataList(Transaction transaction) {

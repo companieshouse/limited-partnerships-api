@@ -180,7 +180,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testGetGeneralPartnerList() {
+    void testGetGeneralPartnerList() throws ServiceException {
         GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().dao();
         generalPartnerDao1.setTransactionId(TransactionBuilder.TRANSACTION_ID);
         GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().dao();
@@ -201,7 +201,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testGetGeneralPartnerList_Empty() {
+    void testGetGeneralPartnerList_Empty() throws ServiceException {
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId())).thenReturn(new ArrayList<>());
 
         List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
