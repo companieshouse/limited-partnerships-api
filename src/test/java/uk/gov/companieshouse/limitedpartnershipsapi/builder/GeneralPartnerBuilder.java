@@ -21,7 +21,7 @@ public class GeneralPartnerBuilder {
         dataDto.setForename("Jack");
         dataDto.setSurname("Jones");
         dataDto.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDto.setNationality1(Nationality.EMIRATI);
+        dataDto.setNationality1(Nationality.BRITISH);
         dataDto.setNotDisqualifiedStatementChecked(true);
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setServiceAddress(createAddressDto());
@@ -50,7 +50,7 @@ public class GeneralPartnerBuilder {
         dataDao.setForename("Jack");
         dataDao.setSurname("Jones");
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDao.setNationality1(Nationality.EMIRATI.getDescription());
+        dataDao.setNationality1(Nationality.BRITISH.getDescription());
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setUsualResidentialAddress(createAddressDao());
         dataDao.setServiceAddress(createAddressDao());

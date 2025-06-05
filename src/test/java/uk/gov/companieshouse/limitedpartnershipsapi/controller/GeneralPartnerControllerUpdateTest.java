@@ -30,6 +30,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
@@ -77,6 +79,7 @@ class GeneralPartnerControllerUpdateTest {
 
     private static final String TRANSACTION_ID = "863851-951242-143528";
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
+    private static final String GENERAL_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partners";
     private static final String GENERAL_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
     private static final String GENERAL_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/costs";
 
@@ -303,6 +306,30 @@ class GeneralPartnerControllerUpdateTest {
                     .andExpect(jsonPath("$.[0].amount").value("0.00"))
                     .andExpect(jsonPath("$.[0].description").value("General Partner fee"));
         }
+    }
+
+    @Test
+    void shouldReturnTheListOfGPWithTheCompletedField() throws Exception {
+        GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().dao();
+        generalPartnerDao1.setTransactionId(TRANSACTION_ID);
+
+        GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().dao();
+        generalPartnerDao2.setTransactionId(TRANSACTION_ID);
+        generalPartnerDao2.getData().setUsualResidentialAddress(null);
+
+        List<GeneralPartnerDao> generalPartners = List.of(generalPartnerDao1, generalPartnerDao2);
+
+        when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(generalPartners);
+
+        mockMvc.perform(get(GENERAL_PARTNER_LIST_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[0].data.completed").value(true))
+                .andExpect(jsonPath("$.[1].data.completed").value(false));
     }
 
     private void mocks(GeneralPartnerDao generalPartnerDao) {
