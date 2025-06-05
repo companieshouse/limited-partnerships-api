@@ -20,7 +20,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerServic
 import java.util.List;
 import java.util.Objects;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -130,7 +129,7 @@ class LimitedPartnerControllerTest {
     }
 
     @Test
-    void testGetLimitedPartnersReturnsList() {
+    void testGetLimitedPartnersReturnsList() throws ServiceException {
         List<LimitedPartnerDto> limitedPartnerDtoList = List.of(new LimitedPartnerDto(), new LimitedPartnerDto());
         when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(limitedPartnerDtoList);
 
@@ -142,7 +141,7 @@ class LimitedPartnerControllerTest {
     }
 
     @Test
-    void testGetLimitedPartnerReturnsEmptyList() {
+    void testGetLimitedPartnerReturnsEmptyList() throws ServiceException {
         List<LimitedPartnerDto> limitedPartnerDtoList = List.of();
         when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(limitedPartnerDtoList);
 

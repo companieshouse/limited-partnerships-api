@@ -30,6 +30,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
@@ -49,6 +51,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 public class LimitedPartnerControllerUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
+    private static final String LIMITED_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partners";
     private static final String LIMITED_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
     private static final String LIMITED_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/costs";
 
@@ -310,6 +313,30 @@ public class LimitedPartnerControllerUpdateTest {
                     .andExpect(jsonPath("$.[0].amount").value("0.00"))
                     .andExpect(jsonPath("$.[0].description").value("Limited Partner fee"));
         }
+    }
+
+    @Test
+    void shouldReturnTheListOfLPWithTheCompletedField() throws Exception {
+        LimitedPartnerDao limitedPartnerDao1 = new LimitedPartnerBuilder().dao();
+        limitedPartnerDao1.setTransactionId(TRANSACTION_ID);
+
+        LimitedPartnerDao limitedPartnerDao2 = new LimitedPartnerBuilder().dao();
+        limitedPartnerDao2.setTransactionId(TRANSACTION_ID);
+        limitedPartnerDao2.getData().setUsualResidentialAddress(null);
+
+        List<LimitedPartnerDao> limitedPartners = List.of(limitedPartnerDao1, limitedPartnerDao2);
+
+        when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(limitedPartners);
+
+        mockMvc.perform(get(LIMITED_PARTNER_LIST_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[0].data.completed").value(true))
+                .andExpect(jsonPath("$.[1].data.completed").value(false));
     }
 
     private void mocks(LimitedPartnerDao limitedPartnerDao) {
