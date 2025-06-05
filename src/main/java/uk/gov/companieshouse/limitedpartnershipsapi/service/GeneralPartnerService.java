@@ -147,7 +147,7 @@ public class GeneralPartnerService {
                         boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto).isEmpty();
                         generalPartnerDto.getData().setCompleted(isCompleted);
                     } catch (ServiceException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Failed to validate general partner", e);
                     }
 
                     return generalPartnerDto;

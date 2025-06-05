@@ -115,7 +115,6 @@ class GeneralPartnerServiceTest {
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().dto();
         GeneralPartnerDao dao = new GeneralPartnerBuilder().dao();
-        dao.setId(SUBMISSION_ID);
 
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
@@ -172,11 +171,10 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGetGeneralPartnerDataList() {
-        var transactionId = "trns123";
-        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionId)).thenReturn(List.of(new GeneralPartnerBuilder().dao()));
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(new GeneralPartnerBuilder().dao()));
         when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(new GeneralPartnerBuilder().dto());
         Transaction transaction = new Transaction();
-        transaction.setId(transactionId);
+        transaction.setId(TRANSACTION_ID);
         List<GeneralPartnerDataDto> generalPartnerDataDtoList = generalPartnerService.getGeneralPartnerDataList(transaction);
         assertEquals(1, generalPartnerDataDtoList.size());
     }
