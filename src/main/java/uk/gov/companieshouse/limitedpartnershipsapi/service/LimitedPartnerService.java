@@ -141,10 +141,17 @@ public class LimitedPartnerService {
                 .toList();
     }
 
-    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) {
-        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) throws ServiceException {
+        List<LimitedPartnerDto> limitedPartnerDtos = repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
                 .toList();
+
+        for (LimitedPartnerDto limitedPartnerDto : limitedPartnerDtos) {
+            boolean isCompleted = limitedPartnerValidator.validateFull(limitedPartnerDto).isEmpty();
+            limitedPartnerDto.getData().setCompleted(isCompleted);
+        }
+
+        return limitedPartnerDtos;
     }
 
     public void deleteLimitedPartner(Transaction transaction, String limitedPartnerId, String requestId) throws ServiceException {
