@@ -10,18 +10,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +46,15 @@ class GeneralPartnerServiceTest {
 
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
-    private static final String SUBMISSION_ID = "submission123";
+    private static final String SUBMISSION_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+
+    Transaction transaction = new TransactionBuilder().forPartner(
+                    FILING_KIND_GENERAL_PARTNER,
+                    URL_GET_GENERAL_PARTNER,
+                    GeneralPartnerBuilder.GENERAL_PARTNER_ID
+            )
+            .build();
 
     @InjectMocks
     private GeneralPartnerService generalPartnerService;
@@ -72,56 +79,48 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGetGeneralPartnerSuccess() throws ServiceException {
-        GeneralPartnerDao dao = createDao();
+        GeneralPartnerDao dao = new GeneralPartnerBuilder().dao();
 
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(mapper.daoToDto(dao)).thenReturn(createDto());
+        when(mapper.daoToDto(dao)).thenReturn(new GeneralPartnerBuilder().dto());
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), anyString(), anyString()))
                 .thenReturn(true);
 
-        var dto = generalPartnerService.getGeneralPartner(buildTransaction(), SUBMISSION_ID);
-        assertEquals("John", dto.getData().getForename());
-        assertEquals("Doe", dto.getData().getSurname());
+        var dto = generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID);
+        assertEquals("Jack", dto.getData().getForename());
+        assertEquals("Jones", dto.getData().getSurname());
     }
 
     @Test
     void testGetGeneralPartnerNotFound() {
-        Transaction transaction = new Transaction();
-        transaction.setId("tran1234");
-
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.empty());
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
-        assertEquals("General partner submission with id submission123 not found", resourceNotFoundException.getMessage());
+        assertEquals("General partner submission with id " + SUBMISSION_ID + " not found", resourceNotFoundException.getMessage());
     }
 
     @Test
     void testGetGeneralPartnerLinkFails() {
-        Transaction transaction = new Transaction();
-        transaction.setId("tran1234");
-
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
                 .thenReturn(false);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
-        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: submission123", transaction.getId()), resourceNotFoundException.getMessage());
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), SUBMISSION_ID), resourceNotFoundException.getMessage());
     }
 
     @Test
     void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        GeneralPartnerDto dto = createDto();
-        GeneralPartnerDao dao = createDao();
+        GeneralPartnerDto dto = new GeneralPartnerBuilder().dto();
+        GeneralPartnerDao dao = new GeneralPartnerBuilder().dao();
         dao.setId(SUBMISSION_ID);
 
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
 
-        Transaction testTransaction = buildTransaction();
-
-        String submissionId = generalPartnerService.createGeneralPartner(testTransaction, dto, REQUEST_ID, USER_ID);
+        String submissionId = generalPartnerService.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
 
         verify(mapper, times(1)).dtoToDao(dto);
         verify(repository, times(1)).insert(dao);
@@ -133,7 +132,7 @@ class GeneralPartnerServiceTest {
         assertEquals(SUBMISSION_ID, submissionId);
 
         // Assert self link
-        String expectedUri = String.format(URL_GET_GENERAL_PARTNER, testTransaction.getId(), SUBMISSION_ID);
+        String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
     }
 
@@ -174,8 +173,8 @@ class GeneralPartnerServiceTest {
     @Test
     void testGetGeneralPartnerDataList() {
         var transactionId = "trns123";
-        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionId)).thenReturn(List.of(createDao()));
-        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(createDto());
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionId)).thenReturn(List.of(new GeneralPartnerBuilder().dao()));
+        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(new GeneralPartnerBuilder().dto());
         Transaction transaction = new Transaction();
         transaction.setId(transactionId);
         List<GeneralPartnerDataDto> generalPartnerDataDtoList = generalPartnerService.getGeneralPartnerDataList(transaction);
@@ -184,18 +183,20 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGetGeneralPartnerList() {
-        var transactionId = "9324234-234324-324";
-        GeneralPartnerDao generalPartnerDao1 = createDao();
-        GeneralPartnerDao generalPartnerDao2 = createDao();
+        GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().dao();
+        generalPartnerDao1.setTransactionId(TransactionBuilder.TRANSACTION_ID);
+        GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().dao();
+        generalPartnerDao2.setTransactionId(TransactionBuilder.TRANSACTION_ID);
         List<GeneralPartnerDao> generalPartnerDaoList = List.of(generalPartnerDao1, generalPartnerDao2);
-        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionId)).thenReturn(generalPartnerDaoList);
-        GeneralPartnerDto generalPartnerDto1 = createDto();
-        GeneralPartnerDto generalPartnerDto2 = createDto();
+
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TransactionBuilder.TRANSACTION_ID)).thenReturn(generalPartnerDaoList);
+
+        GeneralPartnerDto generalPartnerDto1 = new GeneralPartnerBuilder().dto();
+        GeneralPartnerDto generalPartnerDto2 = new GeneralPartnerBuilder().dto();
+
         when(mapper.daoToDto(generalPartnerDao1)).thenReturn(generalPartnerDto1);
         when(mapper.daoToDto(generalPartnerDao2)).thenReturn(generalPartnerDto2);
 
-        Transaction transaction = new Transaction();
-        transaction.setId(transactionId);
         List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
 
         assertThat(generalPartnerDtoList).containsExactly(generalPartnerDto1, generalPartnerDto2);
@@ -203,11 +204,8 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGetGeneralPartnerList_Empty() {
-        var transactionId = "9324234-234324-324";
-        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionId)).thenReturn(new ArrayList<>());
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId())).thenReturn(new ArrayList<>());
 
-        Transaction transaction = new Transaction();
-        transaction.setId(transactionId);
         List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
 
         assertEquals(0, generalPartnerDtoList.size());
@@ -220,31 +218,5 @@ class GeneralPartnerServiceTest {
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
         return generalPartnerResource;
-    }
-
-    private GeneralPartnerDto createDto() {
-        GeneralPartnerDto dto = new GeneralPartnerDto();
-        GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
-        dataDto.setForename("John");
-        dataDto.setSurname("Doe");
-        dataDto.setNationality1(Nationality.BELGIAN);
-        dto.setData(dataDto);
-        return dto;
-    }
-
-    private GeneralPartnerDao createDao() {
-        GeneralPartnerDao dao = new GeneralPartnerDao();
-        dao.setUpdatedAt(LocalDateTime.now());
-        dao.setCreatedAt(LocalDateTime.now());
-
-        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-        dao.setData(dataDao);
-        return dao;
-    }
-
-    public Transaction buildTransaction() {
-        var transaction = new Transaction();
-        transaction.setId("transaction-id");
-        return transaction;
     }
 }

@@ -142,6 +142,16 @@ public class GeneralPartnerService {
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {
         return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
+                .map(generalPartnerDto -> {
+                    try {
+                        boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto).isEmpty();
+                        generalPartnerDto.getData().setCompleted(isCompleted);
+                    } catch (ServiceException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    return generalPartnerDto;
+                })
                 .toList();
     }
 

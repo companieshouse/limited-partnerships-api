@@ -182,6 +182,8 @@ public abstract class PartnerDataDto {
     @Valid
     private AddressDto principalOfficeAddress;
 
+    private boolean completed;
+
     public String getLegalEntityName() {
         return legalEntityName;
     }
@@ -260,5 +262,13 @@ public abstract class PartnerDataDto {
 
     public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public boolean getCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }
