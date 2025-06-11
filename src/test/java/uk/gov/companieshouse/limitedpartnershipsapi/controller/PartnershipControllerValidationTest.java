@@ -300,6 +300,7 @@ class PartnershipControllerValidationTest {
             // registered_office_address
             private static final String JSON_ROA_POSTCODE_EMPTY = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
             private static final String JSON_ROA_POSTCODE_NOT_CORRECT = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_ROA_POSTCODE_NOT_UK_MAINLAND = "{\"registered_office_address\":{\"postal_code\":\"JE2 3AA\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
             private static final String JSON_ROA_ADDRESS_LINE_1_TOO_SHORT = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
             private static final String JSON_ROA_MISSING_POSTCODE = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
@@ -364,6 +365,7 @@ class PartnershipControllerValidationTest {
             @ValueSource(strings = {
                     JSON_ROA_POSTCODE_EMPTY,
                     JSON_ROA_POSTCODE_NOT_CORRECT,
+                    JSON_ROA_POSTCODE_NOT_UK_MAINLAND,
                     JSON_ROA_ADDRESS_LINE_1_TOO_SHORT,
                     JSON_PPOB_POSTCODE_EMPTY,
                     JSON_PPOB_POSTCODE_NOT_CORRECT,

@@ -16,6 +16,8 @@ public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, Addr
             Country.SCOTLAND.getDescription(),
             Country.NORTHERN_IRELAND.getDescription());
 
+    private static final List<String> UK_POSTCODE_LETTERS_NOT_MAINLAND = List.of("JE", "GY", "IM");
+
     public boolean isValid(AddressDto addressDto, ConstraintValidatorContext context) {
         if (addressDto.getCountry() != null && UK_COUNTRIES.contains(addressDto.getCountry())) {
             if (addressDto.getPostalCode() == null || addressDto.getPostalCode().isEmpty()) {
@@ -33,6 +35,13 @@ public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, Addr
             var postcodePattern = "^[A-Za-z]{1,2}\\d[A-Za-z\\d]? ?\\d[A-Za-z]{2}$";
             if (!addressDto.getPostalCode().matches(postcodePattern)) {
                 addConstraintViolation(context, "Invalid postcode format");
+
+                return false;
+            }
+
+            String postcodePrefix = addressDto.getPostalCode().substring(0, 2).toUpperCase();
+            if (UK_POSTCODE_LETTERS_NOT_MAINLAND.contains(postcodePrefix)) {
+                addConstraintViolation(context, "Must be UK mainland postcode");
 
                 return false;
             }
