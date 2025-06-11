@@ -54,9 +54,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         if (limitedPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(CLASS_NAME, limitedPartnerDataDto, bindingResult);
-            if (Boolean.FALSE.equals(limitedPartnerDataDto.getLegalPersonalityStatementChecked())) {
-                addError(CLASS_NAME, PartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
-            }
         } else if (limitedPartnerDataDto.getForename() != null || limitedPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, limitedPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDataDto, bindingResult);

@@ -79,7 +79,6 @@ class GeneralPartnerRepositoryTest {
         dataDao.setLegalEntityRegisterName("UK Register");
         dataDao.setLegalEntityRegistrationLocation("United Kingdom");
         dataDao.setRegisteredCompanyNumber("12345678");
-        dataDao.setLegalPersonalityStatementChecked(true);
 
         dao.setData(dataDao);
         dao.setId("abc-456");

@@ -92,7 +92,6 @@ class GeneralPartnerServiceUpdateTest {
         dataDao.setLegalEntityRegisterName("UK Register");
         dataDao.setLegalEntityRegistrationLocation("United Kingdom");
         dataDao.setRegisteredCompanyNumber("12345678");
-        dataDao.setLegalPersonalityStatementChecked(true);
 
         dao.setData(dataDao);
         dao.setId(GENERAL_PARTNER_ID);
@@ -256,27 +255,6 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
 
         assertEquals(input == null || input, newlySavedPartnerDao.getData().getNotDisqualifiedStatementChecked());
-    }
-
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(booleans = {true, false})
-    void shouldCorrectlyUpdateLegalPersonalityStatementCheckedValue(Boolean input) throws Exception {
-        GeneralPartnerDao currentlySavedPartnerDao = createGeneralPartnerLegalEntityDao();
-
-        GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
-        partnerDataDtoWithChanges.setLegalPersonalityStatementChecked(input);
-
-        when(limitedPartnerRepository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
-
-        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
-
-        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
-        verify(limitedPartnerRepository).save(submissionCaptor.capture());
-
-        GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
-
-        assertEquals(input == null || input, newlySavedPartnerDao.getData().getLegalPersonalityStatementChecked());
     }
 
     @Test
