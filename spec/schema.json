@@ -1023,9 +1023,6 @@
           "not_disqualified_statement_checked" :{
             "type" : "boolean"
           },
-          "legal_personality_statement_checked" :{
-            "type" : "boolean"
-          },
           "principal_office_address": {
              "$ref": "#/definitions/Address"
           },

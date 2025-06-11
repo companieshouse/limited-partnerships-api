@@ -137,9 +137,6 @@ public abstract class PartnerDataDao {
     @Field("governing_law")
     private String governingLaw;
 
-    @Field("legal_personality_statement_checked")
-    private boolean legalPersonalityStatementChecked;
-
     @Field("resignation_date")
     private LocalDate resignationDate;
 
@@ -191,14 +188,6 @@ public abstract class PartnerDataDao {
 
     public String getGoverningLaw() {
         return governingLaw;
-    }
-
-    public boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
-    }
-
-    public void setLegalPersonalityStatementChecked(boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public void setGoverningLaw(String governingLaw) {

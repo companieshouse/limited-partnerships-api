@@ -57,9 +57,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(CLASS_NAME, generalPartnerDataDto, bindingResult);
-            if (Boolean.FALSE.equals(generalPartnerDataDto.getLegalPersonalityStatementChecked())) {
-                addError(CLASS_NAME, PartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD, "Legal Personality Statement must be checked", bindingResult);
-            }
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, generalPartnerDataDto, bindingResult);

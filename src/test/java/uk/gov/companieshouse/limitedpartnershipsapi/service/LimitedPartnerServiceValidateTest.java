@@ -118,7 +118,6 @@ class LimitedPartnerServiceValidateTest {
         // given
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
         limitedPartnerDao.getData().setGoverningLaw(null);
-        limitedPartnerDao.getData().setLegalPersonalityStatementChecked(false);
         limitedPartnerDao.getData().setRegisteredCompanyNumber(null);
         limitedPartnerDao.getData().setPrincipalOfficeAddress(null);
 
@@ -135,7 +134,6 @@ class LimitedPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Governing Law is required", LimitedPartnerDataDto.GOVERNING_LAW_FIELD),
-                        tuple("Legal Personality Statement must be checked", LimitedPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD),
                         tuple("Registered Company Number is required", LimitedPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
                         tuple("Principal office address is required", LimitedPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
     }
@@ -222,7 +220,6 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setGoverningLaw("UK");
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
         dataDao.setRegisteredCompanyNumber("LP111222");
-        dataDao.setLegalPersonalityStatementChecked(true);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
         dao.setData(dataDao);
 

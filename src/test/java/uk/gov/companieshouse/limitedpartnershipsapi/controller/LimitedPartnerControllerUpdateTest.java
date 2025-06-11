@@ -107,8 +107,7 @@ public class LimitedPartnerControllerUpdateTest {
                     "governing_law": "Act of law",
                     "legal_entity_register_name": "US Register",
                     "legal_entity_registration_location": "United States",
-                    "registered_company_number": "12345678",
-                    "legal_personality_statement_checked": true
+                    "registered_company_number": "12345678"
                 }""";
 
         private static final String JSON_WITH_BELOW_MIN_FORENAME = "{ \"forename\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null }";
