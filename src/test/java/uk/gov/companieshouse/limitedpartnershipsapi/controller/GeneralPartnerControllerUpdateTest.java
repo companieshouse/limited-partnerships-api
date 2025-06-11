@@ -159,10 +159,12 @@ class GeneralPartnerControllerUpdateTest {
         private static final String JSON_POA_UK = "{\"principal_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
         private static final String JSON_POA_NOT_UK = "{\"principal_office_address\":{\"postal_code\":\"12345\",\"premises\":\"2\",\"address_line_1\":\"test rue\",\"address_line_2\":\"\",\"locality\":\"TOULOUSE\",\"country\":\"France\"}}";
         private static final String JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE = "{\"principal_office_address\":{\"premises\":\"2\",\"address_line_1\":\"test rue\",\"address_line_2\":\"\",\"locality\":\"TOULOUSE\",\"country\":\"France\"}}";
+        private static final String JSON_POA_POSTCODE_NOT_UK_MAINLAND_WITHOUT_UK_COUNTRY = "{\"principal_office_address\":{\"postal_code\":\"JE2 3AA\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"Jersey\"}}";
 
         // principal office address
         private static final String JSON_POA_POSTCODE_EMPTY = "{\"principal_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
         private static final String JSON_POA_POSTCODE_NOT_CORRECT = "{\"principal_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+        private static final String JSON_POA_POSTCODE_NOT_UK_MAINLAND_WITH_UK_COUNTRY = "{\"principal_office_address\":{\"postal_code\":\"JE2 3AA\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
         private static final String JSON_POA_ADDRESS_LINE_1_TOO_SHORT = "{\"principal_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
         private static final String JSON_POA_MISSING_POSTCODE = "{\"principal_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
@@ -186,7 +188,8 @@ class GeneralPartnerControllerUpdateTest {
         @ValueSource(strings = {
                 JSON_POA_UK,
                 JSON_POA_NOT_UK,
-                JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE
+                JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE,
+                JSON_POA_POSTCODE_NOT_UK_MAINLAND_WITHOUT_UK_COUNTRY
         })
         void shouldReturn200(String body) throws Exception {
             mocks();
@@ -220,6 +223,7 @@ class GeneralPartnerControllerUpdateTest {
         @CsvSource(value = {
                 JSON_POA_POSTCODE_EMPTY + "$ data.principalOfficeAddress.postalCode $ Postcode must not be null",
                 JSON_POA_POSTCODE_NOT_CORRECT + "$ data.principalOfficeAddress.postalCode $ Invalid postcode format",
+                JSON_POA_POSTCODE_NOT_UK_MAINLAND_WITH_UK_COUNTRY + "$ data.principalOfficeAddress.postalCode $ Must be UK mainland postcode",
                 JSON_POA_ADDRESS_LINE_1_TOO_SHORT + "$ data.principalOfficeAddress.addressLine1 $ Address line 1 must be greater than 1",
                 JSON_SA_POSTCODE_EMPTY + "$ data.serviceAddress.postalCode $ Postcode must not be null",
                 JSON_SA_POSTCODE_NOT_CORRECT + "$ data.serviceAddress.postalCode $ Invalid postcode format",
