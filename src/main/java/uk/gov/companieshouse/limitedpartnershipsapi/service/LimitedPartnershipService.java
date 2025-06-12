@@ -25,7 +25,7 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
@@ -162,7 +162,7 @@ public class LimitedPartnershipService {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
-        final var resumeJourneyUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), submissionId);
+        final var resumeJourneyUri = String.format(URL_RESUME, transaction.getId(), submissionId);
         transaction.setResumeJourneyUri(resumeJourneyUri);
 
         transactionService.updateTransaction(transaction, loggingContext);
