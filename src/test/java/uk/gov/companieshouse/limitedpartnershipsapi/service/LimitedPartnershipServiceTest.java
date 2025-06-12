@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
 @ExtendWith(MockitoExtension.class)
 class LimitedPartnershipServiceTest {
@@ -108,7 +108,7 @@ class LimitedPartnershipServiceTest {
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), limitedPartnershipDao.getId());
         assertEquals(submissionUri, sentTransaction.getResources().get(submissionUri).getLinks().get("resource"));
         // assert resume link is correct
-        String resumeUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), limitedPartnershipDao.getId());
+        String resumeUri = String.format(URL_RESUME, transaction.getId(), limitedPartnershipDao.getId());
         assertEquals(resumeUri, sentTransaction.getResumeJourneyUri());
         // assert dao submission self link is correct
         LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
