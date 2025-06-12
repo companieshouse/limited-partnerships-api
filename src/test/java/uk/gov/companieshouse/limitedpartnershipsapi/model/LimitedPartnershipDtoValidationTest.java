@@ -48,6 +48,25 @@ class LimitedPartnershipDtoValidationTest {
     }
 
     @Test
+    void testCreatePartnershipWithoutNameEndingShouldNotReturnError() {
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dto = new DataDto();
+
+        dto.setPartnershipName("Test name");
+        dto.setPartnershipType(PartnershipType.LP);
+        dto.setEmail("test@email.com");
+        dto.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES);
+
+        limitedPartnershipDto.setData(dto);
+
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(
+                limitedPartnershipDto);
+
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
     void testCreatePartnershipWithInvalidEnumValuesReturnsErrors() {
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
