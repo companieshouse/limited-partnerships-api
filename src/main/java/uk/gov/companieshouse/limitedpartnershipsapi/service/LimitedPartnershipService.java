@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -9,6 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
@@ -56,8 +58,11 @@ public class LimitedPartnershipService {
     public String createLimitedPartnership(Transaction transaction,
                                            LimitedPartnershipDto limitedPartnershipDto,
                                            String requestId,
-                                           String userId) throws ServiceException {
+                                           String userId)
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         ApiLogger.debug("Called createLimitedPartnership(...)");
+
+        limitedPartnershipValidator.validatePartial(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
 
         if (hasExistingLimitedPartnership(transaction)) {
             throw new ServiceException(String.format(
@@ -214,9 +219,9 @@ public class LimitedPartnershipService {
     }
 
     public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction, String submissionId)
-            throws ResourceNotFoundException {
+            throws ServiceException {
         LimitedPartnershipDto dto = getLimitedPartnership(transaction, submissionId);
 
-        return limitedPartnershipValidator.validate(dto);
+        return limitedPartnershipValidator.validateFull(dto, IncorporationKind.fromDescription(transaction.getFilingMode()));
     }
 }

@@ -9,6 +9,9 @@ import java.util.List;
 
 public class DataDao {
 
+    @Field("partnership_number")
+    private String partnershipNumber;
+
     @Field("partnership_name")
     private String partnershipName;
 
@@ -38,6 +41,14 @@ public class DataDao {
 
     @Field("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
+
+    public String getPartnershipNumber() {
+        return partnershipNumber;
+    }
+
+    public void setPartnershipNumber(String partnershipNumber) {
+        this.partnershipNumber = partnershipNumber;
+    }
 
     public String getPartnershipName() {
         return partnershipName;

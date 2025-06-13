@@ -31,6 +31,11 @@ public class DataDto {
     public static final String NAME_MAX_SIZE_MESSAGE = "Limited partnership name must be less than {max}";
 
     @JsonInclude(NON_NULL)
+    @JsonProperty("partnership_number")
+    @Pattern(regexp = "^(LP|NL|SL)\\d{6}$", message = "Partnership number must be valid")
+    private String partnershipNumber;
+
+    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
     @NotNull(message = "Limited partnership name must not be null")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
@@ -40,7 +45,6 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
-    @NotNull(message = "Name ending must not be null")
     @EnumValid(message = "Name ending must be valid")
     private PartnershipNameEnding nameEnding;
 
@@ -78,6 +82,14 @@ public class DataDto {
     @JsonProperty("lawful_purpose_statement_checked")
     @AssertTrue(message = "Lawful purpose statement must be checked")
     private Boolean lawfulPurposeStatementChecked;
+
+    public String getPartnershipNumber() {
+        return partnershipNumber;
+    }
+
+    public void setPartnershipNumber(String partnershipNumber) {
+        this.partnershipNumber = partnershipNumber;
+    }
 
     public String getPartnershipName() {
         return partnershipName;
