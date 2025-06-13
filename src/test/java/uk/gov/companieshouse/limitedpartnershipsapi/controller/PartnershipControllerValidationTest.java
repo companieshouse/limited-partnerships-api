@@ -148,13 +148,8 @@ class PartnershipControllerValidationTest {
             transaction.getResources().clear();
             transaction.setFilingMode("limited-partnership-registration");
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-
-            DataDto dto = new DataDto();
-            dto.setPartnershipName("test name");
-            dto.setNameEnding(null);
-            dto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipDto.setData(dto);
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().dto();
+            limitedPartnershipDto.getData().setNameEnding(null);
 
             String body = objectMapper.writeValueAsString(limitedPartnershipDto);
 
@@ -173,14 +168,9 @@ class PartnershipControllerValidationTest {
             transaction.getResources().clear();
             transaction.setFilingMode("limited-partnership-transition");
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-
-            DataDto dto = new DataDto();
-            dto.setPartnershipNumber("LP121212");
-            dto.setPartnershipName("test name");
-            dto.setNameEnding(null);
-            dto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipDto.setData(dto);
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().dto();
+            limitedPartnershipDto.getData().setNameEnding(null);
+            limitedPartnershipDto.getData().setPartnershipNumber("LP121212");
 
             String body = objectMapper.writeValueAsString(limitedPartnershipDto);
 
@@ -199,14 +189,9 @@ class PartnershipControllerValidationTest {
             transaction.getResources().clear();
             transaction.setFilingMode("limited-partnership-transition");
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-
-            DataDto dto = new DataDto();
-            dto.setPartnershipNumber("LP1212");
-            dto.setPartnershipName("test name");
-            dto.setNameEnding(null);
-            dto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipDto.setData(dto);
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().dto();
+            limitedPartnershipDto.getData().setNameEnding(null);
+            limitedPartnershipDto.getData().setPartnershipNumber("LP1212");
 
             String body = objectMapper.writeValueAsString(limitedPartnershipDto);
 

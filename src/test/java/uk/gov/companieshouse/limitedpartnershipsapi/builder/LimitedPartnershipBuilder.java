@@ -3,13 +3,28 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.PFLP;
 
 public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "abc-123";
+
+    public LimitedPartnershipDto dto() {
+        LimitedPartnershipDto dto = new LimitedPartnershipDto();
+
+        DataDto dataDao = new DataDto();
+        dataDao.setPartnershipName("test name");
+        dataDao.setNameEnding(PartnershipNameEnding.L_DOT_P_DOT);
+        dataDao.setPartnershipType(PartnershipType.LP);
+        dto.setData(dataDao);
+
+        return dto;
+    }
 
     public LimitedPartnershipDao dao() {
         LimitedPartnershipDao dao = new LimitedPartnershipDao();
