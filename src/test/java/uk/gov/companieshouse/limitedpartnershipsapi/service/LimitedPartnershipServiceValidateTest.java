@@ -10,6 +10,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
@@ -164,7 +165,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException {
+    void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
@@ -184,7 +185,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnNoErrorWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException {
+    void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
@@ -201,6 +202,28 @@ class LimitedPartnershipServiceValidateTest {
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(0, results.size());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException {
+        // given
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        limitedPartnershipSubmissionDao.getData().setNameEnding(null);
+        limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LX123456");
+
+        Transaction transaction = buildTransaction();
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+
+        // then
+        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+        assertEquals(1, results.size());
+        checkForError(results, "Partnership number must be valid", "data.partnershipNumber");
     }
 
     private Transaction buildTransaction() {
@@ -222,37 +245,15 @@ class LimitedPartnershipServiceValidateTest {
     }
 
     private LimitedPartnershipDao createDao(PartnershipType type) {
-        LimitedPartnershipDao dao = new LimitedPartnershipDao();
+        LimitedPartnershipDao dao = new LimitedPartnershipBuilder().dao();
 
-        dao.setId(SUBMISSION_ID);
-        DataDao dataDao = new DataDao();
+        DataDao dataDao = dao.getData();
         dataDao.setPartnershipType(type);
 
         if (LP.equals(type) || SLP.equals(type)) {
             dataDao.setTerm(Term.BY_AGREEMENT);
             dataDao.setSicCodes(List.of("12345"));
         }
-
-        dataDao.setPartnershipName("Asset Adders");
-        dataDao.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription());
-        dataDao.setEmail("some@where.com");
-        dataDao.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES.getApiKey());
-        dataDao.setRegisteredOfficeAddress(createAddressDao());
-        dataDao.setPrincipalPlaceOfBusinessAddress(createAddressDao());
-        dataDao.setLawfulPurposeStatementChecked(true);
-        dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
 
         return dao;
     }

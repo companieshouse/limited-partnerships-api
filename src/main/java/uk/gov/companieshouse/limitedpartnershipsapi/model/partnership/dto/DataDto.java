@@ -32,6 +32,7 @@ public class DataDto {
 
     @JsonInclude(NON_NULL)
     @JsonProperty("partnership_number")
+    @Pattern(regexp = "^\\s*(LP|NL|SL)[0-9]{6}\\s*?$", message = "Partnership number must be valid")
     private String partnershipNumber;
 
     @JsonInclude(NON_NULL)

@@ -18,16 +18,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
@@ -194,6 +192,32 @@ class PartnershipControllerValidationTest {
                             .requestAttr("transaction", transaction)
                             .content(body))
                     .andExpect(status().isCreated());
+        }
+
+        @Test
+        void shouldReturnBadRequestErrorIfCompanyNumberForTransitionIsInvalid() throws Exception {
+            mocks();
+            transaction.getResources().clear();
+            transaction.setFilingMode("limited-partnership-transition");
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+
+            DataDto dto = new DataDto();
+            dto.setPartnershipNumber("LP1212");
+            dto.setPartnershipName("test name");
+            dto.setNameEnding(null);
+            dto.setPartnershipType(PartnershipType.LP);
+            limitedPartnershipDto.setData(dto);
+
+            String body = objectMapper.writeValueAsString(limitedPartnershipDto);
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
         }
 
         private static final String JSON_MISSING_PARTNERSHIP_NAME = "{\"data\":{\"name_ending\":\"Limited Partnership\",\"partnership_type\":\"LP\"}}";
@@ -631,7 +655,7 @@ class PartnershipControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            LimitedPartnershipDao limitedPartnershipDao = createDao();
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().dao();
             limitedPartnershipDao.getData().setTerm(Term.UNKNOWN);
 
             mocks(limitedPartnershipDao);
@@ -669,36 +693,8 @@ class PartnershipControllerValidationTest {
     }
 
     private void mocks() {
-        mocks(createDao());
-    }
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().dao();
 
-    private LimitedPartnershipDao createDao() {
-        LimitedPartnershipDao dao = new LimitedPartnershipDao();
-
-        dao.setId(SUBMISSION_ID);
-        DataDao dataDao = new DataDao();
-        dataDao.setPartnershipType(PFLP);
-        dataDao.setPartnershipName("Asset Adders");
-        dataDao.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription());
-        dataDao.setEmail("some@where.com");
-        dataDao.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES.getApiKey());
-        dataDao.setRegisteredOfficeAddress(createAddressDao());
-        dataDao.setPrincipalPlaceOfBusinessAddress(createAddressDao());
-        dataDao.setLawfulPurposeStatementChecked(true);
-        dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
-
-        return dao;
+        mocks(limitedPartnershipDao);
     }
 }

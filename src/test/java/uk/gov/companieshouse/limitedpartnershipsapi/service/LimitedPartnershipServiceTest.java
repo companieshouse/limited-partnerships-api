@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
@@ -355,13 +356,7 @@ class LimitedPartnershipServiceTest {
     }
 
     private LimitedPartnershipDao createDao() {
-        LimitedPartnershipDao dao = new LimitedPartnershipDao();
-        dao.setId(SUBMISSION_ID);
-        DataDao dataDao = new DataDao();
-        dataDao.setPartnershipName("Asset Adders");
-        dataDao.setJurisdiction("Scotland");
-        dao.setData(dataDao);
-        return dao;
+        return new LimitedPartnershipBuilder().dao();
     }
 
     private LimitedPartnershipDto createDto() {
