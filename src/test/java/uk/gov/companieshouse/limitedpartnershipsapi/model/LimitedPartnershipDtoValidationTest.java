@@ -5,6 +5,8 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
@@ -28,7 +30,7 @@ class LimitedPartnershipDtoValidationTest {
     }
 
     @Test
-    void testCreatePartnershipShouldNotReturnError() {
+    void testValidatingPartnershipDtoShouldNotReturnError() {
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dto = new DataDto();
@@ -48,15 +50,13 @@ class LimitedPartnershipDtoValidationTest {
     }
 
     @Test
-    void testCreatePartnershipWithoutNameEndingShouldNotReturnError() {
+    void testValidatingPartnershipDtoWithoutNameEndingShouldNotReturnError() {
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dto = new DataDto();
 
         dto.setPartnershipName("Test name");
         dto.setPartnershipType(PartnershipType.LP);
-        dto.setEmail("test@email.com");
-        dto.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES);
 
         limitedPartnershipDto.setData(dto);
 
@@ -66,8 +66,48 @@ class LimitedPartnershipDtoValidationTest {
         assertTrue(violations.isEmpty());
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = { "LP123456", "NL332211", "SL000001" })
+    void testValidatingPartnershipDtoWithValidCompanyNumberShouldNotReturnError(String partnershipNumber) {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dto = new DataDto();
+
+        dto.setPartnershipName("Test name");
+        dto.setPartnershipType(PartnershipType.LP);
+        dto.setPartnershipNumber(partnershipNumber);
+
+        limitedPartnershipDto.setData(dto);
+
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(
+                limitedPartnershipDto);
+
+        assertTrue(violations.isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "lp123456", "LP12", "00006400", "NI332211", "LP3322119" })
+    void testValidatingPartnershipDtoWithInvalidCompanyNumberReturnsError(String partnershipNumber) {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dto = new DataDto();
+
+        dto.setPartnershipName("Test name");
+        dto.setPartnershipType(PartnershipType.LP);
+        dto.setPartnershipNumber(partnershipNumber);
+
+        limitedPartnershipDto.setData(dto);
+
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(
+                limitedPartnershipDto);
+
+        assertFalse(violations.isEmpty());
+        assertThat(violations).hasSize(1);
+        assertThat(violations)
+                .extracting(ConstraintViolation::getMessage)
+                .containsExactlyInAnyOrder("Partnership number must be valid");
+    }
+
     @Test
-    void testCreatePartnershipWithInvalidEnumValuesReturnsErrors() {
+    void testValidatingPartnershipDtoWithInvalidEnumValuesReturnsErrors() {
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dto = new DataDto();
@@ -92,7 +132,7 @@ class LimitedPartnershipDtoValidationTest {
     }
 
     @Test
-    void testCreatePartnershipShouldReturnBadRequestErrorIfPartnershipNameIsMoreThan160Character() {
+    void testValidatingPartnershipDtoShouldReturnBadRequestErrorIfPartnershipNameIsMoreThan160Character() {
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dto = new DataDto();

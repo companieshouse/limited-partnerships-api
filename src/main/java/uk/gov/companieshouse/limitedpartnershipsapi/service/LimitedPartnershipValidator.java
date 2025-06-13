@@ -52,7 +52,7 @@ public class LimitedPartnershipValidator {
 
         dtoValidation(limitedPartnershipDto, bindingResult);
 
-        checkJourneySpecificFields(limitedPartnershipDto.getData(), incorporationKind, bindingResult); //, errorsList);
+        checkJourneySpecificFields(limitedPartnershipDto.getData(), incorporationKind, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(DataDto.class.getConstructor(), -1);

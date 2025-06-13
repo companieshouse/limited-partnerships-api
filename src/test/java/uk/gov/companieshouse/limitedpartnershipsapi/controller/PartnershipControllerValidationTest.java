@@ -47,7 +47,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.PFLP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
 @ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, LimitedPartnershipMapperImpl.class, LimitedPartnershipPatchMapperImpl.class, GlobalExceptionHandler.class})
