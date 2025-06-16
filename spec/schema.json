@@ -1055,8 +1055,11 @@
             "contribution_currency_value": {
               "type": "string"
             },
-            "contribution_non_monetary_value": {
-              "type": "string"
+            "contribution_sub_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
