@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -151,6 +152,34 @@ class LimitedPartnerServiceUpdateTest {
 
         // Ensure that second nationality isn't cleared if only address data is updated
         assertEquals(Nationality.GREENLANDIC.getDescription(), sentSubmission.getData().getNationality2());
+    }
+
+
+    @Test
+    void shouldUpdateTheDaoWithCapitalContributions() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        limitedPartnerDataDto.setContributionCurrencyType(Currency.GBP);
+        limitedPartnerDataDto.setContributionCurrencyValue("15.00");
+        limitedPartnerDataDto.setContributionSubTypes(new String[]{"money", "servicesOrGoods"});
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        // dao principal office address is null before mapping/update
+        assertNull(limitedPartnerDao.getData().getPrincipalOfficeAddress());
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).findById(LIMITED_PARTNER_ID);
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
+        assertEquals("15.00", sentSubmission.getData().getContributionCurrencyValue());
+        assertEquals("money", sentSubmission.getData().getContributionSubTypes()[0]);
+        assertEquals("servicesOrGoods", sentSubmission.getData().getContributionSubTypes()[1]);
     }
 
     @Test

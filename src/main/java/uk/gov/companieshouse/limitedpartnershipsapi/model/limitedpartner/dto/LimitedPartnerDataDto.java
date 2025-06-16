@@ -18,8 +18,8 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "Value must be a valid decimal number")
     private String contributionCurrencyValue;
 
-    @JsonProperty("contribution_non_monetary_value")
-    private String contributionNonMonetaryValue;
+    @JsonProperty("contribution_sub_types")
+    private String[] contributionSubTypes;
 
     public boolean isLegalEntity() {
         return getLegalEntityRegisterName() != null || getLegalForm() != null;
@@ -41,12 +41,11 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
         this.contributionCurrencyValue = contributionCurrencyValue;
     }
 
-    public String getContributionNonMonetaryValue() {
-        return contributionNonMonetaryValue;
+    public String[] getContributionSubTypes() {
+        return contributionSubTypes;
     }
 
-    public void setContributionNonMonetaryValue(String contributionNonMonetaryValue) {
-        this.contributionNonMonetaryValue = contributionNonMonetaryValue;
+    public void setContributionSubTypes(String[] contributionSubTypes) {
+        this.contributionSubTypes = contributionSubTypes;
     }
-
 }

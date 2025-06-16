@@ -14,8 +14,8 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
     @Field("contribution_currency_value")
     private String contributionCurrencyValue;
 
-    @Field("contribution_non_monetary_value")
-    private String contributionNonMonetaryValue;
+    @Field("contribution_sub_types")
+    private String[] contributionSubTypes;
 
     public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
@@ -33,11 +33,11 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
         this.contributionCurrencyValue = contributionCurrencyValue;
     }
 
-    public String getContributionNonMonetaryValue() {
-        return contributionNonMonetaryValue;
+    public String[] getContributionSubTypes() {
+        return contributionSubTypes;
     }
 
-    public void setContributionNonMonetaryValue(String contributionNonMonetaryValue) {
-        this.contributionNonMonetaryValue = contributionNonMonetaryValue;
+    public void setContributionSubTypes(String[] contributionSubTypes) {
+        this.contributionSubTypes = contributionSubTypes;
     }
 }

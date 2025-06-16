@@ -267,6 +267,8 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
             dataDto.setNationality1(Nationality.AMERICAN);
             dataDto.setContributionCurrencyType(Currency.GBP);
+            dataDto.setContributionCurrencyValue("15.00");
+            dataDto.setContributionSubTypes(new String[]{"money", "servicesOrGoods"});
 
             dto.setData(dataDto);
 
@@ -282,6 +284,8 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setDateOfBirth(LocalDate.of(1980, 1, 1));
             dataDao.setNationality1("American");
             dataDao.setContributionCurrencyType(Currency.GBP);
+            dataDao.setContributionCurrencyValue("15.00");
+            dataDao.setContributionSubTypes(new String[]{"money", "servicesOrGoods"});
 
             dao.setData(dataDao);
             dao.setId(SUBMISSION_ID);
