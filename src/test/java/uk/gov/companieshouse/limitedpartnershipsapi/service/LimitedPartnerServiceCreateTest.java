@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
@@ -270,9 +271,9 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setNationality1(Nationality.AMERICAN);
             dataDto.setContributionCurrencyType(Currency.GBP);
             dataDto.setContributionCurrencyValue("15.00");
-            List<String> contributionSubtypes = new ArrayList<>();
-            contributionSubtypes.add("money");
-            contributionSubtypes.add("servicesOrGoods");
+            List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
+            contributionSubtypes.add(ContributionSubTypes.MONEY);
+            contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
             dataDto.setContributionSubTypes(contributionSubtypes);
 
             dto.setData(dataDto);
@@ -290,9 +291,9 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setNationality1("American");
             dataDao.setContributionCurrencyType(Currency.GBP);
             dataDao.setContributionCurrencyValue("15.00");
-            List<String> contributionSubtypes = new ArrayList<>();
-            contributionSubtypes.add("money");
-            contributionSubtypes.add("servicesOrGoods");
+            List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
+            contributionSubtypes.add(ContributionSubTypes.MONEY);
+            contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
             dataDao.setContributionSubTypes(contributionSubtypes);
 
             dao.setData(dataDao);

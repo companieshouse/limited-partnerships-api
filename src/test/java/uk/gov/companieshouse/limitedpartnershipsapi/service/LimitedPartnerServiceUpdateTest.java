@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
@@ -165,9 +166,9 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
         limitedPartnerDataDto.setContributionCurrencyType(Currency.GBP);
         limitedPartnerDataDto.setContributionCurrencyValue("15.00");
-        List<String> contributionSubtypes = new ArrayList<>();
-        contributionSubtypes.add("money");
-        contributionSubtypes.add("servicesOrGoods");
+        List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
+        contributionSubtypes.add(ContributionSubTypes.MONEY);
+        contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
         limitedPartnerDataDto.setContributionSubTypes(contributionSubtypes);
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
@@ -181,7 +182,8 @@ class LimitedPartnerServiceUpdateTest {
 
         assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
         assertEquals("15.00", sentSubmission.getData().getContributionCurrencyValue());
-        assertThat(sentSubmission.getData().getContributionSubTypes()).contains("money", "servicesOrGoods");
+        assertThat(sentSubmission.getData().getContributionSubTypes())
+                .contains(ContributionSubTypes.MONEY, ContributionSubTypes.SERVICES_OR_GOODS);
     }
 
     @Test
