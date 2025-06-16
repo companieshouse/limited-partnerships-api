@@ -3,8 +3,15 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
@@ -15,6 +22,7 @@ import java.util.Set;
 
 @Component
 public class LimitedPartnershipValidator {
+    private static final String CLASS_NAME = DataDto.class.getName();
 
     private final Validator validator;
 
@@ -23,12 +31,11 @@ public class LimitedPartnershipValidator {
         this.validator = validator;
     }
 
-    public List<ValidationStatusError> validate(LimitedPartnershipDto limitedPartnershipDto) {
-        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
-
+    public List<ValidationStatusError> validateFull(LimitedPartnershipDto limitedPartnershipDto,
+                                                    IncorporationKind incorporationKind) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
-        violations.forEach(v ->
-                errorsList.add(createValidationStatusError(v.getMessage(), v.getPropertyPath().toString())));
+
+        checkFieldConstraints(limitedPartnershipDto, incorporationKind, errorsList);
 
         final var dataDto = limitedPartnershipDto.getData();
 
@@ -36,6 +43,21 @@ public class LimitedPartnershipValidator {
         checkPartnershipTypeSpecificFields(dataDto, errorsList);
 
         return errorsList;
+    }
+
+    public void validatePartial(LimitedPartnershipDto limitedPartnershipDto,
+                                IncorporationKind incorporationKind)
+            throws NoSuchMethodException, MethodArgumentNotValidException {
+        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnershipDto, DataDto.class.getName());
+
+        dtoValidation(limitedPartnershipDto, bindingResult);
+
+        checkJourneySpecificFields(limitedPartnershipDto.getData(), incorporationKind, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            var methodParameter = new MethodParameter(DataDto.class.getConstructor(), -1);
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
     }
 
     private void checkCommonFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
@@ -84,10 +106,52 @@ public class LimitedPartnershipValidator {
         }
     }
 
+    private void checkJourneySpecificFields(DataDto dataDto, IncorporationKind incorporationKind, BindingResult bindingResult) {
+        if (IncorporationKind.REGISTRATION.equals(incorporationKind)) {
+            if (dataDto.getNameEnding() == null) {
+                addError("data.nameEnding", "Name ending is required", bindingResult);
+            }
+        } else {
+            if (dataDto.getPartnershipNumber() == null) {
+                addError("data.partnershipNumber", "Partnership number is required", bindingResult);
+            }
+        }
+    }
+
+    private void dtoValidation(LimitedPartnershipDto limitedPartnershipDto, BindingResult bindingResult) {
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+            );
+        }
+    }
+
+    private void addError(String fieldName, String defaultMessage, BindingResult bindingResult) {
+        bindingResult.addError(new FieldError(CLASS_NAME, fieldName, defaultMessage));
+    }
+
     private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
         var error = new ValidationStatusError();
         error.setError(errorMessage);
         error.setLocation(location);
         return error;
+    }
+
+    private void checkFieldConstraints(LimitedPartnershipDto limitedPartnershipDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList)
+            throws ServiceException {
+        try {
+            validatePartial(limitedPartnershipDto, incorporationKind);
+        } catch (MethodArgumentNotValidException e) {
+            convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
+        } catch (NoSuchMethodException e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
+        bindingResult.getFieldErrors().forEach(fe ->
+                errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
     }
 }

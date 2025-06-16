@@ -62,7 +62,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testCreatePartnershipIsSuccessful() throws ServiceException {
+    void testCreatePartnershipIsSuccessful() throws Exception {
         // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
@@ -92,7 +92,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testInternalServerErrorReturnedWhenCreatePartnershipFails() throws ServiceException {
+    void testInternalServerErrorReturnedWhenCreatePartnershipFails() throws Exception {
         // given
         when(limitedPartnershipService.createLimitedPartnership(
                 any(Transaction.class),
@@ -232,7 +232,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testValidationStatusWhenPartnershipDataIsValid() throws ResourceNotFoundException {
+    void testValidationStatusWhenPartnershipDataIsValid() throws ServiceException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(new ArrayList<>());
@@ -253,7 +253,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testValidationStatusWhenPartnershipDataIsNotValid() throws ResourceNotFoundException {
+    void testValidationStatusWhenPartnershipDataIsNotValid() throws ServiceException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         List<ValidationStatusError> errors = new ArrayList<>();
@@ -281,7 +281,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ResourceNotFoundException {
+    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ServiceException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));

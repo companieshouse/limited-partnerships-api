@@ -10,10 +10,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
@@ -81,7 +83,7 @@ class LimitedPartnershipServiceTest {
     private ArgumentCaptor<LimitedPartnershipDao> submissionCaptor;
 
     @Test
-    void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws ServiceException {
+    void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws Exception {
         // given
         LimitedPartnershipDto limitedPartnershipDto = createDto();
         LimitedPartnershipDao limitedPartnershipDao = createDao();
@@ -293,7 +295,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ResourceNotFoundException {
+    void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ServiceException {
         // given
         LimitedPartnershipDto limitedPartnershipSubmissionDto = createDto();
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
@@ -302,7 +304,7 @@ class LimitedPartnershipServiceTest {
         when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
-        when(limitedPartnershipValidator.validate(limitedPartnershipSubmissionDto)).thenReturn(new ArrayList<>());
+        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, IncorporationKind.REGISTRATION)).thenReturn(new ArrayList<>());
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
@@ -312,7 +314,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenErrorsWithPartnershipData_whenValidateStatus_thenErrorsReturned() throws ResourceNotFoundException {
+    void givenErrorsWithPartnershipData_whenValidateStatus_thenErrorsReturned() throws ServiceException {
         // given
         LimitedPartnershipDto limitedPartnershipSubmissionDto = createDto();
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
@@ -326,7 +328,7 @@ class LimitedPartnershipServiceTest {
         var error2 = new ValidationStatusError("Invalid data format", "there", null, null);
         errorsList.add(error1);
         errorsList.add(error2);
-        when(limitedPartnershipValidator.validate(limitedPartnershipSubmissionDto)).thenReturn(errorsList);
+        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, IncorporationKind.REGISTRATION)).thenReturn(errorsList);
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
@@ -349,17 +351,12 @@ class LimitedPartnershipServiceTest {
     private Transaction buildTransaction() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
+        transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
         return transaction;
     }
 
     private LimitedPartnershipDao createDao() {
-        LimitedPartnershipDao dao = new LimitedPartnershipDao();
-        dao.setId(SUBMISSION_ID);
-        DataDao dataDao = new DataDao();
-        dataDao.setPartnershipName("Asset Adders");
-        dataDao.setJurisdiction("Scotland");
-        dao.setData(dataDao);
-        return dao;
+        return new LimitedPartnershipBuilder().dao();
     }
 
     private LimitedPartnershipDto createDto() {
