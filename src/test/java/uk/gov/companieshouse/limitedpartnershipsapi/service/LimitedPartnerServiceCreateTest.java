@@ -23,7 +23,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -268,7 +270,10 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setNationality1(Nationality.AMERICAN);
             dataDto.setContributionCurrencyType(Currency.GBP);
             dataDto.setContributionCurrencyValue("15.00");
-            dataDto.setContributionSubTypes(new String[]{"money", "servicesOrGoods"});
+            List<String> contributionSubtypes = new ArrayList<>();
+            contributionSubtypes.add("money");
+            contributionSubtypes.add("servicesOrGoods");
+            dataDto.setContributionSubTypes(contributionSubtypes);
 
             dto.setData(dataDto);
 
@@ -285,7 +290,10 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setNationality1("American");
             dataDao.setContributionCurrencyType(Currency.GBP);
             dataDao.setContributionCurrencyValue("15.00");
-            dataDao.setContributionSubTypes(new String[]{"money", "servicesOrGoods"});
+            List<String> contributionSubtypes = new ArrayList<>();
+            contributionSubtypes.add("money");
+            contributionSubtypes.add("servicesOrGoods");
+            dataDao.setContributionSubTypes(contributionSubtypes);
 
             dao.setData(dataDao);
             dao.setId(SUBMISSION_ID);

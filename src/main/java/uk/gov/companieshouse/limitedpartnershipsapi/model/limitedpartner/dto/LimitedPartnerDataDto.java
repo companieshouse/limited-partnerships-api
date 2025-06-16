@@ -1,10 +1,13 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
+
+import java.util.List;
 
 public class LimitedPartnerDataDto extends PartnerDataDto {
 
@@ -18,8 +21,9 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "Value must be a valid decimal number")
     private String contributionCurrencyValue;
 
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     @JsonProperty("contribution_sub_types")
-    private String[] contributionSubTypes;
+    private List<String> contributionSubTypes;
 
     public boolean isLegalEntity() {
         return getLegalEntityRegisterName() != null || getLegalForm() != null;
@@ -41,11 +45,11 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
         this.contributionCurrencyValue = contributionCurrencyValue;
     }
 
-    public String[] getContributionSubTypes() {
+    public List<String> getContributionSubTypes() {
         return contributionSubTypes;
     }
 
-    public void setContributionSubTypes(String[] contributionSubTypes) {
+    public void setContributionSubTypes(List<String> contributionSubTypes) {
         this.contributionSubTypes = contributionSubTypes;
     }
 }

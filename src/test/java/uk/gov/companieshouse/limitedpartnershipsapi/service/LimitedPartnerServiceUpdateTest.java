@@ -24,11 +24,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -162,7 +165,10 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
         limitedPartnerDataDto.setContributionCurrencyType(Currency.GBP);
         limitedPartnerDataDto.setContributionCurrencyValue("15.00");
-        limitedPartnerDataDto.setContributionSubTypes(new String[]{"money", "servicesOrGoods"});
+        List<String> contributionSubtypes = new ArrayList<>();
+        contributionSubtypes.add("money");
+        contributionSubtypes.add("servicesOrGoods");
+        limitedPartnerDataDto.setContributionSubTypes(contributionSubtypes);
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
@@ -175,8 +181,7 @@ class LimitedPartnerServiceUpdateTest {
 
         assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
         assertEquals("15.00", sentSubmission.getData().getContributionCurrencyValue());
-        assertEquals("money", sentSubmission.getData().getContributionSubTypes()[0]);
-        assertEquals("servicesOrGoods", sentSubmission.getData().getContributionSubTypes()[1]);
+        assertThat(sentSubmission.getData().getContributionSubTypes()).contains("money", "servicesOrGoods");
     }
 
     @Test

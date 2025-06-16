@@ -4,6 +4,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.PartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 
+import java.util.List;
+
 public class LimitedPartnerDataDao extends PartnerDataDao {
 
     // Legal Entity
@@ -15,7 +17,7 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
     private String contributionCurrencyValue;
 
     @Field("contribution_sub_types")
-    private String[] contributionSubTypes;
+    private List<String> contributionSubTypes;
 
     public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
@@ -33,11 +35,11 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
         this.contributionCurrencyValue = contributionCurrencyValue;
     }
 
-    public String[] getContributionSubTypes() {
+    public List<String> getContributionSubTypes() {
         return contributionSubTypes;
     }
 
-    public void setContributionSubTypes(String[] contributionSubTypes) {
+    public void setContributionSubTypes(List<String> contributionSubTypes) {
         this.contributionSubTypes = contributionSubTypes;
     }
 }
