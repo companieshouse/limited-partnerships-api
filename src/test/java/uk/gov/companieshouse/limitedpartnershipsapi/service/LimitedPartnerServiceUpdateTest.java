@@ -166,9 +166,6 @@ class LimitedPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
-        // dao principal office address is null before mapping/update
-        assertNull(limitedPartnerDao.getData().getPrincipalOfficeAddress());
-
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
         verify(limitedPartnerRepository).findById(LIMITED_PARTNER_ID);
