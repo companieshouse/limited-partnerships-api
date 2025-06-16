@@ -141,7 +141,6 @@ public class LimitedPartnershipService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put("resource", submissionUri);
         linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        linksMap.put("costs", submissionUri + "/costs");
 
         limitedPartnershipResource.setLinks(linksMap);
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
