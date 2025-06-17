@@ -57,8 +57,6 @@ public class LimitedPartnerService {
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
         updateTransactionWithLinksForLimitedPartner(requestId, transaction, submissionUri);
-        System.out.println("\n\n\n\n>>>> CC Type " + dao.getData().getContributionSubTypes());
-        System.out.println("\n\n\n\n>>>> CC Value " + dao.getData().getContributionCurrencyValue());
         return insertedSubmission.getId();
     }
 
