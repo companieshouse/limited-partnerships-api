@@ -118,10 +118,23 @@ public class LimitedPartnerControllerUpdateTest {
 
         private static final String JSON_INVALID_NATIONALITY = "{ \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null }";
 
+        private static final String JSON_PERSON_VALID_CAPITAL_CONTRIBUTION_TYPE = """
+                {
+                  "forename": "Joe",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "25.00",
+                  "contribution_sub_types": ["SHARES"]
+                }""";
+
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_LIMITED_PARTNER_PERSON,
-                JSON_LIMITED_LEGAL_ENTITY
+                JSON_LIMITED_LEGAL_ENTITY,
+                JSON_PERSON_VALID_CAPITAL_CONTRIBUTION_TYPE
         })
         void shouldReturn200(String body) throws Exception {
             mocks();
