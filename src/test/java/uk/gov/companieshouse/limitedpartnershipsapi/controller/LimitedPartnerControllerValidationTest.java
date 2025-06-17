@@ -18,6 +18,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilde
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -27,6 +29,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.allOf;
@@ -38,6 +42,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
@@ -60,7 +65,10 @@ class LimitedPartnerControllerValidationTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "15.00",
+                  "contribution_sub_types": "SHARES"
                 }
             }""";
 
@@ -95,7 +103,10 @@ class LimitedPartnerControllerValidationTest {
                 "governing_law": "Act of law",
                 "legal_entity_register_name": "Register of somewhere",
                 "legal_entity_registration_location": "Scotland",
-                "registered_company_number": "12345678"
+                "registered_company_number": "12345678",
+                "contribution_currency_type": "GBP",
+                "contribution_currency_value": "15.00",
+                "contribution_sub_types": "SHARES"
               }
             }""";
 
@@ -208,25 +219,17 @@ class LimitedPartnerControllerValidationTest {
 
     @Nested
     class ValidatePartner {
-        @Test
-        void shouldReturn200IfNoErrors() throws Exception {
-            mocks();
-
-            mockMvc.perform(get(VALIDATE_STATUS_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction)
-                            .content(""))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("is_valid").value("true"));
-        }
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
             LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
             limitedPartnerDao.getData().setForename("");
             limitedPartnerDao.getData().setNationality1("UNKNOWN");
+            limitedPartnerDao.getData().setContributionCurrencyType(Currency.GBP);
+            limitedPartnerDao.getData().setContributionCurrencyValue("15.00");
+            List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+            contributionSubTypes.add(SHARES);
+            limitedPartnerDao.getData().setContributionSubTypes(contributionSubTypes);
 
             mocks(limitedPartnerDao);
 

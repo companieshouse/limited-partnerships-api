@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
@@ -160,6 +161,9 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
             dataDto.setContributionCurrencyType(Currency.GBP);
             dataDto.setRegisteredCompanyNumber("12345678");
+            List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+            contributionSubTypes.add(SHARES);
+            dataDto.setContributionSubTypes(contributionSubTypes);
 
             dto.setData(dataDto);
             return dto;
@@ -176,6 +180,9 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setLegalEntityRegistrationLocation("United Kingdom");
             dataDao.setContributionCurrencyType(Currency.GBP);
             dataDao.setRegisteredCompanyNumber("12345678");
+            List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+            contributionSubTypes.add(SHARES);
+            dataDao.setContributionSubTypes(contributionSubTypes);
 
             dao.setData(dataDao);
             dao.setId(SUBMISSION_ID);

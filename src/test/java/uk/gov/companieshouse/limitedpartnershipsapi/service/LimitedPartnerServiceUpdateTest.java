@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
@@ -124,6 +125,9 @@ class LimitedPartnerServiceUpdateTest {
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
         limitedPartnerDao.getData().setNationality2(Nationality.GREENLANDIC.getDescription());
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        limitedPartnerDao.getData().setContributionSubTypes(contributionSubTypes);
 
         AddressDto principalOfficeAddress = new AddressDto();
         principalOfficeAddress.setAddressLine1("DUNCALF STREET");
@@ -211,6 +215,10 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
 
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        limitedPartnerDataDto.setContributionSubTypes(contributionSubTypes);
+
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
@@ -231,6 +239,10 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(null);
 
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        limitedPartnerDataDto.setContributionSubTypes(contributionSubTypes);
+
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
@@ -249,6 +261,10 @@ class LimitedPartnerServiceUpdateTest {
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
         limitedPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
+
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        limitedPartnerDataDto.setContributionSubTypes(contributionSubTypes);
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
