@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,11 +22,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -39,6 +44,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,6 +59,7 @@ public class LimitedPartnerControllerUpdateTest {
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String LIMITED_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partners";
     private static final String LIMITED_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
+    private static final String LIMITED_PARTNER_POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner";
     private static final String LIMITED_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
@@ -79,6 +86,9 @@ public class LimitedPartnerControllerUpdateTest {
 
     @MockitoBean
     private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+
+    @MockitoBean
+    private LimitedPartnershipService limitedPartnershipService;
 
     @BeforeEach
     void setUp() {
@@ -175,6 +185,42 @@ public class LimitedPartnerControllerUpdateTest {
                             .content(body))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"PFLP", "SPFLP"})
+        void shouldReturn400ForPFLPWithContribution(PartnershipType type) throws Exception {
+            mocks();
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+            limitedPartnershipDto.setData(new DataDto());
+            limitedPartnershipDto.getData().setPartnershipType(type);
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction))
+                    .thenReturn(limitedPartnershipDto);
+
+            String body = """
+                      {"data": {
+                        "forename": "Joe",
+                        "surname": "Bloggs",
+                        "date_of_birth": "2001-01-01",
+                        "nationality1": "BRITISH",
+                        "nationality2": null,
+                        "contribution_currency_type": "GBP",
+                        "contribution_currency_value": "15.00",
+                        "contribution_sub_types": ["SHARES"]
+                      }
+                    }""";
+
+            mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
                     .andExpect(status().isBadRequest());
         }
 
@@ -348,6 +394,13 @@ public class LimitedPartnerControllerUpdateTest {
         List<LimitedPartnerDao> limitedPartners = List.of(limitedPartnerDao1, limitedPartnerDao2);
 
         when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(limitedPartners);
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction))
+                .thenReturn(limitedPartnershipDto);
 
         mockMvc.perform(get(LIMITED_PARTNER_LIST_URL)
                         .contentType(MediaType.APPLICATION_JSON)

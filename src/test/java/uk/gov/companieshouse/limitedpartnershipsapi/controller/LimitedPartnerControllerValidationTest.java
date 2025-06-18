@@ -17,12 +17,17 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -139,6 +144,9 @@ class LimitedPartnerControllerValidationTest {
     @MockitoBean
     private CostsService costsService;
 
+    @MockitoBean
+    private LimitedPartnershipService limitedPartnershipService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -162,6 +170,8 @@ class LimitedPartnerControllerValidationTest {
             JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Contribution sub types is required"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
+        mocks();
+        
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -262,15 +272,22 @@ class LimitedPartnerControllerValidationTest {
         }
     }
 
-    private void mocks(LimitedPartnerDao limitedPartnerDao) {
+    private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         when(limitedPartnerRepository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction))
+                .thenReturn(limitedPartnershipDto);
     }
 
-    private void mocks() {
+    private void mocks() throws ServiceException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);

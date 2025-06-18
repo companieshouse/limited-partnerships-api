@@ -7,28 +7,35 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class LimitedPartnerValidator extends PartnerValidator {
+
+    private final LimitedPartnershipService limitedPartnershipService;
+
     private static final String CLASS_NAME = LimitedPartnerDataDto.class.getName();
 
     @Autowired
-    public LimitedPartnerValidator(Validator validator) {
+    public LimitedPartnerValidator(Validator validator, LimitedPartnershipService limitedPartnershipService) {
         super(validator);
+        this.limitedPartnershipService = limitedPartnershipService;
     }
 
-    public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto) throws ServiceException {
+    public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        checkFieldConstraints(limitedPartnerDto, errorsList);
+        checkFieldConstraints(limitedPartnerDto, transaction, errorsList);
 
         var dataDto = limitedPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
@@ -44,7 +51,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         return errorsList;
     }
 
-    public void validatePartial(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validatePartial(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
@@ -57,7 +64,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         } else if (limitedPartnerDataDto.getForename() != null || limitedPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, limitedPartnerDataDto, bindingResult);
 
-            checkContributionSubTypesNotNullOrEmpty(limitedPartnerDataDto, bindingResult);
+            checkContributionSubTypesNotNullOrEmpty(limitedPartnerDataDto, transaction, bindingResult);
 
             isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDataDto, bindingResult);
         } else {
@@ -69,10 +76,20 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    private void checkContributionSubTypesNotNullOrEmpty(LimitedPartnerDataDto limitedPartnerDataDto, BindingResult bindingResult) {
-        if (limitedPartnerDataDto.getContributionSubTypes() == null || limitedPartnerDataDto.getContributionSubTypes().isEmpty()) {
-            addError(CLASS_NAME, "data.contributionSubTypes", "Contribution sub types is required", bindingResult);
+    private void checkContributionSubTypesNotNullOrEmpty(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+
+        if (limitedPartnershipDto.getData().getPartnershipType() != PartnershipType.PFLP && limitedPartnershipDto.getData().getPartnershipType() != PartnershipType.SPFLP) {
+            if (limitedPartnerDataDto.getContributionSubTypes() == null || limitedPartnerDataDto.getContributionSubTypes().isEmpty()) {
+                addError(CLASS_NAME, "data.contributionSubTypes", "Contribution sub types is required", bindingResult);
+            }
+        } else {
+            boolean hasContributionSubTypes = !limitedPartnerDataDto.getContributionSubTypes().isEmpty();
+            if (hasContributionSubTypes) {
+                addError(CLASS_NAME, "data.contributionSubTypes", "Private fund partnerships cannot have a contribution", bindingResult);
+            }
         }
+
     }
 
     public void validateUpdate(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
@@ -88,10 +105,10 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, List<ValidationStatusError> errorsList)
+    private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            validatePartial(limitedPartnerDto);
+            validatePartial(limitedPartnerDto, transaction);
         } catch (MethodArgumentNotValidException e) {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

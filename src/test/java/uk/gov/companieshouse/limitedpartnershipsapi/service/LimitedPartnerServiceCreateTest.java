@@ -12,6 +12,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
@@ -21,6 +23,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
@@ -29,26 +34,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
-
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class LimitedPartnerServiceCreateTest {
 
     private static final String USER_ID = "xbJf0l";
-    private static final String SUBMISSION_ID = "abc-123";
+    private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
+
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LIMITED_PARTNER_ID
+    ).build();
 
     @Autowired
     private LimitedPartnerService service;
@@ -58,6 +70,9 @@ class LimitedPartnerServiceCreateTest {
 
     @MockitoBean
     private TransactionService transactionService;
+
+    @MockitoBean
+    private LimitedPartnershipService limitedPartnershipService;
 
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
@@ -73,7 +88,7 @@ class LimitedPartnerServiceCreateTest {
         resource.setLinks(links);
 
         Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, SUBMISSION_ID), resource);
+        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, LIMITED_PARTNER_ID), resource);
         transaction.setResources(resourceMap);
 
         return transaction;
@@ -97,9 +112,9 @@ class LimitedPartnerServiceCreateTest {
             LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
             assertEquals(USER_ID, sentSubmission.getCreatedBy());
             assertEquals(FILING_KIND_LIMITED_PARTNER, sentSubmission.getData().getKind());
-            assertEquals(SUBMISSION_ID, submissionId);
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
 
-            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), SUBMISSION_ID);
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
@@ -185,7 +200,7 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setContributionSubTypes(contributionSubTypes);
 
             dao.setData(dataDao);
-            dao.setId(SUBMISSION_ID);
+            dao.setId(LIMITED_PARTNER_ID);
 
             return dao;
         }
@@ -196,7 +211,8 @@ class LimitedPartnerServiceCreateTest {
 
         @Test
         void shouldCreateALimitedPartnerPerson() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            Transaction transaction = buildTransaction();
+            mocks();
+
             LimitedPartnerDto dto = createLimitedPartnerPersonDto();
             dto.getData().setNationality2(Nationality.BRITISH);
             LimitedPartnerDao dao = createLimitedPartnerPersonDao();
@@ -212,15 +228,16 @@ class LimitedPartnerServiceCreateTest {
             LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
             assertEquals(USER_ID, sentSubmission.getCreatedBy());
             assertEquals(FILING_KIND_LIMITED_PARTNER, sentSubmission.getData().getKind());
-            assertEquals(SUBMISSION_ID, submissionId);
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
 
-            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), SUBMISSION_ID);
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
         @Test
-        void shouldFailCreateALimitedPartnerPersonIfForenameIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateALimitedPartnerPersonIfForenameIsCorrectAndOthersAreNull() throws ServiceException {
+            mocks();
+
             LimitedPartnerDto dto = createLimitedPartnerPersonDto();
             dto.getData().setSurname(null);
             dto.getData().setDateOfBirth(null);
@@ -237,8 +254,9 @@ class LimitedPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateALimitedPartnerPersonIfSurnameIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateALimitedPartnerPersonIfSurnameIsCorrectAndOthersAreNull() throws ServiceException {
+            mocks();
+
             LimitedPartnerDto dto = createLimitedPartnerPersonDto();
             dto.getData().setForename(null);
             dto.getData().setDateOfBirth(null);
@@ -255,8 +273,9 @@ class LimitedPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateALimitedPartnerPersonIfNationality1AndNationality2AreSame() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateALimitedPartnerPersonIfNationality1AndNationality2AreSame() throws ServiceException {
+            mocks();
+
             LimitedPartnerDto dto = createLimitedPartnerPersonDto();
             dto.getData().setNationality2(Nationality.AMERICAN);
 
@@ -304,7 +323,7 @@ class LimitedPartnerServiceCreateTest {
             dataDao.setContributionSubTypes(contributionSubtypes);
 
             dao.setData(dataDao);
-            dao.setId(SUBMISSION_ID);
+            dao.setId(LIMITED_PARTNER_ID);
 
             return dao;
         }
@@ -326,5 +345,25 @@ class LimitedPartnerServiceCreateTest {
         assertNull(exception.getBindingResult().getFieldError("legal_entity_register_name"));
         assertNull(exception.getBindingResult().getFieldError("legal_form"));
         assertEquals("Some fields are missing", Objects.requireNonNull(exception.getBindingResult().getFieldError("")).getDefaultMessage());
+    }
+
+    private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
+        when(repository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
+        when(repository.save(any())).thenReturn(limitedPartnerDao);
+        when(repository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
+        doNothing().when(repository).deleteById(LIMITED_PARTNER_ID);
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction))
+                .thenReturn(limitedPartnershipDto);
+    }
+
+    private void mocks() throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+
+        mocks(limitedPartnerDao);
     }
 }

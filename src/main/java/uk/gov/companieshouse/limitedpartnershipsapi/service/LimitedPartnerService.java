@@ -51,7 +51,7 @@ public class LimitedPartnerService {
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        limitedPartnerValidator.validatePartial(limitedPartnerDto);
+        limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -146,7 +146,7 @@ public class LimitedPartnerService {
                 .toList();
 
         for (LimitedPartnerDto limitedPartnerDto : limitedPartnerDtos) {
-            boolean isCompleted = limitedPartnerValidator.validateFull(limitedPartnerDto).isEmpty();
+            boolean isCompleted = limitedPartnerValidator.validateFull(limitedPartnerDto, transaction).isEmpty();
             limitedPartnerDto.getData().setCompleted(isCompleted);
         }
 
@@ -177,7 +177,7 @@ public class LimitedPartnerService {
             throws ServiceException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
-        return limitedPartnerValidator.validateFull(dto);
+        return limitedPartnerValidator.validateFull(dto, transaction);
     }
 
     private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,
