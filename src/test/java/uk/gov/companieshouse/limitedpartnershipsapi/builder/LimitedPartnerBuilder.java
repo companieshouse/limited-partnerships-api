@@ -3,12 +3,17 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 
 public class LimitedPartnerBuilder {
     public static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
@@ -22,6 +27,12 @@ public class LimitedPartnerBuilder {
         dataDto.setSurname("Jones");
         dataDto.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDto.setNationality1(Nationality.EMIRATI);
+
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        dataDto.setContributionSubTypes(contributionSubTypes);
+        dataDto.setContributionSubTypes(contributionSubTypes);
+
         dataDto.setUsualResidentialAddress(createAddressDto());
         dto.setData(dataDto);
 
@@ -49,6 +60,12 @@ public class LimitedPartnerBuilder {
         dataDao.setSurname("Jones");
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
+
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        dataDao.setContributionSubTypes(contributionSubTypes);
+        dataDao.setContributionSubTypes(contributionSubTypes);
+
         dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);
 

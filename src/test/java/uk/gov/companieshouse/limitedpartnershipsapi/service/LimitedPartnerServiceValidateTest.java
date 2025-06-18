@@ -15,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -49,7 +48,6 @@ class LimitedPartnerServiceValidateTest {
 
     @MockitoBean
     private LimitedPartnerRepository repository;
-
 
     @Test
     void shouldReturnNoErrorsWhenLimitedPartnerDataIsValid() throws ServiceException {
@@ -207,13 +205,13 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setSurname("Jones");
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
-        dataDao.setUsualResidentialAddress(createAddressDao());
-        dataDao.setContributionCurrencyType(Currency.GBP);
-        dataDao.setContributionCurrencyValue("15.00");
+
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDao.setContributionSubTypes(contributionSubTypes);
-        dao.setData(dataDao);
+        dataDao.setContributionSubTypes(contributionSubTypes);
+
+        dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);
 
         return dao;
@@ -231,11 +229,6 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
         dataDao.setRegisteredCompanyNumber("LP111222");
         dataDao.setPrincipalOfficeAddress(createAddressDao());
-        dataDao.setContributionCurrencyType(Currency.GBP);
-        dataDao.setContributionCurrencyValue("15.00");
-        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
-        contributionSubTypes.add(SHARES);
-        dataDao.setContributionSubTypes(contributionSubTypes);
         dao.setData(dataDao);
 
         return dao;

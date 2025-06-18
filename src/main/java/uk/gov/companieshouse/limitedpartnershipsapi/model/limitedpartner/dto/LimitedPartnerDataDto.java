@@ -15,7 +15,7 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     // Legal Entity
 
     @JsonProperty("contribution_currency_type")
-    @EnumValid(message = "Contribution currency must be valid type")
+    @EnumValid(message = "Contribution currency type must be valid")
     private Currency contributionCurrencyType;
 
     @JsonProperty("contribution_currency_value")

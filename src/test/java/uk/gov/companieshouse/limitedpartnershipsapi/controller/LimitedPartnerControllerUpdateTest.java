@@ -97,7 +97,10 @@ public class LimitedPartnerControllerUpdateTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "15.00",
+                  "contribution_sub_types": "SHARES"
                 }""";
 
         private static final String JSON_LIMITED_LEGAL_ENTITY = """
@@ -158,10 +161,9 @@ public class LimitedPartnerControllerUpdateTest {
                 JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
                 JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Contribution currency must be valid type",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Contribution currency type must be valid",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid",
-        }, delimiter = '$')
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid",}, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
 

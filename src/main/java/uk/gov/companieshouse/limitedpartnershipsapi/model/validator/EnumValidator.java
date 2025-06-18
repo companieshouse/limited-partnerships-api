@@ -32,12 +32,12 @@ public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
                 return true;
             }
             default -> {
+                return false;
             }
         }
-        return false;
     }
 
-    private boolean isValidEnum(Enum enumeration) {
+    private boolean isValidEnum(Enum<?> enumeration) {
         return switch (enumeration) {
             case null -> true;
             case Jurisdiction jurisdiction -> !Jurisdiction.UNKNOWN.equals(jurisdiction);
@@ -47,8 +47,10 @@ public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
             case Currency currency -> !Currency.UNKNOWN.equals(currency);
             case IncorporationKind incorporationKind -> !IncorporationKind.UNKNOWN.equals(incorporationKind);
             case PartnershipType partnershipType -> !PartnershipType.UNKNOWN.equals(partnershipType);
-            case PartnershipNameEnding partnershipNameEnding -> !PartnershipNameEnding.UNKNOWN.equals(partnershipNameEnding);
-            case ContributionSubTypes contributionSubTypes -> !ContributionSubTypes.UNKNOWN.equals(contributionSubTypes);
+            case PartnershipNameEnding partnershipNameEnding ->
+                    !PartnershipNameEnding.UNKNOWN.equals(partnershipNameEnding);
+            case ContributionSubTypes contributionSubTypes ->
+                    !ContributionSubTypes.UNKNOWN.equals(contributionSubTypes);
             default -> false;
         };
     }
