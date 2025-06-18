@@ -8,6 +8,7 @@ public enum ContributionSubTypes {
     LAND_OR_PROPERTY,
     SHARES,
     SERVICES_OR_GOODS,
+    ANY_OTHER_ASSET,
 
     @JsonEnumDefaultValue
     UNKNOWN;
