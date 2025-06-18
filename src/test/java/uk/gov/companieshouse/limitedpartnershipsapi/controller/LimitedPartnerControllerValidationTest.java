@@ -18,8 +18,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilde
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -29,8 +27,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.allOf;
@@ -42,7 +38,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;

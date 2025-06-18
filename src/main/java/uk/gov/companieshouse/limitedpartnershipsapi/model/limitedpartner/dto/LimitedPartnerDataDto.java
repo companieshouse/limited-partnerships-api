@@ -2,7 +2,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
