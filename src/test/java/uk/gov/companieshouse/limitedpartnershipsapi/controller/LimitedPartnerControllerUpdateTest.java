@@ -97,7 +97,10 @@ public class LimitedPartnerControllerUpdateTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "15.00",
+                  "contribution_sub_types": "SHARES"
                 }""";
 
         private static final String JSON_LIMITED_LEGAL_ENTITY = """
@@ -118,10 +121,27 @@ public class LimitedPartnerControllerUpdateTest {
 
         private static final String JSON_INVALID_NATIONALITY = "{ \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null }";
 
+        private static final String JSON_PERSON_VALID_CAPITAL_CONTRIBUTION_TYPE = """
+                {
+                  "forename": "Joe",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "25.00",
+                  "contribution_sub_types": ["SHARES"]
+                }""";
+
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"BAD\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"SHARES\" }";
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15:00\", \"contribution_sub_types\": \"SHARES\" }";
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"BAD_TYPE\" }";
+
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_LIMITED_PARTNER_PERSON,
-                JSON_LIMITED_LEGAL_ENTITY
+                JSON_LIMITED_LEGAL_ENTITY,
+                JSON_PERSON_VALID_CAPITAL_CONTRIBUTION_TYPE
         })
         void shouldReturn200(String body) throws Exception {
             mocks();
@@ -140,8 +160,10 @@ public class LimitedPartnerControllerUpdateTest {
                 JSON_WITH_BELOW_MIN_FORENAME + "$ data.forename $ Forename must be greater than 1",
                 JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
                 JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
-                JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid"
-        }, delimiter = '$')
+                JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Contribution currency type must be valid",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid",}, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
 

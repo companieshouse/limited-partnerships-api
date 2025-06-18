@@ -14,12 +14,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +48,6 @@ class LimitedPartnerServiceValidateTest {
 
     @MockitoBean
     private LimitedPartnerRepository repository;
-
 
     @Test
     void shouldReturnNoErrorsWhenLimitedPartnerDataIsValid() throws ServiceException {
@@ -203,6 +205,12 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setSurname("Jones");
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
+
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        dataDao.setContributionSubTypes(contributionSubTypes);
+        dataDao.setContributionSubTypes(contributionSubTypes);
+        
         dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);
 

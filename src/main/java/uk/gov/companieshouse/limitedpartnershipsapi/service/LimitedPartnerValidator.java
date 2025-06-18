@@ -56,6 +56,9 @@ public class LimitedPartnerValidator extends PartnerValidator {
             checkNotNullLegalEntity(CLASS_NAME, limitedPartnerDataDto, bindingResult);
         } else if (limitedPartnerDataDto.getForename() != null || limitedPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, limitedPartnerDataDto, bindingResult);
+
+            checkContributionSubTypesNotNullOrEmpty(limitedPartnerDataDto, bindingResult);
+
             isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDataDto, bindingResult);
         } else {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
@@ -63,6 +66,12 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    private void checkContributionSubTypesNotNullOrEmpty(LimitedPartnerDataDto limitedPartnerDataDto, BindingResult bindingResult) {
+        if (limitedPartnerDataDto.getContributionSubTypes() == null || limitedPartnerDataDto.getContributionSubTypes().isEmpty()) {
+            addError(CLASS_NAME, "data.contributionSubTypes", "Contribution sub types is required", bindingResult);
         }
     }
 
@@ -78,7 +87,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
-    
+
     private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {

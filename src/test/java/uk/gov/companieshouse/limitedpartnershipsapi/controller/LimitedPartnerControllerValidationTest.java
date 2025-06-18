@@ -60,7 +60,10 @@ class LimitedPartnerControllerValidationTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "15.00",
+                  "contribution_sub_types": ["SHARES"]
                 }
             }""";
 
@@ -83,6 +86,8 @@ class LimitedPartnerControllerValidationTest {
     private static final String JSON_INVALID_NATIONALITY = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null } }";
 
     private static final String JSON_INVALID_SECOND_NATIONALITY = "{ \"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": \"Absurdistani\" } }";
+
+    private static final String JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\" } }";
 
     // LEGAL ENTITY
     private static final String JSON_LIMITED_LEGAL_ENTITY_CORRECT = """
@@ -155,7 +160,8 @@ class LimitedPartnerControllerValidationTest {
             JSON_INVALID_SURNAME + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
-            JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid"
+            JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid",
+            JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Contribution sub types is required"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
