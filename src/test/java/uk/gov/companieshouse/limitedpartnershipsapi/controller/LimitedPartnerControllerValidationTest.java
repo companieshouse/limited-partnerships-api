@@ -96,17 +96,12 @@ class LimitedPartnerControllerValidationTest {
     private static final String JSON_LIMITED_LEGAL_ENTITY_CORRECT = """
             {
               "data": {
-                "contribution_currency_type": "GBP",
-                "contribution_currency_value": "200.20",
                 "legal_entity_name": "My Company Name",
                 "legal_form": "Form ABC",
                 "governing_law": "Act of law",
                 "legal_entity_register_name": "Register of somewhere",
                 "legal_entity_registration_location": "Scotland",
-                "registered_company_number": "12345678",
-                "contribution_currency_type": "GBP",
-                "contribution_currency_value": "15.00",
-                "contribution_sub_types": "SHARES"
+                "registered_company_number": "12345678"
               }
             }""";
 
@@ -221,15 +216,24 @@ class LimitedPartnerControllerValidationTest {
     class ValidatePartner {
 
         @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+            mocks();
+
+            mockMvc.perform(get(VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
             LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
             limitedPartnerDao.getData().setForename("");
             limitedPartnerDao.getData().setNationality1("UNKNOWN");
-            limitedPartnerDao.getData().setContributionCurrencyType(Currency.GBP);
-            limitedPartnerDao.getData().setContributionCurrencyValue("15.00");
-            List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
-            contributionSubTypes.add(SHARES);
-            limitedPartnerDao.getData().setContributionSubTypes(contributionSubTypes);
 
             mocks(limitedPartnerDao);
 
