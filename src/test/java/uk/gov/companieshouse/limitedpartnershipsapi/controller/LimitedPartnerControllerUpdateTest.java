@@ -54,7 +54,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 
 @ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, CostsService.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
-public class LimitedPartnerControllerUpdateTest {
+class LimitedPartnerControllerUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String LIMITED_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partners";
@@ -107,10 +107,7 @@ public class LimitedPartnerControllerUpdateTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null,
-                  "contribution_currency_type": "GBP",
-                  "contribution_currency_value": "15.00",
-                  "contribution_sub_types": "SHARES"
+                  "nationality2": null
                 }""";
 
         private static final String JSON_LIMITED_LEGAL_ENTITY = """
