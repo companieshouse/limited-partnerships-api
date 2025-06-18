@@ -16,7 +16,7 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     // Legal Entity
 
     @JsonProperty("contribution_currency_type")
-    @EnumValid
+    @EnumValid(message = "Contribution currency must be valid type")
     private Currency contributionCurrencyType;
 
     @JsonProperty("contribution_currency_value")
@@ -26,7 +26,6 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     @JsonProperty("contribution_sub_types")
     @EnumValid(message = "Capital contribution type must be valid")
-    @NotNull(message = "At least one contribution type must be selected")
     private List<ContributionSubTypes> contributionSubTypes;
 
     public boolean isLegalEntity() {

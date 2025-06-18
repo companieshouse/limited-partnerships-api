@@ -100,10 +100,7 @@ public class LimitedPartnerControllerUpdateTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null,
-                  "contribution_currency_type": "GBP",
-                  "contribution_currency_value": "15.00",
-                  "contribution_sub_types": "SHARES"
+                  "nationality2": null
                 }""";
 
         private static final String JSON_LIMITED_LEGAL_ENTITY = """
@@ -113,10 +110,7 @@ public class LimitedPartnerControllerUpdateTest {
                     "governing_law": "Act of law",
                     "legal_entity_register_name": "US Register",
                     "legal_entity_registration_location": "United States",
-                    "registered_company_number": "12345678",
-                    "contribution_currency_type": "GBP",
-                    "contribution_currency_value": "15.00",
-                    "contribution_sub_types": "SHARES"
+                    "registered_company_number": "12345678"
                 }""";
 
         private static final String JSON_WITH_BELOW_MIN_FORENAME = "{ \"forename\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null }";
@@ -168,10 +162,9 @@ public class LimitedPartnerControllerUpdateTest {
                 JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
                 JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Enum must be valid",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Contribution currency must be valid type",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid",
-                JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ At least one contribution type must be selected"
         }, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
@@ -190,9 +183,9 @@ public class LimitedPartnerControllerUpdateTest {
         @Nested
         class Addresses {
             // correct addresses
-            private static final String JSON_POA_UK = "{\"principal_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"SHARES\"}";
-            private static final String JSON_POA_NOT_UK = "{\"principal_office_address\":{\"postal_code\":\"12345\",\"premises\":\"2\",\"address_line_1\":\"test rue\",\"address_line_2\":\"\",\"locality\":\"TOULOUSE\",\"country\":\"France\"}, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"SHARES\"}";
-            private static final String JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE = "{\"principal_office_address\":{\"premises\":\"2\",\"address_line_1\":\"test rue\",\"address_line_2\":\"\",\"locality\":\"TOULOUSE\",\"country\":\"France\"}, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"SHARES\"}";
+            private static final String JSON_POA_UK = "{\"principal_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_POA_NOT_UK = "{\"principal_office_address\":{\"postal_code\":\"12345\",\"premises\":\"2\",\"address_line_1\":\"test rue\",\"address_line_2\":\"\",\"locality\":\"TOULOUSE\",\"country\":\"France\"}}";
+            private static final String JSON_POA_NOT_UK_WITHOUT_POSTAL_CODE = "{\"principal_office_address\":{\"premises\":\"2\",\"address_line_1\":\"test rue\",\"address_line_2\":\"\",\"locality\":\"TOULOUSE\",\"country\":\"France\"}}";
 
             // principal office address
             private static final String JSON_POA_POSTCODE_EMPTY = "{\"principal_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
@@ -353,11 +346,6 @@ public class LimitedPartnerControllerUpdateTest {
         LimitedPartnerDao limitedPartnerDao2 = new LimitedPartnerBuilder().dao();
         limitedPartnerDao2.setTransactionId(TRANSACTION_ID);
         limitedPartnerDao2.getData().setUsualResidentialAddress(null);
-
-        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
-        contributionSubTypes.add(SHARES);
-        limitedPartnerDao1.getData().setContributionSubTypes(contributionSubTypes);
-        limitedPartnerDao2.getData().setContributionSubTypes(contributionSubTypes);
 
         List<LimitedPartnerDao> limitedPartners = List.of(limitedPartnerDao1, limitedPartnerDao2);
 
