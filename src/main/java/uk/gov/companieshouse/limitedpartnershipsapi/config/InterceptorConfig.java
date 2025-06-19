@@ -12,15 +12,40 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
 
+import java.util.stream.Stream;
+
 import static uk.gov.companieshouse.limitedpartnershipsapi.LimitedPartnershipsApiApplication.APP_NAMESPACE;
 
 @Configuration
 @ComponentScan("uk.gov.companieshouse.api.interceptor")
 public class InterceptorConfig implements WebMvcConfigurer {
 
-    private static final String TRANSACTIONS = "/transactions/**";
-    private static final String COSTS = TRANSACTIONS + "/costs";
-    private static final String FILINGS = "/private/**/filings";
+    private static final String[] CRUD_AND_COST_ENDPOINTS = {
+            "/transactions/*/incorporation/limited-partnership/**",
+            "/transactions/*/limited-partnership/partnership/**",
+            "/transactions/*/limited-partnership/**",
+            "/transactions/*/limited-partnership/**"
+    };
+
+    private static final String[] COST_ENDPOINTS = {
+            "/transactions/*/incorporation/limited-partnership/*/costs",
+            "/transactions/*/limited-partnership/partnership/*/costs",
+            "/transactions/*/limited-partnership/*/costs",
+            "/transactions/*/limited-partnership/*/costs"
+    };
+
+    private static final String[] FILINGS_ENDPOINTS = {
+            "/private/transactions/*/incorporation/limited-partnership/*/filings"
+            // TODO Include other patterns here when post-transition journeys are implemented
+    };
+
+    private static final String[] TRANSACTION_ENDPOINTS = Stream.concat(
+            Stream.of(CRUD_AND_COST_ENDPOINTS),
+            Stream.of(FILINGS_ENDPOINTS)).toArray(String[]::new);
+
+    private static final String[] INTERNAL_ENDPOINTS = Stream.concat(
+            Stream.of(FILINGS_ENDPOINTS),
+            Stream.of(COST_ENDPOINTS)).toArray(String[]::new);
 
     private final LoggingInterceptor loggingInterceptor;
 
@@ -47,13 +72,13 @@ public class InterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(loggingInterceptor);
         registry.addInterceptor(new TokenPermissionsInterceptor())
-                .addPathPatterns(TRANSACTIONS);
+                .addPathPatterns(CRUD_AND_COST_ENDPOINTS);
         registry.addInterceptor(customUserAuthenticationInterceptor)
-                .addPathPatterns(TRANSACTIONS);
+                .addPathPatterns(CRUD_AND_COST_ENDPOINTS);
         registry.addInterceptor(transactionInterceptor())
-                .addPathPatterns(FILINGS, TRANSACTIONS);
+                .addPathPatterns(TRANSACTION_ENDPOINTS);
         registry.addInterceptor(internalUserInterceptor)
-                .addPathPatterns(FILINGS, COSTS);
+                .addPathPatterns(INTERNAL_ENDPOINTS);
     }
 
     @Bean
