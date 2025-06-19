@@ -31,8 +31,6 @@ public class LimitedPartnerBuilder {
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDto.setContributionSubTypes(contributionSubTypes);
-        dataDto.setContributionSubTypes(contributionSubTypes);
-
         dataDto.setUsualResidentialAddress(createAddressDto());
         dto.setData(dataDto);
 
@@ -64,8 +62,6 @@ public class LimitedPartnerBuilder {
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDao.setContributionSubTypes(contributionSubTypes);
-        dataDao.setContributionSubTypes(contributionSubTypes);
-
         dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);
 
