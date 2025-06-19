@@ -84,7 +84,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
                 addError(CLASS_NAME, "data.contributionSubTypes", "Contribution sub types is required", bindingResult);
             }
         } else {
-            boolean hasContributionSubTypes = !limitedPartnerDataDto.getContributionSubTypes().isEmpty();
+            boolean hasContributionSubTypes = limitedPartnerDataDto.getContributionSubTypes() != null && !limitedPartnerDataDto.getContributionSubTypes().isEmpty();
             if (hasContributionSubTypes) {
                 addError(CLASS_NAME, "data.contributionSubTypes", "Private fund partnerships cannot have a contribution", bindingResult);
             }

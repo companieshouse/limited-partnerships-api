@@ -221,6 +221,31 @@ class LimitedPartnerControllerUpdateTest {
                     .andExpect(status().isBadRequest());
         }
 
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"PFLP", "SPFLP"})
+        void shouldReturn400ForNotEmptyArrayForTypePFLPOrSPFLP(PartnershipType type) throws Exception {
+            String body = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": [\"SHARES\"] } }";
+
+            mocks();
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+            limitedPartnershipDto.setData(new DataDto());
+            limitedPartnershipDto.getData().setPartnershipType(type);
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction))
+                    .thenReturn(limitedPartnershipDto);
+
+            mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
+                    .andExpect(status().isBadRequest());
+        }
+
         @Nested
         class Addresses {
             // correct addresses
