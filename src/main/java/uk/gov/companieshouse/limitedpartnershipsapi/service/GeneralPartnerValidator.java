@@ -69,10 +69,8 @@ public class GeneralPartnerValidator extends PartnerValidator {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
 
-        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
-            if (generalPartnerDataDto.getDateEffectiveFrom() == null) {
-                addError(CLASS_NAME, "data.dateEffectiveFrom", "Date effective from is required", bindingResult);
-            }
+        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription()) && generalPartnerDataDto.getDateEffectiveFrom() == null) {
+            addError(CLASS_NAME, "data.dateEffectiveFrom", "Date effective from is required", bindingResult);
         }
 
         if (bindingResult.hasErrors()) {

@@ -309,7 +309,7 @@ class GeneralPartnerServiceCreateTest {
         assertEquals("Some fields are missing", Objects.requireNonNull(exception.getBindingResult().getFieldError("")).getDefaultMessage());
     }
 
-    private void mocks(GeneralPartnerDao limitedDao) throws ServiceException {
+    private void mocks(GeneralPartnerDao limitedDao) {
         when(repository.insert((GeneralPartnerDao) any())).thenReturn(limitedDao);
         when(repository.save(any())).thenReturn(limitedDao);
         when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(limitedDao));
