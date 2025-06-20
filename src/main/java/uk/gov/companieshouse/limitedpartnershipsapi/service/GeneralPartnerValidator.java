@@ -7,11 +7,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +27,10 @@ public class GeneralPartnerValidator extends PartnerValidator {
         super(validator);
     }
 
-    public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto) throws ServiceException {
+    public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        checkFieldConstraints(generalPartnerDto, errorsList);
+        checkFieldConstraints(generalPartnerDto, transaction, errorsList);
 
         var dataDto = generalPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
@@ -48,7 +50,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         return errorsList;
     }
 
-    public void validatePartial(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validatePartial(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
@@ -65,6 +67,12 @@ public class GeneralPartnerValidator extends PartnerValidator {
             }
         } else {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
+        }
+
+        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+            if (generalPartnerDataDto.getDateEffectiveFrom() == null) {
+                addError(CLASS_NAME, "data.dateEffectiveFrom", "Date effective from is required", bindingResult);
+            }
         }
 
         if (bindingResult.hasErrors()) {
@@ -86,10 +94,10 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
-    private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
+    private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            validatePartial(generalPartnerDto);
+            validatePartial(generalPartnerDto, transaction);
         } catch (MethodArgumentNotValidException e) {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

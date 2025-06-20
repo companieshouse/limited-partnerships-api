@@ -21,6 +21,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,6 +83,7 @@ class GeneralPartnerControllerUpdateTest {
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String GENERAL_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partners";
     private static final String GENERAL_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
+    private static final String GENERAL_PARTNER_POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner";
     private static final String GENERAL_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
@@ -151,6 +154,76 @@ class GeneralPartnerControllerUpdateTest {
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+    }
+
+    @Nested
+    class CreatePartnerWithDateEffectiveFrom {
+        private static final String JSON_GENERAL_PARTNER_PERSON = """
+                {"data": {
+                      "forename": "Joe",
+                      "surname": "Bloggs",
+                      "date_of_birth": "2001-01-01",
+                      "nationality1": "BRITISH",
+                      "nationality2": null,
+                      "date_effective_from": "2023-10-01"
+                    }
+                }""";
+
+        private static final String JSON_GENERAL_LEGAL_ENTITY = """
+                {"data": {
+                        "legal_entity_name": "My Company ltd",
+                        "legal_form": "Limited Company",
+                        "governing_law": "Act of law",
+                        "legal_entity_register_name": "US Register",
+                        "legal_entity_registration_location": "United States",
+                        "registered_company_number": "12345678",
+                        "not_disqualified_statement_checked": true,
+                        "date_effective_from": "2023-10-01"
+                    }
+                }""";
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                JSON_GENERAL_PARTNER_PERSON,
+                JSON_GENERAL_LEGAL_ENTITY
+        })
+        void shouldReturn200(String body) throws Exception {
+            mocks();
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(post(GENERAL_PARTNER_POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isCreated());
+        }
+
+        private static final String JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
+
+        private static final String JSON_WITH_ABOVE_MAX_SURNAME = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true } }";
+
+        @ParameterizedTest
+        @CsvSource(value = {
+                JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Date effective from is required",
+                JSON_WITH_ABOVE_MAX_SURNAME + "$ data.dateEffectiveFrom $ Date effective from is required",
+        }, delimiter = '$')
+        void shouldReturn400(String body, String field, String errorMessage) throws Exception {
+            mocks();
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(post(GENERAL_PARTNER_POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+        }
     }
 
     @Nested

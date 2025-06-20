@@ -10,8 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
@@ -22,14 +23,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD;
@@ -41,9 +42,15 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class GeneralPartnerServiceCreateTest {
 
     private static final String USER_ID = "xbJf0l";
-    private static final String SUBMISSION_ID = "abc-123";
+    private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
+
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_GENERAL_PARTNER,
+            URL_GET_GENERAL_PARTNER,
+            GENERAL_PARTNER_ID
+    ).build();
 
     @Autowired
     private GeneralPartnerService service;
@@ -57,28 +64,10 @@ class GeneralPartnerServiceCreateTest {
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_GENERAL_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/general-partner/abc-123");
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, SUBMISSION_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
-    }
-
     @Nested
     class CreateGeneralPartnerLegalEntity {
         @Test
         void shouldCreateAGeneralPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            Transaction transaction = buildTransaction();
             GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
             GeneralPartnerDao dao = createGeneralPartnerLegalEntityDao();
 
@@ -92,15 +81,14 @@ class GeneralPartnerServiceCreateTest {
             GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
             assertEquals(USER_ID, sentSubmission.getCreatedBy());
             assertEquals(FILING_KIND_GENERAL_PARTNER, sentSubmission.getData().getKind());
-            assertEquals(SUBMISSION_ID, submissionId);
+            assertEquals(GENERAL_PARTNER_ID, submissionId);
 
-            String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), SUBMISSION_ID);
+            String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), GENERAL_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
         @Test
         void shouldFailCreateAGeneralPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
             GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
             var data = dto.getData();
             data.setLegalEntityName(null);
@@ -123,7 +111,6 @@ class GeneralPartnerServiceCreateTest {
 
         @Test
         void shouldFailCreateAGeneralPartnerLegalEntityIfLegalFormIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
             GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
             var data = dto.getData();
 
@@ -173,7 +160,7 @@ class GeneralPartnerServiceCreateTest {
             dataDao.setNotDisqualifiedStatementChecked(true);
 
             dao.setData(dataDao);
-            dao.setId(SUBMISSION_ID);
+            dao.setId(GENERAL_PARTNER_ID);
 
             return dao;
         }
@@ -184,7 +171,8 @@ class GeneralPartnerServiceCreateTest {
 
         @Test
         void shouldCreateAGeneralPartnerPerson() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            Transaction transaction = buildTransaction();
+            mocks();
+
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             dto.getData().setNationality2(Nationality.BRITISH);
             GeneralPartnerDao dao = createGeneralPartnerPersonDao();
@@ -200,15 +188,16 @@ class GeneralPartnerServiceCreateTest {
             GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
             assertEquals(USER_ID, sentSubmission.getCreatedBy());
             assertEquals(FILING_KIND_GENERAL_PARTNER, sentSubmission.getData().getKind());
-            assertEquals(SUBMISSION_ID, submissionId);
+            assertEquals(GENERAL_PARTNER_ID, submissionId);
 
-            String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), SUBMISSION_ID);
+            String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), GENERAL_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfForenameIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateAGeneralPartnerPersonIfForenameIsCorrectAndOthersAreNull() throws ServiceException {
+            mocks();
+
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             dto.getData().setSurname(null);
             dto.getData().setDateOfBirth(null);
@@ -225,8 +214,9 @@ class GeneralPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfSurnameIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateAGeneralPartnerPersonIfSurnameIsCorrectAndOthersAreNull() throws ServiceException {
+            mocks();
+
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             dto.getData().setForename(null);
             dto.getData().setDateOfBirth(null);
@@ -243,8 +233,9 @@ class GeneralPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfNationality1AndNationality2AreSame() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateAGeneralPartnerPersonIfNationality1AndNationality2AreSame() throws ServiceException {
+            mocks();
+
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             dto.getData().setNationality2(Nationality.AMERICAN);
 
@@ -258,7 +249,6 @@ class GeneralPartnerServiceCreateTest {
 
         @Test
         void shouldFailCreateAGeneralPartnerPersonIfNotDisqualifiedStatementCheckedIsFalse() {
-            Transaction transaction = buildTransaction();
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             var data = dto.getData();
             data.setNotDisqualifiedStatementChecked(false);
@@ -296,7 +286,7 @@ class GeneralPartnerServiceCreateTest {
             dataDao.setNotDisqualifiedStatementChecked(true);
 
             dao.setData(dataDao);
-            dao.setId(SUBMISSION_ID);
+            dao.setId(GENERAL_PARTNER_ID);
 
             return dao;
         }
@@ -304,7 +294,6 @@ class GeneralPartnerServiceCreateTest {
 
     @Test
     void shouldFailCreateAGeneralPartnerPersonIfAllFieldsAreNull() {
-        Transaction transaction = buildTransaction();
         GeneralPartnerDto dto = new GeneralPartnerDto();
         GeneralPartnerDataDto dataDao = new GeneralPartnerDataDto();
         dto.setData(dataDao);
@@ -318,5 +307,18 @@ class GeneralPartnerServiceCreateTest {
         assertNull(exception.getBindingResult().getFieldError("legal_entity_register_name"));
         assertNull(exception.getBindingResult().getFieldError("legal_form"));
         assertEquals("Some fields are missing", Objects.requireNonNull(exception.getBindingResult().getFieldError("")).getDefaultMessage());
+    }
+
+    private void mocks(GeneralPartnerDao limitedDao) throws ServiceException {
+        when(repository.insert((GeneralPartnerDao) any())).thenReturn(limitedDao);
+        when(repository.save(any())).thenReturn(limitedDao);
+        when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(limitedDao));
+        doNothing().when(repository).deleteById(GENERAL_PARTNER_ID);
+    }
+
+    private void mocks() throws ServiceException {
+        GeneralPartnerDao limitedDao = new GeneralPartnerBuilder().dao();
+
+        mocks(limitedDao);
     }
 }
