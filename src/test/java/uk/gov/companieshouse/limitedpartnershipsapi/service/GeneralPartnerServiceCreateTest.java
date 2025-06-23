@@ -195,7 +195,7 @@ class GeneralPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfForenameIsCorrectAndOthersAreNull() throws ServiceException {
+        void shouldFailCreateAGeneralPartnerPersonIfForenameIsCorrectAndOthersAreNull() {
             mocks();
 
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
@@ -214,7 +214,7 @@ class GeneralPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfSurnameIsCorrectAndOthersAreNull() throws ServiceException {
+        void shouldFailCreateAGeneralPartnerPersonIfSurnameIsCorrectAndOthersAreNull() {
             mocks();
 
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
@@ -233,7 +233,7 @@ class GeneralPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateAGeneralPartnerPersonIfNationality1AndNationality2AreSame() throws ServiceException {
+        void shouldFailCreateAGeneralPartnerPersonIfNationality1AndNationality2AreSame() {
             mocks();
 
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
