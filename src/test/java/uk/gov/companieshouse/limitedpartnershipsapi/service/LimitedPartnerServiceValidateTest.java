@@ -9,17 +9,24 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +36,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class LimitedPartnerServiceValidateTest {
 
-    private static final String LIMITED_PARTNER_ID = "abc-123";
-    private static final String TRANSACTION_ID = "txn-456";
+    private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LIMITED_PARTNER_ID
+    ).build();
 
     @Autowired
     private LimitedPartnerService service;
@@ -46,15 +63,17 @@ class LimitedPartnerServiceValidateTest {
     @MockitoBean
     private LimitedPartnerRepository repository;
 
+    @MockitoBean
+    private LimitedPartnershipService limitedPartnershipService;
 
     @Test
     void shouldReturnNoErrorsWhenLimitedPartnerDataIsValid() throws ServiceException {
         // given
-        LimitedPartnerDao limitedPartnerDao = createPersonDao();
-
-        Transaction transaction = buildTransaction();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        mocks();
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
@@ -71,9 +90,7 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnerDao.getData().setDateOfBirth(LocalDate.of(3000, 10, 3));
         limitedPartnerDao.getData().setNationality1("INVALID-COUNTRY");
 
-        Transaction transaction = buildTransaction();
-
-        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        mocks(limitedPartnerDao);
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
@@ -95,9 +112,7 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnerDao.getData().setNationality2(Nationality.EMIRATI.getDescription());
         limitedPartnerDao.getData().setUsualResidentialAddress(null);
 
-        Transaction transaction = buildTransaction();
-
-        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        mocks(limitedPartnerDao);
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
@@ -121,9 +136,7 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnerDao.getData().setRegisteredCompanyNumber(null);
         limitedPartnerDao.getData().setPrincipalOfficeAddress(null);
 
-        Transaction transaction = buildTransaction();
-
-        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        mocks(limitedPartnerDao);
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
@@ -141,11 +154,12 @@ class LimitedPartnerServiceValidateTest {
     @Test
     void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail() throws ServiceException {
         // given
+
+        mocks();
+
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
         limitedPartnerDao.getData().setRegisteredCompanyNumber("");
         limitedPartnerDao.getData().setLegalEntityName(null);
-
-        Transaction transaction = buildTransaction();
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
@@ -203,6 +217,12 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setSurname("Jones");
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
+
+        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+        contributionSubTypes.add(SHARES);
+        dataDao.setContributionSubTypes(contributionSubTypes);
+        dataDao.setContributionSubTypes(contributionSubTypes);
+
         dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);
 
@@ -236,5 +256,26 @@ class LimitedPartnerServiceValidateTest {
         dao.setPostalCode("BM1 2EH");
 
         return dao;
+    }
+
+    private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
+        when(repository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
+        when(repository.save(any())).thenReturn(limitedPartnerDao);
+        when(repository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
+        doNothing().when(repository).deleteById(LIMITED_PARTNER_ID);
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction))
+                .thenReturn(limitedPartnershipDto);
+
+    }
+
+    private void mocks() throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+
+        mocks(limitedPartnerDao);
     }
 }

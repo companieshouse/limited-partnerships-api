@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,11 +22,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -39,6 +44,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,11 +54,12 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 
 @ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, CostsService.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
-public class LimitedPartnerControllerUpdateTest {
+class LimitedPartnerControllerUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String LIMITED_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partners";
     private static final String LIMITED_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
+    private static final String LIMITED_PARTNER_POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner";
     private static final String LIMITED_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
@@ -79,6 +86,9 @@ public class LimitedPartnerControllerUpdateTest {
 
     @MockitoBean
     private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+
+    @MockitoBean
+    private LimitedPartnershipService limitedPartnershipService;
 
     @BeforeEach
     void setUp() {
@@ -118,10 +128,27 @@ public class LimitedPartnerControllerUpdateTest {
 
         private static final String JSON_INVALID_NATIONALITY = "{ \"forename\": \"Joe\", \"former_names\": \"ВЛАД\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"ABSURDISTANI\", \"nationality2\": null }";
 
+        private static final String JSON_PERSON_VALID_CAPITAL_CONTRIBUTION_TYPE = """
+                {
+                  "forename": "Joe",
+                  "surname": "Bloggs",
+                  "date_of_birth": "2001-01-01",
+                  "nationality1": "BRITISH",
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "25.00",
+                  "contribution_sub_types": ["SHARES"]
+                }""";
+
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"BAD\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"SHARES\" }";
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15:00\", \"contribution_sub_types\": \"SHARES\" }";
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"BAD_TYPE\" }";
+
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_LIMITED_PARTNER_PERSON,
-                JSON_LIMITED_LEGAL_ENTITY
+                JSON_LIMITED_LEGAL_ENTITY,
+                JSON_PERSON_VALID_CAPITAL_CONTRIBUTION_TYPE
         })
         void shouldReturn200(String body) throws Exception {
             mocks();
@@ -140,8 +167,10 @@ public class LimitedPartnerControllerUpdateTest {
                 JSON_WITH_BELOW_MIN_FORENAME + "$ data.forename $ Forename must be greater than 1",
                 JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
                 JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
-                JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid"
-        }, delimiter = '$')
+                JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Contribution currency type must be valid",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid",}, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
 
@@ -154,6 +183,117 @@ public class LimitedPartnerControllerUpdateTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage))
                     .andExpect(status().isBadRequest());
+        }
+
+        @Nested
+        class ContributionSubType {
+
+            @ParameterizedTest
+            @EnumSource(value = PartnershipType.class, names = {"LP", "SLP"})
+            void shouldReturn201WithContribution(PartnershipType type) throws Exception {
+                String body = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": [\"SHARES\"] } }";
+
+                mocks();
+
+                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.getData().setPartnershipType(type);
+
+                when(limitedPartnershipService.getLimitedPartnership(transaction))
+                        .thenReturn(limitedPartnershipDto);
+
+                mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isCreated());
+            }
+
+            @ParameterizedTest
+            @EnumSource(value = PartnershipType.class, names = {"PFLP", "SPFLP"})
+            void shouldReturn201WithoutContribution(PartnershipType type) throws Exception {
+                String body = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
+
+                mocks();
+
+                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.getData().setPartnershipType(type);
+
+                when(limitedPartnershipService.getLimitedPartnership(transaction))
+                        .thenReturn(limitedPartnershipDto);
+
+                mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isCreated());
+            }
+
+            @ParameterizedTest
+            @EnumSource(value = PartnershipType.class, names = {"PFLP", "SPFLP"})
+            void shouldReturn400ForPFLPWithContribution(PartnershipType type) throws Exception {
+                mocks();
+
+                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.getData().setPartnershipType(type);
+
+                when(limitedPartnershipService.getLimitedPartnership(transaction))
+                        .thenReturn(limitedPartnershipDto);
+
+                String body = """
+                          {"data": {
+                            "forename": "Joe",
+                            "surname": "Bloggs",
+                            "date_of_birth": "2001-01-01",
+                            "nationality1": "BRITISH",
+                            "nationality2": null,
+                            "contribution_currency_type": "GBP",
+                            "contribution_currency_value": "15.00",
+                            "contribution_sub_types": ["SHARES"]
+                          }
+                        }""";
+
+                mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(status().isBadRequest());
+            }
+
+            @ParameterizedTest
+            @EnumSource(value = PartnershipType.class, names = {"PFLP", "SPFLP"})
+            void shouldReturn400ForNotEmptyArrayForTypePFLPOrSPFLP(PartnershipType type) throws Exception {
+                String body = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": [\"SHARES\"] } }";
+
+                mocks();
+
+                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.getData().setPartnershipType(type);
+
+                when(limitedPartnershipService.getLimitedPartnership(transaction))
+                        .thenReturn(limitedPartnershipDto);
+
+                mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(status().isBadRequest());
+            }
         }
 
         @Nested
@@ -326,6 +466,13 @@ public class LimitedPartnerControllerUpdateTest {
         List<LimitedPartnerDao> limitedPartners = List.of(limitedPartnerDao1, limitedPartnerDao2);
 
         when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(limitedPartners);
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction))
+                .thenReturn(limitedPartnershipDto);
 
         mockMvc.perform(get(LIMITED_PARTNER_LIST_URL)
                         .contentType(MediaType.APPLICATION_JSON)

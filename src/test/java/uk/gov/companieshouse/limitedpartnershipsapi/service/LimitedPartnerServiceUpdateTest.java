@@ -17,17 +17,22 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -151,6 +156,34 @@ class LimitedPartnerServiceUpdateTest {
 
         // Ensure that second nationality isn't cleared if only address data is updated
         assertEquals(Nationality.GREENLANDIC.getDescription(), sentSubmission.getData().getNationality2());
+    }
+
+
+    @Test
+    void shouldUpdateTheDaoWithCapitalContributions() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        limitedPartnerDataDto.setContributionCurrencyType(Currency.GBP);
+        limitedPartnerDataDto.setContributionCurrencyValue("15.00");
+        List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
+        contributionSubtypes.add(ContributionSubTypes.MONEY);
+        contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
+        limitedPartnerDataDto.setContributionSubTypes(contributionSubtypes);
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).findById(LIMITED_PARTNER_ID);
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
+        assertEquals("15.00", sentSubmission.getData().getContributionCurrencyValue());
+        assertThat(sentSubmission.getData().getContributionSubTypes())
+                .contains(ContributionSubTypes.MONEY, ContributionSubTypes.SERVICES_OR_GOODS);
     }
 
     @Test
