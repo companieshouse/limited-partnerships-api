@@ -316,7 +316,7 @@ class GeneralPartnerServiceCreateTest {
         doNothing().when(repository).deleteById(GENERAL_PARTNER_ID);
     }
 
-    private void mocks() throws ServiceException {
+    private void mocks() {
         GeneralPartnerDao limitedDao = new GeneralPartnerBuilder().dao();
 
         mocks(limitedDao);
