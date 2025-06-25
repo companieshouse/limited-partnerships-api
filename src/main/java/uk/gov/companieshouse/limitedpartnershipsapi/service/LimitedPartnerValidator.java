@@ -61,12 +61,11 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         if (limitedPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(CLASS_NAME, limitedPartnerDataDto, bindingResult);
+            checkContributionSubTypesNotNullOrEmpty(limitedPartnerDataDto, transaction, bindingResult);
         } else if (limitedPartnerDataDto.getForename() != null || limitedPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, limitedPartnerDataDto, bindingResult);
-
-            checkContributionSubTypesNotNullOrEmpty(limitedPartnerDataDto, transaction, bindingResult);
-
             isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDataDto, bindingResult);
+            checkContributionSubTypesNotNullOrEmpty(limitedPartnerDataDto, transaction, bindingResult);
         } else {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
@@ -92,13 +91,17 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
     }
 
-    public void validateUpdate(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validateUpdate(LimitedPartnerDto limitedPartnerDto, LimitedPartnerDataDto limitedPartnerChangesDataDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
 
         isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+
+        if (limitedPartnerChangesDataDto.getContributionCurrencyValue() != null && limitedPartnerChangesDataDto.getContributionCurrencyType() != null) {
+            checkContributionSubTypesNotNullOrEmpty(limitedPartnerChangesDataDto, transaction, bindingResult);
+        }
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);

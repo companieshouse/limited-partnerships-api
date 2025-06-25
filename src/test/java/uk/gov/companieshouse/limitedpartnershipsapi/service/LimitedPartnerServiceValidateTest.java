@@ -1,7 +1,10 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,7 +54,7 @@ class LimitedPartnerServiceValidateTest {
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transactionLimitedPartner = new TransactionBuilder().forPartner(
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LIMITED_PARTNER_ID
@@ -76,7 +79,7 @@ class LimitedPartnerServiceValidateTest {
         mocks();
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
@@ -93,7 +96,7 @@ class LimitedPartnerServiceValidateTest {
         mocks(limitedPartnerDao);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
@@ -115,7 +118,7 @@ class LimitedPartnerServiceValidateTest {
         mocks(limitedPartnerDao);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
@@ -128,8 +131,10 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
     }
 
-    @Test
-    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndCustomChecksFail() throws ServiceException {
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = { "LP", "PFLP", "SLP", "SPFLP" })
+    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException {
+        var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
         // given
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
         limitedPartnerDao.getData().setGoverningLaw(null);
@@ -138,21 +143,39 @@ class LimitedPartnerServiceValidateTest {
 
         mocks(limitedPartnerDao);
 
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(partnershipType);
+
+        when(limitedPartnershipService.getLimitedPartnership(transactionLimitedPartner))
+                .thenReturn(limitedPartnershipDto);
+
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
+
+        List<Tuple> expectedErrors = new ArrayList<>(List.of(
+                tuple("Governing Law is required", LimitedPartnerDataDto.GOVERNING_LAW_FIELD),
+                tuple("Registered Company Number is required", LimitedPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
+                tuple("Principal office address is required", LimitedPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD)
+        ));
+
+        if (shouldHaveContribution) {
+            expectedErrors.add(tuple("Contribution sub types is required", "data.contributionSubTypes"));
+        }
+
         assertThat(results)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
-                .containsExactlyInAnyOrder(
-                        tuple("Governing Law is required", LimitedPartnerDataDto.GOVERNING_LAW_FIELD),
-                        tuple("Registered Company Number is required", LimitedPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
-                        tuple("Principal office address is required", LimitedPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+                .containsExactlyInAnyOrder(expectedErrors.toArray(new Tuple[0]));
     }
 
-    @Test
-    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail() throws ServiceException {
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = { "LP", "PFLP", "SLP", "SPFLP" })
+    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException {
+        var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
+
         // given
 
         mocks();
@@ -163,16 +186,30 @@ class LimitedPartnerServiceValidateTest {
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(partnershipType);
+
+        when(limitedPartnershipService.getLimitedPartnership(transactionLimitedPartner))
+                .thenReturn(limitedPartnershipDto);
+
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
+
+        List<Tuple> expectedErrors = new ArrayList<>(List.of(
+                tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
+                tuple("Legal Entity Name is required", LimitedPartnerDataDto.LEGAL_ENTITY_NAME_FIELD)
+        ));
+
+        if (shouldHaveContribution) {
+           expectedErrors.add(tuple("Contribution sub types is required", "data.contributionSubTypes"));
+        }
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
         assertThat(results)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
-                .containsExactlyInAnyOrder(
-                        tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
-                        tuple("Legal Entity Name is required", LimitedPartnerDataDto.LEGAL_ENTITY_NAME_FIELD));
+                .containsExactlyInAnyOrder(expectedErrors.toArray(new Tuple[0]));
     }
 
     @Test
@@ -268,7 +305,7 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnershipDto.setData(new DataDto());
         limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
 
-        when(limitedPartnershipService.getLimitedPartnership(transaction))
+        when(limitedPartnershipService.getLimitedPartnership(transactionLimitedPartner))
                 .thenReturn(limitedPartnershipDto);
 
     }

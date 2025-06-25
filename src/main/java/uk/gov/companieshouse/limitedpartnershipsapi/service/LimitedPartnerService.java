@@ -105,12 +105,11 @@ public class LimitedPartnerService {
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId);
 
         var limitedPartnerDaoBeforePatch = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", limitedPartnerId)));
-
         var limitedPartnerDto = mapper.daoToDto(limitedPartnerDaoBeforePatch);
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
-        limitedPartnerValidator.validateUpdate(limitedPartnerDto);
+        limitedPartnerValidator.validateUpdate(limitedPartnerDto, limitedPartnerChangesDataDto, transaction);
 
         handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
