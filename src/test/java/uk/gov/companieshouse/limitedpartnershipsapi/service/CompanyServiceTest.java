@@ -21,6 +21,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -69,21 +70,17 @@ class CompanyServiceTest {
     void testGetCompany404() throws IOException, URIValidationException {
         when(companyGet.execute()).thenThrow(ApiErrorResponseException.fromHttpResponseException(new HttpResponseException.Builder(404, "not found", new HttpHeaders()).setMessage("TEST").build()));
 
-        try {
-            companyService.getCompanyProfile(COMPANY_NUMBER);
-        } catch (ServiceException e) {
-            assertEquals("Company not found: " + COMPANY_NUMBER, e.getMessage());
-        }
+        assertThatThrownBy(() -> companyService.getCompanyProfile(COMPANY_NUMBER))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("Company not found: " + COMPANY_NUMBER);
     }
 
     @Test
     void testGetCompany500() throws ApiErrorResponseException, URIValidationException {
         when(companyGet.execute()).thenThrow(ApiErrorResponseException.fromIOException(new IOException("TEST")));
 
-        try {
-            companyService.getCompanyProfile(COMPANY_NUMBER);
-        } catch (ServiceException e) {
-            assertEquals("Error getting company profile: " + COMPANY_NUMBER, e.getMessage());
-        }
+        assertThatThrownBy(() -> companyService.getCompanyProfile(COMPANY_NUMBER))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("Error getting company profile: " + COMPANY_NUMBER);
     }
 }
