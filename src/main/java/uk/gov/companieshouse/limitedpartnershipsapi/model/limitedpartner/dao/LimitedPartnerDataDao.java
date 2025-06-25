@@ -9,6 +9,8 @@ import java.util.List;
 
 public class LimitedPartnerDataDao extends PartnerDataDao {
 
+    // Legal Entity
+
     @Field("contribution_currency_type")
     private Currency contributionCurrencyType;
 

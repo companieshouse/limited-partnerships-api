@@ -259,27 +259,4 @@ public abstract class PartnerDataDto {
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
-
-    @Override
-    public String toString() {
-        return "PartnerDataDto{" +
-                "forename='" + forename + '\'' +
-                ", formerNames='" + formerNames + '\'' +
-                ", surname='" + surname + '\'' +
-                ", dateOfBirth=" + dateOfBirth +
-                ", nationality1=" + nationality1 +
-                ", nationality2=" + nationality2 +
-                ", usualResidentialAddress=" + usualResidentialAddress +
-                ", legalEntityName='" + legalEntityName + '\'' +
-                ", legalEntityRegisterName='" + legalEntityRegisterName + '\'' +
-                ", legalEntityRegistrationLocation=" + legalEntityRegistrationLocation +
-                ", legalForm='" + legalForm + '\'' +
-                ", registeredCompanyNumber='" + registeredCompanyNumber + '\'' +
-                ", governingLaw='" + governingLaw + '\'' +
-                ", resignationDate=" + resignationDate +
-                ", dateEffectiveFrom=" + dateEffectiveFrom +
-                ", principalOfficeAddress=" + principalOfficeAddress +
-                ", completed=" + completed +
-                '}';
-    }
 }

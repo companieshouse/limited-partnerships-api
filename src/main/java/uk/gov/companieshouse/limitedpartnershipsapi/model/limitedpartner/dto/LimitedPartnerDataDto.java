@@ -12,6 +12,8 @@ import java.util.List;
 
 public class LimitedPartnerDataDto extends PartnerDataDto {
 
+    // Legal Entity
+
     @JsonProperty("contribution_currency_type")
     @EnumValid(message = "Contribution currency type must be valid")
     private Currency contributionCurrencyType;
@@ -51,14 +53,5 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
 
     public void setContributionSubTypes(List<ContributionSubTypes> contributionSubTypes) {
         this.contributionSubTypes = contributionSubTypes;
-    }
-
-    @Override
-    public String toString() {
-        return "LimitedPartnerDataDto{" +
-                "contributionCurrencyType=" + contributionCurrencyType +
-                ", contributionCurrencyValue='" + contributionCurrencyValue + '\'' +
-                ", contributionSubTypes=" + contributionSubTypes +
-                "} " + super.toString();
     }
 }

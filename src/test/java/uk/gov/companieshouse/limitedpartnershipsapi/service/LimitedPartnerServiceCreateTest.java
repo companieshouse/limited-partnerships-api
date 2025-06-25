@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -30,9 +29,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -54,9 +51,8 @@ class LimitedPartnerServiceCreateTest {
     private static final String USER_ID = "xbJf0l";
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String TRANSACTION_ID = "txn-456";
 
-    private final Transaction transactionLimitedPartner = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LIMITED_PARTNER_ID
@@ -77,41 +73,17 @@ class LimitedPartnerServiceCreateTest {
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/limited-partner/abc-123");
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, LIMITED_PARTNER_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
-    }
-
     @Nested
     class CreateLimitedPartnerLegalEntity {
         @Test
         void shouldCreateALimitedPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            Transaction transaction = buildTransaction();
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             LimitedPartnerDao dao = createLimitedPartnerLegalEntityDao();
 
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-            DataDto dataDto = new DataDto();
-            dataDto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipDto.setData(dataDto);
-
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
-
+            mockLimitedPartnershipService();
 
             String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
 
@@ -128,7 +100,6 @@ class LimitedPartnerServiceCreateTest {
 
         @Test
         void shouldFailCreateALimitedPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() throws ServiceException {
-            Transaction transaction = buildTransaction();
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             var data = dto.getData();
             data.setLegalEntityName(null);
@@ -137,12 +108,8 @@ class LimitedPartnerServiceCreateTest {
             data.setLegalEntityRegistrationLocation(null);
             data.setRegisteredCompanyNumber(null);
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-            DataDto dataDto = new DataDto();
-            dataDto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipDto.setData(dataDto);
+            mockLimitedPartnershipService();
 
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                     service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
             );
@@ -157,7 +124,6 @@ class LimitedPartnerServiceCreateTest {
 
         @Test
         void shouldFailCreateALimitedPartnerLegalEntityIfLegalFormIsCorrectAndOthersAreNull() throws ServiceException {
-            Transaction transaction = buildTransaction();
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             var data = dto.getData();
 
@@ -167,13 +133,7 @@ class LimitedPartnerServiceCreateTest {
             data.setLegalEntityRegistrationLocation(null);
             data.setRegisteredCompanyNumber(null);
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-            DataDto dataDto = new DataDto();
-            dataDto.setPartnershipType(PartnershipType.LP);
-            limitedPartnershipDto.setData(dataDto);
-
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
-
+            mockLimitedPartnershipService();
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                     service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
@@ -243,7 +203,7 @@ class LimitedPartnerServiceCreateTest {
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
 
-            String submissionId = service.createLimitedPartner(transactionLimitedPartner, dto, REQUEST_ID, USER_ID);
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
 
             verify(repository).insert(submissionCaptor.capture());
 
@@ -252,7 +212,7 @@ class LimitedPartnerServiceCreateTest {
             assertEquals(FILING_KIND_LIMITED_PARTNER, sentSubmission.getData().getKind());
             assertEquals(LIMITED_PARTNER_ID, submissionId);
 
-            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transactionLimitedPartner.getId(), LIMITED_PARTNER_ID);
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
@@ -266,7 +226,7 @@ class LimitedPartnerServiceCreateTest {
             dto.getData().setNationality1(null);
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
-                    service.createLimitedPartner(transactionLimitedPartner, dto, REQUEST_ID, USER_ID)
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
             );
 
             assertNull(exception.getBindingResult().getFieldError("forename"));
@@ -285,7 +245,7 @@ class LimitedPartnerServiceCreateTest {
             dto.getData().setNationality1(null);
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
-                    service.createLimitedPartner(transactionLimitedPartner, dto, REQUEST_ID, USER_ID)
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
             );
 
             assertNull(exception.getBindingResult().getFieldError("surname"));
@@ -302,7 +262,7 @@ class LimitedPartnerServiceCreateTest {
             dto.getData().setNationality2(Nationality.AMERICAN);
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
-                    service.createLimitedPartner(transactionLimitedPartner, dto, REQUEST_ID, USER_ID)
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
             );
 
             assertNull(exception.getBindingResult().getFieldError("nationality1"));
@@ -353,7 +313,6 @@ class LimitedPartnerServiceCreateTest {
 
     @Test
     void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() {
-        Transaction transaction = buildTransaction();
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDao = new LimitedPartnerDataDto();
         dto.setData(dataDao);
@@ -375,17 +334,21 @@ class LimitedPartnerServiceCreateTest {
         when(repository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
         doNothing().when(repository).deleteById(LIMITED_PARTNER_ID);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
-
-        when(limitedPartnershipService.getLimitedPartnership(transactionLimitedPartner))
-                .thenReturn(limitedPartnershipDto);
+       mockLimitedPartnershipService();
     }
 
     private void mocks() throws ServiceException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);
+    }
+
+    private void mockLimitedPartnershipService() throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipType(PartnershipType.LP);
+        limitedPartnershipDto.setData(dataDto);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 }
