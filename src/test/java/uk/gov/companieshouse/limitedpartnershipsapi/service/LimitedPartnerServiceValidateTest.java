@@ -4,12 +4,13 @@ import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
@@ -30,10 +31,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -52,9 +52,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class LimitedPartnerServiceValidateTest {
 
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
-    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
-    private final Transaction transactionLimitedPartner = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LIMITED_PARTNER_ID
@@ -79,7 +78,7 @@ class LimitedPartnerServiceValidateTest {
         mocks();
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
@@ -96,7 +95,7 @@ class LimitedPartnerServiceValidateTest {
         mocks(limitedPartnerDao);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
@@ -118,7 +117,7 @@ class LimitedPartnerServiceValidateTest {
         mocks(limitedPartnerDao);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
@@ -143,15 +142,10 @@ class LimitedPartnerServiceValidateTest {
 
         mocks(limitedPartnerDao);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(partnershipType);
-
-        when(limitedPartnershipService.getLimitedPartnership(transactionLimitedPartner))
-                .thenReturn(limitedPartnershipDto);
+        mockLimitedPartnershipsService(partnershipType);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
         // then
         verify(repository).findById(limitedPartnerDao.getId());
@@ -186,15 +180,10 @@ class LimitedPartnerServiceValidateTest {
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(partnershipType);
-
-        when(limitedPartnershipService.getLimitedPartnership(transactionLimitedPartner))
-                .thenReturn(limitedPartnershipDto);
+        mockLimitedPartnershipsService(partnershipType);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartner(transactionLimitedPartner, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
         List<Tuple> expectedErrors = new ArrayList<>(List.of(
                 tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
@@ -219,7 +208,6 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnerDao.getData().setRegisteredCompanyNumber("");
         limitedPartnerDao.getData().setLegalEntityName(null);
 
-        Transaction transaction = buildTransaction();
         transaction.getResources().values().forEach(r -> r.setKind("INVALID-KIND"));
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
@@ -228,24 +216,38 @@ class LimitedPartnerServiceValidateTest {
         assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID));
     }
 
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/limited-partner/abc-123");
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/limited-partner/%s", TRANSACTION_ID, LIMITED_PARTNER_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
+    private static Stream<Arguments> shouldNotAddContributionSubTypesTestCases() {
+        return Stream.of(
+                Arguments.of(PartnershipType.PFLP, createLegalEntityDao()),
+                Arguments.of(PartnershipType.SPFLP, createLegalEntityDao()),
+                Arguments.of(PartnershipType.PFLP, createPersonDao()),
+                Arguments.of(PartnershipType.SPFLP, createPersonDao())
+        );
     }
 
-    private LimitedPartnerDao createPersonDao() {
+    @ParameterizedTest
+    @MethodSource("shouldNotAddContributionSubTypesTestCases")
+    void shouldReturnErrorsWhenTryingToAddContributionSubTypesForPrivateFundTypes(PartnershipType partnershipType, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
+        // given
+
+        limitedPartnerDao.getData().setContributionSubTypes(List.of(ContributionSubTypes.MONEY));
+
+        mocks(limitedPartnerDao);
+
+        mockLimitedPartnershipsService(partnershipType);
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        // then
+        verify(repository).findById(limitedPartnerDao.getId());
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Private fund partnerships cannot have a contribution", "data.contributionSubTypes"));
+    }
+
+    private static LimitedPartnerDao createPersonDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
 
         dao.setId(LIMITED_PARTNER_ID);
@@ -266,7 +268,7 @@ class LimitedPartnerServiceValidateTest {
         return dao;
     }
 
-    private LimitedPartnerDao createLegalEntityDao() {
+    private static LimitedPartnerDao createLegalEntityDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
 
         dao.setId(LIMITED_PARTNER_ID);
@@ -283,7 +285,7 @@ class LimitedPartnerServiceValidateTest {
         return dao;
     }
 
-    private AddressDao createAddressDao() {
+    private static AddressDao createAddressDao() {
         AddressDao dao = new AddressDao();
 
         dao.setPremises("33");
@@ -301,18 +303,21 @@ class LimitedPartnerServiceValidateTest {
         when(repository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
         doNothing().when(repository).deleteById(LIMITED_PARTNER_ID);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
-
-        when(limitedPartnershipService.getLimitedPartnership(transactionLimitedPartner))
-                .thenReturn(limitedPartnershipDto);
-
+        mockLimitedPartnershipsService(PartnershipType.LP);
     }
 
     private void mocks() throws ServiceException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);
+    }
+
+    private void mockLimitedPartnershipsService(PartnershipType partnershipType) throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.getData().setPartnershipType(partnershipType);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction))
+                .thenReturn(limitedPartnershipDto);
     }
 }
