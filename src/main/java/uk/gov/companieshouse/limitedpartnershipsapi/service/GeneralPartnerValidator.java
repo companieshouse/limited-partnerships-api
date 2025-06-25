@@ -22,6 +22,8 @@ import java.util.List;
 
 @Component
 public class GeneralPartnerValidator extends PartnerValidator {
+    private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
+
     private final CompanyService companyService;
 
     @Autowired
@@ -30,8 +32,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
         this.companyService = companyService;
 
     }
-
-    private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
 
     public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
@@ -80,7 +80,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
                 addError(CLASS_NAME, "data.dateEffectiveFrom", "Partner date effective from is required", bindingResult);
             }
 
-            validDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
+            validateDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
         }
 
         if (bindingResult.hasErrors()) {
@@ -96,7 +96,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
-        validDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
+        validateDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
@@ -115,7 +115,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
-    private void validDateEffectiveFrom(Transaction transaction, GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) throws ServiceException {
+    private void validateDateEffectiveFrom(Transaction transaction, GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) throws ServiceException {
         if (generalPartnerDto.getData().getDateEffectiveFrom() != null) {
             CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
 
