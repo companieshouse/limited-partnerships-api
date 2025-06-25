@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
@@ -137,6 +138,9 @@ class GeneralPartnerControllerValidationTest {
     @MockitoBean
     private CostsService costsService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -171,7 +175,6 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
-
         mocks();
 
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)

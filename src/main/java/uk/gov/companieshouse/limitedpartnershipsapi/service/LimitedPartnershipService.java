@@ -165,6 +165,9 @@ public class LimitedPartnershipService {
                                                               String loggingContext,
                                                               String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
+        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+            transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
+        }
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
         final var resumeJourneyUri = String.format(URL_RESUME, transaction.getId(), submissionId);

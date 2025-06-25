@@ -51,7 +51,7 @@ public class GeneralPartnerService {
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        generalPartnerValidator.validatePartial(generalPartnerDto);
+        generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
 
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -109,7 +109,7 @@ public class GeneralPartnerService {
 
         mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
-        generalPartnerValidator.validateUpdate(generalPartnerDto);
+        generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
 
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
@@ -136,7 +136,7 @@ public class GeneralPartnerService {
             throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
-        return generalPartnerValidator.validateFull(dto);
+        return generalPartnerValidator.validateFull(dto, transaction);
     }
 
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) throws ServiceException {
@@ -144,7 +144,7 @@ public class GeneralPartnerService {
                 .map(mapper::daoToDto).toList();
 
         for (GeneralPartnerDto generalPartnerDto : generalPartnerDtos) {
-            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto).isEmpty();
+            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto, transaction).isEmpty();
             generalPartnerDto.getData().setCompleted(isCompleted);
         }
 
