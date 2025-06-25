@@ -15,17 +15,22 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class GeneralPartnerValidator extends PartnerValidator {
-    private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
+    private final CompanyService companyService;
 
     @Autowired
-    public GeneralPartnerValidator(Validator validator) {
+    public GeneralPartnerValidator(Validator validator, CompanyService companyService) {
         super(validator);
+        this.companyService = companyService;
+
     }
+
+    private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
 
     public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
@@ -50,7 +55,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         return errorsList;
     }
 
-    public void validatePartial(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validatePartial(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
@@ -69,8 +74,12 @@ public class GeneralPartnerValidator extends PartnerValidator {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
 
-        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription()) && generalPartnerDataDto.getDateEffectiveFrom() == null) {
-            addError(CLASS_NAME, "data.dateEffectiveFrom", "Date effective from is required", bindingResult);
+        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+            if (generalPartnerDataDto.getDateEffectiveFrom() == null) {
+                addError(CLASS_NAME, "data.dateEffectiveFrom", "Partner date effective from is required", bindingResult);
+            }
+
+            validDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
         }
 
         if (bindingResult.hasErrors()) {
@@ -79,12 +88,14 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
-    public void validateUpdate(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validateUpdate(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
         isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
+
+        validDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
@@ -100,6 +111,18 @@ public class GeneralPartnerValidator extends PartnerValidator {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
+        }
+    }
+
+    private void validDateEffectiveFrom(Transaction transaction, GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) throws ServiceException {
+        if (generalPartnerDto.getData().getDateEffectiveFrom() != null) {
+            var CompanyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate dateEffectiveFrom = generalPartnerDto.getData().getDateEffectiveFrom();
+
+            if (dateEffectiveFrom.isBefore(CompanyProfileApi.getDateOfCreation())) {
+                addError(CLASS_NAME, "data.dateEffectiveFrom", "Partner date effective from cannot be before the incorporation date", bindingResult);
+            }
         }
     }
 }

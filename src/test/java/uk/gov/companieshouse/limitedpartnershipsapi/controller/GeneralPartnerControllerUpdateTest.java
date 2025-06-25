@@ -15,7 +15,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.CompanyBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
@@ -24,6 +26,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
@@ -111,6 +114,9 @@ class GeneralPartnerControllerUpdateTest {
     @MockitoBean
     private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -178,8 +184,22 @@ class GeneralPartnerControllerUpdateTest {
                         "legal_entity_registration_location": "United States",
                         "registered_company_number": "12345678",
                         "not_disqualified_statement_checked": true,
-                        "date_effective_from": "2023-10-01"
+                        "date_effective_from": "2023-12-01"
                     }
+                }""";
+
+        private static final String JSON_PATCH_GENERAL_PARTNER_PERSON = "{ \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"date_effective_from\": \"2023-10-01\" }";
+
+        private static final String JSON_PATCH_GENERAL_LEGAL_ENTITY = """
+                {
+                    "legal_entity_name": "My Company ltd",
+                    "legal_form": "Limited Company",
+                    "governing_law": "Act of law",
+                    "legal_entity_register_name": "US Register",
+                    "legal_entity_registration_location": "United States",
+                    "registered_company_number": "12345678",
+                    "not_disqualified_statement_checked": true,
+                    "date_effective_from": "2023-12-01"
                 }""";
 
         @ParameterizedTest
@@ -187,8 +207,11 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_GENERAL_PARTNER_PERSON,
                 JSON_GENERAL_LEGAL_ENTITY
         })
-        void shouldReturn200(String body) throws Exception {
+        void shouldReturn201(String body) throws Exception {
             mocks();
+
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
@@ -201,17 +224,45 @@ class GeneralPartnerControllerUpdateTest {
                     .andExpect(status().isCreated());
         }
 
-        private static final String JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
+        @ParameterizedTest
+        @ValueSource(strings = {
+                JSON_PATCH_GENERAL_PARTNER_PERSON,
+                JSON_PATCH_GENERAL_LEGAL_ENTITY
+        })
+        void shouldReturn200(String body) throws Exception {
+            mocks();
 
-        private static final String JSON_WITH_ABOVE_MAX_SURNAME = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true } }";
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(patch(GENERAL_PARTNER_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isOk());
+        }
+
+        private static final String JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
+        private static final String JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true } }";
+        private static final String JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"date_effective_from\": \"2020-10-01\" } }";
+        private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2020-10-01\" } }";
 
         @ParameterizedTest
         @CsvSource(value = {
-                JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Date effective from is required",
-                JSON_WITH_ABOVE_MAX_SURNAME + "$ data.dateEffectiveFrom $ Date effective from is required",
+                JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required",
+                JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required",
+                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date",
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date"
         }, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
+
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 

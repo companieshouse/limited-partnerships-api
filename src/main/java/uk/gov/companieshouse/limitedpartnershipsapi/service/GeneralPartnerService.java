@@ -109,7 +109,7 @@ public class GeneralPartnerService {
 
         mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
-        generalPartnerValidator.validateUpdate(generalPartnerDto);
+        generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
 
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 

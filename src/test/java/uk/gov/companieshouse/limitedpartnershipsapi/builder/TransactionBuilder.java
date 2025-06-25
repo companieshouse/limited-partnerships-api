@@ -29,6 +29,8 @@ public class TransactionBuilder {
     public Transaction build() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
+        transaction.setCompanyName("Test Partnership");
+        transaction.setCompanyNumber("LP123456");
         transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
 
         Resource resource = new Resource();
