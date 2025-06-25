@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -116,11 +117,11 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
     private void validDateEffectiveFrom(Transaction transaction, GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) throws ServiceException {
         if (generalPartnerDto.getData().getDateEffectiveFrom() != null) {
-            var CompanyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
 
             LocalDate dateEffectiveFrom = generalPartnerDto.getData().getDateEffectiveFrom();
 
-            if (dateEffectiveFrom.isBefore(CompanyProfileApi.getDateOfCreation())) {
+            if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError(CLASS_NAME, "data.dateEffectiveFrom", "Partner date effective from cannot be before the incorporation date", bindingResult);
             }
         }
