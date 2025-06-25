@@ -23,15 +23,17 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private static final String[] CRUD_AND_COST_ENDPOINTS = {
             "/transactions/*/incorporation/limited-partnership/**",
             "/transactions/*/limited-partnership/partnership/**",
-            "/transactions/*/limited-partnership/**",
-            "/transactions/*/limited-partnership/**"
+            "/transactions/*/limited-partnership/general-partner/**",
+            "/transactions/*/limited-partnership/general-partners",
+            "/transactions/*/limited-partnership/limited-partner/**",
+            "/transactions/*/limited-partnership/limited-partners"
     };
 
     private static final String[] COST_ENDPOINTS = {
             "/transactions/*/incorporation/limited-partnership/*/costs",
             "/transactions/*/limited-partnership/partnership/*/costs",
-            "/transactions/*/limited-partnership/*/costs",
-            "/transactions/*/limited-partnership/*/costs"
+            "/transactions/*/limited-partnership/general-partner/*/costs",
+            "/transactions/*/limited-partnership/limited-partner/*/costs"
     };
 
     private static final String[] FILINGS_ENDPOINTS = {
