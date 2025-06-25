@@ -199,12 +199,7 @@ class LimitedPartnerControllerValidationTest {
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
         mocks();
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipType(PartnershipType.PFLP);
-        limitedPartnershipDto.setData(dataDto);
-
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+        mockLimitedPartnershipService(PartnershipType.PFLP);
 
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -217,12 +212,7 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn400WhenCreatingLimitedPartnerLegalEntityWithWrongCountry() throws Exception {
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipType(PartnershipType.PFLP);
-        limitedPartnershipDto.setData(dataDto);
-
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+        mockLimitedPartnershipService(PartnershipType.PFLP);
 
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -293,17 +283,21 @@ class LimitedPartnerControllerValidationTest {
 
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
-
-        when(limitedPartnershipService.getLimitedPartnership(transaction))
-                .thenReturn(limitedPartnershipDto);
+        mockLimitedPartnershipService(PartnershipType.LP);
     }
 
     private void mocks() throws ServiceException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);
+    }
+
+    private void mockLimitedPartnershipService(PartnershipType partnershipType) throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipType(partnershipType);
+        limitedPartnershipDto.setData(dataDto);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 }
