@@ -4,6 +4,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -61,6 +62,8 @@ public class LimitedPartnerBuilder {
 
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
+        dataDao.setContributionCurrencyValue("11");
+        dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);

@@ -21,6 +21,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -103,7 +104,10 @@ class LimitedPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Date of birth must be in the past", "data.dateOfBirth"),
-                        tuple("First nationality must be valid", "data.nationality1"));
+                        tuple("First nationality must be valid", "data.nationality1"),
+                        tuple("Contribution currency value is required", "data.contributionCurrencyValue"),
+                        tuple("Contribution currency type is required", "data.contributionCurrencyType"),
+                        tuple("Contribution sub types is required", "data.contributionSubTypes"));
     }
 
     @Test
@@ -127,7 +131,10 @@ class LimitedPartnerServiceValidateTest {
                 .containsExactlyInAnyOrder(
                         tuple("Date of birth is required", LimitedPartnerDataDto.DATE_OF_BIRTH_FIELD),
                         tuple("Second nationality must be different from the first", LimitedPartnerDataDto.NATIONALITY2_FIELD),
-                        tuple("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+                        tuple("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD),
+                        tuple("Contribution currency value is required", "data.contributionCurrencyValue"),
+                        tuple("Contribution currency type is required", "data.contributionCurrencyType"),
+                        tuple("Contribution sub types is required", "data.contributionSubTypes"));
     }
 
     @ParameterizedTest
@@ -157,6 +164,8 @@ class LimitedPartnerServiceValidateTest {
         ));
 
         if (shouldHaveContribution) {
+            expectedErrors.add(tuple("Contribution currency value is required", "data.contributionCurrencyValue"));
+            expectedErrors.add(tuple("Contribution currency type is required", "data.contributionCurrencyType"));
             expectedErrors.add(tuple("Contribution sub types is required", "data.contributionSubTypes"));
         }
 
@@ -191,7 +200,9 @@ class LimitedPartnerServiceValidateTest {
         ));
 
         if (shouldHaveContribution) {
-           expectedErrors.add(tuple("Contribution sub types is required", "data.contributionSubTypes"));
+            expectedErrors.add(tuple("Contribution currency value is required", "data.contributionCurrencyValue"));
+            expectedErrors.add(tuple("Contribution currency type is required", "data.contributionCurrencyType"));
+            expectedErrors.add(tuple("Contribution sub types is required", "data.contributionSubTypes"));
         }
 
         // then
@@ -216,7 +227,7 @@ class LimitedPartnerServiceValidateTest {
         assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID));
     }
 
-    private static Stream<Arguments> shouldNotAddContributionSubTypesTestCases() {
+    private static Stream<Arguments> shouldNotAddContributionTestCases() {
         return Stream.of(
                 Arguments.of(PartnershipType.PFLP, createLegalEntityDao()),
                 Arguments.of(PartnershipType.SPFLP, createLegalEntityDao()),
@@ -226,11 +237,15 @@ class LimitedPartnerServiceValidateTest {
     }
 
     @ParameterizedTest
-    @MethodSource("shouldNotAddContributionSubTypesTestCases")
-    void shouldReturnErrorsWhenTryingToAddContributionSubTypesForPrivateFundTypes(PartnershipType partnershipType, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
+    @MethodSource("shouldNotAddContributionTestCases")
+    void shouldReturnErrorsWhenTryingToAddContributionForPrivateFundTypes(PartnershipType partnershipType, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         // given
 
         limitedPartnerDao.getData().setContributionSubTypes(List.of(ContributionSubTypes.MONEY));
+        limitedPartnerDao.getData().setContributionCurrencyValue("1000");
+        limitedPartnerDao.getData().setContributionCurrencyType(Currency.GBP);
+
+        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
         mocks(limitedPartnerDao);
 
@@ -244,7 +259,9 @@ class LimitedPartnerServiceValidateTest {
         assertThat(results)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
-                        tuple("Private fund partnerships cannot have a contribution", "data.contributionSubTypes"));
+                        tuple("Private fund partnerships cannot have a contribution", "data.contributionSubTypes"),
+                        tuple("Private fund partnerships cannot have a contribution currency value", "data.contributionCurrencyValue"),
+                        tuple("Private fund partnerships cannot have a contribution currency type", "data.contributionCurrencyType"));
     }
 
     private static LimitedPartnerDao createPersonDao() {
@@ -257,10 +274,10 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
 
-        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
-        contributionSubTypes.add(SHARES);
-        dataDao.setContributionSubTypes(contributionSubTypes);
-        dataDao.setContributionSubTypes(contributionSubTypes);
+
+//        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
+//        contributionSubTypes.add(SHARES);
+//        dataDao.setContributionSubTypes(contributionSubTypes);
 
         dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);

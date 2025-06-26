@@ -110,6 +110,9 @@ class LimitedPartnerServiceCreateTest {
             data.setGoverningLaw(null);
             data.setLegalEntityRegistrationLocation(null);
             data.setRegisteredCompanyNumber(null);
+            data.setContributionCurrencyValue(null);
+            data.setContributionCurrencyType(null);
+            data.setContributionSubTypes(null);
 
             mockLimitedPartnershipService();
 
@@ -123,6 +126,10 @@ class LimitedPartnerServiceCreateTest {
             assertEquals("Governing Law is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
             assertEquals("Legal Entity Registration Location is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
+
+            assertEquals("Contribution currency value is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.contributionCurrencyValue")).getDefaultMessage());
+            assertEquals("Contribution currency type is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.contributionCurrencyType")).getDefaultMessage());
+            assertEquals("Contribution sub types is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.contributionSubTypes")).getDefaultMessage());
         }
 
         @Test
@@ -159,8 +166,9 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setGoverningLaw("Act of law");
             dataDto.setLegalEntityRegisterName("Register of United States");
             dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
-            dataDto.setContributionCurrencyType(Currency.GBP);
             dataDto.setRegisteredCompanyNumber("12345678");
+            dataDto.setContributionCurrencyType(Currency.GBP);
+            dataDto.setContributionCurrencyValue("1000");
             List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
             contributionSubTypes.add(SHARES);
             dataDto.setContributionSubTypes(contributionSubTypes);
