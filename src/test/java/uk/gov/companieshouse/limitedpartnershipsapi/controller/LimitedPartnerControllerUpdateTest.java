@@ -148,7 +148,7 @@ class LimitedPartnerControllerUpdateTest {
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_LIMITED_PARTNER_PERSON,
-//                JSON_LIMITED_LEGAL_ENTITY
+                JSON_LIMITED_LEGAL_ENTITY
         })
         void shouldReturn201(String body) throws Exception {
             mocks();
