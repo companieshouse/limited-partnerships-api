@@ -74,6 +74,9 @@ class LimitedPartnerServiceCreateTest {
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
@@ -98,7 +101,6 @@ class LimitedPartnerServiceCreateTest {
     class CreateLimitedPartnerLegalEntity {
         @Test
         void shouldCreateALimitedPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            Transaction transaction = buildTransaction();
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             LimitedPartnerDao dao = createLimitedPartnerLegalEntityDao();
 
@@ -120,7 +122,6 @@ class LimitedPartnerServiceCreateTest {
 
         @Test
         void shouldFailCreateALimitedPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             var data = dto.getData();
             data.setLegalEntityName(null);
@@ -143,7 +144,6 @@ class LimitedPartnerServiceCreateTest {
 
         @Test
         void shouldFailCreateALimitedPartnerLegalEntityIfLegalFormIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             var data = dto.getData();
 
@@ -331,7 +331,6 @@ class LimitedPartnerServiceCreateTest {
 
     @Test
     void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() {
-        Transaction transaction = buildTransaction();
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDao = new LimitedPartnerDataDto();
         dto.setData(dataDao);
