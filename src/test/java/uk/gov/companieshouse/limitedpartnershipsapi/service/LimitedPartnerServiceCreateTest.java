@@ -70,6 +70,9 @@ class LimitedPartnerServiceCreateTest {
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 

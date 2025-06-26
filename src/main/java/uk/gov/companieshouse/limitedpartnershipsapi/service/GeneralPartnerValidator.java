@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
@@ -21,14 +22,14 @@ public class GeneralPartnerValidator extends PartnerValidator {
     private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
 
     @Autowired
-    public GeneralPartnerValidator(Validator validator) {
-        super(validator);
+    public GeneralPartnerValidator(Validator validator, CompanyService companyService) {
+        super(validator, companyService);
     }
 
-    public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto) throws ServiceException {
+    public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        checkFieldConstraints(generalPartnerDto, errorsList);
+        checkFieldConstraints(generalPartnerDto, transaction, errorsList);
 
         var dataDto = generalPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
@@ -48,7 +49,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         return errorsList;
     }
 
-    public void validatePartial(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validatePartial(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
@@ -67,29 +68,33 @@ public class GeneralPartnerValidator extends PartnerValidator {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
 
+        checkNotNullDateEffectiveFrom(CLASS_NAME, generalPartnerDto, transaction, bindingResult);
+
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
 
-    public void validateUpdate(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validateUpdate(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
         isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
+        validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
+
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
 
-    private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, List<ValidationStatusError> errorsList)
+    private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            validatePartial(generalPartnerDto);
+            validatePartial(generalPartnerDto, transaction);
         } catch (MethodArgumentNotValidException e) {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

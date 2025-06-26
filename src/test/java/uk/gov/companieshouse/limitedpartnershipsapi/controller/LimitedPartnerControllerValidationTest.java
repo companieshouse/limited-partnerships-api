@@ -24,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
@@ -147,6 +148,9 @@ class LimitedPartnerControllerValidationTest {
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -171,7 +175,7 @@ class LimitedPartnerControllerValidationTest {
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mocks();
-        
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)

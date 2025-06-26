@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,9 @@ public class TransactionBuilder {
     public Transaction build() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
+        transaction.setCompanyName("Test Partnership");
+        transaction.setCompanyNumber("LP123456");
+        transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
 
         Resource resource = new Resource();
         resource.setKind(kind);
