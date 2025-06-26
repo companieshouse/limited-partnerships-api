@@ -102,25 +102,25 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
     private void validatePrivateFundPartnershipContributions(String contributionCurrencyValue, Currency contributionCurrencyType, boolean hasContributionSubTypes, BindingResult bindingResult) {
         if (contributionCurrencyValue != null) {
-            addError(CLASS_NAME, "data.contributionCurrencyValue", "Private fund partnerships cannot have a contribution currency value", bindingResult);
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Private fund partnerships cannot have a contribution currency value", bindingResult);
         }
         if (contributionCurrencyType != null) {
-            addError(CLASS_NAME, "data.contributionCurrencyType", "Private fund partnerships cannot have a contribution currency type", bindingResult);
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD, "Private fund partnerships cannot have a contribution currency type", bindingResult);
         }
         if (hasContributionSubTypes) {
-            addError(CLASS_NAME, "data.contributionSubTypes", "Private fund partnerships cannot have a contribution", bindingResult);
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD, "Private fund partnerships cannot have a contribution", bindingResult);
         }
     }
 
     private void validateStandardPartnershipContributions(String contributionCurrencyValue, Currency contributionCurrencyType, boolean hasContributionSubTypes, BindingResult bindingResult) {
         if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank()) {
-            addError(CLASS_NAME, "data.contributionCurrencyValue", "Contribution currency value is required", bindingResult);
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Contribution currency value is required", bindingResult);
         }
         if (contributionCurrencyType == null) {
-            addError(CLASS_NAME, "data.contributionCurrencyType", "Contribution currency type is required", bindingResult);
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD, "Contribution currency type is required", bindingResult);
         }
         if (!hasContributionSubTypes) {
-            addError(CLASS_NAME, "data.contributionSubTypes", "Contribution sub types is required", bindingResult);
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD, "Contribution sub types is required", bindingResult);
         }
     }
 

@@ -127,9 +127,9 @@ class LimitedPartnerServiceCreateTest {
             assertEquals("Legal Entity Registration Location is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
 
-            assertEquals("Contribution currency value is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.contributionCurrencyValue")).getDefaultMessage());
-            assertEquals("Contribution currency type is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.contributionCurrencyType")).getDefaultMessage());
-            assertEquals("Contribution sub types is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.contributionSubTypes")).getDefaultMessage());
+            assertEquals("Contribution currency value is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)).getDefaultMessage());
+            assertEquals("Contribution currency type is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)).getDefaultMessage());
+            assertEquals("Contribution sub types is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)).getDefaultMessage());
         }
 
         @Test

@@ -44,7 +44,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
@@ -105,9 +104,9 @@ class LimitedPartnerServiceValidateTest {
                 .containsExactlyInAnyOrder(
                         tuple("Date of birth must be in the past", "data.dateOfBirth"),
                         tuple("First nationality must be valid", "data.nationality1"),
-                        tuple("Contribution currency value is required", "data.contributionCurrencyValue"),
-                        tuple("Contribution currency type is required", "data.contributionCurrencyType"),
-                        tuple("Contribution sub types is required", "data.contributionSubTypes"));
+                        tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
+                        tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
+                        tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
     }
 
     @Test
@@ -132,9 +131,9 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Date of birth is required", LimitedPartnerDataDto.DATE_OF_BIRTH_FIELD),
                         tuple("Second nationality must be different from the first", LimitedPartnerDataDto.NATIONALITY2_FIELD),
                         tuple("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD),
-                        tuple("Contribution currency value is required", "data.contributionCurrencyValue"),
-                        tuple("Contribution currency type is required", "data.contributionCurrencyType"),
-                        tuple("Contribution sub types is required", "data.contributionSubTypes"));
+                        tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
+                        tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
+                        tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
     }
 
     @ParameterizedTest
@@ -164,9 +163,9 @@ class LimitedPartnerServiceValidateTest {
         ));
 
         if (shouldHaveContribution) {
-            expectedErrors.add(tuple("Contribution currency value is required", "data.contributionCurrencyValue"));
-            expectedErrors.add(tuple("Contribution currency type is required", "data.contributionCurrencyType"));
-            expectedErrors.add(tuple("Contribution sub types is required", "data.contributionSubTypes"));
+            expectedErrors.add(tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD));
+            expectedErrors.add(tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD));
+            expectedErrors.add(tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
         }
 
         assertThat(results)
@@ -200,9 +199,9 @@ class LimitedPartnerServiceValidateTest {
         ));
 
         if (shouldHaveContribution) {
-            expectedErrors.add(tuple("Contribution currency value is required", "data.contributionCurrencyValue"));
-            expectedErrors.add(tuple("Contribution currency type is required", "data.contributionCurrencyType"));
-            expectedErrors.add(tuple("Contribution sub types is required", "data.contributionSubTypes"));
+            expectedErrors.add(tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD));
+            expectedErrors.add(tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD));
+            expectedErrors.add(tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
         }
 
         // then
@@ -259,9 +258,9 @@ class LimitedPartnerServiceValidateTest {
         assertThat(results)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
-                        tuple("Private fund partnerships cannot have a contribution", "data.contributionSubTypes"),
-                        tuple("Private fund partnerships cannot have a contribution currency value", "data.contributionCurrencyValue"),
-                        tuple("Private fund partnerships cannot have a contribution currency type", "data.contributionCurrencyType"));
+                        tuple("Private fund partnerships cannot have a contribution", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD),
+                        tuple("Private fund partnerships cannot have a contribution currency value", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
+                        tuple("Private fund partnerships cannot have a contribution currency type", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD));
     }
 
     private static LimitedPartnerDao createPersonDao() {
@@ -273,12 +272,6 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setSurname("Jones");
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
-
-
-//        List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
-//        contributionSubTypes.add(SHARES);
-//        dataDao.setContributionSubTypes(contributionSubTypes);
-
         dataDao.setUsualResidentialAddress(createAddressDao());
         dao.setData(dataDao);
 

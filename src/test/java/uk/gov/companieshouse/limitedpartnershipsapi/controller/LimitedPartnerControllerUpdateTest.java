@@ -391,7 +391,9 @@ class LimitedPartnerControllerUpdateTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_sub_types']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_type']").value("Private fund partnerships cannot have a contribution currency type"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_value']").value("Private fund partnerships cannot have a contribution currency value"))
                         .andExpect(status().isBadRequest());
             }
 
@@ -416,7 +418,9 @@ class LimitedPartnerControllerUpdateTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_sub_types']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_type']").value("Private fund partnerships cannot have a contribution currency type"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_value']").value("Private fund partnerships cannot have a contribution currency value"))
                         .andExpect(status().isBadRequest());
             }
         }

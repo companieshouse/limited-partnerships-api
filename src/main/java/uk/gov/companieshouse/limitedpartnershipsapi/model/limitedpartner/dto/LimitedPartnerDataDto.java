@@ -13,17 +13,20 @@ import java.util.List;
 public class LimitedPartnerDataDto extends PartnerDataDto {
 
     // Legal Entity
+    public static final String CONTRIBUTION_CURRENCY_TYPE_FIELD = "contribution_currency_type";
+    public static final String CONTRIBUTION_CURRENCY_VALUE_FIELD = "contribution_currency_value";
+    public static final String CONTRIBUTION_SUB_TYPES_FIELD = "contribution_sub_types";
 
-    @JsonProperty("contribution_currency_type")
+    @JsonProperty(CONTRIBUTION_CURRENCY_TYPE_FIELD)
     @EnumValid(message = "Contribution currency type must be valid")
     private Currency contributionCurrencyType;
 
-    @JsonProperty("contribution_currency_value")
+    @JsonProperty(CONTRIBUTION_CURRENCY_VALUE_FIELD)
     @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "Value must be a valid decimal number")
     private String contributionCurrencyValue;
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    @JsonProperty("contribution_sub_types")
+    @JsonProperty(CONTRIBUTION_SUB_TYPES_FIELD)
     @EnumValid(message = "Capital contribution type must be valid")
     private List<ContributionSubTypes> contributionSubTypes;
 
