@@ -11,6 +11,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
@@ -27,8 +28,8 @@ public class LimitedPartnerValidator extends PartnerValidator {
     private static final String CLASS_NAME = LimitedPartnerDataDto.class.getName();
 
     @Autowired
-    public LimitedPartnerValidator(Validator validator, LimitedPartnershipService limitedPartnershipService) {
-        super(validator);
+    public LimitedPartnerValidator(Validator validator, CompanyService companyService, LimitedPartnershipService limitedPartnershipService) {
+        super(validator, companyService);
         this.limitedPartnershipService = limitedPartnershipService;
     }
 
@@ -71,34 +72,39 @@ public class LimitedPartnerValidator extends PartnerValidator {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
 
+        checkNotNullDateEffectiveFrom(CLASS_NAME, limitedPartnerDto, transaction, bindingResult);
+
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
 
     private void checkContributionSubTypesNotNullOrEmpty(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
-        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+        if (transaction.getFilingMode().equals(IncorporationKind.REGISTRATION.getDescription())) {
+            LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
 
-        if (limitedPartnershipDto.getData().getPartnershipType() != PartnershipType.PFLP && limitedPartnershipDto.getData().getPartnershipType() != PartnershipType.SPFLP) {
-            if (limitedPartnerDataDto.getContributionSubTypes() == null || limitedPartnerDataDto.getContributionSubTypes().isEmpty()) {
-                addError(CLASS_NAME, "data.contributionSubTypes", "Contribution sub types is required", bindingResult);
-            }
-        } else {
-            boolean hasContributionSubTypes = limitedPartnerDataDto.getContributionSubTypes() != null && !limitedPartnerDataDto.getContributionSubTypes().isEmpty();
-            if (hasContributionSubTypes) {
-                addError(CLASS_NAME, "data.contributionSubTypes", "Private fund partnerships cannot have a contribution", bindingResult);
+            if (limitedPartnershipDto.getData().getPartnershipType() != PartnershipType.PFLP && limitedPartnershipDto.getData().getPartnershipType() != PartnershipType.SPFLP) {
+                if (limitedPartnerDataDto.getContributionSubTypes() == null || limitedPartnerDataDto.getContributionSubTypes().isEmpty()) {
+                    addError(CLASS_NAME, "data.contributionSubTypes", "Contribution sub types is required", bindingResult);
+                }
+            } else {
+                boolean hasContributionSubTypes = limitedPartnerDataDto.getContributionSubTypes() != null && !limitedPartnerDataDto.getContributionSubTypes().isEmpty();
+                if (hasContributionSubTypes) {
+                    addError(CLASS_NAME, "data.contributionSubTypes", "Private fund partnerships cannot have a contribution", bindingResult);
+                }
             }
         }
-
     }
 
-    public void validateUpdate(LimitedPartnerDto limitedPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validateUpdate(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
 
         isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+
+        validateDateEffectiveFrom(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);

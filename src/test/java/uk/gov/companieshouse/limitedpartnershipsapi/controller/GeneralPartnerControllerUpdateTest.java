@@ -250,13 +250,15 @@ class GeneralPartnerControllerUpdateTest {
         private static final String JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true } }";
         private static final String JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"date_effective_from\": \"2020-10-01\" } }";
         private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2020-10-01\" } }";
+        private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2030-10-01\" } }";
 
         @ParameterizedTest
         @CsvSource(value = {
                 JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required",
                 JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required",
                 JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date",
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date"
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date",
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must be in the past"
         }, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
