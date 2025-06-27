@@ -257,7 +257,7 @@ class LimitedPartnershipIncorporationServiceTest {
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
-        when(transactionUtils.isForRegistration(eq(transaction))).thenReturn(REGISTRATION.equals(incorporationKind));
+        when(transactionUtils.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
 
         IncorporationDto incorporationDto = new IncorporationDto();
         IncorporationDataDto dataDto = new IncorporationDataDto();

@@ -37,7 +37,6 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -419,7 +418,7 @@ class LimitedPartnershipServiceTest {
 
         when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDao);
         when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
-        when(transactionUtils.isForRegistration(eq(transaction))).thenReturn(REGISTRATION.equals(incorporationKind));
+        when(transactionUtils.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
 
         // when
         service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
