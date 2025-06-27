@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.CompanyBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
@@ -390,7 +391,9 @@ class LimitedPartnerControllerUpdateTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_sub_types']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_type']").value("Private fund partnerships cannot have a contribution currency type"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_value']").value("Private fund partnerships cannot have a contribution currency value"))
                         .andExpect(status().isBadRequest());
             }
 
@@ -415,7 +418,9 @@ class LimitedPartnerControllerUpdateTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.['errors'].['data.contributionSubTypes']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_sub_types']").value("Private fund partnerships cannot have a contribution"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_type']").value("Private fund partnerships cannot have a contribution currency type"))
+                        .andExpect(jsonPath("$.['errors'].['contribution_currency_value']").value("Private fund partnerships cannot have a contribution currency value"))
                         .andExpect(status().isBadRequest());
             }
         }
@@ -609,16 +614,22 @@ class LimitedPartnerControllerUpdateTest {
                 .andExpect(jsonPath("$.[1].data.completed").value(false));
     }
 
-    private void mocks(LimitedPartnerDao limitedPartnerDao) {
+    private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         when(limitedPartnerRepository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
         doNothing().when(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
 
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipType(PartnershipType.LP);
+        limitedPartnershipDto.setData(dataDto);
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 
-    private void mocks() {
+    private void mocks() throws ServiceException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);

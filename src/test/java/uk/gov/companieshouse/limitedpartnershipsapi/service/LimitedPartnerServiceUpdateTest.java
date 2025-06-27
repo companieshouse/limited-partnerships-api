@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,11 +18,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
@@ -51,13 +56,16 @@ class LimitedPartnerServiceUpdateTest {
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String USER_ID = "xbJf0l";
 
-    Transaction transaction = buildTransaction();
+    private Transaction transaction;
 
     @Autowired
     private LimitedPartnerService service;
 
     @MockitoBean
     private LimitedPartnerRepository limitedPartnerRepository;
+
+    @MockitoBean
+    private LimitedPartnershipService limitedPartnershipService;
 
     @MockitoBean
     private TransactionService transactionService;
@@ -120,6 +128,11 @@ class LimitedPartnerServiceUpdateTest {
         return trx;
     }
 
+    @BeforeEach
+    void setUp() {
+        transaction = buildTransaction();
+    }
+
     @Test
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
@@ -172,6 +185,15 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setContributionSubTypes(contributionSubtypes);
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipType(PartnershipType.LP);
+        limitedPartnershipDto.setData(dataDto);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+
+        transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
