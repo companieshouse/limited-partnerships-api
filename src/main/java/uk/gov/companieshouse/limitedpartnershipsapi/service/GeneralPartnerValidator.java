@@ -7,16 +7,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +21,9 @@ import java.util.List;
 public class GeneralPartnerValidator extends PartnerValidator {
     private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
 
-    private final CompanyService companyService;
-
     @Autowired
     public GeneralPartnerValidator(Validator validator, CompanyService companyService) {
-        super(validator);
-        this.companyService = companyService;
-
+        super(validator, companyService);
     }
 
     public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
@@ -75,13 +68,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }
 
-        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
-            if (generalPartnerDataDto.getDateEffectiveFrom() == null) {
-                addError(CLASS_NAME, "data.dateEffectiveFrom", "Partner date effective from is required", bindingResult);
-            }
-
-            validateDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
-        }
+        checkNotNullDateEffectiveFrom(CLASS_NAME, generalPartnerDto, transaction, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
@@ -96,7 +83,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
-        validateDateEffectiveFrom(transaction, generalPartnerDto, bindingResult);
+        validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
@@ -112,18 +99,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
             convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
-        }
-    }
-
-    private void validateDateEffectiveFrom(Transaction transaction, GeneralPartnerDto generalPartnerDto, BindingResult bindingResult) throws ServiceException {
-        if (generalPartnerDto.getData().getDateEffectiveFrom() != null) {
-            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
-
-            LocalDate dateEffectiveFrom = generalPartnerDto.getData().getDateEffectiveFrom();
-
-            if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
-                addError(CLASS_NAME, "data.dateEffectiveFrom", "Partner date effective from cannot be before the incorporation date", bindingResult);
-            }
         }
     }
 }

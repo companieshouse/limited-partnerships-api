@@ -5,11 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
@@ -31,7 +33,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +63,6 @@ class LimitedPartnerServiceCreateTest {
     private static final String USER_ID = "xbJf0l";
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String TRANSACTION_ID = "txn-456";
 
     private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_LIMITED_PARTNER,
@@ -82,39 +82,26 @@ class LimitedPartnerServiceCreateTest {
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
     @Captor
     private ArgumentCaptor<Transaction> transactionSubmissionCaptor;
 
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/limited-partner/abc-123");
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, LIMITED_PARTNER_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
-    }
-
     @Nested
     class CreateLimitedPartnerLegalEntity {
         @Test
         void shouldCreateALimitedPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            Transaction transaction = buildTransaction();
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             LimitedPartnerDao dao = createLimitedPartnerLegalEntityDao();
 
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
+
+            mockLimitedPartnershipService();
 
             String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
 
@@ -162,8 +149,7 @@ class LimitedPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateALimitedPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateALimitedPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() throws ServiceException {
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             var data = dto.getData();
             data.setLegalEntityName(null);
@@ -171,6 +157,11 @@ class LimitedPartnerServiceCreateTest {
             data.setGoverningLaw(null);
             data.setLegalEntityRegistrationLocation(null);
             data.setRegisteredCompanyNumber(null);
+            data.setContributionCurrencyValue(null);
+            data.setContributionCurrencyType(null);
+            data.setContributionSubTypes(null);
+
+            mockLimitedPartnershipService();
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                     service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
@@ -182,11 +173,14 @@ class LimitedPartnerServiceCreateTest {
             assertEquals("Governing Law is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
             assertEquals("Legal Entity Registration Location is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
+
+            assertEquals("Contribution currency value is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)).getDefaultMessage());
+            assertEquals("Contribution currency type is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)).getDefaultMessage());
+            assertEquals("Contribution sub types is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)).getDefaultMessage());
         }
 
         @Test
-        void shouldFailCreateALimitedPartnerLegalEntityIfLegalFormIsCorrectAndOthersAreNull() {
-            Transaction transaction = buildTransaction();
+        void shouldFailCreateALimitedPartnerLegalEntityIfLegalFormIsCorrectAndOthersAreNull() throws ServiceException {
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             var data = dto.getData();
 
@@ -195,6 +189,8 @@ class LimitedPartnerServiceCreateTest {
             data.setLegalEntityRegisterName(null);
             data.setLegalEntityRegistrationLocation(null);
             data.setRegisteredCompanyNumber(null);
+
+            mockLimitedPartnershipService();
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                     service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
@@ -217,8 +213,9 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setGoverningLaw("Act of law");
             dataDto.setLegalEntityRegisterName("Register of United States");
             dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
-            dataDto.setContributionCurrencyType(Currency.GBP);
             dataDto.setRegisteredCompanyNumber("12345678");
+            dataDto.setContributionCurrencyType(Currency.GBP);
+            dataDto.setContributionCurrencyValue("1000");
             List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
             contributionSubTypes.add(SHARES);
             dataDto.setContributionSubTypes(contributionSubTypes);
@@ -255,6 +252,16 @@ class LimitedPartnerServiceCreateTest {
 
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
+
+            if (TRANSITION.equals(incorporationKind)) {
+                dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
+
+                CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+                when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.now().minusDays(2));
+                when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            }
+
+            mockLimitedPartnershipService();
 
             service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
         }
@@ -385,7 +392,6 @@ class LimitedPartnerServiceCreateTest {
 
     @Test
     void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() {
-        Transaction transaction = buildTransaction();
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDao = new LimitedPartnerDataDto();
         dto.setData(dataDao);
@@ -407,17 +413,21 @@ class LimitedPartnerServiceCreateTest {
         when(repository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
         doNothing().when(repository).deleteById(LIMITED_PARTNER_ID);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
-
-        when(limitedPartnershipService.getLimitedPartnership(transaction))
-                .thenReturn(limitedPartnershipDto);
+        mockLimitedPartnershipService();
     }
 
     private void mocks() throws ServiceException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);
+    }
+
+    private void mockLimitedPartnershipService() throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipType(PartnershipType.LP);
+        limitedPartnershipDto.setData(dataDto);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 }

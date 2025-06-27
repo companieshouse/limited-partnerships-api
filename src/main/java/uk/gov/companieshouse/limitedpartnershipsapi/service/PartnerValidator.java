@@ -5,20 +5,27 @@ import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 public abstract class PartnerValidator {
 
     protected Validator validator;
+    protected CompanyService companyService;
 
     @Autowired
-    protected PartnerValidator(Validator validator) {
+    protected PartnerValidator(Validator validator, CompanyService companyService) {
         this.validator = validator;
+        this.companyService = companyService;
     }
 
     protected void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
@@ -83,4 +90,25 @@ public abstract class PartnerValidator {
         }
     }
 
+    protected void checkNotNullDateEffectiveFrom(String className, PartnerDto partnerDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
+        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+            if (partnerDto.getData().getDateEffectiveFrom() == null) {
+                addError(className, "data.dateEffectiveFrom", "Partner date effective from is required", bindingResult);
+            }
+
+            validateDateEffectiveFrom(className, transaction, partnerDto, bindingResult);
+        }
+    }
+
+    protected void validateDateEffectiveFrom(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
+        if (partnerDto.getData().getDateEffectiveFrom() != null) {
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate dateEffectiveFrom = partnerDto.getData().getDateEffectiveFrom();
+
+            if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError(className, "data.dateEffectiveFrom", "Partner date effective from cannot be before the incorporation date", bindingResult);
+            }
+        }
+    }
 }

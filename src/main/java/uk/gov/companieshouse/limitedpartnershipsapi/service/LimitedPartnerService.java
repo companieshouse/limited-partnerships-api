@@ -117,7 +117,7 @@ public class LimitedPartnerService {
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
-        limitedPartnerValidator.validateUpdate(limitedPartnerDto);
+        limitedPartnerValidator.validateUpdate(limitedPartnerDto, limitedPartnerChangesDataDto, transaction);
 
         handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 

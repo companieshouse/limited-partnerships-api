@@ -24,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
@@ -147,6 +148,9 @@ class LimitedPartnerControllerValidationTest {
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -167,11 +171,11 @@ class LimitedPartnerControllerValidationTest {
             JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
             JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid",
-            JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Contribution sub types is required"
+            JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ contribution_sub_types $ Contribution sub types is required"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mocks();
-        
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -199,6 +203,8 @@ class LimitedPartnerControllerValidationTest {
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
         mocks();
 
+        mockLimitedPartnershipService(PartnershipType.PFLP);
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -210,6 +216,8 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn400WhenCreatingLimitedPartnerLegalEntityWithWrongCountry() throws Exception {
+        mockLimitedPartnershipService(PartnershipType.PFLP);
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -279,17 +287,21 @@ class LimitedPartnerControllerValidationTest {
 
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
-
-        when(limitedPartnershipService.getLimitedPartnership(transaction))
-                .thenReturn(limitedPartnershipDto);
+        mockLimitedPartnershipService(PartnershipType.LP);
     }
 
     private void mocks() throws ServiceException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
 
         mocks(limitedPartnerDao);
+    }
+
+    private void mockLimitedPartnershipService(PartnershipType partnershipType) throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipType(partnershipType);
+        limitedPartnershipDto.setData(dataDto);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 }

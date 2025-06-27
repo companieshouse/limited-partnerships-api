@@ -172,6 +172,7 @@ public abstract class PartnerDataDto {
 
     @JsonProperty(DATE_EFFECTIVE_FROM_FIELD)
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "Partner date effective from must be in the past")
     private LocalDate dateEffectiveFrom;
 
     @JsonProperty(PRINCIPAL_OFFICE_ADDRESS_FIELD)
