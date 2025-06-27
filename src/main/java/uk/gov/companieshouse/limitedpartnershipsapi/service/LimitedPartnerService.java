@@ -9,6 +9,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
@@ -23,7 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
@@ -89,9 +93,12 @@ public class LimitedPartnerService {
         var limitedPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", submissionUri);
-        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        linksMap.put("costs", submissionUri + "/costs");
+        linksMap.put(LINK_RESOURCE, submissionUri);
+        linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        if (IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
+            linksMap.put(LINK_COSTS, submissionUri + "/costs");
+        }
 
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);

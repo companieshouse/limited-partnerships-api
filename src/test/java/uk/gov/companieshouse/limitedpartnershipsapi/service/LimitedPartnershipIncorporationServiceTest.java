@@ -7,11 +7,13 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.IncorporationDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDataDto;
@@ -26,6 +28,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,6 +43,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
@@ -72,6 +78,9 @@ class LimitedPartnershipIncorporationServiceTest {
 
     @Mock
     private GeneralPartnerService generalPartnerService;
+
+    @Captor
+    private ArgumentCaptor<Transaction> transactionSubmissionCaptor;
 
     private static final String USER_ID = "xbJf0l";
     private static final String SUBMISSION_ID = "abc-123";
@@ -107,6 +116,39 @@ class LimitedPartnershipIncorporationServiceTest {
         assertEquals(submissionUri, sentSubmissionUri);
 
         assertEquals(dataDto.getKind(), transaction.getFilingMode());
+    }
+
+    @Test
+    void shouldAddCorrectLinksToTransactionResourceForRegistration() throws ServiceException {
+        // given + when
+        createIncorporation(REGISTRATION);
+
+        // then
+        verify(transactionService).updateTransaction(transactionSubmissionCaptor.capture(), eq(REQUEST_ID));
+
+        Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
+        assertEquals(1, transactionResources.size());
+
+        Map links = transactionResources.values().stream().findFirst().get().getLinks();
+        assertEquals(2, links.size());
+        assertNotNull(links.get(LINK_RESOURCE));
+        assertNotNull(links.get(LINK_COSTS));
+    }
+
+    @Test
+    void shouldAddCorrectLinksToTransactionResourceForTransition() throws ServiceException {
+        // given + when
+        createIncorporation(TRANSITION);
+
+        // then
+        verify(transactionService).updateTransaction(transactionSubmissionCaptor.capture(), eq(REQUEST_ID));
+
+        Transaction sentTransaction = transactionSubmissionCaptor.getValue();
+        assertEquals(1, sentTransaction.getResources().size());
+
+        Map links = sentTransaction.getResources().values().stream().findFirst().get().getLinks();
+        assertEquals(1, links.size());
+        assertNotNull(links.get(LINK_RESOURCE));
     }
 
     @Test
@@ -208,5 +250,20 @@ class LimitedPartnershipIncorporationServiceTest {
         submissionDto.setData(dataDto);
 
         return submissionDto;
+    }
+
+    private void createIncorporation(IncorporationKind incorporationKind) throws ServiceException {
+        // given
+        Transaction transaction = buildTransaction();
+        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
+        when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
+
+        IncorporationDto incorporationDto = new IncorporationDto();
+        IncorporationDataDto dataDto = new IncorporationDataDto();
+        dataDto.setKind(incorporationKind);
+        incorporationDto.setData(dataDto);
+
+        // when
+        incorporationService.createIncorporation(transaction, incorporationDto, REQUEST_ID, USER_ID);
     }
 }

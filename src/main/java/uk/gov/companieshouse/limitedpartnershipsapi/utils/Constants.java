@@ -26,8 +26,12 @@ public class Constants {
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
     public static final String FILING_KIND_LIMITED_PARTNER = "limited-partnership#limited-partner";
     public static final String FILING_KIND_GENERAL_PARTNER = "limited-partnership#general-partner";
+
+    // Transaction links
     public static final String LINK_SELF = "self";
     public static final String LINK_RESOURCE = "resource";
+    public static final String LINK_VALIDATON_STATUS = "validation_status";
+    public static final String LINK_COSTS = "costs";
 
     // Validation rules
     public static final int MIN_SIZE = 1;

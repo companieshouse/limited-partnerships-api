@@ -12,6 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
@@ -23,7 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
@@ -88,9 +92,12 @@ public class GeneralPartnerService {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", submissionUri);
-        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        linksMap.put("costs", submissionUri + "/costs");
+        linksMap.put(LINK_RESOURCE, submissionUri);
+        linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        if (IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
+            linksMap.put(LINK_COSTS, submissionUri + "/costs");
+        }
 
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);

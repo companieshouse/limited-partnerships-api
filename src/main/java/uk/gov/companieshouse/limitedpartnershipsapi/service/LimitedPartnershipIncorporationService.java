@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
@@ -19,6 +20,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
@@ -89,15 +92,17 @@ public class LimitedPartnershipIncorporationService {
         var incorporationResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", incorporationUri);
-        linksMap.put("costs", incorporationUri + "/costs");
+        linksMap.put(LINK_RESOURCE, incorporationUri);
+
+        if (IncorporationKind.REGISTRATION.getDescription().equals(kind)) {
+            linksMap.put(LINK_COSTS, incorporationUri + "/costs");
+        }
 
         incorporationResource.setLinks(linksMap);
         incorporationResource.setKind(kind);
 
         return incorporationResource;
     }
-
 
     public LimitedPartnershipIncorporationDto getIncorporation(Transaction transaction,
                                                                String incorporationId,
