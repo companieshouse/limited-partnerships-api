@@ -95,7 +95,7 @@ public class GeneralPartnerService {
         linksMap.put(LINK_RESOURCE, submissionUri);
         linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
 
-        if (IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
+        if (transactionUtils.isForRegistration(transaction)) {
             linksMap.put(LINK_COSTS, submissionUri + "/costs");
         }
 

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -131,8 +132,7 @@ class LimitedPartnershipIncorporationServiceTest {
 
         Map links = transactionResources.values().stream().findFirst().get().getLinks();
         assertEquals(2, links.size());
-        assertNotNull(links.get(LINK_RESOURCE));
-        assertNotNull(links.get(LINK_COSTS));
+        Assertions.assertThat(links).containsKeys(LINK_RESOURCE, LINK_COSTS);
     }
 
     @Test
@@ -148,7 +148,7 @@ class LimitedPartnershipIncorporationServiceTest {
 
         Map links = sentTransaction.getResources().values().stream().findFirst().get().getLinks();
         assertEquals(1, links.size());
-        assertNotNull(links.get(LINK_RESOURCE));
+        Assertions.assertThat(links).containsKeys(LINK_RESOURCE);
     }
 
     @Test
@@ -257,6 +257,7 @@ class LimitedPartnershipIncorporationServiceTest {
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
+        when(transactionUtils.isForRegistration(eq(transaction))).thenReturn(REGISTRATION.equals(incorporationKind));
 
         IncorporationDto incorporationDto = new IncorporationDto();
         IncorporationDataDto dataDto = new IncorporationDataDto();

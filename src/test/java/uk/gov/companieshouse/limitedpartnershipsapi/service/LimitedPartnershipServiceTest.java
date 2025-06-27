@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -137,9 +138,7 @@ class LimitedPartnershipServiceTest {
 
         Map links = transactionResources.values().stream().findFirst().get().getLinks();
         assertEquals(3, links.size());
-        assertNotNull(links.get(LINK_RESOURCE));
-        assertNotNull(links.get(LINK_VALIDATON_STATUS));
-        assertNotNull(links.get(LINK_COSTS));
+        Assertions.assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS);
     }
 
     @Test
@@ -155,9 +154,7 @@ class LimitedPartnershipServiceTest {
 
         Map links = transactionResources.values().stream().findFirst().get().getLinks();
         assertEquals(2, links.size());
-        assertNotNull(links.get(LINK_RESOURCE));
-        assertNotNull(links.get(LINK_VALIDATON_STATUS));
-        assertNull(links.get(LINK_COSTS));
+        Assertions.assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS);
     }
 
     @Test
@@ -422,6 +419,7 @@ class LimitedPartnershipServiceTest {
 
         when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDao);
         when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
+        when(transactionUtils.isForRegistration(eq(transaction))).thenReturn(REGISTRATION.equals(incorporationKind));
 
         // when
         service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);

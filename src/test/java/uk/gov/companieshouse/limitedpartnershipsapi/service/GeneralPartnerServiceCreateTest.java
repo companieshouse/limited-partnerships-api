@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -115,9 +115,7 @@ class GeneralPartnerServiceCreateTest {
 
             Map links = transactionResources.values().stream().findFirst().get().getLinks();
             assertEquals(3, links.size());
-            assertNotNull(links.get(LINK_RESOURCE));
-            assertNotNull(links.get(LINK_VALIDATON_STATUS));
-            assertNotNull(links.get(LINK_COSTS));
+            assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS);
         }
 
         @Test
@@ -131,9 +129,7 @@ class GeneralPartnerServiceCreateTest {
 
             Map links = transactionResources.values().stream().findFirst().get().getLinks();
             assertEquals(2, links.size());
-            assertNotNull(links.get(LINK_RESOURCE));
-            assertNotNull(links.get(LINK_VALIDATON_STATUS));
-            assertNull(links.get("costs"));
+            assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS);
         }
 
         @Test

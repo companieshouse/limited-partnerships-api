@@ -82,19 +82,19 @@ public class LimitedPartnershipIncorporationService {
 
     private void updateTransactionWithIncorporationResource(Transaction transaction, String incorporationUri, String kind, String loggingContext)
             throws ServiceException {
-        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri, kind);
+        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri, kind, transaction);
 
         transaction.setResources(Collections.singletonMap(incorporationUri, incorporationTransactionResource));
         transactionService.updateTransaction(transaction, loggingContext);
     }
 
-    private Resource createIncorporationTransactionResource(String incorporationUri, String kind) {
+    private Resource createIncorporationTransactionResource(String incorporationUri, String kind, Transaction transaction) {
         var incorporationResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, incorporationUri);
 
-        if (IncorporationKind.REGISTRATION.getDescription().equals(kind)) {
+        if (transactionUtils.isForRegistration(transaction)) {
             linksMap.put(LINK_COSTS, incorporationUri + "/costs");
         }
 
