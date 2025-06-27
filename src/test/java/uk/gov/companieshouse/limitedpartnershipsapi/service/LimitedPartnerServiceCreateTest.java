@@ -249,7 +249,6 @@ class LimitedPartnerServiceCreateTest {
         }
 
         private void createLimitedPartner(IncorporationKind incorporationKind) throws Exception {
-            Transaction transaction = buildTransaction();
             transaction.setFilingMode(incorporationKind.getDescription());
             LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
             LimitedPartnerDao dao = createLimitedPartnerLegalEntityDao();

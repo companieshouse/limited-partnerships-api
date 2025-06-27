@@ -56,7 +56,6 @@ class GeneralPartnerServiceCreateTest {
     private static final String USER_ID = "xbJf0l";
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String TRANSACTION_ID = "txn-456";
 
     private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_GENERAL_PARTNER,
