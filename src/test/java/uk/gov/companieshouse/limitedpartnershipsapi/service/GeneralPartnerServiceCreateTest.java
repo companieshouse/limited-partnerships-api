@@ -5,11 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -20,21 +23,30 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +56,6 @@ class GeneralPartnerServiceCreateTest {
     private static final String USER_ID = "xbJf0l";
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String TRANSACTION_ID = "txn-456";
 
     private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_GENERAL_PARTNER,
@@ -61,8 +72,14 @@ class GeneralPartnerServiceCreateTest {
     @MockitoBean
     private TransactionService transactionService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
+
+    @Captor
+    private ArgumentCaptor<Transaction> transactionSubmissionCaptor;
 
     @Nested
     class CreateGeneralPartnerLegalEntity {
@@ -85,6 +102,34 @@ class GeneralPartnerServiceCreateTest {
 
             String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), GENERAL_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+        }
+
+        @Test
+        void shouldAddCorrectLinksToTransactionResourceForRegistration() throws Exception {
+            createGeneralPartner(REGISTRATION);
+
+            verify(transactionService).updateTransaction(transactionSubmissionCaptor.capture(), eq(REQUEST_ID));
+
+            Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
+            assertEquals(1, transactionResources.size());
+
+            Map links = transactionResources.values().stream().findFirst().get().getLinks();
+            assertEquals(3, links.size());
+            assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS);
+        }
+
+        @Test
+        void shouldAddCorrectLinksToTransactionResourceForTransition() throws Exception {
+            createGeneralPartner(TRANSITION);
+
+            verify(transactionService).updateTransaction(transactionSubmissionCaptor.capture(), eq(REQUEST_ID));
+
+            Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
+            assertEquals(1, transactionResources.size());
+
+            Map links = transactionResources.values().stream().findFirst().get().getLinks();
+            assertEquals(2, links.size());
+            assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS);
         }
 
         @Test
@@ -163,6 +208,25 @@ class GeneralPartnerServiceCreateTest {
             dao.setId(GENERAL_PARTNER_ID);
 
             return dao;
+        }
+
+        private void createGeneralPartner(IncorporationKind incorporationKind) throws Exception {
+            transaction.setFilingMode(incorporationKind.getDescription());
+            GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
+            GeneralPartnerDao dao = createGeneralPartnerLegalEntityDao();
+
+            when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+
+            if (TRANSITION.equals(incorporationKind)) {
+                dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
+
+                CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+                when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.now().minusDays(2));
+                when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            }
+
+            service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
         }
     }
 
