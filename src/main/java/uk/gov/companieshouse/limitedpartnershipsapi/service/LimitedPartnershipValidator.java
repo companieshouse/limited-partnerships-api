@@ -79,7 +79,6 @@ public class LimitedPartnershipValidator {
                     "data.principalPlaceOfBusinessAddress"));
         }
 
-        var res = (dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && incorporationKind.equals(IncorporationKind.REGISTRATION);
         if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
             errorsList.add(createValidationStatusError("Lawful purpose statement checked is required",
                     "data.lawfulPurposeStatementChecked"));
