@@ -40,7 +40,7 @@ public class LimitedPartnershipValidator {
         final var dataDto = limitedPartnershipDto.getData();
 
         checkCommonFields(dataDto, incorporationKind, errorsList);
-        checkPartnershipTypeSpecificFields(dataDto, errorsList);
+        checkPartnershipTypeSpecificFields(dataDto, incorporationKind, errorsList);
 
         return errorsList;
     }
@@ -79,13 +79,14 @@ public class LimitedPartnershipValidator {
                     "data.principalPlaceOfBusinessAddress"));
         }
 
-        if (dataDto.getLawfulPurposeStatementChecked() == null) {
+        var res = (dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && incorporationKind.equals(IncorporationKind.REGISTRATION);
+        if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
             errorsList.add(createValidationStatusError("Lawful purpose statement checked is required",
                     "data.lawfulPurposeStatementChecked"));
         }
     }
 
-    private void checkPartnershipTypeSpecificFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
+    private void checkPartnershipTypeSpecificFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
             if (dataDto.getTerm() != null) {
@@ -96,11 +97,11 @@ public class LimitedPartnershipValidator {
                 errorsList.add(createValidationStatusError("SIC codes are not required", "data.sicCodes"));
             }
         } else {
-            if (dataDto.getTerm() == null) {
+            if (dataDto.getTerm() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
                 errorsList.add(createValidationStatusError("Term is required", "data.term"));
             }
 
-            if (dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) {
+            if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
                 errorsList.add(createValidationStatusError("SIC codes are required", "data.sicCodes"));
             }
         }

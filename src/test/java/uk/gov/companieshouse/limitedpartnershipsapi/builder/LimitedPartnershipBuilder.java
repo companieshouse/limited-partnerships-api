@@ -21,11 +21,11 @@ public class LimitedPartnershipBuilder {
     private final PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
     private final PartnershipType partnershipType = PartnershipType.LP;
     private final String partnershipNumber = "LP123456";
-    private final Term term = Term.BY_AGREEMENT;
-    private final List<String> sicCodes = List.of("62012");
+    private Term term = Term.BY_AGREEMENT;
+    private List<String> sicCodes = List.of("62012");
     private final String email = "test@test.com";
     private final Jurisdiction jurisdiction = Jurisdiction.ENGLAND_AND_WALES;
-    private final boolean lawfulPurposeStatementChecked = true;
+    private boolean lawfulPurposeStatementChecked = true;
     private AddressDto registeredOfficeAddressDto = null;
     private AddressDto principalPalceOfBusinessAddressDto = null;
     private AddressDao registeredOfficeAddressDao = null;
@@ -126,6 +126,21 @@ public class LimitedPartnershipBuilder {
         this.principalPalceOfBusinessAddressDto = addressDto;
         this.principalPalceOfBusinessAddressDao = ppobaDao;
 
+        return this;
+    }
+
+    public LimitedPartnershipBuilder withTerm(Term term) {
+        this.term = term;
+        return this;
+    }
+
+    public LimitedPartnershipBuilder withSicCodes(List<String> sicCodes) {
+        this.sicCodes = sicCodes;
+        return this;
+    }
+
+    public LimitedPartnershipBuilder withLawfulPurposeStatementChecked(boolean lawfulPurposeStatementChecked) {
+        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
         return this;
     }
 

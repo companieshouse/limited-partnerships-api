@@ -96,7 +96,7 @@ class LimitedPartnershipServiceValidateTest {
         checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
         checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");
         checkForError(results, "Address line 1 must not be null", "data.principalPlaceOfBusinessAddress.addressLine1");
-        checkForError(results, "Lawful purpose statement must be checked", "data.lawfulPurposeStatementChecked");
+        checkForError(results, "Lawful purpose statement checked is required", "data.lawfulPurposeStatementChecked");
     }
 
     @ParameterizedTest

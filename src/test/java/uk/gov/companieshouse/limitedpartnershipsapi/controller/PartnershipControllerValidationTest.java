@@ -729,6 +729,69 @@ class PartnershipControllerValidationTest {
         }
 
         @Test
+        void shouldReturn200AndNoErrorsIfTermIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withTerm(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfSicCodeIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withSicCodes(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfLawfulPurposeStatementCheckedIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withLawfulPurposeStatementChecked(false)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
         void shouldReturn404IfPartnershipNotFound() throws Exception {
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
