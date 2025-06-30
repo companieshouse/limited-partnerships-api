@@ -17,41 +17,41 @@ import java.util.List;
 public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
-    private static final String partnershipName = "Asset Adders";
-    private static final PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
-    private static final PartnershipType partnershipType = PartnershipType.LP;
-    private static final String partnershipNumber = "LP123456";
+    private static final String PARTNERSHIP_NAME = "Asset Adders";
+    private static final PartnershipNameEnding PARTNERSHIP_NAME_ENDING = PartnershipNameEnding.LIMITED_PARTNERSHIP;
+    private static final PartnershipType PARTNERSHIP_TYPE = PartnershipType.LP;
+    private static final String PARTNERSHIP_NUMBER = "LP123456";
     private Term term = Term.BY_AGREEMENT;
     private List<String> sicCodes = List.of("62012");
-    private static final String email = "test@test.com";
-    private static final Jurisdiction jurisdiction = Jurisdiction.ENGLAND_AND_WALES;
+    private static final String EMAIL = "test@test.com";
+    private static final Jurisdiction JURISDICTION = Jurisdiction.ENGLAND_AND_WALES;
     private boolean lawfulPurposeStatementChecked = true;
     private AddressDto registeredOfficeAddressDto = null;
     private AddressDto principalPalceOfBusinessAddressDto = null;
     private AddressDao registeredOfficeAddressDao = null;
     private AddressDao principalPalceOfBusinessAddressDao = null;
 
-    private static final String premises = "33";
-    private static final String addressLine1 = "Acacia Avenue";
-    private static final String locality = "Birmingham";
-    private static final Country country = Country.ENGLAND;
-    private static final String postalCode = "BM1 2EH";
+    private static final String PREMISES = "33";
+    private static final String ADDRESS_LINE_1 = "Acacia Avenue";
+    private static final String LOCALITY = "Birmingham";
+    private static final Country COUNTRY = Country.ENGLAND;
+    private static final String POSTAL_CODE = "BM1 2EH";
 
     private void createAddressDto() {
         AddressDto roaDto = new AddressDto();
         AddressDto ppobaDto = new AddressDto();
 
-        roaDto.setPremises(premises);
-        roaDto.setAddressLine1(addressLine1);
-        roaDto.setLocality(locality);
-        roaDto.setCountry(country.getDescription());
-        roaDto.setPostalCode(postalCode);
+        roaDto.setPremises(PREMISES);
+        roaDto.setAddressLine1(ADDRESS_LINE_1);
+        roaDto.setLocality(LOCALITY);
+        roaDto.setCountry(COUNTRY.getDescription());
+        roaDto.setPostalCode(POSTAL_CODE);
 
-        ppobaDto.setPremises(premises);
-        ppobaDto.setAddressLine1(addressLine1);
-        ppobaDto.setLocality(locality);
-        ppobaDto.setCountry(country.getDescription());
-        ppobaDto.setPostalCode(postalCode);
+        ppobaDto.setPremises(PREMISES);
+        ppobaDto.setAddressLine1(ADDRESS_LINE_1);
+        ppobaDto.setLocality(LOCALITY);
+        ppobaDto.setCountry(COUNTRY.getDescription());
+        ppobaDto.setPostalCode(POSTAL_CODE);
 
         this.registeredOfficeAddressDto = roaDto;
         this.principalPalceOfBusinessAddressDto = ppobaDto;
@@ -61,17 +61,17 @@ public class LimitedPartnershipBuilder {
         AddressDao roaDao = new AddressDao();
         AddressDao ppobaDao = new AddressDao();
 
-        roaDao.setPremises(premises);
-        roaDao.setAddressLine1(addressLine1);
-        roaDao.setLocality(locality);
-        roaDao.setCountry(country.getDescription());
-        roaDao.setPostalCode(postalCode);
+        roaDao.setPremises(PREMISES);
+        roaDao.setAddressLine1(ADDRESS_LINE_1);
+        roaDao.setLocality(LOCALITY);
+        roaDao.setCountry(COUNTRY.getDescription());
+        roaDao.setPostalCode(POSTAL_CODE);
 
-        ppobaDao.setPremises(premises);
-        ppobaDao.setAddressLine1(addressLine1);
-        ppobaDao.setLocality(locality);
-        ppobaDao.setCountry(country.getDescription());
-        ppobaDao.setPostalCode(postalCode);
+        ppobaDao.setPremises(PREMISES);
+        ppobaDao.setAddressLine1(ADDRESS_LINE_1);
+        ppobaDao.setLocality(LOCALITY);
+        ppobaDao.setCountry(COUNTRY.getDescription());
+        ppobaDao.setPostalCode(POSTAL_CODE);
 
         this.registeredOfficeAddressDao = roaDao;
         this.principalPalceOfBusinessAddressDao = ppobaDao;
@@ -94,11 +94,11 @@ public class LimitedPartnershipBuilder {
 
         AddressDao roaDao = new AddressDao();
 
-        roaDao.setPremises(premises);
-        roaDao.setAddressLine1(addressLine1);
-        roaDao.setLocality(locality);
-        roaDao.setCountry(country.getDescription());
-        roaDao.setPostalCode(postalCode);
+        roaDao.setPremises(PREMISES);
+        roaDao.setAddressLine1(ADDRESS_LINE_1);
+        roaDao.setLocality(LOCALITY);
+        roaDao.setCountry(COUNTRY.getDescription());
+        roaDao.setPostalCode(POSTAL_CODE);
 
         this.registeredOfficeAddressDto = addressDto;
         this.registeredOfficeAddressDao = roaDao;
@@ -117,11 +117,11 @@ public class LimitedPartnershipBuilder {
 
         AddressDao ppobaDao = new AddressDao();
 
-        ppobaDao.setPremises(premises);
-        ppobaDao.setAddressLine1(addressLine1);
-        ppobaDao.setLocality(locality);
-        ppobaDao.setCountry(country.getDescription());
-        ppobaDao.setPostalCode(postalCode);
+        ppobaDao.setPremises(PREMISES);
+        ppobaDao.setAddressLine1(ADDRESS_LINE_1);
+        ppobaDao.setLocality(LOCALITY);
+        ppobaDao.setCountry(COUNTRY.getDescription());
+        ppobaDao.setPostalCode(POSTAL_CODE);
 
         this.principalPalceOfBusinessAddressDto = addressDto;
         this.principalPalceOfBusinessAddressDao = ppobaDao;
@@ -148,12 +148,12 @@ public class LimitedPartnershipBuilder {
         LimitedPartnershipDto dto = new LimitedPartnershipDto();
         DataDto dataDto = new DataDto();
 
-        dataDto.setPartnershipName(partnershipName);
-        dataDto.setNameEnding(partnershipNameEnding);
-        dataDto.setPartnershipType(partnershipType);
-        dataDto.setPartnershipNumber(partnershipNumber);
-        dataDto.setEmail(email);
-        dataDto.setJurisdiction(jurisdiction);
+        dataDto.setPartnershipName(PARTNERSHIP_NAME);
+        dataDto.setNameEnding(PARTNERSHIP_NAME_ENDING);
+        dataDto.setPartnershipType(PARTNERSHIP_TYPE);
+        dataDto.setPartnershipNumber(PARTNERSHIP_NUMBER);
+        dataDto.setEmail(EMAIL);
+        dataDto.setJurisdiction(JURISDICTION);
         dataDto.setTerm(term);
         dataDto.setSicCodes(sicCodes);
         dataDto.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
@@ -171,12 +171,12 @@ public class LimitedPartnershipBuilder {
 
         DataDao dataDao = new DataDao();
 
-        dataDao.setPartnershipName(partnershipName);
-        dataDao.setNameEnding(partnershipNameEnding.getDescription());
-        dataDao.setPartnershipType(partnershipType);
-        dataDao.setPartnershipNumber(partnershipNumber);
-        dataDao.setEmail(email);
-        dataDao.setJurisdiction(jurisdiction.getApiKey());
+        dataDao.setPartnershipName(PARTNERSHIP_NAME);
+        dataDao.setNameEnding(PARTNERSHIP_NAME_ENDING.getDescription());
+        dataDao.setPartnershipType(PARTNERSHIP_TYPE);
+        dataDao.setPartnershipNumber(PARTNERSHIP_NUMBER);
+        dataDao.setEmail(EMAIL);
+        dataDao.setJurisdiction(JURISDICTION.getApiKey());
         dataDao.setTerm(term);
         dataDao.setSicCodes(sicCodes);
         dataDao.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
