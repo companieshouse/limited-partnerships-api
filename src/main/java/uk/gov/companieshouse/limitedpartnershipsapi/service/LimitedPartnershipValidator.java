@@ -39,8 +39,8 @@ public class LimitedPartnershipValidator {
 
         final var dataDto = limitedPartnershipDto.getData();
 
-        checkCommonFields(dataDto, errorsList);
-        checkPartnershipTypeSpecificFields(dataDto, errorsList);
+        checkCommonFields(dataDto, incorporationKind, errorsList);
+        checkPartnershipTypeSpecificFields(dataDto, incorporationKind, errorsList);
 
         return errorsList;
     }
@@ -60,7 +60,7 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    private void checkCommonFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
+    private void checkCommonFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
         if (dataDto.getEmail() == null) {
             errorsList.add(createValidationStatusError("Email is required", "data.email"));
         }
@@ -74,18 +74,18 @@ public class LimitedPartnershipValidator {
                     "data.registeredOfficeAddress"));
         }
 
-        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null) {
+        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
             errorsList.add(createValidationStatusError("Principal place of business address is required",
                     "data.principalPlaceOfBusinessAddress"));
         }
 
-        if (dataDto.getLawfulPurposeStatementChecked() == null) {
+        if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
             errorsList.add(createValidationStatusError("Lawful purpose statement checked is required",
                     "data.lawfulPurposeStatementChecked"));
         }
     }
 
-    private void checkPartnershipTypeSpecificFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
+    private void checkPartnershipTypeSpecificFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
             if (dataDto.getTerm() != null) {
@@ -96,11 +96,11 @@ public class LimitedPartnershipValidator {
                 errorsList.add(createValidationStatusError("SIC codes are not required", "data.sicCodes"));
             }
         } else {
-            if (dataDto.getTerm() == null) {
+            if (dataDto.getTerm() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
                 errorsList.add(createValidationStatusError("Term is required", "data.term"));
             }
 
-            if (dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) {
+            if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
                 errorsList.add(createValidationStatusError("SIC codes are required", "data.sicCodes"));
             }
         }

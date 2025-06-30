@@ -50,7 +50,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_R
 class LimitedPartnershipServiceTest {
 
     private static final String USER_ID = "xbJf0l";
-    private static final String SUBMISSION_ID = "abc-123";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
     private static final String LINK_SELF = "self";
@@ -356,7 +356,7 @@ class LimitedPartnershipServiceTest {
     }
 
     private LimitedPartnershipDao createDao() {
-        return new LimitedPartnershipBuilder().dao();
+        return new LimitedPartnershipBuilder().buildDao();
     }
 
     private LimitedPartnershipDto createDto() {
