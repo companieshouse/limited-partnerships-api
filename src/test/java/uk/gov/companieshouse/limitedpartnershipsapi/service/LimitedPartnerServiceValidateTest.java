@@ -71,7 +71,7 @@ class LimitedPartnerServiceValidateTest {
     @Test
     void shouldReturnNoErrorsWhenLimitedPartnerDataIsValid() throws ServiceException {
         // given
-        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
@@ -317,7 +317,7 @@ class LimitedPartnerServiceValidateTest {
     }
 
     private void mocks() throws ServiceException {
-        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
         mocks(limitedPartnerDao);
     }

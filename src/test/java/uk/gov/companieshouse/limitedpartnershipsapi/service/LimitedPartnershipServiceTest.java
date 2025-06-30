@@ -38,11 +38,17 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
@@ -116,6 +122,40 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
         String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
         assertEquals(submissionUri, sentSubmissionUri);
+    }
+
+    @Test
+    void shouldAddCorrectLinksToTransactionResourceForRegistration() throws Exception {
+        // given + when
+        createLimitedPartnership(REGISTRATION);
+
+        // then
+        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), eq(REQUEST_ID));
+
+        Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
+        assertEquals(1, transactionResources.size());
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(3)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS));
+    }
+
+    @Test
+    void shouldAddCorrectLinksToTransactionResourceForTransition() throws Exception {
+        // given + when
+        createLimitedPartnership(TRANSITION);
+
+        // then
+        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), eq(REQUEST_ID));
+
+        Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
+        assertEquals(1, transactionResources.size());
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(2)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS));
     }
 
     @Test
@@ -304,7 +344,7 @@ class LimitedPartnershipServiceTest {
         when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
-        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, IncorporationKind.REGISTRATION)).thenReturn(new ArrayList<>());
+        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(new ArrayList<>());
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
@@ -328,7 +368,7 @@ class LimitedPartnershipServiceTest {
         var error2 = new ValidationStatusError("Invalid data format", "there", null, null);
         errorsList.add(error1);
         errorsList.add(error2);
-        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, IncorporationKind.REGISTRATION)).thenReturn(errorsList);
+        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(errorsList);
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
@@ -351,7 +391,7 @@ class LimitedPartnershipServiceTest {
     private Transaction buildTransaction() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
-        transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
+        transaction.setFilingMode(REGISTRATION.getDescription());
         return transaction;
     }
 
@@ -368,5 +408,21 @@ class LimitedPartnershipServiceTest {
         submissionDto.setData(dataDto);
 
         return submissionDto;
+    }
+
+    private void createLimitedPartnership(IncorporationKind incorporationKind) throws Exception {
+        // given
+        Transaction transaction = buildTransaction();
+        transaction.setFilingMode(incorporationKind.getDescription());
+
+        LimitedPartnershipDto limitedPartnershipDto = createDto();
+        LimitedPartnershipDao limitedPartnershipDao = createDao();
+
+        when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDao);
+        when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
+        when(transactionUtils.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
+
+        // when
+        service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
     }
 }

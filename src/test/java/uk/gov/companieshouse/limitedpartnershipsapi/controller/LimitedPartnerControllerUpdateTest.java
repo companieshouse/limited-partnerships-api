@@ -585,10 +585,10 @@ class LimitedPartnerControllerUpdateTest {
 
     @Test
     void shouldReturnTheListOfLPWithTheCompletedField() throws Exception {
-        LimitedPartnerDao limitedPartnerDao1 = new LimitedPartnerBuilder().dao();
+        LimitedPartnerDao limitedPartnerDao1 = new LimitedPartnerBuilder().personDao();
         limitedPartnerDao1.setTransactionId(TRANSACTION_ID);
 
-        LimitedPartnerDao limitedPartnerDao2 = new LimitedPartnerBuilder().dao();
+        LimitedPartnerDao limitedPartnerDao2 = new LimitedPartnerBuilder().personDao();
         limitedPartnerDao2.setTransactionId(TRANSACTION_ID);
         limitedPartnerDao2.getData().setUsualResidentialAddress(null);
 
@@ -630,7 +630,7 @@ class LimitedPartnerControllerUpdateTest {
     }
 
     private void mocks() throws ServiceException {
-        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
         mocks(limitedPartnerDao);
     }

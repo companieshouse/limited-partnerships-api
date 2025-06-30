@@ -246,7 +246,7 @@ class LimitedPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
             limitedPartnerDao.getData().setForename("");
             limitedPartnerDao.getData().setNationality1("UNKNOWN");
 
@@ -291,7 +291,7 @@ class LimitedPartnerControllerValidationTest {
     }
 
     private void mocks() throws ServiceException {
-        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
         mocks(limitedPartnerDao);
     }
