@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -40,7 +41,7 @@ class LimitedPartnershipServiceUpdateTest {
     Transaction transaction = new TransactionBuilder().build();
 
     private static final String USER_ID = "xbJf0l";
-    private static final String SUBMISSION_ID = "abc-123";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
     @Autowired
@@ -78,7 +79,7 @@ class LimitedPartnershipServiceUpdateTest {
                 dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
                 limitedPartnershipDao.setData(dataDao);
                 limitedPartnershipDao.setCreatedBy("5fd36577288e");
-                
+
                 var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setPartnershipName("Asset Strippers Updated");
 

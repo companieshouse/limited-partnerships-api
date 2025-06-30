@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
@@ -40,6 +41,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -148,7 +152,7 @@ class PartnershipControllerValidationTest {
             transaction.getResources().clear();
             transaction.setFilingMode("limited-partnership-registration");
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().dto();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
             limitedPartnershipDto.getData().setNameEnding(null);
 
             String body = objectMapper.writeValueAsString(limitedPartnershipDto);
@@ -168,7 +172,7 @@ class PartnershipControllerValidationTest {
             transaction.getResources().clear();
             transaction.setFilingMode("limited-partnership-transition");
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().dto();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
             limitedPartnershipDto.getData().setNameEnding(null);
             limitedPartnershipDto.getData().setPartnershipNumber("LP121212");
 
@@ -189,7 +193,7 @@ class PartnershipControllerValidationTest {
             transaction.getResources().clear();
             transaction.setFilingMode("limited-partnership-transition");
 
-            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().dto();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
             limitedPartnershipDto.getData().setNameEnding(null);
             limitedPartnershipDto.getData().setPartnershipNumber("LP1212");
 
@@ -639,7 +643,10 @@ class PartnershipControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().dao();
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .buildDao();
+
             limitedPartnershipDao.getData().setTerm(Term.UNKNOWN);
 
             mocks(limitedPartnershipDao);
@@ -654,6 +661,134 @@ class PartnershipControllerValidationTest {
                     .andExpect(jsonPath("is_valid").value("false"))
                     .andExpect(jsonPath("$.['errors'][0].['location']").value("data.term"))
                     .andExpect(jsonPath("$.['errors'][0].['error']").value("Term must be valid"));
+        }
+
+        @Test
+        void shouldReturn200AndErrorsIfRegisteredOfficeAddressIsMissing() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withRegisteredOfficeAddress(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "data.registeredOfficeAddress"), hasEntry("error", "Registered office address is required")))
+                    ));
+        }
+
+        @Test
+        void shouldReturn200AndErrorsIfPrincipalPlaceOfBusinessAddressIsMissing() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withPrincipalPlaceOfBusinessAddress(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "data.principalPlaceOfBusinessAddress"), hasEntry("error", "Principal place of business address is required")))
+                    ));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfPrincipalPlaceOfBusinessAddressIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withPrincipalPlaceOfBusinessAddress(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfTermIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withTerm(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfSicCodeIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withSicCodes(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfLawfulPurposeStatementCheckedIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withLawfulPurposeStatementChecked(false)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
         }
 
         @Test
@@ -677,7 +812,9 @@ class PartnershipControllerValidationTest {
     }
 
     private void mocks() {
-        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().dao();
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                .withAddresses()
+                .buildDao();
 
         mocks(limitedPartnershipDao);
     }
