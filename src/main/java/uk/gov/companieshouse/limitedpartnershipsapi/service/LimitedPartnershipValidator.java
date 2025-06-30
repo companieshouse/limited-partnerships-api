@@ -39,7 +39,7 @@ public class LimitedPartnershipValidator {
 
         final var dataDto = limitedPartnershipDto.getData();
 
-        checkCommonFields(dataDto, errorsList);
+        checkCommonFields(dataDto, incorporationKind, errorsList);
         checkPartnershipTypeSpecificFields(dataDto, errorsList);
 
         return errorsList;
@@ -60,7 +60,7 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    private void checkCommonFields(DataDto dataDto, List<ValidationStatusError> errorsList) {
+    private void checkCommonFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
         if (dataDto.getEmail() == null) {
             errorsList.add(createValidationStatusError("Email is required", "data.email"));
         }
@@ -74,7 +74,7 @@ public class LimitedPartnershipValidator {
                     "data.registeredOfficeAddress"));
         }
 
-        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null) {
+        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
             errorsList.add(createValidationStatusError("Principal place of business address is required",
                     "data.principalPlaceOfBusinessAddress"));
         }

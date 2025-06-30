@@ -1,57 +1,174 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.PFLP;
+import java.util.List;
 
 public class LimitedPartnershipBuilder {
-    public static final String SUBMISSION_ID = "abc-123";
+    public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
-    public LimitedPartnershipDto dto() {
+    private final String partnershipName = "Asset Adders";
+    private final PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
+    private final PartnershipType partnershipType = PartnershipType.LP;
+    private final String partnershipNumber = "LP123456";
+    private final Term term = Term.BY_AGREEMENT;
+    private final List<String> sicCodes = List.of("62012");
+    private final String email = "test@test.com";
+    private final Jurisdiction jurisdiction = Jurisdiction.ENGLAND_AND_WALES;
+    private final boolean lawfulPurposeStatementChecked = true;
+    private AddressDto registeredOfficeAddressDto = null;
+    private AddressDto principalPalceOfBusinessAddressDto = null;
+    private AddressDao registeredOfficeAddressDao = null;
+    private AddressDao principalPalceOfBusinessAddressDao = null;
+
+    private final String premises = "33";
+    private final String addressLine1 = "Acacia Avenue";
+    private final String locality = "Birmingham";
+    private final Country country = Country.ENGLAND;
+    private final String postalCode = "BM1 2EH";
+
+    private void createAddressDto() {
+        AddressDto roaDto = new AddressDto();
+        AddressDto ppobaDto = new AddressDto();
+
+        roaDto.setPremises(premises);
+        roaDto.setAddressLine1(addressLine1);
+        roaDto.setLocality(locality);
+        roaDto.setCountry(country.getDescription());
+        roaDto.setPostalCode(postalCode);
+
+        ppobaDto.setPremises(premises);
+        ppobaDto.setAddressLine1(addressLine1);
+        ppobaDto.setLocality(locality);
+        ppobaDto.setCountry(country.getDescription());
+        ppobaDto.setPostalCode(postalCode);
+
+        this.registeredOfficeAddressDto = roaDto;
+        this.principalPalceOfBusinessAddressDto = ppobaDto;
+    }
+
+    private void createAddressDao() {
+        AddressDao roaDao = new AddressDao();
+        AddressDao ppobaDao = new AddressDao();
+
+        roaDao.setPremises(premises);
+        roaDao.setAddressLine1(addressLine1);
+        roaDao.setLocality(locality);
+        roaDao.setCountry(country.getDescription());
+        roaDao.setPostalCode(postalCode);
+
+        ppobaDao.setPremises(premises);
+        ppobaDao.setAddressLine1(addressLine1);
+        ppobaDao.setLocality(locality);
+        ppobaDao.setCountry(country.getDescription());
+        ppobaDao.setPostalCode(postalCode);
+
+        this.registeredOfficeAddressDao = roaDao;
+        this.principalPalceOfBusinessAddressDao = ppobaDao;
+    }
+
+    public LimitedPartnershipBuilder withAddresses() {
+        createAddressDto();
+        createAddressDao();
+        return this;
+    }
+
+    public LimitedPartnershipBuilder withRegisteredOfficeAddress(AddressDto addressDto) {
+
+        if (addressDto == null) {
+            this.registeredOfficeAddressDto = null;
+            this.registeredOfficeAddressDao = null;
+
+            return this;
+        }
+
+        AddressDao roaDao = new AddressDao();
+
+        roaDao.setPremises(premises);
+        roaDao.setAddressLine1(addressLine1);
+        roaDao.setLocality(locality);
+        roaDao.setCountry(country.getDescription());
+        roaDao.setPostalCode(postalCode);
+
+        this.registeredOfficeAddressDto = addressDto;
+        this.registeredOfficeAddressDao = roaDao;
+
+        return this;
+    }
+
+    public LimitedPartnershipBuilder withPrincipalPlaceOfBusinessAddress(AddressDto addressDto) {
+
+        if (addressDto == null) {
+            this.principalPalceOfBusinessAddressDto = null;
+            this.principalPalceOfBusinessAddressDao = null;
+
+            return this;
+        }
+
+        AddressDao ppobaDao = new AddressDao();
+
+        ppobaDao.setPremises(premises);
+        ppobaDao.setAddressLine1(addressLine1);
+        ppobaDao.setLocality(locality);
+        ppobaDao.setCountry(country.getDescription());
+        ppobaDao.setPostalCode(postalCode);
+
+        this.principalPalceOfBusinessAddressDto = addressDto;
+        this.principalPalceOfBusinessAddressDao = ppobaDao;
+
+        return this;
+    }
+
+    public LimitedPartnershipDto buildDto() {
         LimitedPartnershipDto dto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
 
-        DataDto dataDao = new DataDto();
-        dataDao.setPartnershipName("test name");
-        dataDao.setNameEnding(PartnershipNameEnding.L_DOT_P_DOT);
-        dataDao.setPartnershipType(PartnershipType.LP);
-        dto.setData(dataDao);
+        dataDto.setPartnershipName(partnershipName);
+        dataDto.setNameEnding(partnershipNameEnding);
+        dataDto.setPartnershipType(partnershipType);
+        dataDto.setPartnershipNumber(partnershipNumber);
+        dataDto.setEmail(email);
+        dataDto.setJurisdiction(jurisdiction);
+        dataDto.setTerm(term);
+        dataDto.setSicCodes(sicCodes);
+        dataDto.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
+        dataDto.setRegisteredOfficeAddress(registeredOfficeAddressDto);
+        dataDto.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDto);
+
+        dto.setData(dataDto);
 
         return dto;
     }
 
-    public LimitedPartnershipDao dao() {
+    public LimitedPartnershipDao buildDao() {
         LimitedPartnershipDao dao = new LimitedPartnershipDao();
-
         dao.setId(SUBMISSION_ID);
+
         DataDao dataDao = new DataDao();
-        dataDao.setPartnershipType(PFLP);
-        dataDao.setPartnershipName("Asset Adders");
-        dataDao.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription());
-        dataDao.setEmail("some@where.com");
-        dataDao.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES.getApiKey());
-        dataDao.setRegisteredOfficeAddress(createAddressDao());
-        dataDao.setPrincipalPlaceOfBusinessAddress(createAddressDao());
-        dataDao.setLawfulPurposeStatementChecked(true);
+
+        dataDao.setPartnershipName(partnershipName);
+        dataDao.setNameEnding(partnershipNameEnding.getDescription());
+        dataDao.setPartnershipType(partnershipType);
+        dataDao.setPartnershipNumber(partnershipNumber);
+        dataDao.setEmail(email);
+        dataDao.setJurisdiction(jurisdiction.getApiKey());
+        dataDao.setTerm(term);
+        dataDao.setSicCodes(sicCodes);
+        dataDao.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
+        dataDao.setRegisteredOfficeAddress(registeredOfficeAddressDao);
+        dataDao.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDao);
+
         dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
 
         return dao;
     }
