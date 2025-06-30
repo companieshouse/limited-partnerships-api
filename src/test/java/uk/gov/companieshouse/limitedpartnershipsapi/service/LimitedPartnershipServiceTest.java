@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -39,6 +38,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -134,10 +134,11 @@ class LimitedPartnershipServiceTest {
 
         Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
         assertEquals(1, transactionResources.size());
-
-        Map links = transactionResources.values().stream().findFirst().get().getLinks();
-        assertEquals(3, links.size());
-        Assertions.assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS);
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(3)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS));
     }
 
     @Test
@@ -150,10 +151,11 @@ class LimitedPartnershipServiceTest {
 
         Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
         assertEquals(1, transactionResources.size());
-
-        Map links = transactionResources.values().stream().findFirst().get().getLinks();
-        assertEquals(2, links.size());
-        Assertions.assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS);
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(2)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS));
     }
 
     @Test

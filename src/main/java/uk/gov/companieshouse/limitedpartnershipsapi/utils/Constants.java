@@ -16,6 +16,7 @@ public class Constants {
     // URIs
     public static final String TRANSACTIONS_PRIVATE_API_URI_PREFIX = "/private/transactions/";
     public static final String VALIDATION_STATUS_URI_SUFFIX = "/validation-status";
+    public static final String COSTS_URI_SUFFIX = "/costs";
     public static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
     public static final String URL_RESUME = "/limited-partnerships/transaction/%s/submission/%s/resume";
     public static final String URL_GET_INCORPORATION = "/transactions/%s/incorporation/limited-partnership/%s";

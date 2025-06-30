@@ -440,10 +440,10 @@ class GeneralPartnerControllerUpdateTest {
 
     @Test
     void shouldReturnTheListOfGPWithTheCompletedField() throws Exception {
-        GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().personDao();
         generalPartnerDao1.setTransactionId(TRANSACTION_ID);
 
-        GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().personDao();
         generalPartnerDao2.setTransactionId(TRANSACTION_ID);
         generalPartnerDao2.getData().setUsualResidentialAddress(null);
 
@@ -471,7 +471,7 @@ class GeneralPartnerControllerUpdateTest {
     }
 
     private void mocks() {
-        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
 
         mocks(generalPartnerDao);
     }

@@ -17,7 +17,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
@@ -85,8 +84,8 @@ class GeneralPartnerServiceCreateTest {
     class CreateGeneralPartnerLegalEntity {
         @Test
         void shouldCreateAGeneralPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
-            GeneralPartnerDao dao = createGeneralPartnerLegalEntityDao();
+            GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
+            GeneralPartnerDao dao = new GeneralPartnerBuilder().legalEntityDao();
 
             when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
@@ -112,10 +111,11 @@ class GeneralPartnerServiceCreateTest {
 
             Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
             assertEquals(1, transactionResources.size());
-
-            Map links = transactionResources.values().stream().findFirst().get().getLinks();
-            assertEquals(3, links.size());
-            assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS);
+            assertThat(transactionResources.values())
+                    .allSatisfy(resource -> assertThat(resource.getLinks())
+                            .hasSize(3)
+                            .isNotNull()
+                            .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS));
         }
 
         @Test
@@ -126,15 +126,17 @@ class GeneralPartnerServiceCreateTest {
 
             Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
             assertEquals(1, transactionResources.size());
-
-            Map links = transactionResources.values().stream().findFirst().get().getLinks();
-            assertEquals(2, links.size());
-            assertThat(links).containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS);
+            assertThat(transactionResources.values())
+                    .allSatisfy(resource -> assertThat(resource.getLinks())
+                            .hasSize(2)
+                            .isNotNull()
+                            .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS));
         }
 
         @Test
         void shouldFailCreateAGeneralPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() {
-            GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
+            GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
+
             var data = dto.getData();
             data.setLegalEntityName(null);
             data.setLegalForm(null);
@@ -156,7 +158,7 @@ class GeneralPartnerServiceCreateTest {
 
         @Test
         void shouldFailCreateAGeneralPartnerLegalEntityIfLegalFormIsCorrectAndOthersAreNull() {
-            GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
+            GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
             var data = dto.getData();
 
             data.setLegalEntityName(null);
@@ -177,43 +179,10 @@ class GeneralPartnerServiceCreateTest {
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
         }
 
-        private GeneralPartnerDto createGeneralPartnerLegalEntityDto() {
-            GeneralPartnerDto dto = new GeneralPartnerDto();
-
-            GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
-            dataDto.setLegalEntityName("Legal Entity Name");
-            dataDto.setLegalForm("Form");
-            dataDto.setGoverningLaw("Act of law");
-            dataDto.setLegalEntityRegisterName("Register of United States");
-            dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
-            dataDto.setRegisteredCompanyNumber("12345678");
-
-            dto.setData(dataDto);
-            return dto;
-        }
-
-        private GeneralPartnerDao createGeneralPartnerLegalEntityDao() {
-            GeneralPartnerDao dao = new GeneralPartnerDao();
-
-            GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-            dataDao.setLegalEntityName("My company ltd");
-            dataDao.setLegalForm("Limited Company");
-            dataDao.setGoverningLaw("Act of law");
-            dataDao.setLegalEntityRegisterName("UK Register");
-            dataDao.setLegalEntityRegistrationLocation("United Kingdom");
-            dataDao.setRegisteredCompanyNumber("12345678");
-            dataDao.setNotDisqualifiedStatementChecked(true);
-
-            dao.setData(dataDao);
-            dao.setId(GENERAL_PARTNER_ID);
-
-            return dao;
-        }
-
         private void createGeneralPartner(IncorporationKind incorporationKind) throws Exception {
             transaction.setFilingMode(incorporationKind.getDescription());
-            GeneralPartnerDto dto = createGeneralPartnerLegalEntityDto();
-            GeneralPartnerDao dao = createGeneralPartnerLegalEntityDao();
+            GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
+            GeneralPartnerDao dao = new GeneralPartnerBuilder().legalEntityDao();
 
             when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
@@ -381,7 +350,7 @@ class GeneralPartnerServiceCreateTest {
     }
 
     private void mocks() {
-        GeneralPartnerDao limitedDao = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao limitedDao = new GeneralPartnerBuilder().personDao();
 
         mocks(limitedDao);
     }

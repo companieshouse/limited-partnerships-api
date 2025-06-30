@@ -231,7 +231,7 @@ class GeneralPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
+            GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
             generalPartnerDao.getData().setForename("");
             generalPartnerDao.getData().setNationality1("UNKNOWN");
 
@@ -274,7 +274,7 @@ class GeneralPartnerControllerValidationTest {
     }
 
     private void mocks() {
-        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
 
         mocks(generalPartnerDao);
     }

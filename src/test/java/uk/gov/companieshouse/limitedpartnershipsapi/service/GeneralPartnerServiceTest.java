@@ -79,12 +79,12 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGetGeneralPartnerSuccess() throws ServiceException {
-        GeneralPartnerDao dao = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao dao = new GeneralPartnerBuilder().personDao();
 
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(mapper.daoToDto(dao)).thenReturn(new GeneralPartnerBuilder().dto());
+        when(mapper.daoToDto(dao)).thenReturn(new GeneralPartnerBuilder().personDto());
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), anyString(), anyString()))
                 .thenReturn(true);
 
@@ -113,8 +113,8 @@ class GeneralPartnerServiceTest {
     @Test
     void testCreateLinksForGeneralPartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        GeneralPartnerDto dto = new GeneralPartnerBuilder().dto();
-        GeneralPartnerDao dao = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDto dto = new GeneralPartnerBuilder().personDto();
+        GeneralPartnerDao dao = new GeneralPartnerBuilder().personDao();
 
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
@@ -171,8 +171,8 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGetGeneralPartnerDataList() {
-        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(new GeneralPartnerBuilder().dao()));
-        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(new GeneralPartnerBuilder().dto());
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(new GeneralPartnerBuilder().personDao()));
+        when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(new GeneralPartnerBuilder().personDto());
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         List<GeneralPartnerDataDto> generalPartnerDataDtoList = generalPartnerService.getGeneralPartnerDataList(transaction);
@@ -181,16 +181,16 @@ class GeneralPartnerServiceTest {
 
     @Test
     void testGetGeneralPartnerList() throws ServiceException {
-        GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().personDao();
         generalPartnerDao1.setTransactionId(TransactionBuilder.TRANSACTION_ID);
-        GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().personDao();
         generalPartnerDao2.setTransactionId(TransactionBuilder.TRANSACTION_ID);
         List<GeneralPartnerDao> generalPartnerDaoList = List.of(generalPartnerDao1, generalPartnerDao2);
 
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TransactionBuilder.TRANSACTION_ID)).thenReturn(generalPartnerDaoList);
 
-        GeneralPartnerDto generalPartnerDto1 = new GeneralPartnerBuilder().dto();
-        GeneralPartnerDto generalPartnerDto2 = new GeneralPartnerBuilder().dto();
+        GeneralPartnerDto generalPartnerDto1 = new GeneralPartnerBuilder().personDto();
+        GeneralPartnerDto generalPartnerDto2 = new GeneralPartnerBuilder().personDto();
 
         when(mapper.daoToDto(generalPartnerDao1)).thenReturn(generalPartnerDto1);
         when(mapper.daoToDto(generalPartnerDao2)).thenReturn(generalPartnerDto2);

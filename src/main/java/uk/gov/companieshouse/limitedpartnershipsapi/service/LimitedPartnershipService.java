@@ -32,6 +32,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipService {
@@ -146,7 +147,7 @@ public class LimitedPartnershipService {
         linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
 
         if (transactionUtils.isForRegistration(transaction)) {
-            linksMap.put(LINK_COSTS, submissionUri + "/costs");
+            linksMap.put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
         }
 
         limitedPartnershipResource.setLinks(linksMap);

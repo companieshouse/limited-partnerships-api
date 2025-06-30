@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -129,10 +129,11 @@ class LimitedPartnershipIncorporationServiceTest {
 
         Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
         assertEquals(1, transactionResources.size());
-
-        Map links = transactionResources.values().stream().findFirst().get().getLinks();
-        assertEquals(2, links.size());
-        Assertions.assertThat(links).containsKeys(LINK_RESOURCE, LINK_COSTS);
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(2)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE, LINK_COSTS));
     }
 
     @Test
@@ -143,12 +144,13 @@ class LimitedPartnershipIncorporationServiceTest {
         // then
         verify(transactionService).updateTransaction(transactionSubmissionCaptor.capture(), eq(REQUEST_ID));
 
-        Transaction sentTransaction = transactionSubmissionCaptor.getValue();
-        assertEquals(1, sentTransaction.getResources().size());
-
-        Map links = sentTransaction.getResources().values().stream().findFirst().get().getLinks();
-        assertEquals(1, links.size());
-        Assertions.assertThat(links).containsKeys(LINK_RESOURCE);
+        Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
+        assertEquals(1, transactionResources.size());
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(1)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE));
     }
 
     @Test

@@ -55,7 +55,7 @@ class GeneralPartnerServiceValidateTest {
     @Test
     void shouldReturnNoErrorsWhenGeneralPartnerDataIsValid() throws ServiceException {
         // given
-        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
         generalPartnerDao.setTransactionId(TRANSACTION_ID);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
@@ -71,7 +71,7 @@ class GeneralPartnerServiceValidateTest {
     @Test
     void shouldReturnErrorsWhenGeneralPartnerDataIsInvalidAndJavaBeanChecksFail() throws ServiceException {
         // given
-        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().dao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
         generalPartnerDao.getData().setDateOfBirth(LocalDate.of(3000, 10, 3));
         generalPartnerDao.getData().setNationality1("INVALID-COUNTRY");
 
