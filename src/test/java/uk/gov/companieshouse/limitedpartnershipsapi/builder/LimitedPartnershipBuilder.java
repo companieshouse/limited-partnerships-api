@@ -17,25 +17,25 @@ import java.util.List;
 public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
-    private final String partnershipName = "Asset Adders";
-    private final PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
-    private final PartnershipType partnershipType = PartnershipType.LP;
-    private final String partnershipNumber = "LP123456";
+    private static final String partnershipName = "Asset Adders";
+    private static final PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
+    private static final PartnershipType partnershipType = PartnershipType.LP;
+    private static final String partnershipNumber = "LP123456";
     private Term term = Term.BY_AGREEMENT;
     private List<String> sicCodes = List.of("62012");
-    private final String email = "test@test.com";
-    private final Jurisdiction jurisdiction = Jurisdiction.ENGLAND_AND_WALES;
+    private static final String email = "test@test.com";
+    private static final Jurisdiction jurisdiction = Jurisdiction.ENGLAND_AND_WALES;
     private boolean lawfulPurposeStatementChecked = true;
     private AddressDto registeredOfficeAddressDto = null;
     private AddressDto principalPalceOfBusinessAddressDto = null;
     private AddressDao registeredOfficeAddressDao = null;
     private AddressDao principalPalceOfBusinessAddressDao = null;
 
-    private final String premises = "33";
-    private final String addressLine1 = "Acacia Avenue";
-    private final String locality = "Birmingham";
-    private final Country country = Country.ENGLAND;
-    private final String postalCode = "BM1 2EH";
+    private static final String premises = "33";
+    private static final String addressLine1 = "Acacia Avenue";
+    private static final String locality = "Birmingham";
+    private static final Country country = Country.ENGLAND;
+    private static final String postalCode = "BM1 2EH";
 
     private void createAddressDto() {
         AddressDto roaDto = new AddressDto();
