@@ -17,12 +17,18 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -60,7 +66,10 @@ class LimitedPartnerControllerValidationTest {
                   "surname": "Bloggs",
                   "date_of_birth": "2001-01-01",
                   "nationality1": "BRITISH",
-                  "nationality2": null
+                  "nationality2": null,
+                  "contribution_currency_type": "GBP",
+                  "contribution_currency_value": "15.00",
+                  "contribution_sub_types": ["SHARES"]
                 }
             }""";
 
@@ -84,12 +93,12 @@ class LimitedPartnerControllerValidationTest {
 
     private static final String JSON_INVALID_SECOND_NATIONALITY = "{ \"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": \"Absurdistani\" } }";
 
+    private static final String JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE = "{ \"data\": { \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\" } }";
+
     // LEGAL ENTITY
     private static final String JSON_LIMITED_LEGAL_ENTITY_CORRECT = """
             {
               "data": {
-                "contribution_currency_type": "GBP",
-                "contribution_currency_value": "200.20",
                 "legal_entity_name": "My Company Name",
                 "legal_form": "Form ABC",
                 "governing_law": "Act of law",
@@ -136,6 +145,12 @@ class LimitedPartnerControllerValidationTest {
     @MockitoBean
     private CostsService costsService;
 
+    @MockitoBean
+    private LimitedPartnershipService limitedPartnershipService;
+
+    @MockitoBean
+    private CompanyService companyService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -155,9 +170,12 @@ class LimitedPartnerControllerValidationTest {
             JSON_INVALID_SURNAME + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
-            JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid"
+            JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid",
+            JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ contribution_sub_types $ Contribution sub types is required"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
+        mocks();
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -185,6 +203,8 @@ class LimitedPartnerControllerValidationTest {
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
         mocks();
 
+        mockLimitedPartnershipService(PartnershipType.PFLP);
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -196,6 +216,8 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn400WhenCreatingLimitedPartnerLegalEntityWithWrongCountry() throws Exception {
+        mockLimitedPartnershipService(PartnershipType.PFLP);
+
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -224,7 +246,7 @@ class LimitedPartnerControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
             limitedPartnerDao.getData().setForename("");
             limitedPartnerDao.getData().setNationality1("UNKNOWN");
 
@@ -258,17 +280,28 @@ class LimitedPartnerControllerValidationTest {
         }
     }
 
-    private void mocks(LimitedPartnerDao limitedPartnerDao) {
+    private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         when(limitedPartnerRepository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
         when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+
+        mockLimitedPartnershipService(PartnershipType.LP);
     }
 
-    private void mocks() {
-        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().dao();
+    private void mocks() throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
         mocks(limitedPartnerDao);
+    }
+
+    private void mockLimitedPartnershipService(PartnershipType partnershipType) throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipType(partnershipType);
+        limitedPartnershipDto.setData(dataDto);
+
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 }

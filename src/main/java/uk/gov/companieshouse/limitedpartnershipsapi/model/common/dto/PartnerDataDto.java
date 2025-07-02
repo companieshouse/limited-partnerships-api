@@ -129,7 +129,6 @@ public abstract class PartnerDataDto {
     public static final String LEGAL_FORM_FIELD = "legal_form";
     public static final String REGISTERED_COMPANY_NUMBER_FIELD = "registered_company_number";
     public static final String GOVERNING_LAW_FIELD = "governing_law";
-    public static final String LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD = "legal_personality_statement_checked";
     public static final String DATE_EFFECTIVE_FROM_FIELD = "date_effective_from";
     public static final String PRINCIPAL_OFFICE_ADDRESS_FIELD = "principal_office_address";
 
@@ -167,15 +166,13 @@ public abstract class PartnerDataDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
     private String governingLaw;
 
-    @JsonProperty(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)
-    private Boolean legalPersonalityStatementChecked;
-
     @JsonProperty("resignation_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate resignationDate;
 
     @JsonProperty(DATE_EFFECTIVE_FROM_FIELD)
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "Partner date effective from must be in the past")
     private LocalDate dateEffectiveFrom;
 
     @JsonProperty(PRINCIPAL_OFFICE_ADDRESS_FIELD)
@@ -230,14 +227,6 @@ public abstract class PartnerDataDto {
 
     public void setGoverningLaw(String governingLaw) {
         this.governingLaw = governingLaw;
-    }
-
-    public Boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
-    }
-
-    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public LocalDate getResignationDate() {

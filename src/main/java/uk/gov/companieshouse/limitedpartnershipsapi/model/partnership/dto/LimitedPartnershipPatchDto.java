@@ -13,7 +13,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 
-import jakarta.validation.constraints.AssertTrue;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
@@ -22,7 +21,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_S
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
-
 
 @NameSize
 public class LimitedPartnershipPatchDto {
@@ -65,7 +63,6 @@ public class LimitedPartnershipPatchDto {
     private List<@Pattern(regexp = "\\d{5}", message = "Sic code must be 5 numeric characters") String> sicCodes;
 
     @JsonProperty("lawful_purpose_statement_checked")
-    @AssertTrue(message = "Lawful purpose statement must be checked")
     private Boolean lawfulPurposeStatementChecked;
 
     public String getPartnershipName() {
@@ -132,9 +129,11 @@ public class LimitedPartnershipPatchDto {
         this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
     }
 
-    public List<String> getSicCodes() { return sicCodes; }
+    public List<String> getSicCodes() {
+        return sicCodes;
+    }
 
-    public void setSicCodes(List<String> sicCodes ) {
+    public void setSicCodes(List<String> sicCodes) {
         this.sicCodes = sicCodes;
     }
 

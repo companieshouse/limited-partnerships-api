@@ -23,9 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 
 @Service
 public class GeneralPartnerService {
@@ -51,7 +55,7 @@ public class GeneralPartnerService {
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        generalPartnerValidator.validatePartial(generalPartnerDto);
+        generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
 
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -88,8 +92,12 @@ public class GeneralPartnerService {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", submissionUri);
-        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+        linksMap.put(LINK_RESOURCE, submissionUri);
+        linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        if (transactionUtils.isForRegistration(transaction)) {
+            linksMap.put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
+        }
 
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
@@ -108,7 +116,7 @@ public class GeneralPartnerService {
 
         mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
-        generalPartnerValidator.validateUpdate(generalPartnerDto);
+        generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
 
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
@@ -135,7 +143,7 @@ public class GeneralPartnerService {
             throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
-        return generalPartnerValidator.validateFull(dto);
+        return generalPartnerValidator.validateFull(dto, transaction);
     }
 
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) throws ServiceException {
@@ -143,7 +151,7 @@ public class GeneralPartnerService {
                 .map(mapper::daoToDto).toList();
 
         for (GeneralPartnerDto generalPartnerDto : generalPartnerDtos) {
-            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto).isEmpty();
+            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto, transaction).isEmpty();
             generalPartnerDto.getData().setCompleted(isCompleted);
         }
 

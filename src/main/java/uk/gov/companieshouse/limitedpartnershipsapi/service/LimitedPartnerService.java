@@ -23,9 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnerService {
@@ -51,13 +55,12 @@ public class LimitedPartnerService {
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        limitedPartnerValidator.validatePartial(limitedPartnerDto);
+        limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
         updateTransactionWithLinksForLimitedPartner(requestId, transaction, submissionUri);
-
         return insertedSubmission.getId();
     }
 
@@ -90,8 +93,13 @@ public class LimitedPartnerService {
         var limitedPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", submissionUri);
-        linksMap.put("validation_status", submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+        linksMap.put(LINK_RESOURCE, submissionUri);
+        linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        if (transactionUtils.isForRegistration(transaction)) {
+            linksMap.put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
+        }
+
 
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
@@ -110,7 +118,7 @@ public class LimitedPartnerService {
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
-        limitedPartnerValidator.validateUpdate(limitedPartnerDto);
+        limitedPartnerValidator.validateUpdate(limitedPartnerDto, limitedPartnerChangesDataDto, transaction);
 
         handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
@@ -140,10 +148,17 @@ public class LimitedPartnerService {
                 .toList();
     }
 
-    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) {
-        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+    public List<LimitedPartnerDto> getLimitedPartnerList(Transaction transaction) throws ServiceException {
+        List<LimitedPartnerDto> limitedPartnerDtos = repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
                 .toList();
+
+        for (LimitedPartnerDto limitedPartnerDto : limitedPartnerDtos) {
+            boolean isCompleted = limitedPartnerValidator.validateFull(limitedPartnerDto, transaction).isEmpty();
+            limitedPartnerDto.getData().setCompleted(isCompleted);
+        }
+
+        return limitedPartnerDtos;
     }
 
     public void deleteLimitedPartner(Transaction transaction, String limitedPartnerId, String requestId) throws ServiceException {
@@ -170,7 +185,7 @@ public class LimitedPartnerService {
             throws ServiceException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
-        return limitedPartnerValidator.validateFull(dto);
+        return limitedPartnerValidator.validateFull(dto, transaction);
     }
 
     private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,

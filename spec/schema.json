@@ -1023,9 +1023,6 @@
           "not_disqualified_statement_checked" :{
             "type" : "boolean"
           },
-          "legal_personality_statement_checked" :{
-            "type" : "boolean"
-          },
           "principal_office_address": {
              "$ref": "#/definitions/Address"
           },
@@ -1058,8 +1055,18 @@
             "contribution_currency_value": {
               "type": "string"
             },
-            "contribution_non_monetary_value": {
-              "type": "string"
+            "contribution_sub_types": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "MONEY",
+                  "LAND_OR_PROPERTY",
+                  "SHARES",
+                  "SERVICES_OR_GOODS",
+                  "ANY_OTHER_ASSET"
+                ]
+              }
             }
           }
         },

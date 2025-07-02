@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 public class GeneralPartnerBuilder {
     public static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
 
-    public GeneralPartnerDto dto() {
+    public GeneralPartnerDto personDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
 
         dto.setId(GENERAL_PARTNER_ID);
@@ -25,6 +26,23 @@ public class GeneralPartnerBuilder {
         dataDto.setNotDisqualifiedStatementChecked(true);
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setServiceAddress(createAddressDto());
+        dto.setData(dataDto);
+
+        return dto;
+    }
+
+    public GeneralPartnerDto legalEntityDto() {
+        GeneralPartnerDto dto = new GeneralPartnerDto();
+
+        GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
+        dataDto.setLegalEntityName("Legal Entity Name");
+        dataDto.setLegalForm("Form");
+        dataDto.setGoverningLaw("Act of law");
+        dataDto.setLegalEntityRegisterName("Register of United States");
+        dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
+        dataDto.setRegisteredCompanyNumber("12345678");
+        dataDto.setPrincipalOfficeAddress(createAddressDto());
+
         dto.setData(dataDto);
 
         return dto;
@@ -42,7 +60,7 @@ public class GeneralPartnerBuilder {
         return dto;
     }
 
-    public GeneralPartnerDao dao() {
+    public GeneralPartnerDao personDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
 
         dao.setId(GENERAL_PARTNER_ID);
@@ -55,6 +73,25 @@ public class GeneralPartnerBuilder {
         dataDao.setUsualResidentialAddress(createAddressDao());
         dataDao.setServiceAddress(createAddressDao());
         dao.setData(dataDao);
+
+        return dao;
+    }
+
+    public GeneralPartnerDao legalEntityDao() {
+        GeneralPartnerDao dao = new GeneralPartnerDao();
+
+        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
+        dataDao.setLegalEntityName("My company ltd");
+        dataDao.setLegalForm("Limited Company");
+        dataDao.setGoverningLaw("Act of law");
+        dataDao.setLegalEntityRegisterName("UK Register");
+        dataDao.setLegalEntityRegistrationLocation("United Kingdom");
+        dataDao.setRegisteredCompanyNumber("12345678");
+        dataDao.setNotDisqualifiedStatementChecked(true);
+        dataDao.setPrincipalOfficeAddress(createAddressDao());
+
+        dao.setData(dataDao);
+        dao.setId(GENERAL_PARTNER_ID);
 
         return dao;
     }

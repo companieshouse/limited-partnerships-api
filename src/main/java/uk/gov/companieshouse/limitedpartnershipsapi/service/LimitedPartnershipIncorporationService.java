@@ -19,8 +19,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipIncorporationService {
@@ -79,25 +82,27 @@ public class LimitedPartnershipIncorporationService {
 
     private void updateTransactionWithIncorporationResource(Transaction transaction, String incorporationUri, String kind, String loggingContext)
             throws ServiceException {
-        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri, kind);
+        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri, kind, transaction);
 
         transaction.setResources(Collections.singletonMap(incorporationUri, incorporationTransactionResource));
         transactionService.updateTransaction(transaction, loggingContext);
     }
 
-    private Resource createIncorporationTransactionResource(String incorporationUri, String kind) {
+    private Resource createIncorporationTransactionResource(String incorporationUri, String kind, Transaction transaction) {
         var incorporationResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", incorporationUri);
-        linksMap.put("costs", incorporationUri + "/costs");
+        linksMap.put(LINK_RESOURCE, incorporationUri);
+
+        if (transactionUtils.isForRegistration(transaction)) {
+            linksMap.put(LINK_COSTS, incorporationUri + COSTS_URI_SUFFIX);
+        }
 
         incorporationResource.setLinks(linksMap);
         incorporationResource.setKind(kind);
 
         return incorporationResource;
     }
-
 
     public LimitedPartnershipIncorporationDto getIncorporation(Transaction transaction,
                                                                String incorporationId,

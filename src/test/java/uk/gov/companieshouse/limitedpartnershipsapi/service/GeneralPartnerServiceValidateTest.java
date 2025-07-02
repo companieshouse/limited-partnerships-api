@@ -6,9 +6,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
@@ -20,9 +21,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,13 +31,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class GeneralPartnerServiceValidateTest {
 
-    private static final String GENERAL_PARTNER_ID = "abc-123";
-    private static final String TRANSACTION_ID = "txn-456";
+    private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_GENERAL_PARTNER,
+            URL_GET_GENERAL_PARTNER,
+            GENERAL_PARTNER_ID
+    ).build();
 
     @Autowired
     private GeneralPartnerService service;
@@ -46,13 +52,11 @@ class GeneralPartnerServiceValidateTest {
     @MockitoBean
     private GeneralPartnerRepository repository;
 
-
     @Test
     void shouldReturnNoErrorsWhenGeneralPartnerDataIsValid() throws ServiceException {
         // given
-        GeneralPartnerDao generalPartnerDao = createPersonDao();
-
-        Transaction transaction = buildTransaction();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
+        generalPartnerDao.setTransactionId(TRANSACTION_ID);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
@@ -67,11 +71,9 @@ class GeneralPartnerServiceValidateTest {
     @Test
     void shouldReturnErrorsWhenGeneralPartnerDataIsInvalidAndJavaBeanChecksFail() throws ServiceException {
         // given
-        GeneralPartnerDao generalPartnerDao = createPersonDao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
         generalPartnerDao.getData().setDateOfBirth(LocalDate.of(3000, 10, 3));
         generalPartnerDao.getData().setNationality1("INVALID-COUNTRY");
-
-        Transaction transaction = buildTransaction();
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
@@ -97,8 +99,6 @@ class GeneralPartnerServiceValidateTest {
         generalPartnerDao.getData().setUsualResidentialAddress(null);
         generalPartnerDao.getData().setServiceAddress(null);
 
-        Transaction transaction = buildTransaction();
-
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
@@ -122,11 +122,8 @@ class GeneralPartnerServiceValidateTest {
         // given
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setGoverningLaw(null);
-        generalPartnerDao.getData().setLegalPersonalityStatementChecked(false);
         generalPartnerDao.getData().setRegisteredCompanyNumber(null);
         generalPartnerDao.getData().setPrincipalOfficeAddress(null);
-
-        Transaction transaction = buildTransaction();
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
@@ -139,7 +136,6 @@ class GeneralPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Governing Law is required", GeneralPartnerDataDto.GOVERNING_LAW_FIELD),
-                        tuple("Legal Personality Statement must be checked", GeneralPartnerDataDto.LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD),
                         tuple("Registered Company Number is required", GeneralPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
                         tuple("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
     }
@@ -150,8 +146,6 @@ class GeneralPartnerServiceValidateTest {
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setRegisteredCompanyNumber("");
         generalPartnerDao.getData().setLegalEntityName(null);
-
-        Transaction transaction = buildTransaction();
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
@@ -174,30 +168,12 @@ class GeneralPartnerServiceValidateTest {
         generalPartnerDao.getData().setRegisteredCompanyNumber("");
         generalPartnerDao.getData().setLegalEntityName(null);
 
-        Transaction transaction = buildTransaction();
         transaction.getResources().values().forEach(r -> r.setKind("INVALID-KIND"));
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID));
-    }
-
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_GENERAL_PARTNER);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/general-partner/abc-123");
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/general-partner/%s", TRANSACTION_ID, GENERAL_PARTNER_ID), resource);
-        transaction.setResources(resourceMap);
-
-        return transaction;
     }
 
     private GeneralPartnerDao createPersonDao() {
@@ -228,7 +204,6 @@ class GeneralPartnerServiceValidateTest {
         dataDao.setGoverningLaw("UK");
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
         dataDao.setRegisteredCompanyNumber("LP111222");
-        dataDao.setLegalPersonalityStatementChecked(true);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
         dao.setData(dataDao);
 

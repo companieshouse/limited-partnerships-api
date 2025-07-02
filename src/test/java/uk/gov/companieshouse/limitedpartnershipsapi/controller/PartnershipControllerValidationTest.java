@@ -18,22 +18,33 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -42,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {PartnershipController.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, LimitedPartnershipMapperImpl.class, LimitedPartnershipPatchMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
 
@@ -54,7 +65,7 @@ class PartnershipControllerValidationTest {
     private static final String VALIDATE_STATUS_URL = PATCH_URL + "/validation-status";
 
     private HttpHeaders httpHeaders;
-    private final Transaction transaction = new TransactionBuilder().build();
+    private Transaction transaction;
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,10 +74,16 @@ class PartnershipControllerValidationTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private TransactionInterceptor transactionInterceptor;
+    private LimitedPartnershipRepository repository;
 
     @MockitoBean
-    private LimitedPartnershipService service;
+    private TransactionService transactionService;
+
+    @MockitoBean
+    private TransactionUtils transactionUtils;
+
+    @MockitoBean
+    private TransactionInterceptor transactionInterceptor;
 
     @MockitoBean
     private CostsService costsService;
@@ -77,12 +94,18 @@ class PartnershipControllerValidationTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
+
+        transaction = new TransactionBuilder().build();
+        transaction.setFilingMode("limited-partnership-registration");
     }
 
     @Nested
     class CreatePartnership {
         @Test
         void shouldReturn201() throws Exception {
+            mocks();
+            transaction.getResources().clear();
+
             LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
             DataDto dto = new DataDto();
 
@@ -123,16 +146,76 @@ class PartnershipControllerValidationTest {
                     .andExpect(status().isBadRequest());
         }
 
+        @Test
+        void shouldReturnBadRequestErrorIfNameEndingForRegistrationIsMissing() throws Exception {
+            mocks();
+            transaction.getResources().clear();
+            transaction.setFilingMode("limited-partnership-registration");
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            limitedPartnershipDto.getData().setNameEnding(null);
+
+            String body = objectMapper.writeValueAsString(limitedPartnershipDto);
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void shouldReturn201IfNameEndingForTransitionIsMissing() throws Exception {
+            mocks();
+            transaction.getResources().clear();
+            transaction.setFilingMode("limited-partnership-transition");
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            limitedPartnershipDto.getData().setNameEnding(null);
+            limitedPartnershipDto.getData().setPartnershipNumber("LP121212");
+
+            String body = objectMapper.writeValueAsString(limitedPartnershipDto);
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isCreated());
+        }
+
+        @Test
+        void shouldReturnBadRequestErrorIfCompanyNumberForTransitionIsInvalid() throws Exception {
+            mocks();
+            transaction.getResources().clear();
+            transaction.setFilingMode("limited-partnership-transition");
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            limitedPartnershipDto.getData().setNameEnding(null);
+            limitedPartnershipDto.getData().setPartnershipNumber("LP1212");
+
+            String body = objectMapper.writeValueAsString(limitedPartnershipDto);
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
         private static final String JSON_MISSING_PARTNERSHIP_NAME = "{\"data\":{\"name_ending\":\"Limited Partnership\",\"partnership_type\":\"LP\"}}";
         private static final String JSON_INVALID_CHARS_PARTNERSHIP_NAME = "{\"data\":{\"partnership_name\":\"±±±Name test\", \"name_ending\":\"Limited Partnership\",\"partnership_type\":\"LP\"}}";
-        private static final String JSON_MISSING_NAME_ENDING = "{\"data\":{\"partnership_name\":\"Name test\", \"partnership_type\":\"LP\"}}";
         private static final String JSON_MISSING_TYPE = "{\"data\":{\"partnership_name\":\"Name test\", \"name_ending\":\"Limited Partnership\"}}";
 
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_MISSING_PARTNERSHIP_NAME,
                 JSON_INVALID_CHARS_PARTNERSHIP_NAME,
-                JSON_MISSING_NAME_ENDING,
                 JSON_MISSING_TYPE
         })
         void shouldReturnBadRequest(String body) throws Exception {
@@ -159,6 +242,8 @@ class PartnershipControllerValidationTest {
                 JSON_WITH_VALID_NULL_JURISDICTION
         })
         void shouldReturn200(String body) throws Exception {
+            mocks();
+
             mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -172,6 +257,8 @@ class PartnershipControllerValidationTest {
         class Email {
             @Test
             void shouldReturn200() throws Exception {
+                mocks();
+
                 String body = "{\"email\":\"test@email.com\"}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
@@ -201,6 +288,8 @@ class PartnershipControllerValidationTest {
         class NameSize {
             @Test
             void shouldReturn200IfNameSizeIsCorrect() throws Exception {
+                mocks();
+
                 String body = "{\"partnership_name\":\"Correct name size\",\"name_ending\":\"Limited Partnership\"}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
@@ -300,6 +389,7 @@ class PartnershipControllerValidationTest {
             // registered_office_address
             private static final String JSON_ROA_POSTCODE_EMPTY = "{\"registered_office_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
             private static final String JSON_ROA_POSTCODE_NOT_CORRECT = "{\"registered_office_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+            private static final String JSON_ROA_POSTCODE_NOT_UK_MAINLAND = "{\"registered_office_address\":{\"postal_code\":\"JE2 3AA\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
             private static final String JSON_ROA_ADDRESS_LINE_1_TOO_SHORT = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
             private static final String JSON_ROA_MISSING_POSTCODE = "{\"registered_office_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
@@ -335,6 +425,8 @@ class PartnershipControllerValidationTest {
 
             @Test
             void shouldReturn200() throws Exception {
+                mocks();
+
                 String body = "{\"registered_office_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
@@ -364,6 +456,7 @@ class PartnershipControllerValidationTest {
             @ValueSource(strings = {
                     JSON_ROA_POSTCODE_EMPTY,
                     JSON_ROA_POSTCODE_NOT_CORRECT,
+                    JSON_ROA_POSTCODE_NOT_UK_MAINLAND,
                     JSON_ROA_ADDRESS_LINE_1_TOO_SHORT,
                     JSON_PPOB_POSTCODE_EMPTY,
                     JSON_PPOB_POSTCODE_NOT_CORRECT,
@@ -470,6 +563,8 @@ class PartnershipControllerValidationTest {
                     JSON_TERM_NONE,
             })
             void shouldReturn200(String body) throws Exception {
+                mocks();
+
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding(StandardCharsets.UTF_8)
@@ -498,6 +593,8 @@ class PartnershipControllerValidationTest {
         class SicCodes {
             @Test
             void shouldReturn200IfSicCodesIsCorrect() throws Exception {
+                mocks();
+
                 String body = "{\"sic_codes\":[\"12345\"]}";
 
                 mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
@@ -532,8 +629,7 @@ class PartnershipControllerValidationTest {
     class ValidatePartnership {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
-                    .thenReturn(new ArrayList<>());
+            mocks();
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -547,10 +643,13 @@ class PartnershipControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
-            List<ValidationStatusError> errorsList = new ArrayList<>();
-            errorsList.add(new ValidationStatusError("Term must be valid", "here", null, null));
-            errorsList.add(new ValidationStatusError("Invalid data format", "there", null, null));
-            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(errorsList);
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .buildDao();
+
+            limitedPartnershipDao.getData().setTerm(Term.UNKNOWN);
+
+            mocks(limitedPartnershipDao);
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -560,17 +659,140 @@ class PartnershipControllerValidationTest {
                             .content(""))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("is_valid").value("false"))
-                    .andExpect(jsonPath("$.['errors'][0].['location']").value("here"))
-                    .andExpect(jsonPath("$.['errors'][0].['error']").value("Term must be valid"))
-                    .andExpect(jsonPath("$.['errors'][1].['location']").value("there"))
-                    .andExpect(jsonPath("$.['errors'][1].['error']").value("Invalid data format"));
+                    .andExpect(jsonPath("$.['errors'][0].['location']").value("data.term"))
+                    .andExpect(jsonPath("$.['errors'][0].['error']").value("Term must be valid"));
+        }
+
+        @Test
+        void shouldReturn200AndErrorsIfRegisteredOfficeAddressIsMissing() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withRegisteredOfficeAddress(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "data.registeredOfficeAddress"), hasEntry("error", "Registered office address is required")))
+                    ));
+        }
+
+        @Test
+        void shouldReturn200AndErrorsIfPrincipalPlaceOfBusinessAddressIsMissing() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withPrincipalPlaceOfBusinessAddress(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "data.principalPlaceOfBusinessAddress"), hasEntry("error", "Principal place of business address is required")))
+                    ));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfPrincipalPlaceOfBusinessAddressIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withPrincipalPlaceOfBusinessAddress(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfTermIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withTerm(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfSicCodeIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withSicCodes(null)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @Test
+        void shouldReturn200AndNoErrorsIfLawfulPurposeStatementCheckedIsMissingInTransitionJourney() throws Exception {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                    .withAddresses()
+                    .withLawfulPurposeStatementChecked(false)
+                    .buildDao();
+
+            mocks(limitedPartnershipDao);
+
+            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+            mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
         }
 
         @Test
         void shouldReturn404IfPartnershipNotFound() throws Exception {
-            when(service.validateLimitedPartnership(transaction, SUBMISSION_ID))
-                    .thenThrow(new ResourceNotFoundException("Error"));
-
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -579,5 +801,21 @@ class PartnershipControllerValidationTest {
                             .content(""))
                     .andExpect(status().isNotFound());
         }
+    }
+
+    private void mocks(LimitedPartnershipDao limitedPartnershipDao) {
+        when(repository.insert((LimitedPartnershipDao) any())).thenReturn(limitedPartnershipDao);
+        when(repository.save(any())).thenReturn(limitedPartnershipDao);
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
+
+        when(transactionUtils.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+    }
+
+    private void mocks() {
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                .withAddresses()
+                .buildDao();
+
+        mocks(limitedPartnershipDao);
     }
 }

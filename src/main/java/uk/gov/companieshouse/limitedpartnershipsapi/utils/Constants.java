@@ -16,8 +16,9 @@ public class Constants {
     // URIs
     public static final String TRANSACTIONS_PRIVATE_API_URI_PREFIX = "/private/transactions/";
     public static final String VALIDATION_STATUS_URI_SUFFIX = "/validation-status";
+    public static final String COSTS_URI_SUFFIX = "/costs";
     public static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
-    public static final String URL_RESUME_PARTNERSHIP = "/limited-partnerships/registration/transaction/%s/submission/%s/which-type";
+    public static final String URL_RESUME = "/limited-partnerships/transaction/%s/submission/%s/resume";
     public static final String URL_GET_INCORPORATION = "/transactions/%s/incorporation/limited-partnership/%s";
     public static final String URL_GET_LIMITED_PARTNER = "/transactions/%s/limited-partnership/limited-partner/%s";
     public static final String URL_GET_GENERAL_PARTNER = "/transactions/%s/limited-partnership/general-partner/%s";
@@ -26,8 +27,12 @@ public class Constants {
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
     public static final String FILING_KIND_LIMITED_PARTNER = "limited-partnership#limited-partner";
     public static final String FILING_KIND_GENERAL_PARTNER = "limited-partnership#general-partner";
+
+    // Transaction links
     public static final String LINK_SELF = "self";
     public static final String LINK_RESOURCE = "resource";
+    public static final String LINK_VALIDATON_STATUS = "validation_status";
+    public static final String LINK_COSTS = "costs";
 
     // Validation rules
     public static final int MIN_SIZE = 1;

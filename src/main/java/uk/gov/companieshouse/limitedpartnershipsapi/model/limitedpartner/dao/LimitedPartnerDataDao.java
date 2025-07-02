@@ -2,7 +2,10 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.PartnerDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
+
+import java.util.List;
 
 public class LimitedPartnerDataDao extends PartnerDataDao {
 
@@ -14,8 +17,8 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
     @Field("contribution_currency_value")
     private String contributionCurrencyValue;
 
-    @Field("contribution_non_monetary_value")
-    private String contributionNonMonetaryValue;
+    @Field("contribution_sub_types")
+    private List<ContributionSubTypes> contributionSubTypes;
 
     public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
@@ -33,11 +36,11 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
         this.contributionCurrencyValue = contributionCurrencyValue;
     }
 
-    public String getContributionNonMonetaryValue() {
-        return contributionNonMonetaryValue;
+    public List<ContributionSubTypes> getContributionSubTypes() {
+        return contributionSubTypes;
     }
 
-    public void setContributionNonMonetaryValue(String contributionNonMonetaryValue) {
-        this.contributionNonMonetaryValue = contributionNonMonetaryValue;
+    public void setContributionSubTypes(List<ContributionSubTypes> contributionSubTypes) {
+        this.contributionSubTypes = contributionSubTypes;
     }
 }

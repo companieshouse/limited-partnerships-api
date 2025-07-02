@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,9 +56,10 @@ public class PartnershipController {
     @PostMapping
     public ResponseEntity<Object> createPartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @Valid @RequestBody LimitedPartnershipDto limitedPartnershipDto,
+            @RequestBody LimitedPartnershipDto limitedPartnershipDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId) {
+            @RequestHeader(value = ERIC_IDENTITY) String userId)
+            throws MethodArgumentNotValidException, NoSuchMethodException {
 
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
@@ -129,7 +131,7 @@ public class PartnershipController {
     public ResponseEntity<ValidationStatusResponse> getValidationStatus(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
 

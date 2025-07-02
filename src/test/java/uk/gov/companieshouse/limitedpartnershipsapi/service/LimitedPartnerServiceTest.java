@@ -186,7 +186,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    void testGetLimitedPartnerList() {
+    void testGetLimitedPartnerList() throws ServiceException {
         var transactionid = "12345-12241-214214";
         List<LimitedPartnerDao> limitedPartnerDaos = List.of(createDao(), createDao());
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transactionid)).thenReturn(limitedPartnerDaos);

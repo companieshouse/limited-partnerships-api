@@ -1,25 +1,34 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
+
+import java.util.List;
 
 public class LimitedPartnerDataDto extends PartnerDataDto {
 
     // Legal Entity
+    public static final String CONTRIBUTION_CURRENCY_TYPE_FIELD = "contribution_currency_type";
+    public static final String CONTRIBUTION_CURRENCY_VALUE_FIELD = "contribution_currency_value";
+    public static final String CONTRIBUTION_SUB_TYPES_FIELD = "contribution_sub_types";
 
-    @JsonProperty("contribution_currency_type")
-    @EnumValid
+    @JsonProperty(CONTRIBUTION_CURRENCY_TYPE_FIELD)
+    @EnumValid(message = "Contribution currency type must be valid")
     private Currency contributionCurrencyType;
 
-    @JsonProperty("contribution_currency_value")
+    @JsonProperty(CONTRIBUTION_CURRENCY_VALUE_FIELD)
     @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "Value must be a valid decimal number")
     private String contributionCurrencyValue;
 
-    @JsonProperty("contribution_non_monetary_value")
-    private String contributionNonMonetaryValue;
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    @JsonProperty(CONTRIBUTION_SUB_TYPES_FIELD)
+    @EnumValid(message = "Capital contribution type must be valid")
+    private List<ContributionSubTypes> contributionSubTypes;
 
     public boolean isLegalEntity() {
         return getLegalEntityRegisterName() != null || getLegalForm() != null;
@@ -41,12 +50,11 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
         this.contributionCurrencyValue = contributionCurrencyValue;
     }
 
-    public String getContributionNonMonetaryValue() {
-        return contributionNonMonetaryValue;
+    public List<ContributionSubTypes> getContributionSubTypes() {
+        return contributionSubTypes;
     }
 
-    public void setContributionNonMonetaryValue(String contributionNonMonetaryValue) {
-        this.contributionNonMonetaryValue = contributionNonMonetaryValue;
+    public void setContributionSubTypes(List<ContributionSubTypes> contributionSubTypes) {
+        this.contributionSubTypes = contributionSubTypes;
     }
-
 }
