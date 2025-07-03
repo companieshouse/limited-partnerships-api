@@ -419,7 +419,6 @@ class LimitedPartnershipServiceTest {
 
         when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDao);
         when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
-        // when(transactionUtils.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
 
         // when
         service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
