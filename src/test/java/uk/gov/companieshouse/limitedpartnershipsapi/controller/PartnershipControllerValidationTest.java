@@ -312,7 +312,9 @@ class PartnershipControllerValidationTest {
                                 .headers(httpHeaders)
                                 .requestAttr("transaction", transaction)
                                 .content(body))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.['errors'].['data.partnershipName']").value("Max length 'partnership name + name ending' is 160 characters"));
+
             }
         }
 

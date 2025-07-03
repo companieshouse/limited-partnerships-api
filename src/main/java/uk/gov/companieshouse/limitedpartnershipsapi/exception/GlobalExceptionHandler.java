@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,7 +29,6 @@ public class GlobalExceptionHandler {
      */
     @Value("${GLOBAL_EXCEPTION_HANDLER_TRUNCATE_LENGTH_CHARS:15000}")
     private int truncationLength;
-
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFoundException(Exception ex, WebRequest webRequest) {
@@ -65,11 +65,17 @@ public class GlobalExceptionHandler {
         var context = webRequest.getHeader(ERIC_REQUEST_ID_KEY);
 
         List<FieldError> errors = exception.getBindingResult().getFieldErrors();
+        List<ObjectError> globalErrors = exception.getBindingResult().getGlobalErrors();
 
         Map<String, String> errorFields = new HashMap<>();
 
         for (FieldError error : errors) {
             errorFields.put(error.getField(), error.getDefaultMessage());
+        }
+
+        for (ObjectError error : globalErrors) {
+            String fieldName = error.getObjectName().equals("limitedPartnershipPatchDto") ? "data.partnershipName" : error.getObjectName();
+            errorFields.put(fieldName, error.getDefaultMessage());
         }
 
         Map<String, Map<String, String>> errorResponse = new HashMap<>();
