@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -162,12 +163,7 @@ public class PartnershipController {
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
 
-        var logMap = new HashMap<String, Object>();
-        logMap.put(TRANSACTION_KEY, transaction.getId());
-        ApiLogger.infoContext(requestId, "Calling CostsService to retrieve costs", logMap);
-
-        Cost cost = costsService.getTemporaryZeroCost(submissionId, "Limited Partnership", requestId);
-
-        return ResponseEntity.ok(Collections.singletonList(cost));
+        // TODO Implement cost for 'change of Limited Partnership name' post transition journey.
+        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
     }
 }

@@ -87,7 +87,6 @@ class GeneralPartnerControllerUpdateTest {
     private static final String GENERAL_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partners";
     private static final String GENERAL_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
     private static final String GENERAL_PARTNER_POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner";
-    private static final String GENERAL_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
     private final Transaction transaction = new TransactionBuilder().forPartner(
@@ -419,22 +418,6 @@ class GeneralPartnerControllerUpdateTest {
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isNotFound());
-        }
-    }
-
-    @Nested
-    class Costs {
-
-        @Test
-        void shouldReturn200() throws Exception {
-            mockMvc.perform(get(GENERAL_PARTNER_COST_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.[0].amount").value("0.00"))
-                    .andExpect(jsonPath("$.[0].description").value("General Partner fee"));
         }
     }
 

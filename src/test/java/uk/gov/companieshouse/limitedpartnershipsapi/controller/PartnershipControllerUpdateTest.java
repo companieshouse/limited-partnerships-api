@@ -21,7 +21,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = {PartnershipController.class, CostsService.class, GlobalExceptionHandler.class})
@@ -59,15 +58,13 @@ public class PartnershipControllerUpdateTest {
     class Costs {
 
         @Test
-        void shouldReturn200() throws Exception {
+        void shouldReturn501() throws Exception {
             mockMvc.perform(get(PARTNERSHIP_COSTS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.[0].amount").value("0.00"))
-                    .andExpect(jsonPath("$.[0].description").value("Limited Partnership fee"));
+                    .andExpect(status().isNotImplemented());
         }
     }
 

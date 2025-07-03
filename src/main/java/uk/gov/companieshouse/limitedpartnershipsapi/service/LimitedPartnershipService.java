@@ -25,14 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipService {
@@ -84,7 +82,7 @@ public class LimitedPartnershipService {
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
-        var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri, transaction);
+        var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri);
 
         updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
@@ -139,16 +137,12 @@ public class LimitedPartnershipService {
         lpSubmissionDaoAfterPatch.setUpdatedBy(userId);
     }
 
-    private Resource createLimitedPartnershipTransactionResource(String submissionUri, Transaction transaction) {
+    private Resource createLimitedPartnershipTransactionResource(String submissionUri) {
         var limitedPartnershipResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
         linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-
-        if (transactionUtils.isForRegistration(transaction)) {
-            linksMap.put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
-        }
 
         limitedPartnershipResource.setLinks(linksMap);
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
