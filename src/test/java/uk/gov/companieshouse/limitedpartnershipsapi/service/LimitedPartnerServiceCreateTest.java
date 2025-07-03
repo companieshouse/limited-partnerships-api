@@ -216,10 +216,6 @@ class LimitedPartnerServiceCreateTest {
                 when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
             }
 
-            if (REGISTRATION.equals(incorporationKind)) {
-                dto.getData().setContributionCurrencyValue("10.00");
-            }
-
             mockLimitedPartnershipService();
 
             service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
