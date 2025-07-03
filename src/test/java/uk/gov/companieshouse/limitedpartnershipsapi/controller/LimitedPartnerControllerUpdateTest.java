@@ -269,6 +269,12 @@ class LimitedPartnerControllerUpdateTest {
         private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15:00\", \"contribution_sub_types\": \"SHARES\" }";
         private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"15.00\", \"contribution_sub_types\": \"BAD_TYPE\" }";
 
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_CHARACTER = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"£1.00\", \"contribution_sub_types\": \"SHARES\" }";
+
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_MANY_DECIMAL_PLACES = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"0.123456789\", \"contribution_sub_types\": \"SHARES\" }";
+
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NO_DECIMAL_PLACES = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"12345\", \"contribution_sub_types\": \"SHARES\" }";
+
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_LIMITED_PARTNER_PERSON,
@@ -295,7 +301,11 @@ class LimitedPartnerControllerUpdateTest {
                 JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Contribution currency type must be valid",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid",}, delimiter = '$')
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_CHARACTER + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_MANY_DECIMAL_PLACES  + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NO_DECIMAL_PLACES  + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid"}, delimiter = '$')
+
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
 

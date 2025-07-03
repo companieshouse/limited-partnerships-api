@@ -113,14 +113,14 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     private void validateStandardPartnershipContributions(String contributionCurrencyValue, Currency contributionCurrencyType, boolean hasContributionSubTypes, BindingResult bindingResult) {
-        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank()) {
+        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank() || contributionCurrencyValue.equals("0.00")) {
             addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Contribution currency value is required", bindingResult);
         }
         if (contributionCurrencyType == null) {
             addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD, "Contribution currency type is required", bindingResult);
         }
         if (!hasContributionSubTypes) {
-            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD, "Contribution sub types is required", bindingResult);
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD, "At least one contribution type must be selected", bindingResult);
         }
     }
 

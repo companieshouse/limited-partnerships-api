@@ -50,7 +50,7 @@ public class LimitedPartnerBuilder {
         dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
         dataDto.setRegisteredCompanyNumber("12345678");
         dataDto.setContributionCurrencyType(Currency.GBP);
-        dataDto.setContributionCurrencyValue("1000");
+        dataDto.setContributionCurrencyValue("1000.00");
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDto.setContributionSubTypes(contributionSubTypes);
@@ -84,7 +84,7 @@ public class LimitedPartnerBuilder {
 
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
-        dataDao.setContributionCurrencyValue("11");
+        dataDao.setContributionCurrencyValue("11.00");
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setUsualResidentialAddress(createAddressDao());

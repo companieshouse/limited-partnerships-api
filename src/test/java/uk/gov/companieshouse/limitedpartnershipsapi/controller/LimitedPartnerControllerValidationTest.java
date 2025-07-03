@@ -171,7 +171,7 @@ class LimitedPartnerControllerValidationTest {
             JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
             JSON_INVALID_SECOND_NATIONALITY + "$ data.nationality2 $ Second nationality must be valid",
-            JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ contribution_sub_types $ Contribution sub types is required"
+            JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ contribution_sub_types $ At least one contribution type must be selected"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
         mocks();
@@ -278,6 +278,7 @@ class LimitedPartnerControllerValidationTest {
                             .content(""))
                     .andExpect(status().isNotFound());
         }
+
     }
 
     private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
