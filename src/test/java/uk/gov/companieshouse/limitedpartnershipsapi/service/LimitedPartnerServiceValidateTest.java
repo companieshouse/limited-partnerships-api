@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -106,7 +107,7 @@ class LimitedPartnerServiceValidateTest {
                         tuple("First nationality must be valid", "data.nationality1"),
                         tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
                         tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
-                        tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
+                        tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
     }
 
     @Test
@@ -116,6 +117,7 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnerDao.getData().setDateOfBirth(null);
         limitedPartnerDao.getData().setNationality2(Nationality.EMIRATI.getDescription());
         limitedPartnerDao.getData().setUsualResidentialAddress(null);
+        limitedPartnerDao.getData().setContributionCurrencyValue("0.00");
 
         mocks(limitedPartnerDao);
 
@@ -133,7 +135,7 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Usual residential address is required", LimitedPartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD),
                         tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
                         tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
-                        tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
+                        tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
     }
 
     @ParameterizedTest
@@ -165,7 +167,7 @@ class LimitedPartnerServiceValidateTest {
         if (shouldHaveContribution) {
             expectedErrors.add(tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD));
             expectedErrors.add(tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD));
-            expectedErrors.add(tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
+            expectedErrors.add(tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
         }
 
         assertThat(results)
@@ -201,7 +203,7 @@ class LimitedPartnerServiceValidateTest {
         if (shouldHaveContribution) {
             expectedErrors.add(tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD));
             expectedErrors.add(tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD));
-            expectedErrors.add(tuple("Contribution sub types is required", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
+            expectedErrors.add(tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
         }
 
         // then
@@ -241,7 +243,7 @@ class LimitedPartnerServiceValidateTest {
         // given
 
         limitedPartnerDao.getData().setContributionSubTypes(List.of(ContributionSubTypes.MONEY));
-        limitedPartnerDao.getData().setContributionCurrencyValue("1000");
+        limitedPartnerDao.getData().setContributionCurrencyValue("1000.00");
         limitedPartnerDao.getData().setContributionCurrencyType(Currency.GBP);
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));

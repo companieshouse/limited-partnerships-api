@@ -95,6 +95,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldCreateALimitedPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
             LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
+            dto.getData().setContributionCurrencyValue("10.00");
 
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
@@ -172,7 +173,7 @@ class LimitedPartnerServiceCreateTest {
 
             assertEquals("Contribution currency value is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)).getDefaultMessage());
             assertEquals("Contribution currency type is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)).getDefaultMessage());
-            assertEquals("Contribution sub types is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)).getDefaultMessage());
+            assertEquals("At least one contribution type must be selected", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)).getDefaultMessage());
         }
 
         @Test
@@ -210,10 +211,14 @@ class LimitedPartnerServiceCreateTest {
 
             if (TRANSITION.equals(incorporationKind)) {
                 dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
-
+                dto.getData().setContributionCurrencyValue(null);
                 CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
                 when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.now().minusDays(2));
                 when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            }
+
+            if (REGISTRATION.equals(incorporationKind)) {
+                dto.getData().setContributionCurrencyValue("10.00");
             }
 
             mockLimitedPartnershipService();

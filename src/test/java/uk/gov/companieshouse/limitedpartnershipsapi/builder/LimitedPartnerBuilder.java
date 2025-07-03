@@ -84,7 +84,7 @@ public class LimitedPartnerBuilder {
 
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
-        dataDao.setContributionCurrencyValue("11");
+        dataDao.setContributionCurrencyValue("11.00");
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setUsualResidentialAddress(createAddressDao());
