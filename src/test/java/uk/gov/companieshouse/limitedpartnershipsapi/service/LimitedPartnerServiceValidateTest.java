@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -116,7 +117,6 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnerDao.getData().setDateOfBirth(null);
         limitedPartnerDao.getData().setNationality2(Nationality.EMIRATI.getDescription());
         limitedPartnerDao.getData().setUsualResidentialAddress(null);
-        limitedPartnerDao.getData().setContributionCurrencyValue("0.00");
 
         mocks(limitedPartnerDao);
 
@@ -135,6 +135,34 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
                         tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
                         tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "£1.00",
+            "0.123456789",
+            "12345",
+            "0.00"
+    })
+    void shouldReturnErrorsWhenLimitedPartnerCapitalContributionValuesAreInvalid(String value) throws ServiceException {
+
+        // given
+        LimitedPartnerDao limitedPartnerDao = createPersonDao();
+        limitedPartnerDao.getData().setContributionCurrencyValue(value);
+
+        mocks(limitedPartnerDao);
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        // then
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Value must be a valid decimal number", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
+                        tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
+                        tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)
+        );
     }
 
     @ParameterizedTest

@@ -19,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,14 +114,28 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     private void validateStandardPartnershipContributions(String contributionCurrencyValue, Currency contributionCurrencyType, boolean hasContributionSubTypes, BindingResult bindingResult) {
-        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank() || contributionCurrencyValue.equals("0.00")) {
+        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank()) {
             addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Contribution currency value is required", bindingResult);
+        } else if(containsInvalidCurrencyFormat(contributionCurrencyValue)) {
+            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Value must be a valid decimal number", bindingResult);
         }
+
         if (contributionCurrencyType == null) {
             addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD, "Contribution currency type is required", bindingResult);
         }
+
         if (!hasContributionSubTypes) {
             addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD, "At least one contribution type must be selected", bindingResult);
+        }
+    }
+
+    private boolean containsInvalidCurrencyFormat(String contributionCurrencyValue){
+        try {
+           BigDecimal fomattedValue = new BigDecimal(contributionCurrencyValue);
+           int numberOfDeicmalPlaces =  fomattedValue.scale();
+           return BigDecimal.ZERO.compareTo(fomattedValue) == 0 || numberOfDeicmalPlaces != 2;
+        } catch (NumberFormatException e) {
+            return true;
         }
     }
 
