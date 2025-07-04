@@ -25,9 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperI
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -50,7 +48,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
-@ContextConfiguration(classes = {GeneralPartnerController.class, GeneralPartnerService.class, GeneralPartnerValidator.class, GeneralPartnerMapperImpl.class, CostsService.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {GeneralPartnerController.class, GeneralPartnerService.class, GeneralPartnerValidator.class, GeneralPartnerMapperImpl.class,  GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerUpdateTest {
 
@@ -87,7 +85,6 @@ class GeneralPartnerControllerUpdateTest {
     private static final String GENERAL_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partners";
     private static final String GENERAL_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID;
     private static final String GENERAL_PARTNER_POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner";
-    private static final String GENERAL_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
     private final Transaction transaction = new TransactionBuilder().forPartner(
@@ -110,9 +107,6 @@ class GeneralPartnerControllerUpdateTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
-
-    @MockitoBean
-    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @MockitoBean
     private CompanyService companyService;
@@ -419,22 +413,6 @@ class GeneralPartnerControllerUpdateTest {
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isNotFound());
-        }
-    }
-
-    @Nested
-    class Costs {
-
-        @Test
-        void shouldReturn200() throws Exception {
-            mockMvc.perform(get(GENERAL_PARTNER_COST_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.[0].amount").value("0.00"))
-                    .andExpect(jsonPath("$.[0].description").value("General Partner fee"));
         }
     }
 

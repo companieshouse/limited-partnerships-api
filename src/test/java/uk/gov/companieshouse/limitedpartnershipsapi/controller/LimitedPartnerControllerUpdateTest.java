@@ -30,9 +30,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -57,7 +55,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
-@ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, CostsService.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 class LimitedPartnerControllerUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
@@ -65,7 +63,6 @@ class LimitedPartnerControllerUpdateTest {
     private static final String LIMITED_PARTNER_LIST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partners";
     private static final String LIMITED_PARTNER_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID;
     private static final String LIMITED_PARTNER_POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner";
-    private static final String LIMITED_PARTNER_COST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/costs";
 
     private HttpHeaders httpHeaders;
     private final Transaction transaction = new TransactionBuilder().forPartner(
@@ -88,9 +85,6 @@ class LimitedPartnerControllerUpdateTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
-
-    @MockitoBean
-    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
@@ -574,22 +568,6 @@ class LimitedPartnerControllerUpdateTest {
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isNotFound());
-        }
-    }
-
-    @Nested
-    class Costs {
-
-        @Test
-        void shouldReturn200() throws Exception {
-            mockMvc.perform(get(LIMITED_PARTNER_COST_URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.[0].amount").value("0.00"))
-                    .andExpect(jsonPath("$.[0].description").value("Limited Partner fee"));
         }
     }
 

@@ -21,7 +21,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperI
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -134,9 +133,6 @@ class GeneralPartnerControllerValidationTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
-
-    @MockitoBean
-    private CostsService costsService;
 
     @MockitoBean
     private CompanyService companyService;

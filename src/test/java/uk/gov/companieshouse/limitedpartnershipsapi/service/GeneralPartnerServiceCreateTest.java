@@ -43,7 +43,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
@@ -113,9 +112,9 @@ class GeneralPartnerServiceCreateTest {
             assertEquals(1, transactionResources.size());
             assertThat(transactionResources.values())
                     .allSatisfy(resource -> assertThat(resource.getLinks())
-                            .hasSize(3)
+                            .hasSize(2)
                             .isNotNull()
-                            .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS));
+                            .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS));
         }
 
         @Test

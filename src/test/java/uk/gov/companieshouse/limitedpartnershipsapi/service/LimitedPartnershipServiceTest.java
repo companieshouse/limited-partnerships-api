@@ -46,7 +46,6 @@ import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
@@ -136,9 +135,9 @@ class LimitedPartnershipServiceTest {
         assertEquals(1, transactionResources.size());
         assertThat(transactionResources.values())
                 .allSatisfy(resource -> assertThat(resource.getLinks())
-                        .hasSize(3)
+                        .hasSize(2)
                         .isNotNull()
-                        .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS, LINK_COSTS));
+                        .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS));
     }
 
     @Test
@@ -420,7 +419,6 @@ class LimitedPartnershipServiceTest {
 
         when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDao);
         when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
-        when(transactionUtils.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
 
         // when
         service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
