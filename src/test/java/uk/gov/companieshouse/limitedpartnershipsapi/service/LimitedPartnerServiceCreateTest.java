@@ -30,6 +30,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +96,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldCreateALimitedPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
             LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
-            dto.getData().setContributionCurrencyValue("10.00");
+            dto.getData().setContributionCurrencyValue(new BigDecimal("10.00"));
 
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
@@ -312,7 +313,7 @@ class LimitedPartnerServiceCreateTest {
             dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
             dataDto.setNationality1(Nationality.AMERICAN);
             dataDto.setContributionCurrencyType(Currency.GBP);
-            dataDto.setContributionCurrencyValue("15.00");
+            dataDto.setContributionCurrencyValue(new BigDecimal("15.00"));
             List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
             contributionSubtypes.add(ContributionSubTypes.MONEY);
             contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);

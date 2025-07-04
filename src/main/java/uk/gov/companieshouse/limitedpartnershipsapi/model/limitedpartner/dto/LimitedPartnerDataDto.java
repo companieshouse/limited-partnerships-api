@@ -2,12 +2,13 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.DecimalMin;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class LimitedPartnerDataDto extends PartnerDataDto {
@@ -22,8 +23,8 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     private Currency contributionCurrencyType;
 
     @JsonProperty(CONTRIBUTION_CURRENCY_VALUE_FIELD)
-    @Pattern(regexp = "^\\d+(\\.\\d{2})$", message = "Value must be a valid decimal number")
-    private String contributionCurrencyValue;
+    @DecimalMin(value = "0.00", message = "Contribution currency value must be greater than or equal to 0.00")
+    private BigDecimal contributionCurrencyValue;
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     @JsonProperty(CONTRIBUTION_SUB_TYPES_FIELD)
@@ -42,11 +43,11 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
         this.contributionCurrencyType = contributionCurrencyType;
     }
 
-    public String getContributionCurrencyValue() {
+    public BigDecimal getContributionCurrencyValue() {
         return contributionCurrencyValue;
     }
 
-    public void setContributionCurrencyValue(String contributionCurrencyValue) {
+    public void setContributionCurrencyValue(BigDecimal contributionCurrencyValue) {
         this.contributionCurrencyValue = contributionCurrencyValue;
     }
 

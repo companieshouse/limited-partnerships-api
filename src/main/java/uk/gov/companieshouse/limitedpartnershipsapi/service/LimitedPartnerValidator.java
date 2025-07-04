@@ -88,7 +88,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
         PartnershipType partnershipType = limitedPartnershipDto.getData().getPartnershipType();
 
-        String contributionCurrencyValue = limitedPartnerDataDto.getContributionCurrencyValue();
+        String contributionCurrencyValue = limitedPartnerDataDto.getContributionCurrencyValue().toString();
         Currency contributionCurrencyType = limitedPartnerDataDto.getContributionCurrencyType();
         List<ContributionSubTypes> contributionSubTypes = limitedPartnerDataDto.getContributionSubTypes();
         boolean hasContributionSubTypes = contributionSubTypes != null && !contributionSubTypes.isEmpty();
