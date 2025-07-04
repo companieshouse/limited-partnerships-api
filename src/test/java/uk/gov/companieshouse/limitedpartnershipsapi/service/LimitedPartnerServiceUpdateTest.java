@@ -29,6 +29,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -178,7 +179,7 @@ class LimitedPartnerServiceUpdateTest {
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
         limitedPartnerDataDto.setContributionCurrencyType(Currency.GBP);
-        limitedPartnerDataDto.setContributionCurrencyValue("15.00");
+        limitedPartnerDataDto.setContributionCurrencyValue(new BigDecimal("15.00"));
         List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
         contributionSubtypes.add(ContributionSubTypes.MONEY);
         contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
