@@ -30,9 +30,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -57,7 +55,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
-@ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, CostsService.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {LimitedPartnerController.class, LimitedPartnerService.class, LimitedPartnerValidator.class, LimitedPartnerMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {LimitedPartnerController.class})
 class LimitedPartnerControllerUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
@@ -87,9 +85,6 @@ class LimitedPartnerControllerUpdateTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
-
-    @MockitoBean
-    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
