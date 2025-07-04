@@ -306,7 +306,6 @@ class LimitedPartnerControllerUpdateTest {
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NO_DECIMAL_PLACES  + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid"}, delimiter = '$')
 
-
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
 
