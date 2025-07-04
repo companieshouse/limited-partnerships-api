@@ -300,10 +300,10 @@ class LimitedPartnerControllerUpdateTest {
                 JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_CURRENCY + "$ data.contributionCurrencyType $ Contribution currency type must be valid",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_CHARACTER + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_MANY_DECIMAL_PLACES  + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
-                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NO_DECIMAL_PLACES  + "$ data.contributionCurrencyValue $ Value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_FORMAT + "$ data.contributionCurrencyValue $ Contribution currency value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_CHARACTER + "$ data.contributionCurrencyValue $ Contribution currency value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_MANY_DECIMAL_PLACES  + "$ data.contributionCurrencyValue $ Contribution currency value must be a valid decimal number",
+                JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NO_DECIMAL_PLACES  + "$ data.contributionCurrencyValue $ Contribution currency value must be a valid decimal number",
                 JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid"}, delimiter = '$')
 
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {

@@ -116,7 +116,6 @@ class LimitedPartnerServiceValidateTest {
         limitedPartnerDao.getData().setDateOfBirth(null);
         limitedPartnerDao.getData().setNationality2(Nationality.EMIRATI.getDescription());
         limitedPartnerDao.getData().setUsualResidentialAddress(null);
-        limitedPartnerDao.getData().setContributionCurrencyValue("0.00");
 
         mocks(limitedPartnerDao);
 
@@ -135,6 +134,28 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
                         tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
                         tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
+    }
+
+    @Test
+    void shouldReturnErrorsWhenLimitedPartnerCapitalContributionValuesAreInvalid() throws ServiceException {
+
+        // given
+        LimitedPartnerDao limitedPartnerDao = createPersonDao();
+        limitedPartnerDao.getData().setContributionCurrencyValue("0.00");
+
+        mocks(limitedPartnerDao);
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        // then
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
+                        tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
+                        tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)
+        );
     }
 
     @ParameterizedTest
