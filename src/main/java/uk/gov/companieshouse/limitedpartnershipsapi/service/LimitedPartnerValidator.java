@@ -132,8 +132,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
     private boolean containsInvalidCurrencyFormat(String contributionCurrencyValue){
         try {
            BigDecimal fomattedValue = new BigDecimal(contributionCurrencyValue);
-           int numberOfDeicmalPlaces =  fomattedValue.scale();
-           return BigDecimal.ZERO.compareTo(fomattedValue) == 0 || numberOfDeicmalPlaces != 2;
+           return BigDecimal.ZERO.compareTo(fomattedValue) == 0 ;
         } catch (NumberFormatException e) {
             return true;
         }

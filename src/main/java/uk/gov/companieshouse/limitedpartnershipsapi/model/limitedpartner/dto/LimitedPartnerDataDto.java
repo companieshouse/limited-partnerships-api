@@ -22,6 +22,7 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     private Currency contributionCurrencyType;
 
     @JsonProperty(CONTRIBUTION_CURRENCY_VALUE_FIELD)
+    @Pattern(regexp = "^\\d+(\\.\\d{2})$", message = "Value must be a valid decimal number")
     private String contributionCurrencyValue;
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)

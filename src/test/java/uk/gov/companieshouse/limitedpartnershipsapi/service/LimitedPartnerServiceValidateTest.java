@@ -139,9 +139,6 @@ class LimitedPartnerServiceValidateTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "£1.00",
-            "0.123456789",
-            "12345",
             "0.00"
     })
     void shouldReturnErrorsWhenLimitedPartnerCapitalContributionValuesAreInvalid(String value) throws ServiceException {
