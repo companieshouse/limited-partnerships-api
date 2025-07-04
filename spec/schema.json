@@ -940,6 +940,10 @@
     "PartnershipData": {
       "type": "object",
       "properties": {
+        "partnership_number": {
+          "type": "string",
+          "maxLength": 8
+        },
         "partnership_name": {
           "type": "string"
         },
