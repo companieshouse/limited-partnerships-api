@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -24,14 +23,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -45,12 +41,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 public class PartnershipController {
 
     private final LimitedPartnershipService limitedPartnershipService;
-    private final CostsService costsService;
 
     @Autowired
-    public PartnershipController(LimitedPartnershipService limitedPartnershipService, CostsService costsService) {
+    public PartnershipController(LimitedPartnershipService limitedPartnershipService) {
         this.limitedPartnershipService = limitedPartnershipService;
-        this.costsService = costsService;
     }
 
     @PostMapping
@@ -154,15 +148,5 @@ public class PartnershipController {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @GetMapping("/{" + URL_PARAM_SUBMISSION_ID + "}/costs")
-    public ResponseEntity<List<Cost>> getCosts(
-            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
-
-        // TODO Implement cost for 'change of Limited Partnership name' post transition journey.
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
     }
 }
