@@ -18,6 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     private void validateStandardPartnershipContributions(String contributionCurrencyValue, Currency contributionCurrencyType, boolean hasContributionSubTypes, BindingResult bindingResult) {
-        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank() || isZeroOrContainsInvalidCurrencyFormat(contributionCurrencyValue)) {
+        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank() || contributionCurrencyValueIsZero(contributionCurrencyValue)) {
             addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Contribution currency value is required", bindingResult);
         }
 
@@ -127,12 +128,13 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    private boolean isZeroOrContainsInvalidCurrencyFormat(String contributionCurrencyValue){
+    private boolean contributionCurrencyValueIsZero(String contributionCurrencyValue){
         try {
            BigDecimal fomattedValue = new BigDecimal(contributionCurrencyValue);
            return BigDecimal.ZERO.compareTo(fomattedValue) == 0 ;
         } catch (NumberFormatException e) {
-            return true;
+           ApiLogger.errorContext(contributionCurrencyValue,"Unexpected currency contribution value string format error", e);
+           return false;
         }
     }
 
