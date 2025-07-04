@@ -114,10 +114,8 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     private void validateStandardPartnershipContributions(String contributionCurrencyValue, Currency contributionCurrencyType, boolean hasContributionSubTypes, BindingResult bindingResult) {
-        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank()) {
+        if (contributionCurrencyValue == null || contributionCurrencyValue.isBlank() || isZeroOrContainsInvalidCurrencyFormat(contributionCurrencyValue)) {
             addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Contribution currency value is required", bindingResult);
-        } else if(containsInvalidCurrencyFormat(contributionCurrencyValue)) {
-            addError(CLASS_NAME, LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD, "Value must be a valid decimal number", bindingResult);
         }
 
         if (contributionCurrencyType == null) {
@@ -129,7 +127,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    private boolean containsInvalidCurrencyFormat(String contributionCurrencyValue){
+    private boolean isZeroOrContainsInvalidCurrencyFormat(String contributionCurrencyValue){
         try {
            BigDecimal fomattedValue = new BigDecimal(contributionCurrencyValue);
            return BigDecimal.ZERO.compareTo(fomattedValue) == 0 ;

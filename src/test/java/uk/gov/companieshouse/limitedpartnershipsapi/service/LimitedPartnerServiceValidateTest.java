@@ -137,15 +137,12 @@ class LimitedPartnerServiceValidateTest {
                         tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "0.00"
-    })
-    void shouldReturnErrorsWhenLimitedPartnerCapitalContributionValuesAreInvalid(String value) throws ServiceException {
+    @Test
+    void shouldReturnErrorsWhenLimitedPartnerCapitalContributionValuesAreInvalid() throws ServiceException {
 
         // given
         LimitedPartnerDao limitedPartnerDao = createPersonDao();
-        limitedPartnerDao.getData().setContributionCurrencyValue(value);
+        limitedPartnerDao.getData().setContributionCurrencyValue("0.00");
 
         mocks(limitedPartnerDao);
 
@@ -156,7 +153,7 @@ class LimitedPartnerServiceValidateTest {
         assertThat(results)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
-                        tuple("Value must be a valid decimal number", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
+                        tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
                         tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
                         tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)
         );
