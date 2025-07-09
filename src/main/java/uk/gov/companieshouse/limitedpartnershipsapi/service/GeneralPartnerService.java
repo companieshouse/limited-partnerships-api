@@ -177,6 +177,10 @@ public class GeneralPartnerService {
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
+        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+
+        ApiLogger.infoContext(requestId, String.format("General Partner resource deleted with id: %s", requestId));
+
         resources.remove(submissionUri);
 
         transactionService.updateTransaction(transaction, requestId);
