@@ -30,10 +30,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     };
 
     private static final String[] COST_ENDPOINTS = {
-            "/transactions/*/incorporation/limited-partnership/*/costs",
-            "/transactions/*/limited-partnership/partnership/*/costs",
-            "/transactions/*/limited-partnership/general-partner/*/costs",
-            "/transactions/*/limited-partnership/limited-partner/*/costs"
+            "/transactions/*/incorporation/limited-partnership/*/costs"
     };
 
     private static final String[] FILINGS_ENDPOINTS = {

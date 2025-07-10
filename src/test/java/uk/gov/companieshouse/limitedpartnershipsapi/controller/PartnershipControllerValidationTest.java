@@ -31,7 +31,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -84,9 +83,6 @@ class PartnershipControllerValidationTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
-
-    @MockitoBean
-    private CostsService costsService;
 
     @BeforeEach
     void setUp() {

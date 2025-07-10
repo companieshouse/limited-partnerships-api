@@ -25,7 +25,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -141,9 +140,6 @@ class LimitedPartnerControllerValidationTest {
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
-
-    @MockitoBean
-    private CostsService costsService;
 
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
