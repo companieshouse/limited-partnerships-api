@@ -10,6 +10,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
 
@@ -52,9 +54,14 @@ public class TransactionService {
 
     public void deleteTransactionResource(String transactionId, String resourceId, String loggingContext) throws ServiceException {
         try {
+
             var uri = TRANSACTIONS_PRIVATE_API_URI_PREFIX + transactionId + "/resources/" + resourceId;
+
+
+            ApiLogger.infoContext(loggingContext, String.format("General Partner resource deleted with uri: %s", uri));
+
             var response = apiClientService.getInternalApiClient()
-                    .privateTransaction().delete(transactionId, resourceId).execute();
+                    .privateTransaction().delete(uri).execute();
 
             if (response.getStatusCode() != HttpStatus.NO_CONTENT.value()) {
                 throw new IOException("Invalid status code received from the Transactions API: " + response.getStatusCode());

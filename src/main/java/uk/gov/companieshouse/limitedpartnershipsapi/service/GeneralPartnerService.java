@@ -60,7 +60,11 @@ public class GeneralPartnerService {
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
-        updateTransactionWithGeneralPartnerTransactionResourceLinks(requestId, transaction, submissionUri);
+        String generalPartnerId = dao.getId();
+        if (generalPartnerId == null) {
+            ApiLogger.infoContext(requestId, String.format("general Partner id is null: %s", generalPartnerId));
+        }
+        updateTransactionWithGeneralPartnerTransactionResourceLinks(requestId, transaction, submissionUri, generalPartnerId);
 
         return insertedSubmission.getId();
     }
@@ -88,7 +92,7 @@ public class GeneralPartnerService {
     }
 
     private void updateTransactionWithGeneralPartnerTransactionResourceLinks(
-            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri, String generalPartnerId) throws ServiceException {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
@@ -102,7 +106,7 @@ public class GeneralPartnerService {
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
 
-        transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
+        transaction.setResources(Collections.singletonMap(generalPartnerId, generalPartnerResource));
 
         transactionService.updateTransaction(transaction, requestId);
     }
@@ -177,9 +181,10 @@ public class GeneralPartnerService {
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
-        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+        transactionService.deleteTransactionResource(transaction.getId(), generalPartnerId, requestId);
 
         ApiLogger.infoContext(requestId, String.format("General Partner resource deleted with id: %s", requestId));
+
 
         resources.remove(submissionUri);
 
