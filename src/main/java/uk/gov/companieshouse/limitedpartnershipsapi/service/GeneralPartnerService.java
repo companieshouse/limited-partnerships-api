@@ -106,7 +106,7 @@ public class GeneralPartnerService {
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
 
-        transaction.setResources(Collections.singletonMap(generalPartnerId, generalPartnerResource));
+        transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
 
         transactionService.updateTransaction(transaction, requestId);
     }
@@ -177,18 +177,9 @@ public class GeneralPartnerService {
 
         repository.deleteById(generalPartnerDao.getId());
 
-        var resources = transaction.getResources();
-
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
-        transactionService.deleteTransactionResource(transaction.getId(), generalPartnerId, requestId);
-
-        ApiLogger.infoContext(requestId, String.format("General Partner resource deleted with id: %s", requestId));
-
-
-        resources.remove(submissionUri);
-
-        transactionService.updateTransaction(transaction, requestId);
+        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
 
