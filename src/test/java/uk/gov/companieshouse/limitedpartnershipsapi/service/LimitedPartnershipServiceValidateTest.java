@@ -62,7 +62,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -88,7 +88,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -125,7 +125,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -154,7 +154,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -177,7 +177,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -202,7 +202,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -226,7 +226,7 @@ class LimitedPartnershipServiceValidateTest {
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());

@@ -340,13 +340,13 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
-        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(new ArrayList<>());
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         assertEquals(0, results.size());
@@ -359,8 +359,8 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
-        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(eq(transaction))).thenReturn(true);
+        when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         List<ValidationStatusError> errorsList = new ArrayList<>();
         var error1 = new ValidationStatusError("Missing field", "here", null, null);
@@ -370,7 +370,7 @@ class LimitedPartnershipServiceTest {
         when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(errorsList);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
         assertEquals(2, results.size());
@@ -383,7 +383,7 @@ class LimitedPartnershipServiceTest {
         Transaction transaction = buildTransaction();
 
         // when + then
-        assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartnership(transaction, SUBMISSION_ID));
+        assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartnership(transaction));
     }
 
     private Transaction buildTransaction() {

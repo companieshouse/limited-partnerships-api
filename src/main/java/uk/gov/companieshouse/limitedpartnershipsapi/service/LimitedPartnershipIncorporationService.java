@@ -141,7 +141,7 @@ public class LimitedPartnershipIncorporationService {
             throws ServiceException {
         List<ValidationStatusError> errors = new ArrayList<>();
 
-        errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction, incorporationId));
+        errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction));
         errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
         errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
 

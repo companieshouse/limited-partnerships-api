@@ -222,9 +222,9 @@ public class LimitedPartnershipService {
         return mapper.daoToDto(limitedPartnershipDao);
     }
 
-    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction, String submissionId)
+    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction)
             throws ServiceException {
-        LimitedPartnershipDto dto = getLimitedPartnership(transaction, submissionId);
+        LimitedPartnershipDto dto = getLimitedPartnership(transaction);
 
         return limitedPartnershipValidator.validateFull(dto, IncorporationKind.fromDescription(transaction.getFilingMode()));
     }
