@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -24,12 +23,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,12 +42,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 public class LimitedPartnerController {
 
     private final LimitedPartnerService limitedPartnerService;
-    private final CostsService costsService;
 
     @Autowired
-    public LimitedPartnerController(LimitedPartnerService limitedPartnerService, CostsService costsService) {
+    public LimitedPartnerController(LimitedPartnerService limitedPartnerService) {
         this.limitedPartnerService = limitedPartnerService;
-        this.costsService = costsService;
     }
 
     @PostMapping("/limited-partner")
@@ -117,7 +112,7 @@ public class LimitedPartnerController {
 
     @GetMapping("/limited-partners")
     public ResponseEntity<List<LimitedPartnerDto>> getLimitedPartners(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                                      @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+                                                                      @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
@@ -168,20 +163,5 @@ public class LimitedPartnerController {
         }
 
         return ResponseEntity.ok().body(validationStatus);
-    }
-
-    @GetMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}/costs")
-    public ResponseEntity<List<Cost>> getCosts(
-            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_LIMITED_PARTNER_ID) String limitedPartnerId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
-
-        var logMap = new HashMap<String, Object>();
-        logMap.put(TRANSACTION_KEY, transaction.getId());
-        ApiLogger.infoContext(requestId, "Calling CostsService to retrieve costs", logMap);
-
-        Cost cost = costsService.getTemporaryZeroCost(limitedPartnerId, "Limited Partner", requestId);
-
-        return ResponseEntity.ok(Collections.singletonList(cost));
     }
 }

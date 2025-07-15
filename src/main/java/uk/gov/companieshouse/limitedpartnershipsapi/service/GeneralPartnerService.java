@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class GeneralPartnerService {
@@ -52,7 +52,7 @@ public class GeneralPartnerService {
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        generalPartnerValidator.validatePartial(generalPartnerDto);
+        generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
 
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -89,12 +89,10 @@ public class GeneralPartnerService {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", submissionUri);
+        linksMap.put(LINK_RESOURCE, submissionUri);
 
         // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
         //      incorporation journey (registration or transition)
-
-        linksMap.put("costs", submissionUri + "/costs");
 
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
@@ -113,7 +111,7 @@ public class GeneralPartnerService {
 
         mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
-        generalPartnerValidator.validateUpdate(generalPartnerDto);
+        generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
 
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
@@ -140,7 +138,7 @@ public class GeneralPartnerService {
             throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
-        return generalPartnerValidator.validateFull(dto);
+        return generalPartnerValidator.validateFull(dto, transaction);
     }
 
     public List<ValidationStatusError> validateGeneralPartners(Transaction transaction) throws ServiceException {
@@ -151,16 +149,22 @@ public class GeneralPartnerService {
 
         List<ValidationStatusError> errors = new ArrayList<>();
         for (GeneralPartnerDto partner : generalPartners) {
-            errors.addAll(generalPartnerValidator.validateFull(partner));
+            errors.addAll(generalPartnerValidator.validateFull(partner, transaction));
         }
 
         return errors;
     }
 
-    public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) {
-        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
-                .map(mapper::daoToDto)
-                .toList();
+    public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) throws ServiceException {
+        List<GeneralPartnerDto> generalPartnerDtos = repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+                .map(mapper::daoToDto).toList();
+
+        for (GeneralPartnerDto generalPartnerDto : generalPartnerDtos) {
+            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto, transaction).isEmpty();
+            generalPartnerDto.getData().setCompleted(isCompleted);
+        }
+
+        return generalPartnerDtos;
     }
 
     public List<GeneralPartnerDataDto> getGeneralPartnerDataList(Transaction transaction) {

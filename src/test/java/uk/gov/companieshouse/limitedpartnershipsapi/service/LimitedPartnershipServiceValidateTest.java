@@ -8,23 +8,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -37,15 +33,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.LP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.SLP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @Disabled
 class LimitedPartnershipServiceValidateTest {
 
-    private static final String SUBMISSION_ID = "abc-123";
-    private static final String TRANSACTION_ID = "txn-456";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+
+    Transaction transaction = new TransactionBuilder().build();
 
     @Autowired
     private LimitedPartnershipService service;
@@ -53,19 +49,20 @@ class LimitedPartnershipServiceValidateTest {
     @MockitoBean
     private LimitedPartnershipRepository repository;
 
-
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ServiceException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
-
-        Transaction transaction = buildTransaction();
+        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        }
 
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -77,6 +74,10 @@ class LimitedPartnershipServiceValidateTest {
     void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ServiceException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        }
         limitedPartnershipSubmissionDao.getData().setPartnershipName(null);
         limitedPartnershipSubmissionDao.getData().setEmail("invalid-email-address-format");
         limitedPartnershipSubmissionDao.getData().getRegisteredOfficeAddress().setAddressLine1(null);
@@ -84,12 +85,10 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().getPrincipalPlaceOfBusinessAddress().setAddressLine1(null);
         limitedPartnershipSubmissionDao.getData().setLawfulPurposeStatementChecked(false);
 
-        Transaction transaction = buildTransaction();
-
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -99,7 +98,7 @@ class LimitedPartnershipServiceValidateTest {
         checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
         checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");
         checkForError(results, "Address line 1 must not be null", "data.principalPlaceOfBusinessAddress.addressLine1");
-        checkForError(results, "Lawful purpose statement must be checked", "data.lawfulPurposeStatementChecked");
+        checkForError(results, "Lawful purpose statement checked is required", "data.lawfulPurposeStatementChecked");
     }
 
     @ParameterizedTest
@@ -123,12 +122,10 @@ class LimitedPartnershipServiceValidateTest {
             errorMessageAddition = "not ";
         }
 
-        Transaction transaction = buildTransaction();
-
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -147,15 +144,17 @@ class LimitedPartnershipServiceValidateTest {
     void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        }
         limitedPartnershipSubmissionDao.getData().setPartnershipName("");
         limitedPartnershipSubmissionDao.getData().setEmail(null);
-
-        Transaction transaction = buildTransaction();
 
         when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
         verify(repository).findById(limitedPartnershipSubmissionDao.getId());
@@ -164,55 +163,89 @@ class LimitedPartnershipServiceValidateTest {
         checkForError(results, "Email is required", "data.email");
     }
 
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException {
+        // given
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        }
+        limitedPartnershipSubmissionDao.getData().setNameEnding(null);
 
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", "/transactions/txn-456/limited-partnership/partnership/abc-123");
-        resource.setLinks(links);
+        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
 
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, SUBMISSION_ID), resource);
-        transaction.setResources(resourceMap);
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
 
-        return transaction;
+        // then
+        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+        assertEquals(1, results.size());
+        checkForError(results, "Name ending is required", "data.nameEnding");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException {
+        // given
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        }
+        limitedPartnershipSubmissionDao.getData().setNameEnding(null);
+        limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LP123456");
+
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+
+        // then
+        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+        assertEquals(0, results.size());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException {
+        // given
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        }
+        limitedPartnershipSubmissionDao.getData().setNameEnding(null);
+        limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LX123456");
+
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction, SUBMISSION_ID);
+
+        // then
+        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
+        assertEquals(1, results.size());
+        checkForError(results, "Partnership number must be valid", "data.partnershipNumber");
     }
 
     private LimitedPartnershipDao createDao(PartnershipType type) {
-        LimitedPartnershipDao dao = new LimitedPartnershipDao();
+        LimitedPartnershipDao dao = new LimitedPartnershipBuilder()
+                .withAddresses()
+                .buildDao();
 
-        dao.setId(SUBMISSION_ID);
-        DataDao dataDao = new DataDao();
+        DataDao dataDao = dao.getData();
         dataDao.setPartnershipType(type);
 
         if (LP.equals(type) || SLP.equals(type)) {
             dataDao.setTerm(Term.BY_AGREEMENT);
             dataDao.setSicCodes(List.of("12345"));
         }
-
-        dataDao.setPartnershipName("Asset Adders");
-        dataDao.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription());
-        dataDao.setEmail("some@where.com");
-        dataDao.setJurisdiction(Jurisdiction.ENGLAND_AND_WALES.getApiKey());
-        dataDao.setRegisteredOfficeAddress(createAddressDao());
-        dataDao.setPrincipalPlaceOfBusinessAddress(createAddressDao());
-        dataDao.setLawfulPurposeStatementChecked(true);
-        dao.setData(dataDao);
-
-        return dao;
-    }
-
-    private AddressDao createAddressDao() {
-        AddressDao dao = new AddressDao();
-
-        dao.setPremises("33");
-        dao.setAddressLine1("Acacia Avenue");
-        dao.setLocality("Birmingham");
-        dao.setCountry("England");
-        dao.setPostalCode("BM1 2EH");
 
         return dao;
     }

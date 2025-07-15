@@ -12,7 +12,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.Limi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -23,39 +22,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipIncorporationService {
 
+    private final GeneralPartnerService generalPartnerService;
+
+    private final LimitedPartnerService limitedPartnerService;
+
     private final LimitedPartnershipService limitedPartnershipService;
 
     private final LimitedPartnershipIncorporationRepository repository;
     private final TransactionService transactionService;
-    private GeneralPartnerService generalPartnerService;
-    private LimitedPartnerService limitedPartnerService;
 
     private final LimitedPartnershipIncorporationMapper mapper;
 
     private final TransactionUtils transactionUtils;
 
     public LimitedPartnershipIncorporationService(
+            GeneralPartnerService generalPartnerService,
+            LimitedPartnerService limitedPartnerService,
             LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
             TransactionUtils transactionUtils,
-            TransactionService transactionService,
-            GeneralPartnerService generalPartnerService,
-            LimitedPartnerService limitedPartnerService) {
+            TransactionService transactionService) {
+        this.generalPartnerService = generalPartnerService;
+        this.limitedPartnerService = limitedPartnerService;
         this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
         this.mapper = mapper;
         this.transactionUtils = transactionUtils;
         this.transactionService = transactionService;
-        this.generalPartnerService = generalPartnerService;
-        this.limitedPartnerService = limitedPartnerService;
     }
 
     public String createIncorporation(Transaction transaction, IncorporationDto incorporationDto, String requestId, String userId)
@@ -82,19 +87,22 @@ public class LimitedPartnershipIncorporationService {
 
     private void updateTransactionWithIncorporationResource(Transaction transaction, String incorporationUri, String kind, String loggingContext)
             throws ServiceException {
-        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri, kind);
+        var incorporationTransactionResource = createIncorporationTransactionResource(incorporationUri, kind, transaction);
 
         transaction.setResources(Collections.singletonMap(incorporationUri, incorporationTransactionResource));
         transactionService.updateTransaction(transaction, loggingContext);
     }
 
-    private Resource createIncorporationTransactionResource(String incorporationUri, String kind) {
+    private Resource createIncorporationTransactionResource(String incorporationUri, String kind, Transaction transaction) {
         var incorporationResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", incorporationUri);
-        linksMap.put("validation_status", incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
-        linksMap.put("costs", incorporationUri + "/costs");
+        linksMap.put(LINK_RESOURCE, incorporationUri);
+        linksMap.put(LINK_VALIDATON_STATUS, incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        if (transactionUtils.isForRegistration(transaction)) {
+            linksMap.put(LINK_COSTS, incorporationUri + COSTS_URI_SUFFIX);
+        }
 
         incorporationResource.setLinks(linksMap);
         incorporationResource.setKind(kind);
@@ -119,12 +127,9 @@ public class LimitedPartnershipIncorporationService {
         if (includeSubResources) {
             var subResourcesDto = new IncorporationSubResourcesDto();
 
-            // TODO Set collections of actual General Partners and Limited Partners once implemented
-            subResourcesDto.setGeneralPartners(new ArrayList<>());
-            subResourcesDto.setLimitedPartners(new ArrayList<>());
-
-            LimitedPartnershipDto partnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-            subResourcesDto.setPartnership(partnershipDto);
+            subResourcesDto.setGeneralPartners(generalPartnerService.getGeneralPartnerList(transaction));
+            subResourcesDto.setLimitedPartners(limitedPartnerService.getLimitedPartnerList(transaction));
+            subResourcesDto.setPartnership(limitedPartnershipService.getLimitedPartnership(transaction));
 
             incorporationDto.setSubResources(subResourcesDto);
         }
@@ -136,7 +141,7 @@ public class LimitedPartnershipIncorporationService {
             throws ServiceException {
         List<ValidationStatusError> errors = new ArrayList<>();
 
-        errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction));
+        errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction, incorporationId));
         errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
         errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
 

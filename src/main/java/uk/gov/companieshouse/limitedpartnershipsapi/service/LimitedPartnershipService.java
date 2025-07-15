@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -9,6 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
@@ -23,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
 @Service
 public class LimitedPartnershipService {
@@ -56,8 +58,11 @@ public class LimitedPartnershipService {
     public String createLimitedPartnership(Transaction transaction,
                                            LimitedPartnershipDto limitedPartnershipDto,
                                            String requestId,
-                                           String userId) throws ServiceException {
+                                           String userId)
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         ApiLogger.debug("Called createLimitedPartnership(...)");
+
+        limitedPartnershipValidator.validatePartial(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
 
         if (hasExistingLimitedPartnership(transaction)) {
             throw new ServiceException(String.format(
@@ -134,12 +139,10 @@ public class LimitedPartnershipService {
         var limitedPartnershipResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
-        linksMap.put("resource", submissionUri);
+        linksMap.put(LINK_RESOURCE, submissionUri);
 
         // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
         //      incorporation journey (registration or transition)
-
-        linksMap.put("costs", submissionUri + "/costs");
 
         limitedPartnershipResource.setLinks(linksMap);
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
@@ -163,9 +166,12 @@ public class LimitedPartnershipService {
                                                               String loggingContext,
                                                               String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
+        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+            transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
+        }
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
-        final var resumeJourneyUri = String.format(URL_RESUME_PARTNERSHIP, transaction.getId(), submissionId);
+        final var resumeJourneyUri = String.format(URL_RESUME, transaction.getId(), submissionId);
         transaction.setResumeJourneyUri(resumeJourneyUri);
 
         transactionService.updateTransaction(transaction, loggingContext);
@@ -216,12 +222,10 @@ public class LimitedPartnershipService {
         return mapper.daoToDto(limitedPartnershipDao);
     }
 
-    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction) throws ServiceException {
+    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction, String submissionId)
+            throws ServiceException {
+        LimitedPartnershipDto dto = getLimitedPartnership(transaction, submissionId);
 
-        ApiLogger.info("\n\n*** Validate Partnership ***\n\n");
-
-        LimitedPartnershipDto dto = getLimitedPartnership(transaction);
-
-        return limitedPartnershipValidator.validate(dto);
+        return limitedPartnershipValidator.validateFull(dto, IncorporationKind.fromDescription(transaction.getFilingMode()));
     }
 }

@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,26 +32,21 @@ public class FilingsController {
         this.filingsService = filingsService;
     }
 
-    /**
-     *
-     * @param transaction
-     * @param incorporationId
-     * @param requestId
-     * @param request
-     * @return ResponseEntity<FilingApi[]> returns multiple instances
-     * as chs expects an array rather than an instance
-     */
+
     @GetMapping
     public ResponseEntity<FilingApi[]> getFilings(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String incorporationId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            HttpServletRequest request) throws ServiceException {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
 
        var logMap = new HashMap<String, Object>();
-       logMap.put(TRANSACTION_KEY, transaction.getId());
+        logMap.put(TRANSACTION_KEY, transaction.getId());
+        logMap.put(URL_PARAM_FILING_RESOURCE_ID, incorporationId);
+
        ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
-       FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction);
+
+       FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, incorporationId);
+
        return ResponseEntity.ok(new FilingApi[] { filing });
     }
 }

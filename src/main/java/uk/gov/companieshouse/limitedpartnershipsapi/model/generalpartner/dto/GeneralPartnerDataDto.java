@@ -28,9 +28,6 @@ public class GeneralPartnerDataDto extends PartnerDataDto {
     @JsonProperty(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)
     private Boolean notDisqualifiedStatementChecked;
 
-    @JsonProperty(LEGAL_PERSONALITY_STATEMENT_CHECKED_FIELD)
-    private Boolean legalPersonalityStatementChecked;
-
     public boolean isLegalEntity() {
         return getLegalEntityRegisterName() != null || getLegalForm() != null;
     }
@@ -42,13 +39,4 @@ public class GeneralPartnerDataDto extends PartnerDataDto {
     public void setNotDisqualifiedStatementChecked(Boolean notDisqualifiedStatementChecked) {
         this.notDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
-
-    public Boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
-    }
-
-    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
-    }
-
 }
