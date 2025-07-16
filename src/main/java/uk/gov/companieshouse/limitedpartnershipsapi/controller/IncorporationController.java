@@ -107,26 +107,22 @@ public class IncorporationController {
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
+        logMap.put(URL_PARAM_INCORPORATION_ID, incorporationId);
 
-        try {
-            ApiLogger.infoContext(requestId, "Calling service to validate a Limited Partnership Incorporation", logMap);
-            var validationStatus = new ValidationStatusResponse();
-            validationStatus.setValid(true);
+        ApiLogger.infoContext(requestId, "Calling service to validate a Limited Partnership Incorporation", logMap);
+        var validationStatus = new ValidationStatusResponse();
+        validationStatus.setValid(true);
 
-            var validationErrors = incorporationService.validateIncorporation(transaction, incorporationId);
+        var validationErrors = incorporationService.validateIncorporation(transaction);
 
-            if (!validationErrors.isEmpty()) {
-                ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
-                        new GsonBuilder().create().toJson(validationErrors)), null, logMap);
-                validationStatus.setValid(false);
-                validationStatus.setValidationStatusError(validationErrors.toArray(ValidationStatusError[]::new));
-            }
-
-            return ResponseEntity.ok().body(validationStatus);
-        } catch (ResourceNotFoundException e) {
-            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
-            return ResponseEntity.notFound().build();
+        if (!validationErrors.isEmpty()) {
+            ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
+                    new GsonBuilder().create().toJson(validationErrors)), null, logMap);
+            validationStatus.setValid(false);
+            validationStatus.setValidationStatusError(validationErrors.toArray(ValidationStatusError[]::new));
         }
+
+        return ResponseEntity.ok().body(validationStatus);
     }
 
     @GetMapping("/{" + URL_PARAM_INCORPORATION_ID + "}/costs")

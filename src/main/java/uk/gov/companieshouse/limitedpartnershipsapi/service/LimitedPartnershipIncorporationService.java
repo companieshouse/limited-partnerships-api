@@ -25,7 +25,7 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
@@ -98,7 +98,7 @@ public class LimitedPartnershipIncorporationService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, incorporationUri);
-        linksMap.put(LINK_VALIDATON_STATUS, incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
+        linksMap.put(LINK_VALIDATION_STATUS, incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
 
         if (transactionUtils.isForRegistration(transaction)) {
             linksMap.put(LINK_COSTS, incorporationUri + COSTS_URI_SUFFIX);
@@ -137,7 +137,7 @@ public class LimitedPartnershipIncorporationService {
         return incorporationDto;
     }
 
-    public List<ValidationStatusError> validateIncorporation(Transaction transaction, String incorporationId)
+    public List<ValidationStatusError> validateIncorporation(Transaction transaction)
             throws ServiceException {
         List<ValidationStatusError> errors = new ArrayList<>();
 

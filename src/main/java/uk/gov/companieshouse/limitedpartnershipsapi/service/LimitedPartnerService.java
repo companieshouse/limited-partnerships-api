@@ -186,8 +186,6 @@ public class LimitedPartnerService {
         List<LimitedPartnerDto> limitedPartners = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
                 transaction.getId()).stream().map(mapper::daoToDto).toList();
 
-        ApiLogger.info("\n\n*** validate LPs ***\n\n");
-
         List<ValidationStatusError> errors = new ArrayList<>();
         for (LimitedPartnerDto partner : limitedPartners) {
             errors.addAll(limitedPartnerValidator.validateFull(partner, transaction));

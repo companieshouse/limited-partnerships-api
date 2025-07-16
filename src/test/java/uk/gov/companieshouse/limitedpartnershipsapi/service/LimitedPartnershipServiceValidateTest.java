@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -36,7 +35,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Par
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-@Disabled
 class LimitedPartnershipServiceValidateTest {
 
     private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
@@ -59,13 +57,12 @@ class LimitedPartnershipServiceValidateTest {
             limitedPartnershipSubmissionDao.getData().setSicCodes(null);
         }
 
-        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(0, results.size());
     }
 
@@ -85,13 +82,12 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().getPrincipalPlaceOfBusinessAddress().setAddressLine1(null);
         limitedPartnershipSubmissionDao.getData().setLawfulPurposeStatementChecked(false);
 
-        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(6, results.size());
         checkForError(results, "Limited partnership name must not be null", "data.partnershipName");
         checkForError(results, "must be a well-formed email address", "data.email");
@@ -122,13 +118,12 @@ class LimitedPartnershipServiceValidateTest {
             errorMessageAddition = "not ";
         }
 
-        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(7, results.size());
         checkForError(results, "Email is required", "data.email");
         checkForError(results, "Jurisdiction is required", "data.jurisdiction");
@@ -151,13 +146,12 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().setPartnershipName("");
         limitedPartnershipSubmissionDao.getData().setEmail(null);
 
-        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(2, results.size());
         checkForError(results, "Limited partnership name must be greater than 1", "data.partnershipName");
         checkForError(results, "Email is required", "data.email");
@@ -174,13 +168,12 @@ class LimitedPartnershipServiceValidateTest {
         }
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
 
-        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(1, results.size());
         checkForError(results, "Name ending is required", "data.nameEnding");
     }
@@ -199,13 +192,12 @@ class LimitedPartnershipServiceValidateTest {
 
         transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
-        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(0, results.size());
     }
 
@@ -223,13 +215,12 @@ class LimitedPartnershipServiceValidateTest {
 
         transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
-        when(repository.findById(limitedPartnershipSubmissionDao.getId())).thenReturn(Optional.of(limitedPartnershipSubmissionDao));
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        verify(repository).findById(limitedPartnershipSubmissionDao.getId());
         assertEquals(1, results.size());
         checkForError(results, "Partnership number must be valid", "data.partnershipNumber");
     }

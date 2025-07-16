@@ -145,9 +145,8 @@ public class GeneralPartnerService {
         List<GeneralPartnerDto> generalPartners = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
                 transaction.getId()).stream().map(mapper::daoToDto).toList();
 
-        ApiLogger.info("\n\n*** Validate GPs ***\n\n");
-
         List<ValidationStatusError> errors = new ArrayList<>();
+
         for (GeneralPartnerDto partner : generalPartners) {
             errors.addAll(generalPartnerValidator.validateFull(partner, transaction));
         }
