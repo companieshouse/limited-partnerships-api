@@ -168,13 +168,9 @@ public class LimitedPartnerService {
 
         repository.deleteById(limitedPartnerDao.getId());
 
-        var resources = transaction.getResources();
-
         var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
 
-        resources.remove(submissionUri);
-
-        transactionService.updateTransaction(transaction, requestId);
+        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
 

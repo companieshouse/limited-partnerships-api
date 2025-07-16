@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -307,21 +308,14 @@ class LimitedPartnerServiceUpdateTest {
         void shouldDeleteLimitedPartner() throws ServiceException {
             LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
-            // transaction before
-            assertEquals(1, transaction.getResources().size());
-
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
             service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID);
 
-            verify(transactionService).updateTransaction(transactionCaptor.capture(), eq(REQUEST_ID));
+            String expectedSubmissionUri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
 
-            Transaction transactionUpdated = transactionCaptor.getValue();
-
-            assertEquals(0, transactionUpdated.getResources().size());
-
-            // transaction after
-            assertEquals(0, transaction.getResources().size());
+            verify(transactionService).deleteTransactionResource(TRANSACTION_ID, expectedSubmissionUri, REQUEST_ID);
+            verify(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
         }
 
         @Test
