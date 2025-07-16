@@ -50,8 +50,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private final CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor;
 
-    private InternalUserInterceptor internalUserInterceptor;
-
+    private final InternalUserInterceptor internalUserInterceptor;
 
     public InterceptorConfig(LoggingInterceptor loggingInterceptor,
                              CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor,
