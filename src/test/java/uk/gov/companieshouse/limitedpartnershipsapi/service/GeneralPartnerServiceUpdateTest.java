@@ -33,18 +33,22 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class GeneralPartnerServiceUpdateTest {
     private static final String TRANSACTION_ID = "863851-951242-143528";
+    private static final String LIMITED_PARTNERSHIP_ID = "687690b4a42b65054d2ef0e3";
     private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String USER_ID = "xbJf0l";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
@@ -103,16 +107,24 @@ class GeneralPartnerServiceUpdateTest {
         Transaction trx = new Transaction();
         trx.setId(TRANSACTION_ID);
 
+        Resource masterResource = new Resource();
+        masterResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+
         Resource resource = new Resource();
         resource.setKind(FILING_KIND_GENERAL_PARTNER);
 
+        String masterUri = String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, LIMITED_PARTNERSHIP_ID);
         String uri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, GENERAL_PARTNER_ID);
 
+        Map<String, String> masterLinks = new HashMap<>();
+        masterLinks.put("masterResource", masterUri);
+        resource.setLinks(masterLinks);
         Map<String, String> links = new HashMap<>();
         links.put("resource", uri);
         resource.setLinks(links);
 
         Map<String, Resource> resourceMap = new HashMap<>();
+        resourceMap.put(masterUri, masterResource);
         resourceMap.put(uri, resource);
         trx.setResources(resourceMap);
 
@@ -273,26 +285,22 @@ class GeneralPartnerServiceUpdateTest {
 
     @Nested
     class DeleteGeneralPartner {
-//        @Test
-//        void shouldDeleteGeneralPartner() throws ServiceException {
-//            GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
-//
-//            // transaction before
-//            assertEquals(1, transaction.getResources().size());
-//
-//            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
-//
-//            service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID);
-//
-//            verify(transactionService).updateTransaction(transactionCaptor.capture(), eq(REQUEST_ID));
-//
-//            Transaction transactionUpdated = transactionCaptor.getValue();
-//
-//            assertEquals(0, transactionUpdated.getResources().size());
-//
-//            // transaction after
-//            assertEquals(0, transaction.getResources().size());
-//        }
+        @Test
+        void shouldDeleteGeneralPartner() throws ServiceException {
+            GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+
+            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+
+            // Before deletion
+            assertEquals(2, transaction.getResources().size());
+
+            service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID);
+
+            String expectedSubmissionUri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, GENERAL_PARTNER_ID);
+
+            verify(transactionService).deleteTransactionResource(TRANSACTION_ID, expectedSubmissionUri, REQUEST_ID);
+            verify(limitedPartnerRepository).deleteById(GENERAL_PARTNER_ID);
+        }
 
         @Test
         void shouldThrowServiceExceptionWhenGeneralPartnerNotFound() {
