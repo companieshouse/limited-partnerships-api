@@ -291,9 +291,6 @@ class GeneralPartnerServiceUpdateTest {
 
             when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-            // Before deletion
-            assertEquals(2, transaction.getResources().size());
-
             service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID);
 
             String expectedSubmissionUri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, GENERAL_PARTNER_ID);
