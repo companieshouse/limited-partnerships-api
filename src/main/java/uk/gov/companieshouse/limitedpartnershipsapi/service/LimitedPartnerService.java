@@ -187,6 +187,13 @@ public class LimitedPartnerService {
                 transaction.getId()).stream().map(mapper::daoToDto).toList();
 
         List<ValidationStatusError> errors = new ArrayList<>();
+
+        if (limitedPartners.isEmpty()) {
+            errors.add(new ValidationStatusError("At least one limited partner is required", "limited_partners", null, null));
+
+            return errors;
+        }
+
         for (LimitedPartnerDto partner : limitedPartners) {
             errors.addAll(limitedPartnerValidator.validateFull(partner, transaction));
         }

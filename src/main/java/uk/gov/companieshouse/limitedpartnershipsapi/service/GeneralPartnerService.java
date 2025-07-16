@@ -147,6 +147,12 @@ public class GeneralPartnerService {
 
         List<ValidationStatusError> errors = new ArrayList<>();
 
+        if (generalPartners.isEmpty()) {
+            errors.add(new ValidationStatusError("At least one general partner is required", "general_partners", null, null));
+
+            return errors;
+        }
+
         for (GeneralPartnerDto partner : generalPartners) {
             errors.addAll(generalPartnerValidator.validateFull(partner, transaction));
         }

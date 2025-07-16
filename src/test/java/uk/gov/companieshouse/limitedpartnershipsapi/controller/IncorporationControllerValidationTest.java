@@ -14,7 +14,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -45,6 +44,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.allOf;
@@ -175,7 +175,7 @@ class IncorporationControllerValidationTest {
         }
 
         @Test
-        void shouldReturn200AndErrorDetailsIfErrors() throws Exception {
+        void shouldReturn200AndErrorDetailsIfDataErrors() throws Exception {
             GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
             generalPartnerDao.getData().setForename("");
             generalPartnerDao.getData().setNationality1("UNKNOWN");
@@ -196,6 +196,27 @@ class IncorporationControllerValidationTest {
                     .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
                             allOf(hasEntry("location", "data.forename"), hasEntry("error", "Forename must be greater than 1")),
                             allOf(hasEntry("location", "data.nationality1"), hasEntry("error", "First nationality must be valid"))
+                    )));
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfInsufficientNumberOfPartners() throws Exception {
+            when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
+            when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
+            when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());
+            when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());
+
+            mockMvc.perform(get(VALIDATE_STATUS_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(""))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "general_partners"), hasEntry("error", "At least one general partner is required")),
+                            allOf(hasEntry("location", "limited_partners"), hasEntry("error", "At least one limited partner is required"))
                     )));
         }
 
