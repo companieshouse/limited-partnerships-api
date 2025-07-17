@@ -53,7 +53,6 @@ class IncorporationControllerValidationTest {
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     private static final String BASE_URL = "/transactions/" + TRANSACTION_ID + "/incorporation/limited-partnership";
-
     private static final String VALIDATE_STATUS_URL = BASE_URL + "/" + INCORPORATION_ID + "/validation-status";
 
     private static final String CORRECT_JSON = """
