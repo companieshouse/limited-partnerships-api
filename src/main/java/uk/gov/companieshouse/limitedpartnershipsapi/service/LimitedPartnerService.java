@@ -16,7 +16,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
