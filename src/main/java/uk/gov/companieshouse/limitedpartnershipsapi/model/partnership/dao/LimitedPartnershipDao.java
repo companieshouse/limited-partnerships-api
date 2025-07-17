@@ -15,13 +15,15 @@ public class LimitedPartnershipDao {
     @Id
     private String id;
 
-    @Field("created_at") @CreatedDate
+    @Field("created_at")
+    @CreatedDate
     private LocalDateTime createdAt;
 
     @Field("created_by_user_id")
     private String createdBy;
 
-    @Field("updated_at") @LastModifiedDate
+    @Field("updated_at")
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     @Field("updated_by_user_id")
