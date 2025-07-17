@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
@@ -18,13 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilde
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.client.ApiClientServiceImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.config.InterceptorConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
@@ -33,13 +27,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
@@ -58,13 +45,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 
-@ContextConfiguration(classes = {IncorporationController.class, GlobalExceptionHandler.class,
-        LimitedPartnershipIncorporationService.class, LimitedPartnershipIncorporationMapperImpl.class,
-        LimitedPartnershipService.class, LimitedPartnershipMapperImpl.class, LimitedPartnershipPatchMapperImpl.class,
-        LimitedPartnershipValidator.class, GeneralPartnerService.class, LimitedPartnerService.class,
-        GeneralPartnerMapperImpl.class, GeneralPartnerValidator.class, LimitedPartnerMapperImpl.class,
-        LimitedPartnerValidator.class,  ApiClientServiceImpl.class})
-@WebMvcTest(controllers = {IncorporationController.class})
+@SpringBootTest
+@AutoConfigureMockMvc
 class IncorporationControllerValidationTest {
 
     private static final String INCORPORATION_ID = "123";
@@ -117,6 +99,10 @@ class IncorporationControllerValidationTest {
 
     @MockitoBean
     private TransactionUtils transactionUtils;
+
+    @MockitoBean
+    private InterceptorConfig interceptorConfig;
+
 
     @BeforeEach
     void setUp() {
