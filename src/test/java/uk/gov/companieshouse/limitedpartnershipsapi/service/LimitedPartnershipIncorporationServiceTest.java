@@ -227,7 +227,6 @@ class LimitedPartnershipIncorporationServiceTest {
         var dao = new LimitedPartnershipIncorporationDao();
         dao.setId(SUBMISSION_ID);
         dao.getData().setKind(REGISTRATION.getDescription());
-        dao.setCreatedAt(LocalDateTime.now());
 
         return dao;
     }

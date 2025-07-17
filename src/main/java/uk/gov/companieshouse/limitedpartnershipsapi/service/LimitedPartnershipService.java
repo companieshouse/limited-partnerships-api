@@ -72,7 +72,6 @@ public class LimitedPartnershipService {
         }
 
         LimitedPartnershipDao dao = mapper.dtoToDao(limitedPartnershipDto);
-        dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
         dao.setTransactionId(transaction.getId());
 
@@ -133,7 +132,6 @@ public class LimitedPartnershipService {
     }
 
     private void setAuditDetailsForUpdate(String userId, LimitedPartnershipDao lpSubmissionDaoAfterPatch) {
-        lpSubmissionDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         lpSubmissionDaoAfterPatch.setUpdatedBy(userId);
     }
 

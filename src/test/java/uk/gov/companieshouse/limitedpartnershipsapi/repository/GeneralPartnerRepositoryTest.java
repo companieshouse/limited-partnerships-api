@@ -52,7 +52,6 @@ class GeneralPartnerRepositoryTest {
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
-        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 1, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setForename("John");
@@ -70,7 +69,6 @@ class GeneralPartnerRepositoryTest {
     private GeneralPartnerDao createGeneralPartnerLegalEntityDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
-        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 15, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setLegalEntityName("My company ltd");
