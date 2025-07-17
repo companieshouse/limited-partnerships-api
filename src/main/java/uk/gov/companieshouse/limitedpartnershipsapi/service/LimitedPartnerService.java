@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +26,7 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnerService {
@@ -92,7 +91,9 @@ public class LimitedPartnerService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
-        linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
+        //      incorporation journey (registration or transition)
 
         limitedPartnerResource.setLinks(linksMap);
         limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
@@ -179,6 +180,25 @@ public class LimitedPartnerService {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
         return limitedPartnerValidator.validateFull(dto, transaction);
+    }
+
+    public List<ValidationStatusError> validateLimitedPartners(Transaction transaction) throws ServiceException {
+        List<LimitedPartnerDto> limitedPartners = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
+                transaction.getId()).stream().map(mapper::daoToDto).toList();
+
+        List<ValidationStatusError> errors = new ArrayList<>();
+
+        if (limitedPartners.isEmpty()) {
+            errors.add(new ValidationStatusError("At least one limited partner is required", "limited_partners", null, null));
+
+            return errors;
+        }
+
+        for (LimitedPartnerDto partner : limitedPartners) {
+            errors.addAll(limitedPartnerValidator.validateFull(partner, transaction));
+        }
+
+        return errors;
     }
 
     private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,

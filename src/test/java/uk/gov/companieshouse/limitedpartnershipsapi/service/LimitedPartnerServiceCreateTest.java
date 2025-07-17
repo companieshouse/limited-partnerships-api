@@ -50,7 +50,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.I
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -124,9 +123,9 @@ class LimitedPartnerServiceCreateTest {
             assertEquals(1, transactionResources.size());
             assertThat(transactionResources.values())
                     .allSatisfy(resource -> assertThat(resource.getLinks())
-                            .hasSize(2)
+                            .hasSize(1)
                             .isNotNull()
-                            .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS));
+                            .containsKeys(LINK_RESOURCE));
         }
 
         @Test
@@ -139,9 +138,9 @@ class LimitedPartnerServiceCreateTest {
             assertEquals(1, transactionResources.size());
             assertThat(transactionResources.values())
                     .allSatisfy(resource -> assertThat(resource.getLinks())
-                            .hasSize(2)
+                            .hasSize(1)
                             .isNotNull()
-                            .containsKeys(LINK_RESOURCE, LINK_VALIDATON_STATUS));
+                            .containsKeys(LINK_RESOURCE));
         }
 
         @Test

@@ -31,7 +31,7 @@ public class Constants {
     // Transaction links
     public static final String LINK_SELF = "self";
     public static final String LINK_RESOURCE = "resource";
-    public static final String LINK_VALIDATON_STATUS = "validation_status";
+    public static final String LINK_VALIDATION_STATUS = "validation_status";
     public static final String LINK_COSTS = "costs";
 
     // Validation rules

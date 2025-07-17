@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +26,7 @@ import java.util.Map;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATON_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class GeneralPartnerService {
@@ -91,7 +90,9 @@ public class GeneralPartnerService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
-        linksMap.put(LINK_VALIDATON_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+
+        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
+        //      incorporation journey (registration or transition)
 
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
@@ -138,6 +139,25 @@ public class GeneralPartnerService {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
         return generalPartnerValidator.validateFull(dto, transaction);
+    }
+
+    public List<ValidationStatusError> validateGeneralPartners(Transaction transaction) throws ServiceException {
+        List<GeneralPartnerDto> generalPartners = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
+                transaction.getId()).stream().map(mapper::daoToDto).toList();
+
+        List<ValidationStatusError> errors = new ArrayList<>();
+
+        if (generalPartners.isEmpty()) {
+            errors.add(new ValidationStatusError("At least one general partner is required", "general_partners", null, null));
+
+            return errors;
+        }
+
+        for (GeneralPartnerDto partner : generalPartners) {
+            errors.addAll(generalPartnerValidator.validateFull(partner, transaction));
+        }
+
+        return errors;
     }
 
     public List<GeneralPartnerDto> getGeneralPartnerList(Transaction transaction) throws ServiceException {

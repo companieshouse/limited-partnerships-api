@@ -23,7 +23,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
