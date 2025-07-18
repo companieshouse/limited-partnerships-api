@@ -60,11 +60,7 @@ public class GeneralPartnerService {
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
-        String generalPartnerId = dao.getId();
-        if (generalPartnerId == null) {
-            ApiLogger.infoContext(requestId, String.format("general Partner id is null: %s", generalPartnerId));
-        }
-        updateTransactionWithGeneralPartnerTransactionResourceLinks(requestId, transaction, submissionUri, generalPartnerId);
+        updateTransactionWithGeneralPartnerTransactionResourceLinks(requestId, transaction, submissionUri);
 
         return insertedSubmission.getId();
     }
@@ -92,7 +88,7 @@ public class GeneralPartnerService {
     }
 
     private void updateTransactionWithGeneralPartnerTransactionResourceLinks(
-            String requestId, Transaction transaction, String submissionUri, String generalPartnerId) throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
