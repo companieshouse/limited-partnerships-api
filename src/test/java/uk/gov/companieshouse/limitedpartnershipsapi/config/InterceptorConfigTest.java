@@ -8,11 +8,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import uk.gov.companieshouse.api.interceptor.ClosedTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
+import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.OpenOrClosedPendingPaymentTransactionInterceptor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
@@ -38,12 +40,17 @@ class InterceptorConfigTest {
     @Mock
     private InternalUserInterceptor internalUserInterceptor;
 
+    @Mock
+    private OpenOrClosedPendingPaymentTransactionInterceptor openOrClosedPendingPaymentTransactionInterceptor;
+
+
     @InjectMocks
     private InterceptorConfig interceptorConfig;
 
     @Test
     void addInterceptorsTest() {
         when(interceptorRegistry.addInterceptor(any())).thenReturn(interceptorRegistration);
+        when(interceptorRegistration.addPathPatterns(any(String[].class))).thenReturn(interceptorRegistration);
 
         interceptorConfig.addInterceptors(interceptorRegistry);
 
@@ -53,7 +60,9 @@ class InterceptorConfigTest {
         inOrder.verify(interceptorRegistry).addInterceptor(customUserAuthenticationInterceptor);
         inOrder.verify(interceptorRegistry).addInterceptor(any(TransactionInterceptor.class));
         inOrder.verify(interceptorRegistry).addInterceptor(internalUserInterceptor);
+        inOrder.verify(interceptorRegistry).addInterceptor(any(ClosedTransactionInterceptor.class));
+        inOrder.verify(interceptorRegistry).addInterceptor(openOrClosedPendingPaymentTransactionInterceptor);
 
-        verify(interceptorRegistry, times(5)).addInterceptor(any());
+        verify(interceptorRegistry, times(7)).addInterceptor(any());
     }
 }
