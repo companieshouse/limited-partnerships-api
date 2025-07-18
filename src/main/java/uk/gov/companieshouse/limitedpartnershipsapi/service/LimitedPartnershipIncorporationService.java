@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
@@ -14,20 +15,24 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.Limi
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class LimitedPartnershipIncorporationService {
 
-    private final GeneralPartnerService generalpartnerService;
+    private final GeneralPartnerService generalPartnerService;
 
     private final LimitedPartnerService limitedPartnerService;
 
@@ -41,14 +46,14 @@ public class LimitedPartnershipIncorporationService {
     private final TransactionUtils transactionUtils;
 
     public LimitedPartnershipIncorporationService(
-            GeneralPartnerService generalpartnerService,
+            GeneralPartnerService generalPartnerService,
             LimitedPartnerService limitedPartnerService,
             LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
             TransactionUtils transactionUtils,
             TransactionService transactionService) {
-        this.generalpartnerService = generalpartnerService;
+        this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
@@ -91,6 +96,7 @@ public class LimitedPartnershipIncorporationService {
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, incorporationUri);
+        linksMap.put(LINK_VALIDATION_STATUS, incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
 
         if (transactionUtils.isForRegistration(transaction)) {
             linksMap.put(LINK_COSTS, incorporationUri + COSTS_URI_SUFFIX);
@@ -119,7 +125,7 @@ public class LimitedPartnershipIncorporationService {
         if (includeSubResources) {
             var subResourcesDto = new IncorporationSubResourcesDto();
 
-            subResourcesDto.setGeneralPartners(generalpartnerService.getGeneralPartnerList(transaction));
+            subResourcesDto.setGeneralPartners(generalPartnerService.getGeneralPartnerList(transaction));
             subResourcesDto.setLimitedPartners(limitedPartnerService.getLimitedPartnerList(transaction));
             subResourcesDto.setPartnership(limitedPartnershipService.getLimitedPartnership(transaction));
 
@@ -127,6 +133,17 @@ public class LimitedPartnershipIncorporationService {
         }
 
         return incorporationDto;
+    }
+
+    public List<ValidationStatusError> validateIncorporation(Transaction transaction)
+            throws ServiceException {
+        List<ValidationStatusError> errors = new ArrayList<>();
+
+        errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction));
+        errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
+        errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
+
+        return errors;
     }
 
     private void updateIncorporationTypeWithSelfLink(LimitedPartnershipIncorporationDao incorporationDao,

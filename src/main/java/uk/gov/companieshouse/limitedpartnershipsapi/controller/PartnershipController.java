@@ -128,13 +128,14 @@ public class PartnershipController {
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
+        logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
 
         try {
             ApiLogger.infoContext(requestId, "Calling service to validate a Limited Partnership Submission", logMap);
             var validationStatus = new ValidationStatusResponse();
             validationStatus.setValid(true);
 
-            var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction, submissionId);
+            var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction);
 
             if (!validationErrors.isEmpty()) {
                 ApiLogger.errorContext(requestId, String.format("Validation errors: %s",

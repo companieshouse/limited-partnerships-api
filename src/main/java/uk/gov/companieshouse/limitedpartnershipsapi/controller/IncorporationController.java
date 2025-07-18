@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
@@ -95,6 +98,31 @@ public class IncorporationController {
             ApiLogger.errorContext(requestId, "Error getting a Limited Partnership Incorporation", se, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/{" + URL_PARAM_INCORPORATION_ID + "}/validation-status")
+    public ResponseEntity<ValidationStatusResponse> getValidationStatus(
+            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @PathVariable(URL_PARAM_INCORPORATION_ID) String incorporationId,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
+        var logMap = new HashMap<String, Object>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
+        logMap.put(URL_PARAM_INCORPORATION_ID, incorporationId);
+
+        ApiLogger.infoContext(requestId, "Calling service to validate a Limited Partnership Incorporation", logMap);
+        var validationStatus = new ValidationStatusResponse();
+        validationStatus.setValid(true);
+
+        var validationErrors = incorporationService.validateIncorporation(transaction);
+
+        if (!validationErrors.isEmpty()) {
+            ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
+                    new GsonBuilder().create().toJson(validationErrors)), null, logMap);
+            validationStatus.setValid(false);
+            validationStatus.setValidationStatusError(validationErrors.toArray(ValidationStatusError[]::new));
+        }
+
+        return ResponseEntity.ok().body(validationStatus);
     }
 
     @GetMapping("/{" + URL_PARAM_INCORPORATION_ID + "}/costs")

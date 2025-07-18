@@ -37,6 +37,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -805,8 +806,9 @@ class PartnershipControllerValidationTest {
         when(repository.insert((LimitedPartnershipDao) any())).thenReturn(limitedPartnershipDao);
         when(repository.save(any())).thenReturn(limitedPartnershipDao);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
+        when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipDao));
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
     }
 
     private void mocks() {
