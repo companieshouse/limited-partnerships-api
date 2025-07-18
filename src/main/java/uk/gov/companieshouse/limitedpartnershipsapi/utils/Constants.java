@@ -14,7 +14,6 @@ public class Constants {
     public static final String TRANSACTION_KEY = "transaction";
     public static final String TRANSACTION_ID_KEY = "transaction_id";
 
-
     // URIs
     public static final String TRANSACTIONS_PRIVATE_API_URI_PREFIX = "/private/transactions/";
     public static final String VALIDATION_STATUS_URI_SUFFIX = "/validation-status";
