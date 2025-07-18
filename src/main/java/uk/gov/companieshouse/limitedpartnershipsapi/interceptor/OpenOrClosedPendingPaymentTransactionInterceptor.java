@@ -13,7 +13,7 @@ import static uk.gov.companieshouse.api.model.transaction.TransactionStatus.CLOS
 import static uk.gov.companieshouse.api.model.transaction.TransactionStatus.OPEN;
 
 /**
- * TransactionStatusInterceptor is responsible for determining whether a request is allowed
+ * OpenOrClosedPendingPaymentTransactionInterceptor is responsible for determining whether a request is allowed
  * based on the transaction status and HTTP method.
  * It extends AbstractTransactionStatusInterceptor to provide specific behavior
  * for transaction status handling.
@@ -23,7 +23,7 @@ import static uk.gov.companieshouse.api.model.transaction.TransactionStatus.OPEN
  * - The transaction status is 'closed pending payment' and the request is a GET request.
  */
 @Component
-public class TransactionStatusInterceptor extends AbstractTransactionStatusInterceptor {
+public class OpenOrClosedPendingPaymentTransactionInterceptor extends AbstractTransactionStatusInterceptor {
 
     /**
      * Handles the transaction status and determines whether request is allowed.
@@ -38,18 +38,18 @@ public class TransactionStatusInterceptor extends AbstractTransactionStatusInter
     @Override
     boolean handleTransactionStatus(Transaction transaction, String reqId, HashMap<String, Object> logMap, HttpServletRequest request, HttpServletResponse response) {
         if (OPEN.equals(transaction.getStatus())) {
-            ApiLogger.infoContext(reqId, "Transaction status is open - request allowed", logMap);
+            ApiLogger.debugContext(reqId, "Transaction status is open - request allowed", logMap);
 
             return true;
         }
 
         if (CLOSED_PENDING_PAYMENT.equals(transaction.getStatus()) && request.getMethod().equals(HttpMethod.GET.name())) {
-            ApiLogger.infoContext(reqId, "Transaction status is closed pending payment and a GET request - request allowed", logMap);
+            ApiLogger.debugContext(reqId, "Transaction status is closed pending payment and a GET request - request allowed", logMap);
 
             return true;
         }
 
-        ApiLogger.errorContext(reqId, "Request disallowed due to transaction status", null, logMap);
+        ApiLogger.errorContext(reqId, "Request disallowed due to transaction status not being 'open' or 'closed pending payment' with a GET request", null, logMap);
 
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
