@@ -33,7 +33,7 @@ class GeneralPartnerRepositoryTest {
     }
 
     @Test
-    void testGetGeneralPartnerListOrderedByUpdatedAtDesc() throws InterruptedException {
+    void testGetGeneralPartnerListOrderedByUpdatedAtDesc(){
         GeneralPartnerDao generalPartnerPerson = createGeneralPartnerPersonDao();
         GeneralPartnerDao generalPartnerLegalEntity = createGeneralPartnerLegalEntityDao();
 
