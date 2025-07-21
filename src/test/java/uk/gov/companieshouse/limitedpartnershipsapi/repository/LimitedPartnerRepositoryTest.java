@@ -16,13 +16,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 @DataMongoTest
 @ActiveProfiles("test")
 @Import(MongoTestConfig.class)
-public class LimitedPartnerRepositoryTest {
+class LimitedPartnerRepositoryTest {
 
     @Autowired
     private LimitedPartnerRepository repository;
 
     @Test
-    public void testAuditFieldsArePopulated(){
+    void testAuditFieldsArePopulated(){
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerDao();
         repository.insert(limitedPartnerDao);
 

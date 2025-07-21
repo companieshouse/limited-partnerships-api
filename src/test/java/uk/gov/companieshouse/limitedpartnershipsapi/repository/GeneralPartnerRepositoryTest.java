@@ -38,7 +38,6 @@ class GeneralPartnerRepositoryTest {
         GeneralPartnerDao generalPartnerLegalEntity = createGeneralPartnerLegalEntityDao();
 
         generalPartnerRepository.insert(generalPartnerPerson);
-        Thread.sleep(1000);   // Ensure different timestamps for testing order
         generalPartnerRepository.insert(generalPartnerLegalEntity);
 
         List<GeneralPartnerDao> result = generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
@@ -53,7 +52,7 @@ class GeneralPartnerRepositoryTest {
     }
 
     @Test
-    public void testAuditFieldsArePopulated(){
+    void testAuditFieldsArePopulated(){
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerDao();
         generalPartnerRepository.insert(generalPartnerDao);
 
