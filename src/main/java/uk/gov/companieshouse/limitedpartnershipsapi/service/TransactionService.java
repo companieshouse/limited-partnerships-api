@@ -52,7 +52,6 @@ public class TransactionService {
 
     public void deleteTransactionResource(String transactionId, String resourceId, String loggingContext) throws ServiceException {
         try {
-
             var uri = TRANSACTIONS_PRIVATE_API_URI_PREFIX + transactionId + "/resources";
 
             var response = apiClientService.getInternalApiClient()
