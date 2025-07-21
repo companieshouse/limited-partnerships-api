@@ -1,28 +1,38 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import uk.gov.companieshouse.limitedpartnershipsapi.config.MongoConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@Disabled("Disabled until we have a test container for MongoDB in pipeline")
+@Testcontainers
 @DataMongoTest
-@ExtendWith(SpringExtension.class)
-@Import(MongoConfig.class)
 class GeneralPartnerRepositoryTest {
+
     private static final String TRANSACTION_ID = "transaction-123";
+
+    @Container
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:8.0.11-noble"))
+            .withReuse(true);
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+    }
 
     @Autowired
     private GeneralPartnerRepository generalPartnerRepository;
@@ -33,7 +43,7 @@ class GeneralPartnerRepositoryTest {
     }
 
     @Test
-    void testGetGeneralPartnerListOrderedByUpdatedAtDesc(){
+    void testGetGeneralPartnerListOrderedByUpdatedAtDesc() {
         GeneralPartnerDao generalPartnerPerson = createGeneralPartnerPersonDao();
         GeneralPartnerDao generalPartnerLegalEntity = createGeneralPartnerLegalEntityDao();
 
@@ -64,6 +74,7 @@ class GeneralPartnerRepositoryTest {
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
+        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 1, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setForename("John");
