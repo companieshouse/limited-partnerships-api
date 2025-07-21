@@ -6,11 +6,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import uk.gov.companieshouse.api.interceptor.ClosedTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
+import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.OpenOrClosedPendingPaymentTransactionInterceptor;
 
 import java.util.stream.Stream;
 
@@ -47,18 +49,19 @@ public class InterceptorConfig implements WebMvcConfigurer {
             Stream.of(COST_ENDPOINTS)).toArray(String[]::new);
 
     private final LoggingInterceptor loggingInterceptor;
-
     private final CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor;
-
-    private InternalUserInterceptor internalUserInterceptor;
-
+    private final InternalUserInterceptor internalUserInterceptor;
+    private final ClosedTransactionInterceptor closedTransactionInterceptor = new ClosedTransactionInterceptor();
+    private final OpenOrClosedPendingPaymentTransactionInterceptor openOrClosedPendingPaymentTransactionInterceptor;
 
     public InterceptorConfig(LoggingInterceptor loggingInterceptor,
                              CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor,
-                             InternalUserInterceptor internalUserInterceptor) {
+                             InternalUserInterceptor internalUserInterceptor,
+                             OpenOrClosedPendingPaymentTransactionInterceptor openOrClosedPendingPaymentTransactionInterceptor) {
         this.loggingInterceptor = loggingInterceptor;
         this.customUserAuthenticationInterceptor = customUserAuthenticationInterceptor;
         this.internalUserInterceptor = internalUserInterceptor;
+        this.openOrClosedPendingPaymentTransactionInterceptor = openOrClosedPendingPaymentTransactionInterceptor;
     }
 
     /**
@@ -78,6 +81,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns(TRANSACTION_ENDPOINTS);
         registry.addInterceptor(internalUserInterceptor)
                 .addPathPatterns(INTERNAL_ENDPOINTS);
+        registry.addInterceptor(closedTransactionInterceptor)
+                .addPathPatterns(FILINGS_ENDPOINTS);
+        registry.addInterceptor(openOrClosedPendingPaymentTransactionInterceptor)
+                .addPathPatterns(CRUD_AND_COST_ENDPOINTS)
+                .excludePathPatterns(COST_ENDPOINTS);
     }
 
     @Bean

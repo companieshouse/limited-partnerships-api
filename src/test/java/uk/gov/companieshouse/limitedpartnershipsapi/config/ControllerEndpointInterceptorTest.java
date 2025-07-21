@@ -25,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.controller.PartnershipContro
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
+import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.OpenOrClosedPendingPaymentTransactionInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
@@ -100,11 +101,15 @@ class ControllerEndpointInterceptorTest {
     @MockitoBean
     private InternalUserInterceptor internalUserInterceptor;
 
+    @MockitoBean
+    private OpenOrClosedPendingPaymentTransactionInterceptor openOrClosedPendingPaymentTransactionInterceptor;
+
     @BeforeEach
     void setUp() {
         when(loggingInterceptor.preHandle(any(), any(), any())).thenReturn(true);
         when(customUserAuthenticationInterceptor.preHandle(any(), any(), any())).thenReturn(true);
         when(transactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
+        when(openOrClosedPendingPaymentTransactionInterceptor.preHandle(any(), any(), any())).thenReturn(true);
 
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", "passthrough");

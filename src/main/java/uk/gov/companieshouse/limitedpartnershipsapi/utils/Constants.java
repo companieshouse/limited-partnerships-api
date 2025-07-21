@@ -12,6 +12,7 @@ public class Constants {
     public static final String URL_PARAM_GENERAL_PARTNER_ID = "generalPartnerId";
     public static final String URL_PARAM_LIMITED_PARTNER_ID = "limitedPartnerId";
     public static final String TRANSACTION_KEY = "transaction";
+    public static final String TRANSACTION_ID_KEY = "transaction_id";
 
     // URIs
     public static final String TRANSACTIONS_PRIVATE_API_URI_PREFIX = "/private/transactions/";
