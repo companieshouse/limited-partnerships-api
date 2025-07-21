@@ -44,9 +44,11 @@ class GeneralPartnerRepositoryTest {
 
         assertThat(result.get(0).getData().getLegalEntityName()).isEqualTo("My company ltd");
         assertThat(result.get(0).getData().getLegalForm()).isEqualTo("Limited Company");
+        assertThat(result.get(0).getData().getNotDisqualifiedStatementChecked()).isNull();
 
         assertThat(result.get(1).getData().getForename()).isEqualTo("John");
         assertThat(result.get(1).getData().getSurname()).isEqualTo("Doe");
+        assertThat(result.get(1).getData().getNotDisqualifiedStatementChecked()).isTrue();
     }
 
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
