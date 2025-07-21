@@ -312,7 +312,7 @@ class LimitedPartnerServiceUpdateTest {
 
             service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID);
 
-            String expectedSubmissionUri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
+            String expectedSubmissionUri = String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
 
             verify(transactionService).deleteTransactionResource(TRANSACTION_ID, expectedSubmissionUri, REQUEST_ID);
             verify(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
