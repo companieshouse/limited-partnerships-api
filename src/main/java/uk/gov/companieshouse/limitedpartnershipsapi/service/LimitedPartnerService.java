@@ -166,11 +166,16 @@ public class LimitedPartnerService {
         LimitedPartnerDao limitedPartnerDao = repository.findById(limitedPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId)));
 
-        repository.deleteById(limitedPartnerDao.getId());
-
         var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
 
-        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+        try {
+            transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+            repository.deleteById(limitedPartnerDao.getId());
+        } catch (ServiceException e) {
+            ApiLogger.errorContext(requestId, String.format("Error deleting limited partner with id: %s", limitedPartnerId), e);
+            throw new ServiceException(String.format("Error deleting limited partner with id: %s", limitedPartnerId), e);
+        }
+
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
 
