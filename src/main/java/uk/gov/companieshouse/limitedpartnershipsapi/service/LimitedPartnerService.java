@@ -172,7 +172,6 @@ public class LimitedPartnerService {
         repository.deleteById(limitedPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
-
     }
 
     public List<ValidationStatusError> validateLimitedPartner(Transaction transaction, String limitedPartnerId)

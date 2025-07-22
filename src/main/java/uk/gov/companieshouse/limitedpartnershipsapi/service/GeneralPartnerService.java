@@ -177,7 +177,6 @@ public class GeneralPartnerService {
         repository.deleteById(generalPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
-
     }
 
     private void handleSecondNationalityOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto,
