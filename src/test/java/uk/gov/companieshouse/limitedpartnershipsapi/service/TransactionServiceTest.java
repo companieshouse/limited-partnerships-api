@@ -19,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 
 import java.io.IOException;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.when;
 class TransactionServiceTest {
 
     private static final String TRANSACTION_ID = "12345678";
+    private static final String RESOURCE_ID = "resource1234";
     private static final String LOGGING_CONTEXT = "fg4536";
     private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
 
@@ -118,48 +120,46 @@ class TransactionServiceTest {
     }
 
     @Test
-    void testDeleteTransactionResourceIsSuccessful() throws IOException, URIValidationException {
-        String resourceId = "resource123";
-        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", resourceId))
+    void testDeleteTransactionResourceIsSuccessful() throws IOException, URIValidationException, ServiceException {
+        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenReturn(apiDeleteResponse);
         when(apiDeleteResponse.getStatusCode()).thenReturn(204);
 
-        try {
-            transactionService.deleteTransactionResource(TRANSACTION_ID, resourceId, LOGGING_CONTEXT);
-        } catch (Exception e) {
-            fail("Should not throw exception");
-        }
+        transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT);
     }
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnURIValidationException() throws IOException, URIValidationException {
-        String resourceId = "resource123";
-        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", resourceId))
+        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenThrow(new URIValidationException("ERROR"));
 
-        assertThrows(ServiceException.class, () -> transactionService.deleteTransactionResource(TRANSACTION_ID, resourceId, LOGGING_CONTEXT));
+        assertThatThrownBy(() -> transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("Error deleting resource resource1234 from transaction 12345678");
     }
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnIOException() throws IOException, URIValidationException {
-        String resourceId = "resource123";
-        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", resourceId))
+        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenThrow(ApiErrorResponseException.fromIOException(new IOException("ERROR")));
 
-        assertThrows(ServiceException.class, () -> transactionService.deleteTransactionResource(TRANSACTION_ID, resourceId, LOGGING_CONTEXT));
+        assertThatThrownBy(() -> transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("Error deleting resource resource1234 from transaction 12345678");
     }
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnInvalidStatusCode() throws IOException, URIValidationException {
-        String resourceId = "resource123";
-        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", resourceId))
+        when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenReturn(apiDeleteResponse);
         when(apiDeleteResponse.getStatusCode()).thenReturn(400);
 
-        assertThrows(ServiceException.class, () -> transactionService.deleteTransactionResource(TRANSACTION_ID, resourceId, LOGGING_CONTEXT));
+        assertThatThrownBy(() -> transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT))
+                .isInstanceOf(ServiceException.class)
+                .hasMessageContaining("Error deleting resource resource1234 from transaction 12345678");
     }
 }

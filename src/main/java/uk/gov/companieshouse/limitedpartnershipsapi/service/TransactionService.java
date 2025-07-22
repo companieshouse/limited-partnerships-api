@@ -61,7 +61,7 @@ public class TransactionService {
                 throw new IOException("Invalid status code received from the Transactions API: " + response.getStatusCode());
             }
         } catch (IOException | URIValidationException e) {
-            var message = "Error deleting sub-resource " + resourceId + " from transaction " + transactionId;
+            var message = "Error deleting resource " + resourceId + " from transaction " + transactionId;
             ApiLogger.errorContext(loggingContext, message, e);
             throw new ServiceException(message, e);
         }
