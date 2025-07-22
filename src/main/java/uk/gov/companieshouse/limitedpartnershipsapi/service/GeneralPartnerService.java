@@ -173,13 +173,8 @@ public class GeneralPartnerService {
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
-        try {
-            transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
-            repository.deleteById(generalPartnerDao.getId());
-        } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, String.format("Error deleting general partner with id: %s", generalPartnerId), e);
-            throw new ServiceException(String.format("Error deleting general partner with id: %s", generalPartnerId), e);
-        }
+        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+        repository.deleteById(generalPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
 

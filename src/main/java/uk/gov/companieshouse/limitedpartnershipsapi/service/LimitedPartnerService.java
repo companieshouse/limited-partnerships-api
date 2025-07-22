@@ -168,14 +168,8 @@ public class LimitedPartnerService {
 
         var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
 
-        try {
-            transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
-            repository.deleteById(limitedPartnerDao.getId());
-        } catch (ServiceException e) {
-            ApiLogger.errorContext(requestId, String.format("Error deleting limited partner with id: %s", limitedPartnerId), e);
-            throw new ServiceException(String.format("Error deleting limited partner with id: %s", limitedPartnerId), e);
-        }
-
+        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+        repository.deleteById(limitedPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
 

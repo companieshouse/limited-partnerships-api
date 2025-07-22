@@ -35,6 +35,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
@@ -57,7 +59,7 @@ class GeneralPartnerServiceUpdateTest {
     private GeneralPartnerService service;
 
     @MockitoBean
-    private GeneralPartnerRepository limitedPartnerRepository;
+    private GeneralPartnerRepository generalPartnerRepository;
 
     @MockitoBean
     private TransactionService transactionService;
@@ -144,15 +146,15 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
         generalPartnerDataDto.setPrincipalOfficeAddress(principalOfficeAddress);
 
-        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // dao principal office address is null before mapping/update
         assertNull(generalPartnerDao.getData().getPrincipalOfficeAddress());
 
         service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
-        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+        verify(generalPartnerRepository).findById(GENERAL_PARTNER_ID);
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -175,7 +177,7 @@ class GeneralPartnerServiceUpdateTest {
         generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(Nationality.AMERICAN);
 
-        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                 service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID)
@@ -192,11 +194,11 @@ class GeneralPartnerServiceUpdateTest {
         generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
 
-        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -212,11 +214,11 @@ class GeneralPartnerServiceUpdateTest {
         generalPartnerDataDto.setNationality1(Nationality.AMERICAN);
         generalPartnerDataDto.setNationality2(null);
 
-        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -231,15 +233,15 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerDataDto();
         generalPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
-        when(limitedPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // dao principal office address before mapping/update
         assertEquals("United Kingdom", generalPartnerDao.getData().getLegalEntityRegistrationLocation());
 
         service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
 
-        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
-        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+        verify(generalPartnerRepository).findById(GENERAL_PARTNER_ID);
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
 
@@ -255,12 +257,12 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
         partnerDataDtoWithChanges.setNotDisqualifiedStatementChecked(input);
 
-        when(limitedPartnerRepository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
+        when(generalPartnerRepository.findById(currentlySavedPartnerDao.getId())).thenReturn(Optional.of(currentlySavedPartnerDao));
 
         service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, partnerDataDtoWithChanges, REQUEST_ID, USER_ID);
 
-        verify(limitedPartnerRepository).findById(GENERAL_PARTNER_ID);
-        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+        verify(generalPartnerRepository).findById(GENERAL_PARTNER_ID);
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
 
         GeneralPartnerDao newlySavedPartnerDao = submissionCaptor.getValue();
 
@@ -274,7 +276,7 @@ class GeneralPartnerServiceUpdateTest {
         GeneralPartnerDataDto partnerDataDtoWithChanges = new GeneralPartnerDataDto();
         partnerDataDtoWithChanges.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
-        when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+        when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
         assertThatThrownBy(() -> service.updateGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", partnerDataDtoWithChanges, REQUEST_ID, USER_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
@@ -287,19 +289,19 @@ class GeneralPartnerServiceUpdateTest {
         void shouldDeleteGeneralPartner() throws ServiceException {
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
-            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+            when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
             service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID);
 
             String expectedSubmissionUri = String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, GENERAL_PARTNER_ID);
 
             verify(transactionService).deleteTransactionResource(TRANSACTION_ID, expectedSubmissionUri, REQUEST_ID);
-            verify(limitedPartnerRepository).deleteById(GENERAL_PARTNER_ID);
+            verify(generalPartnerRepository).deleteById(GENERAL_PARTNER_ID);
         }
 
         @Test
         void shouldThrowServiceExceptionWhenGeneralPartnerNotFound() {
-            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.empty());
+            when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
@@ -307,10 +309,26 @@ class GeneralPartnerServiceUpdateTest {
         }
 
         @Test
+        void shouldNotDeleteGeneralPartnerIfTransactionResourceDeleteFails() throws ServiceException {
+            GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+            when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+
+            doThrow(new ServiceException("Transaction resource delete failed"))
+                    .when(transactionService).deleteTransactionResource(TRANSACTION_ID,
+                            String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, GENERAL_PARTNER_ID), REQUEST_ID);
+
+            assertThatThrownBy(() -> service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID))
+                    .isInstanceOf(ServiceException.class)
+                    .hasMessageContaining("Transaction resource delete failed");
+
+            verify(generalPartnerRepository, never()).deleteById(GENERAL_PARTNER_ID);
+        }
+
+        @Test
         void testDeleteGeneralPartnerLinkFails() {
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
-            when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+            when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
             assertThatThrownBy(() -> service.deleteGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
