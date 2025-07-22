@@ -1,22 +1,23 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @Testcontainers
 @SpringBootTest
@@ -25,8 +26,7 @@ class GeneralPartnerRepositoryTest {
     private static final String TRANSACTION_ID = "transaction-123";
 
     @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:8.0.11-noble"))
-            .withReuse(true);
+    private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -63,13 +63,14 @@ class GeneralPartnerRepositoryTest {
     }
 
     @Test
-    void testAuditFieldsArePopulated(){
+    void testAuditFieldsArePopulated() {
+        LocalDateTime startOfTest = LocalDateTime.now();
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerDao();
         generalPartnerRepository.insert(generalPartnerDao);
 
         // Using current datetime in this test class so cannot assert actual value
-        assertThat(generalPartnerDao.getCreatedAt()).isNotNull();
-        assertThat(generalPartnerDao.getUpdatedAt()).isNotNull();
+        assertThat(generalPartnerDao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
+        assertThat(generalPartnerDao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
     }
 
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
