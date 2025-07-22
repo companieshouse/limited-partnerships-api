@@ -13,7 +13,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
