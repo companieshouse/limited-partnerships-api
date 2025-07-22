@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import java.io.IOException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -127,6 +128,8 @@ class TransactionServiceTest {
         when(apiDeleteResponse.getStatusCode()).thenReturn(204);
 
         transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT);
+
+        assertDoesNotThrow(() -> transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT));
     }
 
     @Test
