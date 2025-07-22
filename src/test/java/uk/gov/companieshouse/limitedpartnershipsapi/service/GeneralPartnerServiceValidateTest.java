@@ -200,11 +200,11 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> errors = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
-        assertThat(results)
+        assertThat(errors)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD));
@@ -221,11 +221,11 @@ class GeneralPartnerServiceValidateTest {
         when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2022, 1, 3));
 
         // when
-        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> errors = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
-        assertThat(results).isEmpty();
+        assertThat(errors).isEmpty();
     }
 
     private GeneralPartnerDao createPersonDao() {
