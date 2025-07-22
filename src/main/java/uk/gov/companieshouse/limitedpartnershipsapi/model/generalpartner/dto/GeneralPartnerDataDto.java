@@ -1,9 +1,12 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class GeneralPartnerDataDto extends PartnerDataDto {
 
@@ -25,6 +28,7 @@ public class GeneralPartnerDataDto extends PartnerDataDto {
     // Legal Entity
     public static final String NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD = "not_disqualified_statement_checked";
 
+    @JsonInclude(NON_NULL)
     @JsonProperty(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)
     private Boolean notDisqualifiedStatementChecked;
 

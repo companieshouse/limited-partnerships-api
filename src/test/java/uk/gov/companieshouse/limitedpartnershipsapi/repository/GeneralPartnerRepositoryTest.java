@@ -56,9 +56,11 @@ class GeneralPartnerRepositoryTest {
                 .satisfiesExactly(personPartner -> {
                     assertThat(personPartner.getData().getLegalEntityName()).isEqualTo("My company ltd");
                     assertThat(personPartner.getData().getLegalForm()).isEqualTo("Limited Company");
+                    assertThat(personPartner.getData().getNotDisqualifiedStatementChecked()).isNull();
                 }, legalEntityPartner -> {
                     assertThat(legalEntityPartner.getData().getForename()).isEqualTo("John");
                     assertThat(legalEntityPartner.getData().getSurname()).isEqualTo("Doe");
+                    assertThat(legalEntityPartner.getData().getNotDisqualifiedStatementChecked()).isTrue();
                 });
     }
 

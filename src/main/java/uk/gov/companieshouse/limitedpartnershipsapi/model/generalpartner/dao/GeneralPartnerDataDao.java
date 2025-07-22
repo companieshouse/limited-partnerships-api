@@ -19,16 +19,14 @@ public class GeneralPartnerDataDao extends PartnerDataDao {
         this.serviceAddress = serviceAddress;
     }
 
-    // Legal Entity
-
     @Field("not_disqualified_statement_checked")
-    private boolean notDisqualifiedStatementChecked;
+    private Boolean notDisqualifiedStatementChecked;
 
-    public boolean getNotDisqualifiedStatementChecked() {
+    public Boolean getNotDisqualifiedStatementChecked() {
         return notDisqualifiedStatementChecked;
     }
 
-    public void setNotDisqualifiedStatementChecked(boolean notDisqualifiedStatementChecked) {
+    public void setNotDisqualifiedStatementChecked(Boolean notDisqualifiedStatementChecked) {
         this.notDisqualifiedStatementChecked = notDisqualifiedStatementChecked;
     }
 }
