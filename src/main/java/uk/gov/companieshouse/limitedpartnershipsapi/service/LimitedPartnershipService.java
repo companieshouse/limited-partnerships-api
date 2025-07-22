@@ -163,7 +163,7 @@ public class LimitedPartnershipService {
                                                               String loggingContext,
                                                               String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
-        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+        if (TransactionUtils.isForTransition(transaction)) {
             transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
         }
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));

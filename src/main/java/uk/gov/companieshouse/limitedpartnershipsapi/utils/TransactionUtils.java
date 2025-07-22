@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -40,8 +39,12 @@ public class TransactionUtils {
         return doChecks(transaction, partnerSubmissionSelfLink, kind);
     }
 
-    public boolean isForRegistration(Transaction transaction) {
-        return IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode());
+    public static boolean isForRegistration(Transaction transaction) {
+        return REGISTRATION.getDescription().equals(transaction.getFilingMode());
+    }
+
+    public static boolean isForTransition(Transaction transaction) {
+        return TRANSITION.getDescription().equals(transaction.getFilingMode());
     }
 
     private boolean doChecks(Transaction transaction, String selfLink, String kind) {
