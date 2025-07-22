@@ -42,7 +42,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
@@ -307,21 +308,30 @@ class LimitedPartnerServiceUpdateTest {
         void shouldDeleteLimitedPartner() throws ServiceException {
             LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
 
-            // transaction before
-            assertEquals(1, transaction.getResources().size());
-
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
             service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID);
 
-            verify(transactionService).updateTransaction(transactionCaptor.capture(), eq(REQUEST_ID));
+            String expectedSubmissionUri = String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
 
-            Transaction transactionUpdated = transactionCaptor.getValue();
+            verify(transactionService).deleteTransactionResource(TRANSACTION_ID, expectedSubmissionUri, REQUEST_ID);
+            verify(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
+        }
 
-            assertEquals(0, transactionUpdated.getResources().size());
+        @Test
+        void shouldNotDeleteLimitedPartnerIfTransactionResourceDeleteFails() throws ServiceException {
+            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+            when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-            // transaction after
-            assertEquals(0, transaction.getResources().size());
+            doThrow(new ServiceException("Transaction resource delete failed"))
+                    .when(transactionService).deleteTransactionResource(TRANSACTION_ID,
+                            String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID), REQUEST_ID);
+
+            assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID))
+                    .isInstanceOf(ServiceException.class)
+                    .hasMessageContaining("Transaction resource delete failed");
+
+            verify(limitedPartnerRepository, never()).deleteById(LIMITED_PARTNER_ID);
         }
 
         @Test
