@@ -26,7 +26,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -228,7 +227,6 @@ class LimitedPartnershipIncorporationServiceTest {
         var dao = new LimitedPartnershipIncorporationDao();
         dao.setId(SUBMISSION_ID);
         dao.getData().setKind(REGISTRATION.getDescription());
-        dao.setCreatedAt(LocalDateTime.now());
 
         return dao;
     }

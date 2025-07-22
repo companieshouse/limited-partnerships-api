@@ -18,7 +18,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +69,6 @@ public class LimitedPartnershipService {
         }
 
         LimitedPartnershipDao dao = mapper.dtoToDao(limitedPartnershipDto);
-        dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
         dao.setTransactionId(transaction.getId());
 
@@ -131,7 +129,6 @@ public class LimitedPartnershipService {
     }
 
     private void setAuditDetailsForUpdate(String userId, LimitedPartnershipDao lpSubmissionDaoAfterPatch) {
-        lpSubmissionDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         lpSubmissionDaoAfterPatch.setUpdatedBy(userId);
     }
 

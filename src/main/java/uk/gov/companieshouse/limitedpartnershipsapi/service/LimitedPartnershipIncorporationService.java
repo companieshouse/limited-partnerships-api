@@ -15,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.Limi
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,7 +69,6 @@ public class LimitedPartnershipIncorporationService {
         var dao = new LimitedPartnershipIncorporationDao();
         dao.getData().setKind(kind);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
-        dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
 
         LimitedPartnershipIncorporationDao insertedIncorporation = repository.insert(dao);

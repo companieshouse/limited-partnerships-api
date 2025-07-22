@@ -49,4 +49,21 @@ public class TransactionService {
         transaction.setCompanyName(partnershipName);
         updateTransaction(transaction, requestId);
     }
+
+    public void deleteTransactionResource(String transactionId, String resourceId, String loggingContext) throws ServiceException {
+        try {
+            var uri = TRANSACTIONS_PRIVATE_API_URI_PREFIX + transactionId + "/resources";
+
+            var response = apiClientService.getInternalApiClient()
+                    .privateTransaction().delete(uri, resourceId).execute();
+
+            if (response.getStatusCode() != HttpStatus.NO_CONTENT.value()) {
+                throw new IOException("Invalid status code received from the Transactions API: " + response.getStatusCode());
+            }
+        } catch (IOException | URIValidationException e) {
+            var message = "Error deleting resource " + resourceId + " from transaction " + transactionId;
+            ApiLogger.errorContext(loggingContext, message, e);
+            throw new ServiceException(message, e);
+        }
+    }
 }

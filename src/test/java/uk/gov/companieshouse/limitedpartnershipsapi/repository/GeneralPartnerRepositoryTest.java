@@ -1,26 +1,37 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 
-@Disabled("Disabled until we have a test container for MongoDB")
-@DataMongoTest
-@ExtendWith(SpringExtension.class)
+@Testcontainers
+@SpringBootTest
 class GeneralPartnerRepositoryTest {
+
     private static final String TRANSACTION_ID = "transaction-123";
+
+    @Container
+    private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+    }
 
     @Autowired
     private GeneralPartnerRepository generalPartnerRepository;
@@ -40,21 +51,33 @@ class GeneralPartnerRepositoryTest {
 
         List<GeneralPartnerDao> result = generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
 
-        assertThat(result).hasSize(2);
+        assertThat(result)
+                .hasSize(2)
+                .satisfiesExactly(personPartner -> {
+                    assertThat(personPartner.getData().getLegalEntityName()).isEqualTo("My company ltd");
+                    assertThat(personPartner.getData().getLegalForm()).isEqualTo("Limited Company");
+                    assertThat(personPartner.getData().getNotDisqualifiedStatementChecked()).isNull();
+                }, legalEntityPartner -> {
+                    assertThat(legalEntityPartner.getData().getForename()).isEqualTo("John");
+                    assertThat(legalEntityPartner.getData().getSurname()).isEqualTo("Doe");
+                    assertThat(legalEntityPartner.getData().getNotDisqualifiedStatementChecked()).isTrue();
+                });
+    }
 
-        assertThat(result.get(0).getData().getLegalEntityName()).isEqualTo("My company ltd");
-        assertThat(result.get(0).getData().getLegalForm()).isEqualTo("Limited Company");
-        assertThat(result.get(0).getData().getNotDisqualifiedStatementChecked()).isNull();
+    @Test
+    void testAuditFieldsArePopulated() {
+        LocalDateTime startOfTest = LocalDateTime.now();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerDao();
+        generalPartnerRepository.insert(generalPartnerDao);
 
-        assertThat(result.get(1).getData().getForename()).isEqualTo("John");
-        assertThat(result.get(1).getData().getSurname()).isEqualTo("Doe");
-        assertThat(result.get(1).getData().getNotDisqualifiedStatementChecked()).isTrue();
+        // Using current datetime in this test class so cannot assert actual value
+        assertThat(generalPartnerDao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
+        assertThat(generalPartnerDao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
     }
 
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
-        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 1, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setForename("John");
@@ -72,7 +95,6 @@ class GeneralPartnerRepositoryTest {
     private GeneralPartnerDao createGeneralPartnerLegalEntityDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
-        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 15, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setLegalEntityName("My company ltd");

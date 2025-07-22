@@ -16,7 +16,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,10 +64,8 @@ public class LimitedPartnerService {
             String requestId, Transaction transaction, String userId, LimitedPartnerDao dao) {
         dao.getData().setKind(FILING_KIND_LIMITED_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
-        dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
         dao.setTransactionId(transaction.getId());
-        dao.setUpdatedAt(LocalDateTime.now());
         dao.setUpdatedBy(userId);
 
         LimitedPartnerDao insertedSubmission = repository.insert(dao);
@@ -161,18 +158,12 @@ public class LimitedPartnerService {
         LimitedPartnerDao limitedPartnerDao = repository.findById(limitedPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId)));
 
-        repository.deleteById(limitedPartnerDao.getId());
-
-        var resources = transaction.getResources();
-
         var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
 
-        resources.remove(submissionUri);
-
-        transactionService.updateTransaction(transaction, requestId);
+        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+        repository.deleteById(limitedPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
-
     }
 
     public List<ValidationStatusError> validateLimitedPartner(Transaction transaction, String limitedPartnerId)
@@ -219,7 +210,6 @@ public class LimitedPartnerService {
     }
 
     private void setAuditDetailsForUpdate(String userId, LimitedPartnerDao limitedPartnerDaoAfterPatch) {
-        limitedPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         limitedPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
