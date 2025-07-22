@@ -3,7 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -14,13 +14,12 @@ import org.testcontainers.utility.DockerImageName;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @Testcontainers
-@DataMongoTest
+@SpringBootTest
 class GeneralPartnerRepositoryTest {
 
     private static final String TRANSACTION_ID = "transaction-123";
@@ -52,13 +51,15 @@ class GeneralPartnerRepositoryTest {
 
         List<GeneralPartnerDao> result = generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
 
-        assertThat(result).hasSize(2);
-
-        assertThat(result.get(0).getData().getLegalEntityName()).isEqualTo("My company ltd");
-        assertThat(result.get(0).getData().getLegalForm()).isEqualTo("Limited Company");
-
-        assertThat(result.get(1).getData().getForename()).isEqualTo("John");
-        assertThat(result.get(1).getData().getSurname()).isEqualTo("Doe");
+        assertThat(result)
+                .hasSize(2)
+                .satisfiesExactly(personPartner -> {
+                    assertThat(personPartner.getData().getLegalEntityName()).isEqualTo("My company ltd");
+                    assertThat(personPartner.getData().getLegalForm()).isEqualTo("Limited Company");
+                }, legalEntityPartner -> {
+                    assertThat(legalEntityPartner.getData().getForename()).isEqualTo("John");
+                    assertThat(legalEntityPartner.getData().getSurname()).isEqualTo("Doe");
+                });
     }
 
     @Test
@@ -74,7 +75,6 @@ class GeneralPartnerRepositoryTest {
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
-        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 1, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setForename("John");
