@@ -1,11 +1,13 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
@@ -18,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
@@ -40,11 +43,7 @@ class GeneralPartnerServiceValidateTest {
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
-    private final Transaction transaction = new TransactionBuilder().forPartner(
-            FILING_KIND_GENERAL_PARTNER,
-            URL_GET_GENERAL_PARTNER,
-            GENERAL_PARTNER_ID
-    ).build();
+    private Transaction transaction;
 
     @Autowired
     private GeneralPartnerService service;
@@ -52,6 +51,22 @@ class GeneralPartnerServiceValidateTest {
     @MockitoBean
     private GeneralPartnerRepository repository;
 
+    @MockitoBean
+    private CompanyService companyService;
+
+    @MockitoBean
+    private CompanyProfileApi companyProfileApi;
+
+    @BeforeEach
+    void setup() throws ServiceException {
+        transaction = new TransactionBuilder().forPartner(
+                FILING_KIND_GENERAL_PARTNER,
+                URL_GET_GENERAL_PARTNER,
+                GENERAL_PARTNER_ID
+        ).build();
+
+        when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+    }
     @Test
     void shouldReturnNoErrorsWhenGeneralPartnerDataIsValid() throws ServiceException {
         // given
@@ -176,6 +191,43 @@ class GeneralPartnerServiceValidateTest {
         assertThrows(ResourceNotFoundException.class, () -> service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID));
     }
 
+    @Test
+    void shouldReturnErrorWhenNotDisqualifiedStatementCheckedIsNull() throws ServiceException {
+        // given
+        GeneralPartnerDao generalPartnerDao = createPersonDao();
+        generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        // when
+        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+
+        // then
+        verify(repository).findById(generalPartnerDao.getId());
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD));
+    }
+
+    @Test
+    void shouldNotReturnErrorWhenNotDisqualifiedStatementCheckedIsNullForATransitionFiling() throws ServiceException {
+        // given
+        GeneralPartnerDao generalPartnerDao = createPersonDao();
+        generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2022, 1, 3));
+
+        // when
+        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+
+        // then
+        verify(repository).findById(generalPartnerDao.getId());
+        assertThat(results).isEmpty();
+    }
+
     private GeneralPartnerDao createPersonDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
 
@@ -184,6 +236,7 @@ class GeneralPartnerServiceValidateTest {
         dataDao.setForename("Jack");
         dataDao.setSurname("Jones");
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
+        dataDao.setDateEffectiveFrom(LocalDate.of(2023, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setUsualResidentialAddress(createAddressDao());
