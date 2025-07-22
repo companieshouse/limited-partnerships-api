@@ -6,19 +6,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import uk.gov.companieshouse.limitedpartnershipsapi.config.MongoConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@Disabled("Disabled until we have a test container for MongoDB")
+@Disabled("Disabled until we have a test container for MongoDB in pipeline")
 @DataMongoTest
 @ExtendWith(SpringExtension.class)
+@Import(MongoConfig.class)
 class GeneralPartnerRepositoryTest {
     private static final String TRANSACTION_ID = "transaction-123";
 
@@ -31,7 +33,7 @@ class GeneralPartnerRepositoryTest {
     }
 
     @Test
-    void testGetGeneralPartnerListOrderedByUpdatedAtDesc() {
+    void testGetGeneralPartnerListOrderedByUpdatedAtDesc(){
         GeneralPartnerDao generalPartnerPerson = createGeneralPartnerPersonDao();
         GeneralPartnerDao generalPartnerLegalEntity = createGeneralPartnerLegalEntityDao();
 
@@ -49,10 +51,19 @@ class GeneralPartnerRepositoryTest {
         assertThat(result.get(1).getData().getSurname()).isEqualTo("Doe");
     }
 
+    @Test
+    void testAuditFieldsArePopulated(){
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerDao();
+        generalPartnerRepository.insert(generalPartnerDao);
+
+        // Using current datetime in this test class so cannot assert actual value
+        assertThat(generalPartnerDao.getCreatedAt()).isNotNull();
+        assertThat(generalPartnerDao.getUpdatedAt()).isNotNull();
+    }
+
     private GeneralPartnerDao createGeneralPartnerPersonDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
-        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 1, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setForename("John");
@@ -70,7 +81,6 @@ class GeneralPartnerRepositoryTest {
     private GeneralPartnerDao createGeneralPartnerLegalEntityDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
         dao.setTransactionId(TRANSACTION_ID);
-        dao.setUpdatedAt(LocalDateTime.of(2025, 1, 15, 0, 0));
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setLegalEntityName("My company ltd");

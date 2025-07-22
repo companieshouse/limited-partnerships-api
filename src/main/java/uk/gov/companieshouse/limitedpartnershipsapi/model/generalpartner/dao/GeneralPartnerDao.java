@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -14,12 +16,14 @@ public class GeneralPartnerDao {
     private String id;
 
     @Field("created_at")
+    @CreatedDate
     private LocalDateTime createdAt;
 
     @Field("created_by_user_id")
     private String createdBy;
 
     @Field("updated_at")
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     @Field("updated_by_user_id")

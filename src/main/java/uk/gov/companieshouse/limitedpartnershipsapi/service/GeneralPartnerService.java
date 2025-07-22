@@ -16,7 +16,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,9 +65,7 @@ public class GeneralPartnerService {
             String requestId, Transaction transaction, String userId, GeneralPartnerDao dao) {
         dao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
-        dao.setCreatedAt(LocalDateTime.now());
         dao.setCreatedBy(userId);
-        dao.setUpdatedAt(LocalDateTime.now());
         dao.setUpdatedBy(userId);
         dao.setTransactionId(transaction.getId());
 
@@ -217,7 +214,6 @@ public class GeneralPartnerService {
     }
 
     private void setAuditDetailsForUpdate(String userId, GeneralPartnerDao generalPartnerDaoAfterPatch) {
-        generalPartnerDaoAfterPatch.setUpdatedAt(LocalDateTime.now());
         generalPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
