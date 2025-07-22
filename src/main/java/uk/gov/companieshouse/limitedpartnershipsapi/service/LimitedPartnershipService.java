@@ -28,6 +28,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils.isForTransition;
 
 @Service
 public class LimitedPartnershipService {
@@ -163,7 +164,7 @@ public class LimitedPartnershipService {
                                                               String loggingContext,
                                                               String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
-        if (TransactionUtils.isForTransition(transaction)) {
+        if (isForTransition(transaction)) {
             transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
         }
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));

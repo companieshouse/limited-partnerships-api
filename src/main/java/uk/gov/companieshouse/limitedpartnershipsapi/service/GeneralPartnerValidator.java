@@ -13,10 +13,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils.isForTransition;
 
 @Component
 public class GeneralPartnerValidator extends PartnerValidator {
@@ -62,7 +63,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, generalPartnerDataDto, bindingResult);
-            if (!TransactionUtils.isForTransition(transaction)) {
+            if (!isForTransition(transaction)) {
                 var notDisqualifiedStatementChecked = generalPartnerDataDto.getNotDisqualifiedStatementChecked();
                 if (notDisqualifiedStatementChecked == null || Boolean.FALSE.equals(notDisqualifiedStatementChecked)) {
                     addError(CLASS_NAME, GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
