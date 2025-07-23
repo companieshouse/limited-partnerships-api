@@ -10,9 +10,9 @@ import uk.gov.companieshouse.api.interceptor.ClosedTransactionInterceptor;
 import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import uk.gov.companieshouse.api.interceptor.TokenPermissionsInterceptor;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.AllowedTransactionStatusInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
-import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.OpenOrClosedPendingPaymentTransactionInterceptor;
 
 import java.util.stream.Stream;
 
@@ -52,16 +52,16 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private final CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor;
     private final InternalUserInterceptor internalUserInterceptor;
     private final ClosedTransactionInterceptor closedTransactionInterceptor = new ClosedTransactionInterceptor();
-    private final OpenOrClosedPendingPaymentTransactionInterceptor openOrClosedPendingPaymentTransactionInterceptor;
+    private final AllowedTransactionStatusInterceptor allowedTransactionStatusInterceptor;
 
     public InterceptorConfig(LoggingInterceptor loggingInterceptor,
                              CustomUserAuthenticationInterceptor customUserAuthenticationInterceptor,
                              InternalUserInterceptor internalUserInterceptor,
-                             OpenOrClosedPendingPaymentTransactionInterceptor openOrClosedPendingPaymentTransactionInterceptor) {
+                             AllowedTransactionStatusInterceptor allowedTransactionStatusInterceptor) {
         this.loggingInterceptor = loggingInterceptor;
         this.customUserAuthenticationInterceptor = customUserAuthenticationInterceptor;
         this.internalUserInterceptor = internalUserInterceptor;
-        this.openOrClosedPendingPaymentTransactionInterceptor = openOrClosedPendingPaymentTransactionInterceptor;
+        this.allowedTransactionStatusInterceptor = allowedTransactionStatusInterceptor;
     }
 
     /**
@@ -83,7 +83,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns(INTERNAL_ENDPOINTS);
         registry.addInterceptor(closedTransactionInterceptor)
                 .addPathPatterns(FILINGS_ENDPOINTS);
-        registry.addInterceptor(openOrClosedPendingPaymentTransactionInterceptor)
+        registry.addInterceptor(allowedTransactionStatusInterceptor)
                 .addPathPatterns(CRUD_AND_COST_ENDPOINTS)
                 .excludePathPatterns(COST_ENDPOINTS);
     }
