@@ -15,7 +15,7 @@ clean:
 .PHONY: build
 build:
 	mvn versions:set -DnewVersion=$(version) -DgenerateBackupPoms=false
-	mvn package -DskipTests=true
+	mvn package -Dmaven.test.skip=true
 	cp ./target/$(artifact_name)-$(version).jar ./$(artifact_name).jar
 
 .PHONY: test
@@ -36,7 +36,7 @@ ifndef version
 endif
 	$(info Packaging version: $(version))
 	mvn versions:set -DnewVersion=$(version) -DgenerateBackupPoms=false
-	mvn package -DskipTests=true
+	mvn package -Dmaven.test.skip=true
 	$(eval tmpdir:=$(shell mktemp -d build-XXXXXXXXXX))
 	cp ./target/$(artifact_name)-$(version).jar $(tmpdir)/$(artifact_name).jar
 	cd $(tmpdir); zip -r ../$(artifact_name)-$(version).zip *
