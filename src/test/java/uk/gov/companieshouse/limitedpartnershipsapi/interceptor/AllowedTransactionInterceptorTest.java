@@ -6,13 +6,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionStatus;
 
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,10 +25,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class OpenOrClosedPendingPaymentTransactionInterceptorTest {
+class AllowedTransactionInterceptorTest {
 
     public static final String REQ_ID = "reqId";
-    private OpenOrClosedPendingPaymentTransactionInterceptor interceptor;
+    private AllowedTransactionStatusInterceptor interceptor;
     private HashMap<String, Object> logMap;
 
     @Mock
@@ -37,7 +40,7 @@ class OpenOrClosedPendingPaymentTransactionInterceptorTest {
 
     @BeforeEach
     void setUp() {
-        interceptor = new OpenOrClosedPendingPaymentTransactionInterceptor();
+        interceptor = new AllowedTransactionStatusInterceptor();
         logMap = new HashMap<>();
     }
 
@@ -51,9 +54,10 @@ class OpenOrClosedPendingPaymentTransactionInterceptorTest {
         verify(response, never()).setStatus(anyInt());
     }
 
-    @Test
-    void returnsTrueWhenTransactionIsClosedPendingPaymentAndGetRequest() {
-        when(transaction.getStatus()).thenReturn(TransactionStatus.CLOSED_PENDING_PAYMENT);
+    @ParameterizedTest
+    @EnumSource(value = TransactionStatus.class, names = { "CLOSED_PENDING_PAYMENT", "CLOSED" })
+    void returnsTrueWhenTransactionIsClosedOrClosedPendingPaymentAndGetRequest(TransactionStatus status) {
+        when(transaction.getStatus()).thenReturn(status);
         when(request.getMethod()).thenReturn("GET");
 
         boolean result = interceptor.handleTransactionStatus(transaction, REQ_ID, logMap, request, response);
@@ -62,10 +66,11 @@ class OpenOrClosedPendingPaymentTransactionInterceptorTest {
         verify(response, never()).setStatus(anyInt());
     }
 
-    @Test
-    void returnsFalseWhenTransactionIsClosedPendingPaymentAndNotGetRequest() {
-        when(transaction.getStatus()).thenReturn(TransactionStatus.CLOSED_PENDING_PAYMENT);
-        when(request.getMethod()).thenReturn("POST");
+    @ParameterizedTest
+    @MethodSource("disallowedStatusAndMethodProvider")
+    void returnsFalseWhenTransactionStatusAndRequestCombinationIsNotAllowed(TransactionStatus status, String method) {
+        when(transaction.getStatus()).thenReturn(status);
+        when(request.getMethod()).thenReturn(method);
 
         boolean result = interceptor.handleTransactionStatus(transaction, REQ_ID, logMap, request, response);
 
@@ -73,10 +78,22 @@ class OpenOrClosedPendingPaymentTransactionInterceptorTest {
         verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
-    @ParameterizedTest
-    @EnumSource(value = TransactionStatus.class, names = { "CLOSED", "DELETED" })
-    void returnsFalseWhenTransactionIsClosedOrDeletedStatus(TransactionStatus status) {
-        when(transaction.getStatus()).thenReturn(status);
+    static Stream<Arguments> disallowedStatusAndMethodProvider() {
+        return Stream.of(
+                Arguments.of(TransactionStatus.CLOSED_PENDING_PAYMENT, "POST"),
+                Arguments.of(TransactionStatus.CLOSED_PENDING_PAYMENT, "PATCH"),
+                Arguments.of(TransactionStatus.CLOSED_PENDING_PAYMENT, "PUT"),
+                Arguments.of(TransactionStatus.CLOSED_PENDING_PAYMENT, "DELETE"),
+                Arguments.of(TransactionStatus.CLOSED, "POST"),
+                Arguments.of(TransactionStatus.CLOSED, "PATCH"),
+                Arguments.of(TransactionStatus.CLOSED, "PUT"),
+                Arguments.of(TransactionStatus.CLOSED, "DELETE")
+        );
+    }
+
+    @Test
+    void returnsFalseWhenTransactionIsDeletedStatus() {
+        when(transaction.getStatus()).thenReturn(TransactionStatus.DELETED);
 
         boolean result = interceptor.handleTransactionStatus(transaction, REQ_ID, logMap, request, response);
 
