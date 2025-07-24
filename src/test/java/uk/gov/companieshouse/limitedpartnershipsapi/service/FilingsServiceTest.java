@@ -12,7 +12,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 
@@ -43,7 +42,7 @@ class FilingsServiceTest {
     @MockitoBean
     private LimitedPartnerService limitedPartnerService;
     @MockitoBean
-    private TransactionUtils transactionUtils;
+    private TransactionService transactionService;
 
 
     @Test
@@ -51,7 +50,7 @@ class FilingsServiceTest {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
@@ -69,7 +68,7 @@ class FilingsServiceTest {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
         assertThrows(ResourceNotFoundException.class, () -> filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID));
     }
 

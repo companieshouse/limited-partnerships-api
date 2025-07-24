@@ -28,7 +28,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -97,9 +96,6 @@ class IncorporationControllerValidationTest {
     private CompanyService companyService;
 
     @MockitoBean
-    private TransactionUtils transactionUtils;
-
-    @MockitoBean
     private InterceptorConfig interceptorConfig;
 
 
@@ -144,7 +140,7 @@ class IncorporationControllerValidationTest {
     class ValidateIncorporation {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
+            when(transactionService.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new GeneralPartnerBuilder().personDao()));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
@@ -165,7 +161,7 @@ class IncorporationControllerValidationTest {
             generalPartnerDao.getData().setForename("");
             generalPartnerDao.getData().setNationality1("UNKNOWN");
 
-            when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
+            when(transactionService.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(generalPartnerDao));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
@@ -186,7 +182,7 @@ class IncorporationControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfInsufficientNumberOfPartners() throws Exception {
-            when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
+            when(transactionService.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());

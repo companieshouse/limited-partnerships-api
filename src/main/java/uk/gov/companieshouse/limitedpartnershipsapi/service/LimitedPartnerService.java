@@ -14,7 +14,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,19 +33,16 @@ public class LimitedPartnerService {
     private final LimitedPartnerMapper mapper;
     private final LimitedPartnerValidator limitedPartnerValidator;
     private final TransactionService transactionService;
-    private final TransactionUtils transactionUtils;
 
     public LimitedPartnerService(LimitedPartnerRepository repository,
                                  LimitedPartnerMapper mapper,
                                  LimitedPartnerValidator limitedPartnerValidator,
-                                 TransactionService transactionService,
-                                 TransactionUtils transactionUtils
+                                 TransactionService transactionService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.limitedPartnerValidator = limitedPartnerValidator;
         this.transactionService = transactionService;
-        this.transactionUtils = transactionUtils;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -217,7 +213,7 @@ public class LimitedPartnerService {
         String transactionId = transaction.getId();
         var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId);
 
-        if (!transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, submissionUri, FILING_KIND_LIMITED_PARTNER)) {
+        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, FILING_KIND_LIMITED_PARTNER)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches limited partner id: %s", transactionId, limitedPartnerId));
         }

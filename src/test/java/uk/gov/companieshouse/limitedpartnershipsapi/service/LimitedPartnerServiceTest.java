@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,9 +64,6 @@ class LimitedPartnerServiceTest {
     @Mock
     private LimitedPartnerMapper mapper;
 
-    @Mock
-    private TransactionUtils transactionUtils;
-
     @Test
     void testGetLimitedPartnerSuccess() throws ServiceException {
         LimitedPartnerDao dao = createDao();
@@ -76,7 +72,7 @@ class LimitedPartnerServiceTest {
                 .thenReturn(Optional.of(dao));
 
         when(mapper.daoToDto(dao)).thenReturn(createDto());
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(Transaction.class), any(String.class), any(String.class))).thenReturn(true)
+        when(transactionService.isTransactionLinkedToPartner(any(Transaction.class), any(String.class), any(String.class))).thenReturn(true)
                 .thenReturn(true);
 
         var dto = limitedPartnerService.getLimitedPartner(buildTransaction(), SUBMISSION_ID);
@@ -91,7 +87,7 @@ class LimitedPartnerServiceTest {
 
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.empty());
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID));
         assertEquals("Limited partner submission with id abc-123 not found", resourceNotFoundException.getMessage());
     }
@@ -164,7 +160,7 @@ class LimitedPartnerServiceTest {
         String submissionId = "sub-456";
 
         // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(false);
+        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(false);
 
         // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {

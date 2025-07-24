@@ -13,7 +13,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.Inco
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,22 +42,18 @@ public class LimitedPartnershipIncorporationService {
 
     private final LimitedPartnershipIncorporationMapper mapper;
 
-    private final TransactionUtils transactionUtils;
-
     public LimitedPartnershipIncorporationService(
             GeneralPartnerService generalPartnerService,
             LimitedPartnerService limitedPartnerService,
             LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
-            TransactionUtils transactionUtils,
             TransactionService transactionService) {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
         this.mapper = mapper;
-        this.transactionUtils = transactionUtils;
         this.transactionService = transactionService;
     }
 
@@ -98,7 +93,7 @@ public class LimitedPartnershipIncorporationService {
         linksMap.put(LINK_RESOURCE, incorporationUri);
         linksMap.put(LINK_VALIDATION_STATUS, incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
 
-        if (transactionUtils.isForRegistration(transaction)) {
+        if (transactionService.isForRegistration(transaction)) {
             linksMap.put(LINK_COSTS, incorporationUri + COSTS_URI_SUFFIX);
         }
 
@@ -112,7 +107,7 @@ public class LimitedPartnershipIncorporationService {
                                                                String incorporationId,
                                                                boolean includeSubResources) throws ServiceException {
         String submissionUri = getSubmissionUri(transaction.getId(), incorporationId);
-        if (!transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
+        if (!transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches incorporation id: %s", transaction.getId(), incorporationId));
         }
