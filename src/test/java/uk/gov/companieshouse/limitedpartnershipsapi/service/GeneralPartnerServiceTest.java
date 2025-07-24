@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,9 +70,6 @@ class GeneralPartnerServiceTest {
     @Mock
     private GeneralPartnerValidator generalPartnerValidator;
 
-    @Mock
-    private TransactionUtils transactionUtils;
-
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
@@ -85,7 +81,7 @@ class GeneralPartnerServiceTest {
                 .thenReturn(Optional.of(dao));
 
         when(mapper.daoToDto(dao)).thenReturn(new GeneralPartnerBuilder().personDto());
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), anyString(), anyString()))
+        when(transactionService.isTransactionLinkedToPartner(any(), anyString(), anyString()))
                 .thenReturn(true);
 
         var dto = generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID);
@@ -97,14 +93,14 @@ class GeneralPartnerServiceTest {
     void testGetGeneralPartnerNotFound() {
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.empty());
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
         assertEquals("General partner submission with id " + SUBMISSION_ID + " not found", resourceNotFoundException.getMessage());
     }
 
     @Test
     void testGetGeneralPartnerLinkFails() {
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class)))
+        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class)))
                 .thenReturn(false);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
         assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), SUBMISSION_ID), resourceNotFoundException.getMessage());

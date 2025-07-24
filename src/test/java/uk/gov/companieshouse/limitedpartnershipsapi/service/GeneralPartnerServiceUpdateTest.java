@@ -13,8 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.handler.privatetransaction.PrivateTransactionResourceHandler;
+import uk.gov.companieshouse.api.handler.privatetransaction.request.PrivateTransactionPatch;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
@@ -35,7 +42,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
@@ -48,6 +54,7 @@ class GeneralPartnerServiceUpdateTest {
     private static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private static final String USER_ID = "xbJf0l";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
+    private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
 
     Transaction transaction = buildTransaction();
 
@@ -58,6 +65,20 @@ class GeneralPartnerServiceUpdateTest {
     private GeneralPartnerRepository limitedPartnerRepository;
 
     @MockitoBean
+    private ApiClientService apiClientService;
+
+    @MockitoBean
+    private InternalApiClient internalApiClient;
+
+    @MockitoBean
+    private PrivateTransactionResourceHandler privateTransactionResourceHandler;
+
+    @MockitoBean
+    private PrivateTransactionPatch privateTransactionPatch;
+
+    @MockitoBean
+    private ApiResponse response;
+
     private TransactionService transactionService;
 
     @Captor
@@ -274,22 +295,23 @@ class GeneralPartnerServiceUpdateTest {
     @Nested
     class DeleteGeneralPartner {
         @Test
-        void shouldDeleteGeneralPartner() throws ServiceException {
+        void shouldDeleteGeneralPartner() throws ServiceException, ApiErrorResponseException, URIValidationException {
+
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
 
             // transaction before
             assertEquals(1, transaction.getResources().size());
 
+            when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+            when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
+            when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
+            when(privateTransactionPatch.execute()).thenReturn(response);
+            when(response.getStatusCode()).thenReturn(204);
             when(limitedPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
             service.deleteGeneralPartner(transaction, GENERAL_PARTNER_ID, REQUEST_ID);
 
-            verify(transactionService).updateTransaction(transactionCaptor.capture(), eq(REQUEST_ID));
-
-            Transaction transactionUpdated = transactionCaptor.getValue();
-
-            assertEquals(0, transactionUpdated.getResources().size());
-
+            assertEquals(0, transaction.getResources().size());
             // transaction after
             assertEquals(0, transaction.getResources().size());
         }

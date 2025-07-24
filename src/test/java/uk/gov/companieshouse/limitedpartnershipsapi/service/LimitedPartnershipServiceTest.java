@@ -24,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,19 +35,20 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
 @ExtendWith(MockitoExtension.class)
 class LimitedPartnershipServiceTest {
@@ -58,9 +58,14 @@ class LimitedPartnershipServiceTest {
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String TRANSACTION_ID = "txn-456";
     private static final String LINK_SELF = "self";
+    private static final String LIMITED_PARTNERSHIP_SELF_LINK = "/transaction/1234/limited-partnership/partnership/1234";
+    private static final String LIMITED_PARTNER_SELF_LINK = "/transactions/txn-123/limited-partnership/limited-partner/sub-456";
 
     @InjectMocks
     private LimitedPartnershipService service;
+
+    @Mock
+    private Transaction transaction;
 
     @Mock
     private LimitedPartnershipMapper mapper;
@@ -73,9 +78,6 @@ class LimitedPartnershipServiceTest {
 
     @Mock
     private TransactionService transactionService;
-
-    @Mock
-    private TransactionUtils transactionUtils;
 
     @Mock
     private LimitedPartnershipValidator limitedPartnershipValidator;
@@ -104,18 +106,12 @@ class LimitedPartnershipServiceTest {
         verify(mapper).dtoToDao(limitedPartnershipDto);
         verify(repository).insert(limitedPartnershipDao);
         verify(repository).save(submissionCaptor.capture());
-        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), any());
+        verify(transactionService).updateTransactionWithLinksAndPartnershipName(
+                any(), eq(limitedPartnershipDto), any(), any(), any(), any());
         assertEquals(SUBMISSION_ID, submissionId);
 
-        // assert transaction resources are updated appropriately
-        Transaction sentTransaction = transactionApiCaptor.getValue();
-        assertEquals(limitedPartnershipDto.getData().getPartnershipName(), sentTransaction.getCompanyName());
-        assertNull(sentTransaction.getCompanyNumber());
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), limitedPartnershipDao.getId());
-        assertEquals(submissionUri, sentTransaction.getResources().get(submissionUri).getLinks().get("resource"));
-        // assert resume link is correct
-        String resumeUri = String.format(URL_RESUME, transaction.getId(), limitedPartnershipDao.getId());
-        assertEquals(resumeUri, sentTransaction.getResumeJourneyUri());
+
         // assert dao submission self link is correct
         LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
         String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
@@ -123,45 +119,12 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void shouldAddCorrectLinksToTransactionResourceForRegistration() throws Exception {
-        // given + when
-        createLimitedPartnership(REGISTRATION);
-
-        // then
-        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), eq(REQUEST_ID));
-
-        Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
-        assertEquals(1, transactionResources.size());
-        assertThat(transactionResources.values())
-                .allSatisfy(resource -> assertThat(resource.getLinks())
-                        .hasSize(1)
-                        .isNotNull()
-                        .containsKeys(LINK_RESOURCE));
-    }
-
-    @Test
-    void shouldAddCorrectLinksToTransactionResourceForTransition() throws Exception {
-        // given + when
-        createLimitedPartnership(TRANSITION);
-
-        // then
-        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), eq(REQUEST_ID));
-
-        Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
-        assertEquals(1, transactionResources.size());
-        assertThat(transactionResources.values())
-                .allSatisfy(resource -> assertThat(resource.getLinks())
-                        .hasSize(1)
-                        .isNotNull()
-                        .containsKeys(LINK_RESOURCE));
-    }
-
-    @Test
     void givenTransactionAlreadyAssociatedWithAnLP_whenCreateLP_thenServiceExceptionThrown() {
         // given
         LimitedPartnershipDto limitedPartnershipDto = createDto();
-
         Transaction transaction = buildTransaction();
+        when(transactionService.hasExistingLimitedPartnership(transaction)).thenReturn(true);
+
         Resource resource = new Resource();
         resource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
         Map<String, Resource> resourceMap = new HashMap<>();
@@ -241,7 +204,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao limitedPartnershipDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                 limitedPartnershipDao));
         when(mapper.daoToDto(limitedPartnershipDao)).thenReturn(limitedPartnershipDto);
@@ -259,7 +222,7 @@ class LimitedPartnershipServiceTest {
     void giveInvalidSubmissionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
         // when + then
@@ -270,7 +233,7 @@ class LimitedPartnershipServiceTest {
     void giveSubmissionIdAndTransactionIdDoNotMatch_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(false);
+        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction, SUBMISSION_ID));
@@ -283,7 +246,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao limitedPartnershipDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(
                 limitedPartnershipDao));
         when(mapper.daoToDto(limitedPartnershipDao)).thenReturn(limitedPartnershipDto);
@@ -301,7 +264,7 @@ class LimitedPartnershipServiceTest {
     void givenInvalidTransactionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(Collections.emptyList());
 
         // when + then
@@ -312,7 +275,7 @@ class LimitedPartnershipServiceTest {
     void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(false);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction));
@@ -325,7 +288,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao lpDao1 = createDao();
         LimitedPartnershipDao lpDao2 = createDao();
 
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao1, lpDao2));
 
         // when + then
@@ -339,7 +302,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(new ArrayList<>());
@@ -358,7 +321,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao();
         Transaction transaction = buildTransaction();
 
-        when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         List<ValidationStatusError> errorsList = new ArrayList<>();
@@ -383,6 +346,14 @@ class LimitedPartnershipServiceTest {
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartnership(transaction));
+    }
+
+    @Test
+    void givenLimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
+        // when
+        var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNER_SELF_LINK);
+        // then
+        assertFalse(result);
     }
 
     private Transaction buildTransaction() {

@@ -24,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -64,9 +63,6 @@ class LimitedPartnershipIncorporationServiceTest {
 
     @Captor
     private ArgumentCaptor<LimitedPartnershipIncorporationDao> incorporationCaptor;
-
-    @Mock
-    private TransactionUtils transactionUtils;
 
     @Mock
     private LimitedPartnershipIncorporationMapper mapper;
@@ -158,7 +154,7 @@ class LimitedPartnershipIncorporationServiceTest {
         // given
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
         when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
 
@@ -179,7 +175,7 @@ class LimitedPartnershipIncorporationServiceTest {
         LimitedPartnershipDto limitedPartnershipDto = createLimitedPartnershipSubmissionDto();
         List<LimitedPartnerDto> limitedPartnerList = List.of(new LimitedPartnerDto());
         List<GeneralPartnerDto> generalPartnerList = List.of(new GeneralPartnerDto());
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
         when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(
@@ -204,7 +200,7 @@ class LimitedPartnershipIncorporationServiceTest {
     void testGetIncorporationTypeReturnsNotFoundExceptionWhenNoLinkBetweenTransactionAndIncorporation() {
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> incorporationService.getIncorporation(transaction, SUBMISSION_ID, true));
@@ -216,7 +212,7 @@ class LimitedPartnershipIncorporationServiceTest {
 
         // given
         Transaction transaction = buildTransaction();
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(INVALID_SUBMISSION_ID)).thenReturn(Optional.empty());
 
         // when + then
@@ -258,7 +254,7 @@ class LimitedPartnershipIncorporationServiceTest {
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
-        when(transactionUtils.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
+        when(transactionService.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
 
         IncorporationDto incorporationDto = new IncorporationDto();
         IncorporationDataDto dataDto = new IncorporationDataDto();
