@@ -20,7 +20,7 @@ public class TransactionUtils {
         return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
     }
 
-    public boolean doesTransactionHaveALimitedPartnershipSubmission(Transaction transaction) {
+    public boolean doesTransactionHaveALimitedPartnership(Transaction transaction) {
         if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
             return false;
         }
@@ -36,7 +36,7 @@ public class TransactionUtils {
         return doIncorporationChecks(transaction, limitedPartnershipIncorporationSelfLink);
     }
 
-    public boolean isTransactionLinkedToPartnerSubmission(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
+    public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
         return doChecks(transaction, partnerSubmissionSelfLink, kind);
     }
 

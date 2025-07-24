@@ -95,7 +95,7 @@ class TransactionUtilsTest {
         transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        var result = transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction);
+        var result = transactionUtils.doesTransactionHaveALimitedPartnership(transaction);
         // then
         assertTrue(result);
     }
@@ -103,7 +103,7 @@ class TransactionUtilsTest {
     @Test
     void givenTransactionHasALimitedPartnershipCalledWithNullTransaction_thenReturnFalse() {
         // when
-        var result = transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(null);
+        var result = transactionUtils.doesTransactionHaveALimitedPartnership(null);
         // then
         assertFalse(result);
     }
@@ -117,7 +117,7 @@ class TransactionUtilsTest {
         transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        var result = transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(transaction);
+        var result = transactionUtils.doesTransactionHaveALimitedPartnership(transaction);
         // then
         assertFalse(result);
     }
@@ -152,7 +152,7 @@ class TransactionUtilsTest {
         transactionResources.put(LIMITED_PARTNER_SELF_LINK, limitedPartnerResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
+        var result = transactionUtils.isTransactionLinkedToPartner(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
         // then
         assertTrue(result);
     }
@@ -160,7 +160,7 @@ class TransactionUtilsTest {
     @Test
     void givenALimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
         // when
-        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, "", FILING_KIND_LIMITED_PARTNER);
+        var result = transactionUtils.isTransactionLinkedToPartner(transaction, "", FILING_KIND_LIMITED_PARTNER);
         // then
         assertFalse(result);
     }
@@ -170,7 +170,7 @@ class TransactionUtilsTest {
         // given
         when(transaction.getResources()).thenReturn(null);
         // when
-        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
+        var result = transactionUtils.isTransactionLinkedToPartner(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
         // then
         assertFalse(result);
     }
@@ -187,7 +187,7 @@ class TransactionUtilsTest {
         generalPartnerResource.setLinks(generalPartnerResourceLinks);
 
         when(transaction.getResources()).thenReturn(transactionResources);
-        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+        var result = transactionUtils.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
 
         assertTrue(result);
     }
@@ -204,21 +204,21 @@ class TransactionUtilsTest {
         generalPartnerResource.setLinks(generalPartnerResourceLinks);
 
         when(transaction.getResources()).thenReturn(transactionResources);
-        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+        var result = transactionUtils.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
 
         assertFalse(result);
     }
 
     @Test
     void givenGeneralPartnerSelfLinkIsBlank_thenReturnFalse() {
-        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, "", FILING_KIND_GENERAL_PARTNER);
+        var result = transactionUtils.isTransactionLinkedToPartner(transaction, "", FILING_KIND_GENERAL_PARTNER);
         assertFalse(result);
     }
 
     @Test
     void givenGeneralPartnerTransactionIsNull_thenReturnFalse() {
         when(transaction.getResources()).thenReturn(null);
-        var result = transactionUtils.isTransactionLinkedToPartnerSubmission(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+        var result = transactionUtils.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
         assertFalse(result);
     }
 

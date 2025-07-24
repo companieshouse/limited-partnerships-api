@@ -144,7 +144,7 @@ class IncorporationControllerValidationTest {
     class ValidateIncorporation {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
+            when(transactionUtils.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new GeneralPartnerBuilder().personDao()));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
@@ -165,7 +165,7 @@ class IncorporationControllerValidationTest {
             generalPartnerDao.getData().setForename("");
             generalPartnerDao.getData().setNationality1("UNKNOWN");
 
-            when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
+            when(transactionUtils.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(generalPartnerDao));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
@@ -186,7 +186,7 @@ class IncorporationControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfInsufficientNumberOfPartners() throws Exception {
-            when(transactionUtils.doesTransactionHaveALimitedPartnershipSubmission(any())).thenReturn(true);
+            when(transactionUtils.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());

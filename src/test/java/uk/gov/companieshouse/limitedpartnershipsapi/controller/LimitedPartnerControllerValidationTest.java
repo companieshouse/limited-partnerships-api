@@ -282,7 +282,7 @@ class LimitedPartnerControllerValidationTest {
         when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(), any(), any())).thenReturn(true);
+        when(transactionUtils.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
         mockLimitedPartnershipService(PartnershipType.LP);
     }
