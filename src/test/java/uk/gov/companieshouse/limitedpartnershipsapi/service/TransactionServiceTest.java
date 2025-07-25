@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -25,17 +27,19 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
@@ -43,6 +47,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class TransactionServiceTest {
 
     private static final String TRANSACTION_ID = "12345678";
@@ -231,5 +236,30 @@ class TransactionServiceTest {
         // assert resume link is correct
         String resumeUri = String.format(URL_RESUME, transaction.getId(), SUBMISSION_ID);
         assertEquals(resumeUri, transaction.getResumeJourneyUri());
+    }
+
+    @Test
+    void testHasExistingPartnershipWhenKindIsPresent() {
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
+        var limitedPartnershipResource = new Resource();
+        Map<String, String> linksMap = new HashMap<>();
+        linksMap.put(LINK_RESOURCE, submissionUri);
+        limitedPartnershipResource.setLinks(linksMap);
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
+        assertTrue(transactionService.hasExistingLimitedPartnership(transaction));
+    }
+
+    @Test
+    void testDoesNotHaveExistingPartnershipWhenResourceIsNull() {
+        assertFalse(transactionService.hasExistingLimitedPartnership(transaction));
+    }
+
+    @Test
+    void testDoesNotHaveExistingPartnershipWhenKindIsNotInTheMap() {
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
+        var limitedPartnershipResource = new Resource();
+        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
+        assertFalse(transactionService.hasExistingLimitedPartnership(transaction));
     }
 }
