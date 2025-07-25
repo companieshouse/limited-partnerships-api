@@ -14,8 +14,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
@@ -104,4 +107,18 @@ public class TransactionService {
         return false;
     }
 
+    public Resource createLimitedPartnershipTransactionResource(String submissionUri) {
+        var limitedPartnershipResource = new Resource();
+
+        Map<String, String> linksMap = new HashMap<>();
+        linksMap.put(LINK_RESOURCE, submissionUri);
+
+        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
+        //      incorporation journey (registration or transition)
+
+        limitedPartnershipResource.setLinks(linksMap);
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+
+        return limitedPartnershipResource;
+    }
 }

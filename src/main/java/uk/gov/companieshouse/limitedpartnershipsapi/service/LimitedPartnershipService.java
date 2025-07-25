@@ -78,7 +78,7 @@ public class LimitedPartnershipService {
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
-        var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri);
+        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(submissionUri);
 
         transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
@@ -130,21 +130,6 @@ public class LimitedPartnershipService {
 
     private void setAuditDetailsForUpdate(String userId, LimitedPartnershipDao lpSubmissionDaoAfterPatch) {
         lpSubmissionDaoAfterPatch.setUpdatedBy(userId);
-    }
-
-    private Resource createLimitedPartnershipTransactionResource(String submissionUri) {
-        var limitedPartnershipResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
-
-        limitedPartnershipResource.setLinks(linksMap);
-        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-
-        return limitedPartnershipResource;
     }
 
     private String getSubmissionUri(String transactionId, String submissionId) {
