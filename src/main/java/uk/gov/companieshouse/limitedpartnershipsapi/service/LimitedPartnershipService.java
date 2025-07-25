@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -19,15 +18,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
 @Service
 public class LimitedPartnershipService {
@@ -63,7 +57,7 @@ public class LimitedPartnershipService {
 
         limitedPartnershipValidator.validatePartial(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
 
-        if (hasExistingLimitedPartnership(transaction)) {
+        if (transactionService.hasExistingLimitedPartnership(transaction)) {
             throw new ServiceException(String.format(
                     "The transaction with id %s already has a Limited Partnership associated with it", transaction.getId()));
         }
@@ -78,9 +72,9 @@ public class LimitedPartnershipService {
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
-        var limitedPartnershipResource = createLimitedPartnershipTransactionResource(submissionUri);
+        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(submissionUri);
 
-        updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
+        transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership created with id: %s", insertedLimitedPartnership.getId()));
@@ -132,54 +126,8 @@ public class LimitedPartnershipService {
         lpSubmissionDaoAfterPatch.setUpdatedBy(userId);
     }
 
-    private Resource createLimitedPartnershipTransactionResource(String submissionUri) {
-        var limitedPartnershipResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
-
-        limitedPartnershipResource.setLinks(linksMap);
-        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-
-        return limitedPartnershipResource;
-    }
-
     private String getSubmissionUri(String transactionId, String submissionId) {
         return String.format(URL_GET_PARTNERSHIP, transactionId, submissionId);
-    }
-
-    /**
-     * Update company name set on the transaction and add a link to the newly created Limited Partnership
-     * resource to the transaction. A resume link (URL) is also created and added, which
-     * is handled by the web client.
-     */
-    private void updateTransactionWithLinksAndPartnershipName(Transaction transaction,
-                                                              LimitedPartnershipDto limitedPartnershipDto,
-                                                              String submissionUri,
-                                                              Resource limitedPartnershipResource,
-                                                              String loggingContext,
-                                                              String submissionId) throws ServiceException {
-        transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
-        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
-            transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
-        }
-        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
-
-        final var resumeJourneyUri = String.format(URL_RESUME, transaction.getId(), submissionId);
-        transaction.setResumeJourneyUri(resumeJourneyUri);
-
-        transactionService.updateTransaction(transaction, loggingContext);
-    }
-
-    private boolean hasExistingLimitedPartnership(Transaction transaction) {
-        if (transaction.getResources() != null) {
-            return transaction.getResources().entrySet().stream().anyMatch(
-                    resourceEntry -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resourceEntry.getValue().getKind()));
-        }
-        return false;
     }
 
     private void updateLimitedPartnershipWithSelfLink(LimitedPartnershipDao limitedPartnershipDao,
