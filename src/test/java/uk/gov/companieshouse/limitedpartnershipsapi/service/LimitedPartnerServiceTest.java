@@ -76,7 +76,7 @@ class LimitedPartnerServiceTest {
                 .thenReturn(Optional.of(dao));
 
         when(mapper.daoToDto(dao)).thenReturn(createDto());
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(any(Transaction.class), any(String.class), any(String.class))).thenReturn(true)
+        when(transactionUtils.isTransactionLinkedToPartner(any(Transaction.class), any(String.class), any(String.class))).thenReturn(true)
                 .thenReturn(true);
 
         var dto = limitedPartnerService.getLimitedPartner(buildTransaction(), SUBMISSION_ID);
@@ -91,7 +91,7 @@ class LimitedPartnerServiceTest {
 
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.empty());
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
+        when(transactionUtils.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID));
         assertEquals("Limited partner submission with id abc-123 not found", resourceNotFoundException.getMessage());
     }
@@ -164,7 +164,7 @@ class LimitedPartnerServiceTest {
         String submissionId = "sub-456";
 
         // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
-        when(transactionUtils.isTransactionLinkedToPartnerSubmission(eq(transaction), any(String.class), any(String.class))).thenReturn(false);
+        when(transactionUtils.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(false);
 
         // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
