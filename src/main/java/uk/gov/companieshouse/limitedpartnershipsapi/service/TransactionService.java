@@ -4,14 +4,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
+import java.util.Collections;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
 
 @Service
 public class TransactionService {
@@ -21,6 +27,29 @@ public class TransactionService {
     @Autowired
     public TransactionService(ApiClientService apiClientService) {
         this.apiClientService = apiClientService;
+    }
+
+    /**
+     * Update company name set on the transaction and add a link to the newly created Limited Partnership
+     * resource to the transaction. A resume link (URL) is also created and added, which
+     * is handled by the web client.
+     */
+    public void updateTransactionWithLinksAndPartnershipName(Transaction transaction,
+                                                             LimitedPartnershipDto limitedPartnershipDto,
+                                                             String submissionUri,
+                                                             Resource limitedPartnershipResource,
+                                                             String loggingContext,
+                                                             String submissionId) throws ServiceException {
+        transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
+        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+            transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
+        }
+        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
+
+        final var resumeJourneyUri = String.format(URL_RESUME, transaction.getId(), submissionId);
+        transaction.setResumeJourneyUri(resumeJourneyUri);
+
+        updateTransaction(transaction, loggingContext);
     }
 
     public void updateTransaction(Transaction transaction, String loggingContext) throws ServiceException {
@@ -66,4 +95,13 @@ public class TransactionService {
             throw new ServiceException(message, e);
         }
     }
+
+    public boolean hasExistingLimitedPartnership(Transaction transaction) {
+        if (transaction.getResources() != null) {
+            return transaction.getResources().entrySet().stream().anyMatch(
+                    resourceEntry -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resourceEntry.getValue().getKind()));
+        }
+        return false;
+    }
+
 }

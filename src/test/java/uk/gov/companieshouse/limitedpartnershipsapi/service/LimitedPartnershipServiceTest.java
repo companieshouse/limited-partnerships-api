@@ -84,6 +84,9 @@ class LimitedPartnershipServiceTest {
     private ArgumentCaptor<Transaction> transactionApiCaptor;
 
     @Captor
+    private ArgumentCaptor<LimitedPartnershipDto> limitedPartnershipDtoCaptor;
+
+    @Captor
     private ArgumentCaptor<LimitedPartnershipDao> submissionCaptor;
 
     @Test
@@ -96,64 +99,27 @@ class LimitedPartnershipServiceTest {
         when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
 
         Transaction transaction = buildTransaction();
-
         // when
         String submissionId = service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
 
         // then
+        verify(transactionService).hasExistingLimitedPartnership(transactionApiCaptor.capture());
         verify(mapper).dtoToDao(limitedPartnershipDto);
         verify(repository).insert(limitedPartnershipDao);
         verify(repository).save(submissionCaptor.capture());
-        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), any());
+        verify(transactionService).updateTransactionWithLinksAndPartnershipName(
+                transactionApiCaptor.capture(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any());
         assertEquals(SUBMISSION_ID, submissionId);
 
-        // assert transaction resources are updated appropriately
-        Transaction sentTransaction = transactionApiCaptor.getValue();
-        assertEquals(limitedPartnershipDto.getData().getPartnershipName(), sentTransaction.getCompanyName());
-        assertNull(sentTransaction.getCompanyNumber());
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), limitedPartnershipDao.getId());
-        assertEquals(submissionUri, sentTransaction.getResources().get(submissionUri).getLinks().get("resource"));
-        // assert resume link is correct
-        String resumeUri = String.format(URL_RESUME, transaction.getId(), limitedPartnershipDao.getId());
-        assertEquals(resumeUri, sentTransaction.getResumeJourneyUri());
-        // assert dao submission self link is correct
         LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
         String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
         assertEquals(submissionUri, sentSubmissionUri);
-    }
-
-    @Test
-    void shouldAddCorrectLinksToTransactionResourceForRegistration() throws Exception {
-        // given + when
-        createLimitedPartnership(REGISTRATION);
-
-        // then
-        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), eq(REQUEST_ID));
-
-        Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
-        assertEquals(1, transactionResources.size());
-        assertThat(transactionResources.values())
-                .allSatisfy(resource -> assertThat(resource.getLinks())
-                        .hasSize(1)
-                        .isNotNull()
-                        .containsKeys(LINK_RESOURCE));
-    }
-
-    @Test
-    void shouldAddCorrectLinksToTransactionResourceForTransition() throws Exception {
-        // given + when
-        createLimitedPartnership(TRANSITION);
-
-        // then
-        verify(transactionService).updateTransaction(transactionApiCaptor.capture(), eq(REQUEST_ID));
-
-        Map<String, Resource> transactionResources = transactionApiCaptor.getValue().getResources();
-        assertEquals(1, transactionResources.size());
-        assertThat(transactionResources.values())
-                .allSatisfy(resource -> assertThat(resource.getLinks())
-                        .hasSize(1)
-                        .isNotNull()
-                        .containsKeys(LINK_RESOURCE));
     }
 
     @Test
@@ -162,6 +128,8 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto limitedPartnershipDto = createDto();
 
         Transaction transaction = buildTransaction();
+        when(transactionService.hasExistingLimitedPartnership(transaction)).thenReturn(true);
+
         Resource resource = new Resource();
         resource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
         Map<String, Resource> resourceMap = new HashMap<>();
