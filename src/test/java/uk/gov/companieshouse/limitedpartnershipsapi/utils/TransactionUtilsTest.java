@@ -220,42 +220,4 @@ class TransactionUtilsTest {
         var result = transactionUtils.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
         assertFalse(result);
     }
-/*
-    @Test
-    void givenTransactionIsNotLinkedToLimitedPartnershipIncorporationDueToIncorrectFilingKind_thenReturnFalse() {
-        // given + when
-        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(FILING_KIND_LIMITED_PARTNERSHIP);
-        // then
-        assertFalse(result);
-    }
-
-    @Test
-    void givenTransactionIsLinkedToLimitedPartnershipRegistrationIncorporation_thenReturnTrue() {
-        // given + when
-        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(REGISTRATION.getDescription());
-        // then
-        assertTrue(result);
-    }
-
-    @Test
-    void givenTransactionIsLinkedToLimitedPartnershipTransitionIncorporation_thenReturnTrue() {
-        // given + when
-        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(TRANSITION.getDescription());
-        // then
-        assertTrue(result);
-    }
-
-    private boolean testIfTransactionIsLinkedToLimitedPartnershipIncorporation(String kind) {
-        // given
-        Map<String, Resource> transactionResources = new HashMap<>();
-        Resource limitedPartnershipResource = new Resource();
-        limitedPartnershipResource.setKind(kind);
-        Map<String, String> limitedPartnershipsResourceLinks = new HashMap<>();
-        limitedPartnershipsResourceLinks.put(LINK_RESOURCE, INCORPORATION_SELF_LINK);
-        limitedPartnershipResource.setLinks(limitedPartnershipsResourceLinks);
-        transactionResources.put(INCORPORATION_SELF_LINK, limitedPartnershipResource);
-        when(transaction.getResources()).thenReturn(transactionResources);
-        // when
-        return transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, INCORPORATION_SELF_LINK);
-    }*/
 }
