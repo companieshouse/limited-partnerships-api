@@ -364,7 +364,7 @@ class TransactionServiceTest {
     @Test
     void givenLimitedPartnerSelfLinkIsNull_thenReturnFalse() {
         // given
-        when(transaction.getResources()).thenReturn(null);
+        transaction.setResources(null);
         // when
         var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
         // then
@@ -382,7 +382,7 @@ class TransactionServiceTest {
         limitedPartnershipsResourceLinks.put(LINK_RESOURCE, nonMatchingResourceLink);
         limitedPartnershipResource.setLinks(limitedPartnershipsResourceLinks);
         transactionResources.put(nonMatchingResourceLink, limitedPartnershipResource);
-        when(transaction.getResources()).thenReturn(transactionResources);
+        transaction.setResources(transactionResources);
         // when
         var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
         // then
@@ -452,7 +452,7 @@ class TransactionServiceTest {
     @Test
     void givenALimitedPartnerSelfLinkIsNull_thenReturnFalse() {
         // given
-        when(transaction.getResources()).thenReturn(null);
+        transaction.setResources(null);
         // when
         var result = transactionService.isTransactionLinkedToPartner(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
         // then
@@ -487,7 +487,7 @@ class TransactionServiceTest {
         generalPartnerResourceLinks.put(LINK_RESOURCE, "some/garbage");
         generalPartnerResource.setLinks(generalPartnerResourceLinks);
 
-        when(transaction.getResources()).thenReturn(transactionResources);
+        transaction.setResources(transactionResources);
         var result = transactionService.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
 
         assertFalse(result);
