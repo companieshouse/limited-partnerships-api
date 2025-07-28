@@ -8,8 +8,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -28,9 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -38,7 +36,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class TransactionServiceTest {
 
     private static final String TRANSACTION_ID = "12345678";
@@ -77,13 +74,12 @@ class TransactionServiceTest {
     void init() {
         transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
-
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
-        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
     }
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkThrowsURIValidationException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenThrow(new URIValidationException("ERROR"));
 
@@ -92,6 +88,8 @@ class TransactionServiceTest {
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkThrowsIOException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenThrow(ApiErrorResponseException.fromIOException(new IOException("ERROR")));
 
@@ -100,6 +98,8 @@ class TransactionServiceTest {
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkReturnsAnInvalidHttpCode() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(400);
@@ -109,6 +109,8 @@ class TransactionServiceTest {
 
     @Test
     void testUpdatingATransactionIsSuccessful() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
@@ -122,6 +124,8 @@ class TransactionServiceTest {
 
     @Test
     void testUpdatingATransactionNameIsSuccessful() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
@@ -135,6 +139,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceIsSuccessful() throws IOException, URIValidationException, ServiceException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenReturn(apiDeleteResponse);
@@ -147,6 +153,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnURIValidationException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenThrow(new URIValidationException("ERROR"));
@@ -158,6 +166,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnIOException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenThrow(ApiErrorResponseException.fromIOException(new IOException("ERROR")));
@@ -169,6 +179,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnInvalidStatusCode() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenReturn(apiDeleteResponse);
