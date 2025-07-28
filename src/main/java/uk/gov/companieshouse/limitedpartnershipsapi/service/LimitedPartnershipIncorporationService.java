@@ -98,7 +98,7 @@ public class LimitedPartnershipIncorporationService {
         linksMap.put(LINK_RESOURCE, incorporationUri);
         linksMap.put(LINK_VALIDATION_STATUS, incorporationUri + VALIDATION_STATUS_URI_SUFFIX);
 
-        if (transactionUtils.isForRegistration(transaction)) {
+        if (transactionService.isForRegistration(transaction)) {
             linksMap.put(LINK_COSTS, incorporationUri + COSTS_URI_SUFFIX);
         }
 

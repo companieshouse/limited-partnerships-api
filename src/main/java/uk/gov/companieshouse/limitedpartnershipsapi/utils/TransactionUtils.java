@@ -25,10 +25,6 @@ public class TransactionUtils {
         return doChecks(transaction, partnerSubmissionSelfLink, kind);
     }
 
-    public boolean isForRegistration(Transaction transaction) {
-        return IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode());
-    }
-
     private boolean doChecks(Transaction transaction, String selfLink, String kind) {
         if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
             return false;
@@ -36,18 +32,6 @@ public class TransactionUtils {
 
         return transaction.getResources().entrySet().stream()
                 .filter(resource -> kind.equals(resource.getValue().getKind()))
-                .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
-    }
-
-    private boolean doIncorporationChecks(Transaction transaction, String selfLink) {
-        if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
-            return false;
-        }
-
-        return transaction.getResources().entrySet().stream()
-                .filter(resource -> (
-                        REGISTRATION.getDescription().equals(resource.getValue().getKind()))
-                        || TRANSITION.getDescription().equals(resource.getValue().getKind()))
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
     }
 

@@ -121,6 +121,10 @@ public class TransactionService {
         return optionalEntry.isPresent();
     }
 
+    public boolean isForRegistration(Transaction transaction) {
+        return IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode());
+    }
+
     private boolean doIncorporationChecks(Transaction transaction, String selfLink) {
         if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
             return false;
