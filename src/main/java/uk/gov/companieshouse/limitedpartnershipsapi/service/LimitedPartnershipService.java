@@ -149,7 +149,7 @@ public class LimitedPartnershipService {
     }
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction) throws ServiceException {
-        if (!transactionUtils.doesTransactionHaveALimitedPartnership(transaction)) {
+        if (!transactionService.doesTransactionHaveALimitedPartnership(transaction)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
         }

@@ -20,17 +20,6 @@ public class TransactionUtils {
         return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
     }
 
-    public boolean doesTransactionHaveALimitedPartnership(Transaction transaction) {
-        if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
-            return false;
-        }
-
-        Optional<?> optionalEntry = transaction.getResources().entrySet().stream()
-                .filter(resource -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resource.getValue().getKind()))
-                .findFirst();
-
-        return optionalEntry.isPresent();
-    }
 
     public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
         return doChecks(transaction, partnerSubmissionSelfLink, kind);

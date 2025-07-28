@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
@@ -106,6 +107,18 @@ public class TransactionService {
 
     public boolean isTransactionLinkedToLimitedPartnershipIncorporation(Transaction transaction, String limitedPartnershipIncorporationSelfLink) {
         return doIncorporationChecks(transaction, limitedPartnershipIncorporationSelfLink);
+    }
+
+    public boolean doesTransactionHaveALimitedPartnership(Transaction transaction) {
+        if (Objects.isNull(transaction) || Objects.isNull(transaction.getResources())) {
+            return false;
+        }
+
+        Optional<?> optionalEntry = transaction.getResources().entrySet().stream()
+                .filter(resource -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resource.getValue().getKind()))
+                .findFirst();
+
+        return optionalEntry.isPresent();
     }
 
     private boolean doIncorporationChecks(Transaction transaction, String selfLink) {

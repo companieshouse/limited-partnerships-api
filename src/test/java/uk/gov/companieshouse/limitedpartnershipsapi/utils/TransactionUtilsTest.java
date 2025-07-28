@@ -85,42 +85,6 @@ class TransactionUtilsTest {
     }
 
     @Test
-    void givenTransactionHasALimitedPartnership_thenReturnTrue() {
-        // given
-        Map<String, Resource> transactionResources = new HashMap<>();
-        Resource limitedPartnershipResource = new Resource();
-        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
-        when(transaction.getResources()).thenReturn(transactionResources);
-        // when
-        var result = transactionUtils.doesTransactionHaveALimitedPartnership(transaction);
-        // then
-        assertTrue(result);
-    }
-
-    @Test
-    void givenTransactionHasALimitedPartnershipCalledWithNullTransaction_thenReturnFalse() {
-        // when
-        var result = transactionUtils.doesTransactionHaveALimitedPartnership(null);
-        // then
-        assertFalse(result);
-    }
-
-    @Test
-    void givenTransactionHasALimitedPartnershipNotFound_thenReturnFalse() {
-        // given
-        Map<String, Resource> transactionResources = new HashMap<>();
-        Resource limitedPartnershipResource = new Resource();
-        limitedPartnershipResource.setKind(REGISTRATION.getDescription());
-        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
-        when(transaction.getResources()).thenReturn(transactionResources);
-        // when
-        var result = transactionUtils.doesTransactionHaveALimitedPartnership(transaction);
-        // then
-        assertFalse(result);
-    }
-
-    @Test
     void givenTransactionIsNotLinkedToLimitedPartner_thenReturnFalse() {
         // given
         Map<String, Resource> transactionResources = new HashMap<>();

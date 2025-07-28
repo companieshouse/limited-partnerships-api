@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
@@ -57,6 +58,7 @@ class TransactionServiceTest {
     private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
     private static final String INCORPORATION_SELF_LINK = "/transactions/txn-123/incorporation/limited-partnership/sub-456";
     private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String LIMITED_PARTNERSHIP_SELF_LINK = "/transaction/1234/limited-partnership/partnership/1234";
 
     @Mock
     private ApiClientService apiClientService;
@@ -308,6 +310,43 @@ class TransactionServiceTest {
         var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(incoporationKind.getDescription());
         // then
         assertTrue(result);
+    }
+
+
+    @Test
+    void givenTransactionHasALimitedPartnership_thenReturnTrue() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction);
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void givenTransactionHasALimitedPartnershipCalledWithNullTransaction_thenReturnFalse() {
+        // when
+        var result = transactionService.doesTransactionHaveALimitedPartnership(null);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionHasALimitedPartnershipNotFound_thenReturnFalse() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(REGISTRATION.getDescription());
+        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction);
+        // then
+        assertFalse(result);
     }
 
     private boolean testIfTransactionIsLinkedToLimitedPartnershipIncorporation(String kind) {

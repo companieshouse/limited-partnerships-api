@@ -808,7 +808,7 @@ class PartnershipControllerValidationTest {
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipDao));
 
-        when(transactionUtils.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
     }
 
     private void mocks() {
