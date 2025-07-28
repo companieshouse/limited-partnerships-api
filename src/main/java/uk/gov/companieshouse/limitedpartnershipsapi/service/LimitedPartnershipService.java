@@ -138,7 +138,7 @@ public class LimitedPartnershipService {
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException {
         String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
-        if (!transactionUtils.isTransactionLinkedToLimitedPartnership(transaction, submissionUri)) {
+        if (!transactionService.isTransactionLinkedToLimitedPartnership(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
         }

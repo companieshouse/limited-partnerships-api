@@ -266,7 +266,7 @@ class GeneralPartnerControllerValidationTest {
         when(repository.save(any())).thenReturn(generalPartnerDao);
         when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-        when(transactionUtils.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
     }
 
     private void mocks() {

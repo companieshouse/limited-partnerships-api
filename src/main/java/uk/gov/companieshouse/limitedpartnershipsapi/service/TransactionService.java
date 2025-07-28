@@ -81,6 +81,29 @@ public class TransactionService {
         }
     }
 
+    public boolean hasExistingLimitedPartnership(Transaction transaction) {
+        if (transaction.getResources() != null) {
+            return transaction.getResources().entrySet().stream().anyMatch(
+                    resourceEntry -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resourceEntry.getValue().getKind()));
+        }
+        return false;
+    }
+
+    public Resource createLimitedPartnershipTransactionResource(String submissionUri) {
+        var limitedPartnershipResource = new Resource();
+
+        Map<String, String> linksMap = new HashMap<>();
+        linksMap.put(LINK_RESOURCE, submissionUri);
+
+        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
+        //      incorporation journey (registration or transition)
+
+        limitedPartnershipResource.setLinks(linksMap);
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+
+        return limitedPartnershipResource;
+    }
+
     public void updateTransactionWithPartnershipName(Transaction transaction,
                                                      String requestId,
                                                      String partnershipName) throws ServiceException {
@@ -125,6 +148,16 @@ public class TransactionService {
         return IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode());
     }
 
+    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
+        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
+    }
+
+
+    public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
+        return doChecks(transaction, partnerSubmissionSelfLink, kind);
+    }
+
+
     private boolean doIncorporationChecks(Transaction transaction, String selfLink) {
         if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
             return false;
@@ -145,26 +178,13 @@ public class TransactionService {
         return !(Objects.isNull(transaction) || Objects.isNull(transaction.getResources()));
     }
 
-    public boolean hasExistingLimitedPartnership(Transaction transaction) {
-        if (transaction.getResources() != null) {
-            return transaction.getResources().entrySet().stream().anyMatch(
-                    resourceEntry -> FILING_KIND_LIMITED_PARTNERSHIP.equals(resourceEntry.getValue().getKind()));
+    private boolean doChecks(Transaction transaction, String selfLink, String kind) {
+        if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
+            return false;
         }
-        return false;
-    }
 
-    public Resource createLimitedPartnershipTransactionResource(String submissionUri) {
-        var limitedPartnershipResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
-
-        limitedPartnershipResource.setLinks(linksMap);
-        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-
-        return limitedPartnershipResource;
+        return transaction.getResources().entrySet().stream()
+                .filter(resource -> kind.equals(resource.getValue().getKind()))
+                .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
     }
 }

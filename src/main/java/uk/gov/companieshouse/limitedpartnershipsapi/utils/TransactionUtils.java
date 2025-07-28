@@ -16,30 +16,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 @Component
 public class TransactionUtils {
 
-    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
-        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
-    }
 
 
-    public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
-        return doChecks(transaction, partnerSubmissionSelfLink, kind);
-    }
-
-    private boolean doChecks(Transaction transaction, String selfLink, String kind) {
-        if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
-            return false;
-        }
-
-        return transaction.getResources().entrySet().stream()
-                .filter(resource -> kind.equals(resource.getValue().getKind()))
-                .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
-    }
-
-    private boolean isTransactionAndSelfLinkValid(Transaction transaction, String selfLink) {
-        if (StringUtils.isBlank(selfLink)) {
-            return false;
-        }
-
-        return !(Objects.isNull(transaction) || Objects.isNull(transaction.getResources()));
-    }
 }
