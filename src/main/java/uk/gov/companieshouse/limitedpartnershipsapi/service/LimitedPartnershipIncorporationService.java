@@ -112,7 +112,7 @@ public class LimitedPartnershipIncorporationService {
                                                                String incorporationId,
                                                                boolean includeSubResources) throws ServiceException {
         String submissionUri = getSubmissionUri(transaction.getId(), incorporationId);
-        if (!transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
+        if (!transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches incorporation id: %s", transaction.getId(), incorporationId));
         }

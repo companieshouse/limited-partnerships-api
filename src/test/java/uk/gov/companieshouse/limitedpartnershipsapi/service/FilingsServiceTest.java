@@ -44,14 +44,15 @@ class FilingsServiceTest {
     private LimitedPartnerService limitedPartnerService;
     @MockitoBean
     private TransactionUtils transactionUtils;
-
+    @MockitoBean
+    private TransactionService transactionService;
 
     @Test
     void testFilingGenerationSuccess() throws ServiceException {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
@@ -69,7 +70,7 @@ class FilingsServiceTest {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
 
-        when(transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
         assertThrows(ResourceNotFoundException.class, () -> filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID));
     }
 

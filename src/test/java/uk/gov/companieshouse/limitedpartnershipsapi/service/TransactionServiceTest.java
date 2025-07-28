@@ -27,17 +27,18 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -54,6 +55,7 @@ class TransactionServiceTest {
     private static final String RESOURCE_ID = "resource1234";
     private static final String LOGGING_CONTEXT = "fg4536";
     private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
+    private static final String INCORPORATION_SELF_LINK = "/transactions/txn-123/incorporation/limited-partnership/sub-456";
     private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
 
     @Mock
@@ -86,13 +88,12 @@ class TransactionServiceTest {
     void init() {
         transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
-
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
-        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
     }
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkThrowsURIValidationException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenThrow(new URIValidationException("ERROR"));
 
@@ -101,6 +102,8 @@ class TransactionServiceTest {
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkThrowsIOException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenThrow(ApiErrorResponseException.fromIOException(new IOException("ERROR")));
 
@@ -109,6 +112,8 @@ class TransactionServiceTest {
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkReturnsAnInvalidHttpCode() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(400);
@@ -118,6 +123,8 @@ class TransactionServiceTest {
 
     @Test
     void testUpdatingATransactionIsSuccessful() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
@@ -131,6 +138,8 @@ class TransactionServiceTest {
 
     @Test
     void testUpdatingATransactionNameIsSuccessful() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
@@ -144,6 +153,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceIsSuccessful() throws IOException, URIValidationException, ServiceException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenReturn(apiDeleteResponse);
@@ -156,6 +167,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnURIValidationException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenThrow(new URIValidationException("ERROR"));
@@ -167,6 +180,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnIOException() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenThrow(ApiErrorResponseException.fromIOException(new IOException("ERROR")));
@@ -178,6 +193,8 @@ class TransactionServiceTest {
 
     @Test
     void testDeleteTransactionResourceThrowsServiceExceptionOnInvalidStatusCode() throws IOException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.delete(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID + "/resources", RESOURCE_ID))
                 .thenReturn(privateTransactionDeleteResource);
         when(privateTransactionDeleteResource.execute()).thenReturn(apiDeleteResponse);
@@ -194,6 +211,8 @@ class TransactionServiceTest {
             "TRANSITION"
     })
     void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
         when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
@@ -269,5 +288,39 @@ class TransactionServiceTest {
         var limitedPartnershipResource = new Resource();
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
         assertFalse(transactionService.hasExistingLimitedPartnership(transaction));
+    }
+
+    @Test
+    void givenTransactionIsNotLinkedToLimitedPartnershipIncorporationDueToIncorrectFilingKind_thenReturnFalse() {
+        // given + when
+        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(FILING_KIND_LIMITED_PARTNERSHIP);
+        // then
+        assertFalse(result);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = IncorporationKind.class, names = {
+            "REGISTRATION",
+            "TRANSITION"
+    })
+    void givenTransactionIsLinkedToLimitedPartnershipRegistrationIncorporation_thenReturnTrue(IncorporationKind incoporationKind) {
+        // given + when
+        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(incoporationKind.getDescription());
+        // then
+        assertTrue(result);
+    }
+
+    private boolean testIfTransactionIsLinkedToLimitedPartnershipIncorporation(String kind) {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(kind);
+        Map<String, String> limitedPartnershipsResourceLinks = new HashMap<>();
+        limitedPartnershipsResourceLinks.put(LINK_RESOURCE, INCORPORATION_SELF_LINK);
+        limitedPartnershipResource.setLinks(limitedPartnershipsResourceLinks);
+        transactionResources.put(INCORPORATION_SELF_LINK, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        return transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, INCORPORATION_SELF_LINK);
     }
 }

@@ -32,10 +32,6 @@ public class TransactionUtils {
         return optionalEntry.isPresent();
     }
 
-    public boolean isTransactionLinkedToLimitedPartnershipIncorporation(Transaction transaction, String limitedPartnershipIncorporationSelfLink) {
-        return doIncorporationChecks(transaction, limitedPartnershipIncorporationSelfLink);
-    }
-
     public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
         return doChecks(transaction, partnerSubmissionSelfLink, kind);
     }
