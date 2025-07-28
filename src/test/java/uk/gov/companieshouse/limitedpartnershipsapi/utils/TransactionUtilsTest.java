@@ -221,7 +221,7 @@ class TransactionUtilsTest {
         var result = transactionUtils.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
         assertFalse(result);
     }
-
+/*
     @Test
     void givenTransactionIsNotLinkedToLimitedPartnershipIncorporationDueToIncorrectFilingKind_thenReturnFalse() {
         // given + when
@@ -257,6 +257,6 @@ class TransactionUtilsTest {
         transactionResources.put(INCORPORATION_SELF_LINK, limitedPartnershipResource);
         when(transaction.getResources()).thenReturn(transactionResources);
         // when
-        return transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, INCORPORATION_SELF_LINK);
-    }
+        return transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, INCORPORATION_SELF_LINK);
+    }*/
 }

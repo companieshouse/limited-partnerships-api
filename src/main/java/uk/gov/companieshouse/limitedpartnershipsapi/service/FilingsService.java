@@ -29,22 +29,22 @@ public class FilingsService {
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
-    private final TransactionUtils transactionUtils;
+    private final TransactionService transactionService;
 
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
-                          TransactionUtils transactionUtils){
+                          TransactionService transactionService){
 
         this.limitedPartnershipService = limitedPartnershipService;
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
-        this.transactionUtils = transactionUtils;
+        this.transactionService = transactionService;
     }
 
     public FilingApi generateLimitedPartnershipFiling(Transaction transaction, String incorporationId) throws ServiceException {
         String submissionUri = String.format(URL_GET_INCORPORATION, transaction.getId(), incorporationId);
-        if (!transactionUtils.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
+        if (!transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches incorporation id: %s", transaction.getId(), incorporationId));
         }

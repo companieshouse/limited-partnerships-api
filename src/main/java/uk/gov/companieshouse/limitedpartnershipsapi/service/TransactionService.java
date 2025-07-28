@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
+import java.util.Objects;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
 
 @Service
@@ -65,5 +70,29 @@ public class TransactionService {
             ApiLogger.errorContext(loggingContext, message, e);
             throw new ServiceException(message, e);
         }
+    }
+
+    public boolean isTransactionLinkedToLimitedPartnershipIncorporation(Transaction transaction, String limitedPartnershipIncorporationSelfLink) {
+        return doIncorporationChecks(transaction, limitedPartnershipIncorporationSelfLink);
+    }
+
+    private boolean doIncorporationChecks(Transaction transaction, String selfLink) {
+        if (!isTransactionAndSelfLinkValid(transaction, selfLink)) {
+            return false;
+        }
+
+        return transaction.getResources().entrySet().stream()
+                .filter(resource -> (
+                        REGISTRATION.getDescription().equals(resource.getValue().getKind()))
+                        || TRANSITION.getDescription().equals(resource.getValue().getKind()))
+                .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
+    }
+
+    private boolean isTransactionAndSelfLinkValid(Transaction transaction, String selfLink) {
+        if (StringUtils.isBlank(selfLink)) {
+            return false;
+        }
+
+        return !(Objects.isNull(transaction) || Objects.isNull(transaction.getResources()));
     }
 }
