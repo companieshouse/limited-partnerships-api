@@ -76,9 +76,6 @@ class LimitedPartnershipServiceTest {
     private LimitedPartnershipValidator limitedPartnershipValidator;
 
     @Captor
-    private ArgumentCaptor<Transaction> transactionApiCaptor;
-
-    @Captor
     private ArgumentCaptor<LimitedPartnershipDao> submissionCaptor;
 
     @Test
@@ -95,12 +92,11 @@ class LimitedPartnershipServiceTest {
         String submissionId = service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
 
         // then
-        verify(transactionService).hasExistingLimitedPartnership(transactionApiCaptor.capture());
         verify(mapper).dtoToDao(limitedPartnershipDto);
         verify(repository).insert(limitedPartnershipDao);
         verify(repository).save(submissionCaptor.capture());
         verify(transactionService).updateTransactionWithLinksAndPartnershipName(
-                transactionApiCaptor.capture(),
+                eq(transaction),
                 any(),
                 any(),
                 any(),
