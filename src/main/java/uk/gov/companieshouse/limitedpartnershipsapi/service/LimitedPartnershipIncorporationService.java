@@ -13,7 +13,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.Inco
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,22 +42,18 @@ public class LimitedPartnershipIncorporationService {
 
     private final LimitedPartnershipIncorporationMapper mapper;
 
-    private final TransactionUtils transactionUtils;
-
     public LimitedPartnershipIncorporationService(
             GeneralPartnerService generalPartnerService,
             LimitedPartnerService limitedPartnerService,
             LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
-            TransactionUtils transactionUtils,
             TransactionService transactionService) {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
         this.mapper = mapper;
-        this.transactionUtils = transactionUtils;
         this.transactionService = transactionService;
     }
 

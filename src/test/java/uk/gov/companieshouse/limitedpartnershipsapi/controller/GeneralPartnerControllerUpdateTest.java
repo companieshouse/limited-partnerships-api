@@ -29,7 +29,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -101,9 +100,6 @@ class GeneralPartnerControllerUpdateTest {
 
     @MockitoBean
     private TransactionService transactionService;
-
-    @MockitoBean
-    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;

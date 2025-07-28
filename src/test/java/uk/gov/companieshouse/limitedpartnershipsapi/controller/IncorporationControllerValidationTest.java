@@ -28,7 +28,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -95,9 +94,6 @@ class IncorporationControllerValidationTest {
 
     @MockitoBean
     private CompanyService companyService;
-
-    @MockitoBean
-    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private InterceptorConfig interceptorConfig;

@@ -14,7 +14,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,19 +33,16 @@ public class GeneralPartnerService {
     private final GeneralPartnerMapper mapper;
     private final GeneralPartnerValidator generalPartnerValidator;
     private final TransactionService transactionService;
-    private final TransactionUtils transactionUtils;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
                                  GeneralPartnerValidator generalPartnerValidator,
-                                 TransactionService transactionService,
-                                 TransactionUtils transactionUtils
+                                 TransactionService transactionService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.generalPartnerValidator = generalPartnerValidator;
         this.transactionService = transactionService;
-        this.transactionUtils = transactionUtils;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {

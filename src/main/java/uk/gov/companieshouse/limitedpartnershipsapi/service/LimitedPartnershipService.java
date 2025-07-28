@@ -15,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,6 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipPatchMapper patchMapper;
     private final LimitedPartnershipRepository repository;
     private final TransactionService transactionService;
-    private final TransactionUtils transactionUtils;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
 
     @Autowired
@@ -38,13 +36,11 @@ public class LimitedPartnershipService {
                                      LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipRepository repository,
                                      TransactionService transactionService,
-                                     TransactionUtils transactionUtils,
                                      LimitedPartnershipValidator limitedPartnershipValidator) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
-        this.transactionUtils = transactionUtils;
         this.limitedPartnershipValidator = limitedPartnershipValidator;
     }
 

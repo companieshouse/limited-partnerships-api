@@ -24,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,9 +67,6 @@ class LimitedPartnershipServiceTest {
 
     @Mock
     private TransactionService transactionService;
-
-    @Mock
-    private TransactionUtils transactionUtils;
 
     @Mock
     private LimitedPartnershipValidator limitedPartnershipValidator;

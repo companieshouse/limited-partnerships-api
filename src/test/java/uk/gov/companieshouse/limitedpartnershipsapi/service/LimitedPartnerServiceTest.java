@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,9 +63,6 @@ class LimitedPartnerServiceTest {
 
     @Mock
     private LimitedPartnerMapper mapper;
-
-    @Mock
-    private TransactionUtils transactionUtils;
 
     @Test
     void testGetLimitedPartnerSuccess() throws ServiceException {

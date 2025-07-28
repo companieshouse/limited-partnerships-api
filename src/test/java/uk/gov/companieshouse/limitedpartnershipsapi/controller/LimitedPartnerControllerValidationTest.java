@@ -29,7 +29,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -134,9 +133,6 @@ class LimitedPartnerControllerValidationTest {
 
     @MockitoBean
     private TransactionService transactionService;
-
-    @MockitoBean
-    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
