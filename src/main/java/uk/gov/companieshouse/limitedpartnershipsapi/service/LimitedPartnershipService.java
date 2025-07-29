@@ -15,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,6 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipPatchMapper patchMapper;
     private final LimitedPartnershipRepository repository;
     private final TransactionService transactionService;
-    private final TransactionUtils transactionUtils;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
 
     @Autowired
@@ -38,13 +36,11 @@ public class LimitedPartnershipService {
                                      LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipRepository repository,
                                      TransactionService transactionService,
-                                     TransactionUtils transactionUtils,
                                      LimitedPartnershipValidator limitedPartnershipValidator) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
-        this.transactionUtils = transactionUtils;
         this.limitedPartnershipValidator = limitedPartnershipValidator;
     }
 
@@ -138,7 +134,7 @@ public class LimitedPartnershipService {
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException {
         String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
-        if (!transactionUtils.isTransactionLinkedToLimitedPartnership(transaction, submissionUri)) {
+        if (!transactionService.isTransactionLinkedToLimitedPartnership(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
         }
@@ -149,7 +145,7 @@ public class LimitedPartnershipService {
     }
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction) throws ServiceException {
-        if (!transactionUtils.doesTransactionHaveALimitedPartnership(transaction)) {
+        if (!transactionService.doesTransactionHaveALimitedPartnership(transaction)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
         }

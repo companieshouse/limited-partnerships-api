@@ -42,6 +42,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
@@ -57,6 +60,9 @@ class TransactionServiceTest {
     private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
     private static final String INCORPORATION_SELF_LINK = "/transactions/txn-123/incorporation/limited-partnership/sub-456";
     private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String LIMITED_PARTNERSHIP_SELF_LINK = "/transaction/1234/limited-partnership/partnership/1234";
+    private static final String LIMITED_PARTNER_SELF_LINK = "/transactions/txn-123/limited-partnership/limited-partner/sub-456";
+    private static final String GENERAL_PARTNER_SELF_LINK = "/transactions/trans123/limited-partnership/generalPartner/gp123";
 
     @Mock
     private ApiClientService apiClientService;
@@ -308,6 +314,242 @@ class TransactionServiceTest {
         var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(incoporationKind.getDescription());
         // then
         assertTrue(result);
+    }
+
+
+    @Test
+    void givenTransactionHasALimitedPartnership_thenReturnTrue() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction);
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void givenTransactionHasALimitedPartnershipCalledWithNullTransaction_thenReturnFalse() {
+        // when
+        var result = transactionService.doesTransactionHaveALimitedPartnership(null);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionHasALimitedPartnershipNotFound_thenReturnFalse() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(REGISTRATION.getDescription());
+        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenLimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
+        // when
+        var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNER_SELF_LINK);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenLimitedPartnerSelfLinkIsNull_thenReturnFalse() {
+        // given
+        transaction.setResources(null);
+        // when
+        var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionIsNotLinkedToLimitedPartnership_thenReturnFalse() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        Map<String, String> limitedPartnershipsResourceLinks = new HashMap<>();
+        String nonMatchingResourceLink = "/transaction/1234/limited-partnership/partnership/wrong_id";
+        limitedPartnershipsResourceLinks.put(LINK_RESOURCE, nonMatchingResourceLink);
+        limitedPartnershipResource.setLinks(limitedPartnershipsResourceLinks);
+        transactionResources.put(nonMatchingResourceLink, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionLinkedToLimitedPartnership_thenReturnTrue() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        Map<String, String> limitedPartnershipsResourceLinks = new HashMap<>();
+        limitedPartnershipsResourceLinks.put(LINK_RESOURCE, LIMITED_PARTNERSHIP_SELF_LINK);
+        limitedPartnershipResource.setLinks(limitedPartnershipsResourceLinks);
+        transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNERSHIP_SELF_LINK);
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void givenTransactionIsNotLinkedToLimitedPartner_thenReturnFalse() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnershipResource = new Resource();
+        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNER);
+        Map<String, String> limitedPartnershipsResourceLinks = new HashMap<>();
+        String nonMatchingResourceLink = "/transactions/txn-123/limited-partnership/limited-partner/wrong-id";
+        limitedPartnershipsResourceLinks.put(LINK_RESOURCE, nonMatchingResourceLink);
+        limitedPartnershipResource.setLinks(limitedPartnershipsResourceLinks);
+        transactionResources.put(nonMatchingResourceLink, limitedPartnershipResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.isTransactionLinkedToLimitedPartnership(transaction, LIMITED_PARTNER_SELF_LINK);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionLinkedToLimitedPartner_thenReturnTrue() {
+        // given
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource limitedPartnerResource = new Resource();
+        limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
+        Map<String, String> limitedPartnerResourceLinks = new HashMap<>();
+        limitedPartnerResourceLinks.put(LINK_RESOURCE, LIMITED_PARTNER_SELF_LINK);
+        limitedPartnerResource.setLinks(limitedPartnerResourceLinks);
+        transactionResources.put(LIMITED_PARTNER_SELF_LINK, limitedPartnerResource);
+        transaction.setResources(transactionResources);
+        // when
+        var result = transactionService.isTransactionLinkedToPartner(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    void givenALimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
+        // when
+        var result = transactionService.isTransactionLinkedToPartner(transaction, "", FILING_KIND_LIMITED_PARTNER);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenALimitedPartnerSelfLinkIsNull_thenReturnFalse() {
+        // given
+        transaction.setResources(null);
+        // when
+        var result = transactionService.isTransactionLinkedToPartner(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
+        // then
+        assertFalse(result);
+    }
+
+    @Test
+    void givenTransactionIsLinkedToGeneralPartner_thenReturnTrue() {
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource generalPartnerResource = new Resource();
+        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
+        transactionResources.put(GENERAL_PARTNER_SELF_LINK, generalPartnerResource);
+
+        Map<String, String> generalPartnerResourceLinks = new HashMap<>();
+        generalPartnerResourceLinks.put(LINK_RESOURCE, GENERAL_PARTNER_SELF_LINK);
+        generalPartnerResource.setLinks(generalPartnerResourceLinks);
+
+        transaction.setResources(transactionResources);
+        var result = transactionService.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void givenTransactionIsNotLinkedToGeneralPartner_thenReturnFalse() {
+        Map<String, Resource> transactionResources = new HashMap<>();
+        Resource generalPartnerResource = new Resource();
+        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
+        transactionResources.put(GENERAL_PARTNER_SELF_LINK, generalPartnerResource);
+
+        Map<String, String> generalPartnerResourceLinks = new HashMap<>();
+        generalPartnerResourceLinks.put(LINK_RESOURCE, "some/garbage");
+        generalPartnerResource.setLinks(generalPartnerResourceLinks);
+
+        transaction.setResources(transactionResources);
+        var result = transactionService.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void givenGeneralPartnerSelfLinkIsBlank_thenReturnFalse() {
+        var result = transactionService.isTransactionLinkedToPartner(transaction, "", FILING_KIND_GENERAL_PARTNER);
+        assertFalse(result);
+    }
+
+    @Test
+    void givenGeneralPartnerTransactionIsNull_thenReturnFalse() {
+        when(transaction.getResources()).thenReturn(null);
+        var result = transactionService.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+        assertFalse(result);
+    }
+
+    @Test
+    void checkLinksAreUpdatedForGeneralPartner() throws ServiceException, ApiErrorResponseException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
+        when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
+        when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
+        when(apiPatchResponse.getStatusCode()).thenReturn(204);
+
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
+        transactionService.updateTransactionWithLinksForGeneralPartner(SUBMISSION_ID, transaction, submissionUri);
+
+        assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
+        assertEquals(FILING_KIND_GENERAL_PARTNER, transaction.getResources().get(submissionUri).getKind());
+
+        Map<String, Resource> transactionResources = transaction.getResources();
+        assertEquals(1, transactionResources.size());
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(1)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE));
+    }
+
+    @Test
+    void checkLinksAreUpdatedForLimitedPartner() throws ServiceException, ApiErrorResponseException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
+        when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
+        when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
+        when(apiPatchResponse.getStatusCode()).thenReturn(204);
+
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
+        transactionService.updateTransactionWithLinksForLimitedPartner(SUBMISSION_ID, transaction, submissionUri);
+
+        assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
+        assertEquals(FILING_KIND_LIMITED_PARTNER, transaction.getResources().get(submissionUri).getKind());
+
+        Map<String, Resource> transactionResources = transaction.getResources();
+        assertEquals(1, transactionResources.size());
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(1)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE));
     }
 
     private boolean testIfTransactionIsLinkedToLimitedPartnershipIncorporation(String kind) {

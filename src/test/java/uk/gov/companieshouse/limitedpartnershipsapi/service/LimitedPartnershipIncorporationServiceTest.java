@@ -24,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -64,9 +63,6 @@ class LimitedPartnershipIncorporationServiceTest {
 
     @Captor
     private ArgumentCaptor<LimitedPartnershipIncorporationDao> incorporationCaptor;
-
-    @Mock
-    private TransactionUtils transactionUtils;
 
     @Mock
     private LimitedPartnershipIncorporationMapper mapper;
@@ -258,7 +254,7 @@ class LimitedPartnershipIncorporationServiceTest {
         Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
-        when(transactionUtils.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
+        when(transactionService.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
 
         IncorporationDto incorporationDto = new IncorporationDto();
         IncorporationDataDto dataDto = new IncorporationDataDto();

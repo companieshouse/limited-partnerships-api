@@ -12,7 +12,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 
@@ -42,8 +41,6 @@ class FilingsServiceTest {
     private GeneralPartnerService generalPartnerService;
     @MockitoBean
     private LimitedPartnerService limitedPartnerService;
-    @MockitoBean
-    private TransactionUtils transactionUtils;
     @MockitoBean
     private TransactionService transactionService;
 
