@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -79,9 +78,6 @@ class LimitedPartnerControllerUpdateTest {
 
     @MockitoBean
     private TransactionService transactionService;
-
-    @MockitoBean
-    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -608,7 +604,7 @@ class LimitedPartnerControllerUpdateTest {
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
         doNothing().when(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
 
-        when(transactionUtils.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dataDto = new DataDto();

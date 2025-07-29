@@ -14,7 +14,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,19 +33,16 @@ public class GeneralPartnerService {
     private final GeneralPartnerMapper mapper;
     private final GeneralPartnerValidator generalPartnerValidator;
     private final TransactionService transactionService;
-    private final TransactionUtils transactionUtils;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
                                  GeneralPartnerValidator generalPartnerValidator,
-                                 TransactionService transactionService,
-                                 TransactionUtils transactionUtils
+                                 TransactionService transactionService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.generalPartnerValidator = generalPartnerValidator;
         this.transactionService = transactionService;
-        this.transactionUtils = transactionUtils;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -56,7 +52,7 @@ public class GeneralPartnerService {
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
-        updateTransactionWithGeneralPartnerTransactionResourceLinks(requestId, transaction, submissionUri);
+        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri);
 
         return insertedSubmission.getId();
     }
@@ -79,24 +75,6 @@ public class GeneralPartnerService {
         dao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(dao);
         return submissionUri;
-    }
-
-    private void updateTransactionWithGeneralPartnerTransactionResourceLinks(
-            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
-        var generalPartnerResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
-
-        generalPartnerResource.setLinks(linksMap);
-        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
-
-        transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
-
-        transactionService.updateTransaction(transaction, requestId);
     }
 
     public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -215,7 +193,7 @@ public class GeneralPartnerService {
         String transactionId = transaction.getId();
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
 
-        if (!transactionUtils.isTransactionLinkedToPartner(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
+        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
         }

@@ -29,7 +29,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -134,9 +133,6 @@ class LimitedPartnerControllerValidationTest {
 
     @MockitoBean
     private TransactionService transactionService;
-
-    @MockitoBean
-    private TransactionUtils transactionUtils;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;
@@ -282,7 +278,7 @@ class LimitedPartnerControllerValidationTest {
         when(limitedPartnerRepository.save(any())).thenReturn(limitedPartnerDao);
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-        when(transactionUtils.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
         mockLimitedPartnershipService(PartnershipType.LP);
     }
