@@ -506,6 +506,52 @@ class TransactionServiceTest {
         assertFalse(result);
     }
 
+    @Test
+    void checkLinksAreUpdatedForGeneralPartner() throws ServiceException, ApiErrorResponseException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
+        when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
+        when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
+        when(apiPatchResponse.getStatusCode()).thenReturn(204);
+
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
+        transactionService.updateTransactionWithLinksForGeneralPartner(SUBMISSION_ID, transaction, submissionUri);
+
+        assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
+        assertEquals(FILING_KIND_GENERAL_PARTNER, transaction.getResources().get(submissionUri).getKind());
+
+        Map<String, Resource> transactionResources = transaction.getResources();
+        assertEquals(1, transactionResources.size());
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(1)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE));
+    }
+
+    @Test
+    void checkLinksAreUpdatedForLimitedPartner() throws ServiceException, ApiErrorResponseException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
+        when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
+        when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
+        when(apiPatchResponse.getStatusCode()).thenReturn(204);
+
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
+        transactionService.updateTransactionWithLinksForLimitedPartner(SUBMISSION_ID, transaction, submissionUri);
+
+        assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
+        assertEquals(FILING_KIND_LIMITED_PARTNER, transaction.getResources().get(submissionUri).getKind());
+
+        Map<String, Resource> transactionResources = transaction.getResources();
+        assertEquals(1, transactionResources.size());
+        assertThat(transactionResources.values())
+                .allSatisfy(resource -> assertThat(resource.getLinks())
+                        .hasSize(1)
+                        .isNotNull()
+                        .containsKeys(LINK_RESOURCE));
+    }
+
     private boolean testIfTransactionIsLinkedToLimitedPartnershipIncorporation(String kind) {
         // given
         Map<String, Resource> transactionResources = new HashMap<>();
