@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
