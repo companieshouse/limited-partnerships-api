@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
@@ -84,9 +86,6 @@ class LimitedPartnerServiceCreateTest {
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
-    @Captor
-    private ArgumentCaptor<Transaction> transactionSubmissionCaptor;
-
     @Nested
     class CreateLimitedPartnerLegalEntity {
         @Test
@@ -113,28 +112,18 @@ class LimitedPartnerServiceCreateTest {
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
-        @Test
-        void shouldAddCorrectLinksToTransactionResourceForRegistration() throws Exception {
-            createLimitedPartner(REGISTRATION);
+        @ParameterizedTest
+        @EnumSource(value = IncorporationKind.class, names = {
+                "REGISTRATION",
+                "TRANSITION"
+        })
+        void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
+            createLimitedPartner(incoporationKind);
 
-            verify(transactionService).updateTransaction(transactionSubmissionCaptor.capture(), eq(REQUEST_ID));
+            verify(transactionService).updateTransactionWithLinksForLimitedPartner(
+                    eq(REQUEST_ID), eq(transaction), any());
 
-            Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
-            assertEquals(1, transactionResources.size());
-            assertThat(transactionResources.values())
-                    .allSatisfy(resource -> assertThat(resource.getLinks())
-                            .hasSize(1)
-                            .isNotNull()
-                            .containsKeys(LINK_RESOURCE));
-        }
-
-        @Test
-        void shouldAddCorrectLinksToTransactionResourceForTransition() throws Exception {
-            createLimitedPartner(TRANSITION);
-
-            verify(transactionService).updateTransaction(transactionSubmissionCaptor.capture(), eq(REQUEST_ID));
-
-            Map<String, Resource> transactionResources = transactionSubmissionCaptor.getValue().getResources();
+            Map<String, Resource> transactionResources = transaction.getResources();
             assertEquals(1, transactionResources.size());
             assertThat(transactionResources.values())
                     .allSatisfy(resource -> assertThat(resource.getLinks())

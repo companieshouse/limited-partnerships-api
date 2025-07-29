@@ -52,7 +52,7 @@ public class GeneralPartnerService {
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
-        updateTransactionWithGeneralPartnerTransactionResourceLinks(requestId, transaction, submissionUri);
+        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri);
 
         return insertedSubmission.getId();
     }
@@ -75,24 +75,6 @@ public class GeneralPartnerService {
         dao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(dao);
         return submissionUri;
-    }
-
-    private void updateTransactionWithGeneralPartnerTransactionResourceLinks(
-            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
-        var generalPartnerResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
-
-        generalPartnerResource.setLinks(linksMap);
-        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
-
-        transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
-
-        transactionService.updateTransaction(transaction, requestId);
     }
 
     public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {

@@ -52,7 +52,7 @@ public class LimitedPartnerService {
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
-        updateTransactionWithLinksForLimitedPartner(requestId, transaction, submissionUri);
+        transactionService.updateTransactionWithLinksForLimitedPartner(requestId, transaction, submissionUri);
         return insertedSubmission.getId();
     }
 
@@ -74,26 +74,6 @@ public class LimitedPartnerService {
         dao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(dao);
         return submissionUri;
-    }
-
-    private void updateTransactionWithLinksForLimitedPartner(String requestID,
-                                                             Transaction transaction,
-                                                             String submissionUri)
-            throws ServiceException {
-        var limitedPartnerResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
-
-        limitedPartnerResource.setLinks(linksMap);
-        limitedPartnerResource.setKind(FILING_KIND_LIMITED_PARTNER);
-
-        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
-
-        transactionService.updateTransaction(transaction, requestID);
     }
 
     public void updateLimitedPartner(Transaction transaction, String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
