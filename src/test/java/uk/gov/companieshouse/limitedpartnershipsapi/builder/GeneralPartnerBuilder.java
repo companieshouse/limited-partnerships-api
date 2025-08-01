@@ -16,8 +16,8 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerDto personDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
-
         dto.setId(GENERAL_PARTNER_ID);
+
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
         dataDto.setForename("Jack");
         dataDto.setSurname("Jones");
@@ -33,6 +33,7 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerDto legalEntityDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
+        dto.setId(GENERAL_PARTNER_ID);
 
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
         dataDto.setLegalEntityName("Legal Entity Name");
