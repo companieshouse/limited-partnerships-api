@@ -30,7 +30,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 
 @Testcontainers
 @SpringBootTest
-public class GeneralPartnerServiceContainerTest {
+class GeneralPartnerServiceContainerTest {
 
     @Container
     private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
@@ -63,7 +63,7 @@ public class GeneralPartnerServiceContainerTest {
     private CompanyProfileApi companyProfileApi;
 
     @Test
-    public void createGeneralPartnerLegalEntityPostTransition() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void createGeneralPartnerLegalEntityPostTransition() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         transaction.setFilingMode(IncorporationKind.POST_TRANSITION.getDescription());
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
@@ -80,7 +80,7 @@ public class GeneralPartnerServiceContainerTest {
     }
 
     @Test
-    public void createGeneralPartnerLegalEntityPost() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void createGeneralPartnerLegalEntityPost() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
