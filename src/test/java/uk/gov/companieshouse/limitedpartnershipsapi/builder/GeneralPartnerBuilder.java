@@ -26,6 +26,8 @@ public class GeneralPartnerBuilder {
         dataDto.setNotDisqualifiedStatementChecked(true);
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setServiceAddress(createAddressDto());
+        dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
+        
         dto.setData(dataDto);
 
         return dto;
@@ -43,6 +45,7 @@ public class GeneralPartnerBuilder {
         dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
         dataDto.setRegisteredCompanyNumber("12345678");
         dataDto.setPrincipalOfficeAddress(createAddressDto());
+        dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
 
         dto.setData(dataDto);
 
