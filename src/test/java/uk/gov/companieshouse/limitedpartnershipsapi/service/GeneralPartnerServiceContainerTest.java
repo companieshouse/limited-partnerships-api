@@ -64,4 +64,17 @@ public class GeneralPartnerServiceContainerTest {
 
         assertEquals(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY.getDescription(), generalPartnerDto.getData().getKind());
     }
+
+    @Test
+    public void createGeneralPartnerLegalEntityPost() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+        GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
+
+        var id = service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+        GeneralPartnerDto generalPartnerDto = service.getGeneralPartner(transaction, id);
+
+        assertEquals(FILING_KIND_GENERAL_PARTNER, generalPartnerDto.getData().getKind());
+    }
 }
