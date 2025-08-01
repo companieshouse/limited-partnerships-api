@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -17,12 +16,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
@@ -59,7 +55,10 @@ public class GeneralPartnerService {
 
     private GeneralPartnerDao insertDaoWithMetadata(
             String requestId, Transaction transaction, String userId, GeneralPartnerDao dao) {
-        dao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
+        if (dao.getData().getKind() == null) {
+            dao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
+        }
+        
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
         dao.setCreatedBy(userId);
         dao.setUpdatedBy(userId);

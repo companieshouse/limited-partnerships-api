@@ -16,8 +16,8 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerDto personDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
-
         dto.setId(GENERAL_PARTNER_ID);
+
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
         dataDto.setForename("Jack");
         dataDto.setSurname("Jones");
@@ -26,6 +26,8 @@ public class GeneralPartnerBuilder {
         dataDto.setNotDisqualifiedStatementChecked(true);
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setServiceAddress(createAddressDto());
+        dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
+        
         dto.setData(dataDto);
 
         return dto;
@@ -33,6 +35,7 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerDto legalEntityDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
+        dto.setId(GENERAL_PARTNER_ID);
 
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
         dataDto.setLegalEntityName("Legal Entity Name");
@@ -42,6 +45,7 @@ public class GeneralPartnerBuilder {
         dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
         dataDto.setRegisteredCompanyNumber("12345678");
         dataDto.setPrincipalOfficeAddress(createAddressDto());
+        dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
 
         dto.setData(dataDto);
 

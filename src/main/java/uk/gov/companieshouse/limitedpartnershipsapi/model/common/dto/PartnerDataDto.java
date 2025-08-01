@@ -22,6 +22,17 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT
 
 public abstract class PartnerDataDto {
 
+    @JsonProperty("kind")
+    private String kind;
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
     // Person
 
     public static final String FORENAME_FIELD = "forename";
