@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -62,13 +64,14 @@ class GeneralPartnerServiceContainerTest {
     @MockitoBean
     private CompanyProfileApi companyProfileApi;
 
-    @Test
-    void createGeneralPartnerLegalEntityPostTransition() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    @ParameterizedTest
+    @EnumSource(PartnerKind.class)
+    void createGeneralPartnerLegalEntityPostTransition(PartnerKind partnerKind) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         transaction.setFilingMode(IncorporationKind.POST_TRANSITION.getDescription());
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
         dto.setId(null);
-        dto.getData().setKind(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY.getDescription());
+        dto.getData().setKind(partnerKind.getDescription());
 
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
@@ -76,7 +79,7 @@ class GeneralPartnerServiceContainerTest {
 
         GeneralPartnerDto generalPartnerDto = service.getGeneralPartner(transaction, id);
 
-        assertEquals(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY.getDescription(), generalPartnerDto.getData().getKind());
+        assertEquals(partnerKind.getDescription(), generalPartnerDto.getData().getKind());
     }
 
     @Test
