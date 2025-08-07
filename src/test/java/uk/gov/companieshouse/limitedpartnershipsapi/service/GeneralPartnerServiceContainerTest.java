@@ -74,6 +74,8 @@ class GeneralPartnerServiceContainerTest {
         dto.getData().setKind(partnerKind.getDescription());
 
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+        when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2022, 1, 3));
 
         var id = service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
 
@@ -83,7 +85,7 @@ class GeneralPartnerServiceContainerTest {
     }
 
     @Test
-    void createGeneralPartnerLegalEntityPost() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void createGeneralPartnerLegalEntityTransition() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
