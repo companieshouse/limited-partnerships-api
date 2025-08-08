@@ -68,7 +68,7 @@ public class FilingsService {
         setSubmissionData(data, limitedPartnershipDto, generalPartnersDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
-        setDescriptionFields(filing, transaction);
+        setDescriptionFields(filing, transaction.getFilingMode());
     }
 
     private void setSubmissionData(Map<String, Object> data,
@@ -83,8 +83,8 @@ public class FilingsService {
        ApiLogger.info("Submission data has been set on filing", logMap);
     }
 
-    private void setDescriptionFields(FilingApi filing, Transaction transaction) {
-        if (transaction.getFilingMode().equals(IncorporationKind.REGISTRATION.getDescription())) {
+    private void setDescriptionFields(FilingApi filing, String transactionFilingMode) {
+        if (transactionFilingMode.equals(IncorporationKind.REGISTRATION.getDescription())) {
             filing.setDescription(LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION);
         } else {
             filing.setDescription(LIMITED_PARTNERSHIP_TRANSITION_FILING_DESCRIPTION);
