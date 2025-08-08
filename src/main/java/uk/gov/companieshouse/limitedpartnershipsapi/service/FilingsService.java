@@ -6,6 +6,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -23,7 +24,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @Service
 public class FilingsService {
 
-    public static final String LIMITED_PARTNERSHIP_FILING_DESCRIPTION = "Register a Limited Partnership";
+    public static final String LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION = "Register a Limited Partnership";
+    public static final String LIMITED_PARTNERSHIP_TRANSITION_FILING_DESCRIPTION = "Transition a Limited Partnership";
 
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
@@ -66,7 +68,7 @@ public class FilingsService {
         setSubmissionData(data, limitedPartnershipDto, generalPartnersDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
-        setDescriptionFields(filing);
+        setDescriptionFields(filing, transaction);
     }
 
     private void setSubmissionData(Map<String, Object> data,
@@ -81,8 +83,12 @@ public class FilingsService {
        ApiLogger.info("Submission data has been set on filing", logMap);
     }
 
-    private void setDescriptionFields(FilingApi filing) {
-        filing.setDescription(LIMITED_PARTNERSHIP_FILING_DESCRIPTION);
+    private void setDescriptionFields(FilingApi filing, Transaction transaction) {
+        if (transaction.getFilingMode().equals(IncorporationKind.REGISTRATION.getDescription())) {
+            filing.setDescription(LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION);
+        } else {
+            filing.setDescription(LIMITED_PARTNERSHIP_TRANSITION_FILING_DESCRIPTION);
+        }
         filing.setDescriptionValues(new HashMap<>());
     }
 }
