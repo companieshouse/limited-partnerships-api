@@ -10,6 +10,7 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
@@ -48,6 +49,7 @@ class FilingsServiceTest {
     void testFilingGenerationSuccess() throws ServiceException {
         var transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
+        transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
@@ -60,6 +62,21 @@ class FilingsServiceTest {
         assertTrue(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
         assertTrue(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
         assertEquals("Register a Limited Partnership", filing.getDescription());
+    }
+
+    @Test
+    void testFilingDescriptionSetCorrectlyForTransition() throws ServiceException {
+        var transaction = new Transaction();
+        transaction.setId(TRANSACTION_ID);
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
+        when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+        when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID);
+        assertNotNull(filing);
+        assertEquals("Transition a Limited Partnership", filing.getDescription());
     }
 
     @Test
