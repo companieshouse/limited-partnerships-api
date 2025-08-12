@@ -143,7 +143,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
-        // TODO validate all mandatory fields are supplied in the Patch
 
         isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
 
