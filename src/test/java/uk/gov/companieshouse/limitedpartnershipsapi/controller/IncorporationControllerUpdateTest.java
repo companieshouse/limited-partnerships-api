@@ -30,7 +30,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.I
 
 @ContextConfiguration(classes = {IncorporationController.class, CostsService.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {IncorporationController.class})
-public class IncorporationControllerUpdateTest {
+class IncorporationControllerUpdateTest {
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String INCORPORATION_ID = "09876543";
 

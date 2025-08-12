@@ -20,7 +20,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -28,7 +27,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.LP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.SLP;
@@ -36,8 +34,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Par
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class LimitedPartnershipServiceValidateTest {
-
-    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
 
     Transaction transaction = new TransactionBuilder().build();
 
