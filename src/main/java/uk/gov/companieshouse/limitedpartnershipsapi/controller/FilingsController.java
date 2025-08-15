@@ -22,7 +22,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
-@RequestMapping("/private/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/incorporation/limited-partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
+@RequestMapping("/private/transactions/{" + URL_PARAM_TRANSACTION_ID + "}")
 public class FilingsController {
 
     private final FilingsService filingsService;
@@ -32,21 +32,37 @@ public class FilingsController {
         this.filingsService = filingsService;
     }
 
-
-    @GetMapping
+    @GetMapping("/incorporation/limited-partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
     public ResponseEntity<FilingApi[]> getFilings(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String incorporationId,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
 
-       var logMap = new HashMap<String, Object>();
+        var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());
         logMap.put(URL_PARAM_FILING_RESOURCE_ID, incorporationId);
 
-       ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
+        ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
 
-       FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, incorporationId);
+        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, incorporationId);
 
-       return ResponseEntity.ok(new FilingApi[] { filing });
+        return ResponseEntity.ok(new FilingApi[]{filing});
+    }
+
+    @GetMapping("/general-partner/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
+    public ResponseEntity<FilingApi[]> getGeneralPartnerFiling(
+            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String generalPartnerId,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
+
+        var logMap = new HashMap<String, Object>();
+        logMap.put(TRANSACTION_KEY, transaction.getId());
+        logMap.put(URL_PARAM_FILING_RESOURCE_ID, generalPartnerId);
+
+        ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
+
+        FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, generalPartnerId);
+
+        return ResponseEntity.ok(new FilingApi[]{filing});
     }
 }

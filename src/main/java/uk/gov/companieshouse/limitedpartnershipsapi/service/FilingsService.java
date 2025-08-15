@@ -5,6 +5,7 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -19,6 +20,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENER
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 @Service
@@ -35,7 +37,7 @@ public class FilingsService {
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
-                          TransactionService transactionService){
+                          TransactionService transactionService) {
 
         this.limitedPartnershipService = limitedPartnershipService;
         this.generalPartnerService = generalPartnerService;
@@ -77,10 +79,10 @@ public class FilingsService {
                                    List<LimitedPartnerDataDto> limitedPartnersDataList,
                                    Map<String, Object> logMap) {
 
-       data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
-       data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
-       data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
-       ApiLogger.info("Submission data has been set on filing", logMap);
+        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
+        data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
+        data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
+        ApiLogger.info("Submission data has been set on filing", logMap);
     }
 
     private void setDescriptionFields(FilingApi filing, String transactionFilingMode) {
@@ -90,5 +92,35 @@ public class FilingsService {
             filing.setDescription(LIMITED_PARTNERSHIP_TRANSITION_FILING_DESCRIPTION);
         }
         filing.setDescriptionValues(new HashMap<>());
+    }
+
+    public FilingApi generateGeneralPartnerFiling(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
+        String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
+        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription())) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches General Partner id: %s", transaction.getId(), generalPartnerId));
+        }
+
+        var filing = new FilingApi();
+
+        var logMap = new HashMap<String, Object>();
+        logMap.put(TRANSACTION_KEY, transaction.getId());
+
+        Map<String, Object> data = new HashMap<>();
+
+        List<GeneralPartnerDataDto> generalPartnerDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
+
+        if (generalPartnerDataList.isEmpty()) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches General Partner id: %s", transaction.getId(), generalPartnerId));
+        }
+
+        data.put("general_partner", generalPartnerDataList.getFirst());
+
+        filing.setData(data);
+        filing.setKind(transaction.getFilingMode());
+        setDescriptionFields(filing, transaction.getFilingMode());
+
+        return filing;
     }
 }
