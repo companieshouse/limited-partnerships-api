@@ -59,7 +59,7 @@ public class FilingsController {
         logMap.put(TRANSACTION_KEY, transaction.getId());
         logMap.put(URL_PARAM_FILING_RESOURCE_ID, generalPartnerId);
 
-        ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
+        ApiLogger.infoContext(requestId, "Calling service to retrieve general partner filing", logMap);
 
         FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, generalPartnerId);
 
