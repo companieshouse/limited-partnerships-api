@@ -115,9 +115,6 @@ public class FilingsService {
 
         var filing = new FilingApi();
 
-        var logMap = new HashMap<String, Object>();
-        logMap.put(TRANSACTION_KEY, transaction.getId());
-
         Map<String, Object> data = new HashMap<>();
 
         data.put("general_partner", generalPartnerDataDto);
