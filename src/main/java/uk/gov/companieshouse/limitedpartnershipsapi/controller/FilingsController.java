@@ -49,7 +49,7 @@ public class FilingsController {
         return ResponseEntity.ok(new FilingApi[]{filing});
     }
 
-    @GetMapping("/general-partner/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
+    @GetMapping("/limited-partnership/general-partner/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
     public ResponseEntity<FilingApi[]> getGeneralPartnerFiling(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String generalPartnerId,

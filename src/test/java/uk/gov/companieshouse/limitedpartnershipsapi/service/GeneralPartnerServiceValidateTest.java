@@ -67,6 +67,7 @@ class GeneralPartnerServiceValidateTest {
 
         when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
     }
+
     @Test
     void shouldReturnNoErrorsWhenGeneralPartnerDataIsValid() throws ServiceException {
         // given
@@ -161,6 +162,7 @@ class GeneralPartnerServiceValidateTest {
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setRegisteredCompanyNumber("");
         generalPartnerDao.getData().setLegalEntityName(null);
+        generalPartnerDao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
@@ -241,6 +243,7 @@ class GeneralPartnerServiceValidateTest {
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setUsualResidentialAddress(createAddressDao());
         dataDao.setServiceAddress(createAddressDao());
+        dataDao.setKind(FILING_KIND_GENERAL_PARTNER);
         dao.setData(dataDao);
 
         return dao;
@@ -258,6 +261,7 @@ class GeneralPartnerServiceValidateTest {
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
         dataDao.setRegisteredCompanyNumber("LP111222");
         dataDao.setPrincipalOfficeAddress(createAddressDao());
+        dataDao.setKind(FILING_KIND_GENERAL_PARTNER);
         dao.setData(dataDao);
 
         return dao;

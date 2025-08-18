@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
@@ -27,9 +28,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -39,12 +40,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
-@ContextConfiguration(classes = {FilingsController.class, FilingsService.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {FilingsController.class, FilingsService.class, FilingKind.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {FilingsController.class})
 class FilingsControllerTest {
-
-//    private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/incorporation/limited-partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
-//    private static final String KIND = "limited_partnerships";
 
     private HttpHeaders httpHeaders;
 
@@ -139,7 +137,7 @@ class FilingsControllerTest {
 
     @Nested
     class GeneralPartnerFilling {
-        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/general-partner/" + GeneralPartnerBuilder.GENERAL_PARTNER_ID + "/filings";
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/general-partner/" + GeneralPartnerBuilder.GENERAL_PARTNER_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().forPartner(
                 PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription(),
                 URL_GET_GENERAL_PARTNER,
@@ -159,14 +157,15 @@ class FilingsControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("[0].data.general_partner.forename").value(generalPartner.getData().getForename()))
                     .andExpect(jsonPath("[0].data.general_partner.surname").value(generalPartner.getData().getSurname()))
-                    .andExpect(jsonPath("[0].data.general_partner.kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()));
+                    .andExpect(jsonPath("[0].data.general_partner.kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(IncorporationKind.POST_TRANSITION.getDescription() + "#add-general-partner-person"));
         }
 
         @Test
         void shouldReturn404() throws Exception {
             mock(transaction);
 
-            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+            when(generalPartnerService.getGeneralPartner(transaction, GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenThrow(ResourceNotFoundException.class);
 
             mockMvc.perform(get(URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -177,14 +176,14 @@ class FilingsControllerTest {
                     .andExpect(status().isNotFound());
         }
 
-        private void mock(Transaction transaction) {
+        private void mock(Transaction transaction) throws ResourceNotFoundException {
 
             generalPartner.getData().setKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
             limitedPartner.getData().setKind(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
 
             when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))).thenReturn(true);
-            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(List.of(generalPartner.getData()));
-            when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(List.of(limitedPartner.getData()));
+            when(generalPartnerService.getGeneralPartner(transaction, generalPartner.getId())).thenReturn(generalPartner);
+            when(limitedPartnerService.getLimitedPartner(transaction, limitedPartner.getId())).thenReturn(limitedPartner);
         }
     }
 }

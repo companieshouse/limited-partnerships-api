@@ -36,8 +36,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
     };
 
     private static final String[] FILINGS_ENDPOINTS = {
-            "/private/transactions/*/incorporation/limited-partnership/*/filings"
-            // TODO Include other patterns here when post-transition journeys are implemented
+            "/private/transactions/*/incorporation/limited-partnership/*/filings",
+            "/private/transactions/*/limited-partnership/general-partner/*/filings"
     };
 
     private static final String[] TRANSACTION_ENDPOINTS = Stream.concat(

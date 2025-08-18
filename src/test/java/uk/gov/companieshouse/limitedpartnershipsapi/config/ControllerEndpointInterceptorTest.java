@@ -40,15 +40,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ContextConfiguration(classes = { IncorporationController.class, PartnershipController.class, FilingsController.class,
+@ContextConfiguration(classes = {IncorporationController.class, PartnershipController.class, FilingsController.class,
         GeneralPartnerController.class, LimitedPartnerController.class, CostsService.class,
-        GlobalExceptionHandler.class, InterceptorConfig.class, LoggingInterceptor.class })
-@WebMvcTest({ IncorporationController.class, PartnershipController.class, FilingsController.class,
-        GeneralPartnerController.class, LimitedPartnerController.class })
+        GlobalExceptionHandler.class, InterceptorConfig.class, LoggingInterceptor.class})
+@WebMvcTest({IncorporationController.class, PartnershipController.class, FilingsController.class,
+        GeneralPartnerController.class, LimitedPartnerController.class})
 class ControllerEndpointInterceptorTest {
 
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
@@ -199,9 +199,9 @@ class ControllerEndpointInterceptorTest {
             "/transactions/" + TRANSACTION_ID + "/invalid-sub-path/" + INCORPORATION_ID + "/costs",
 
             // Invalid filings URLs
-            "/private/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner/" + GENERAL_PARTNER_ID + "/filings",
-            "/private/transactions/" + TRANSACTION_ID + "/limited-partnership/limited-partner/" + LIMITED_PARTNER_ID + "/filings"
-        })
+            "/private/transactions/" + TRANSACTION_ID + "/general-partner/" + GENERAL_PARTNER_ID + "/filings",
+            "/private/transactions/" + TRANSACTION_ID + "/limited-partner/" + LIMITED_PARTNER_ID + "/filings"
+    })
     void testNoInterceptorsAreCalledForInvalidUrls(String url) throws Exception {
         mockMvc.perform(get(url)
                         .headers(httpHeaders)

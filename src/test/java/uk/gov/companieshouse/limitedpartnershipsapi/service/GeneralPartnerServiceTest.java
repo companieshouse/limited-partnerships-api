@@ -93,13 +93,18 @@ class GeneralPartnerServiceTest {
     void testGetGeneralPartnerNotFound() {
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.empty());
-        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
+
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
         assertEquals("General partner submission with id " + SUBMISSION_ID + " not found", resourceNotFoundException.getMessage());
     }
 
     @Test
     void testGetGeneralPartnerLinkFails() {
+        GeneralPartnerDao dao = new GeneralPartnerBuilder().personDao();
+
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.of(dao));
+
         when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class)))
                 .thenReturn(false);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
