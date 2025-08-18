@@ -286,9 +286,9 @@ class GeneralPartnerServiceUpdateTest {
         when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(false);
 
-        assertThatThrownBy(() -> service.updateGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", partnerDataDtoWithChanges, REQUEST_ID, USER_ID))
+        assertThatThrownBy(() -> service.updateGeneralPartner(transaction, generalPartnerDao.getId(), partnerDataDtoWithChanges, REQUEST_ID, USER_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"));
+                .hasMessage(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), generalPartnerDao.getId()));
     }
 
     @Nested
@@ -338,13 +338,15 @@ class GeneralPartnerServiceUpdateTest {
         @Test
         void testDeleteGeneralPartnerLinkFails() {
             GeneralPartnerDao generalPartnerDao = createGeneralPartnerPersonDao();
+            generalPartnerDao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
 
             when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+
             when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(false);
 
-            assertThatThrownBy(() -> service.deleteGeneralPartner(transaction, "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID))
+            assertThatThrownBy(() -> service.deleteGeneralPartner(transaction, generalPartnerDao.getId(), REQUEST_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
-                    .hasMessage(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), "GENERAL_PARTNER_ID_NOT_SAME_TRANSACTION"));
+                    .hasMessage(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), generalPartnerDao.getId()));
         }
     }
 }

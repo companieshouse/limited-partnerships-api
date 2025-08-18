@@ -27,19 +27,18 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.Assert.assertEquals;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
@@ -94,6 +93,7 @@ class TransactionServiceTest {
     void init() {
         transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
+        transaction.setFilingMode(REGISTRATION.getDescription());
     }
 
     @Test
@@ -316,7 +316,6 @@ class TransactionServiceTest {
         assertTrue(result);
     }
 
-
     @Test
     void givenTransactionHasALimitedPartnership_thenReturnTrue() {
         // given
@@ -515,7 +514,7 @@ class TransactionServiceTest {
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
 
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
-        transactionService.updateTransactionWithLinksForGeneralPartner(SUBMISSION_ID, transaction, submissionUri);
+        transactionService.updateTransactionWithLinksForGeneralPartner(SUBMISSION_ID, transaction, submissionUri, FILING_KIND_GENERAL_PARTNER);
 
         assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
         assertEquals(FILING_KIND_GENERAL_PARTNER, transaction.getResources().get(submissionUri).getKind());

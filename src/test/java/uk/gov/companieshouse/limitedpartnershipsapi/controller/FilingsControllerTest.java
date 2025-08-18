@@ -1,41 +1,50 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
-@ContextConfiguration(classes = {FilingsController.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {FilingsController.class, FilingsService.class, FilingKind.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {FilingsController.class})
 class FilingsControllerTest {
 
-    private static final String URL = "/private/transactions/trn123/incorporation/limited-partnership/sub123/filings";
-    private static final String KIND = "limited_partnerships";
+    private HttpHeaders httpHeaders;
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,10 +53,16 @@ class FilingsControllerTest {
     private FilingsController filingsController;
 
     @MockitoBean
-    private FilingsService filingsService;
+    private LimitedPartnershipService limitedPartnershipService;
 
-    private HttpHeaders httpHeaders;
-    private Transaction transaction;
+    @MockitoBean
+    private GeneralPartnerService generalPartnerService;
+
+    @MockitoBean
+    private LimitedPartnerService limitedPartnerService;
+
+    @MockitoBean
+    private TransactionService transactionService;
 
     @BeforeEach
     void setUp() {
@@ -55,59 +70,120 @@ class FilingsControllerTest {
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
-
-        transaction = new Transaction();
     }
 
-    @Test
-    void shouldReturn200() throws Exception {
-        when(filingsService.generateLimitedPartnershipFiling(eq(transaction), any())).thenReturn(buildFilingApi());
-        mockMvc.perform(get(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value("Test Partnership"))
-                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(PartnershipNameEnding.LP.getDescription()));
+    LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+    GeneralPartnerDto generalPartner = new GeneralPartnerBuilder().personDto();
+    LimitedPartnerDto limitedPartner = new LimitedPartnerBuilder().personDto();
+
+    @Nested
+    class IncorporationFilling {
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/incorporation/limited-partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
+        private final Transaction transaction = new TransactionBuilder().build();
+
+        @Test
+        void shouldReturn200() throws Exception {
+            mock(transaction);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
+                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()));
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            mock(transaction);
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ResourceNotFoundException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void shouldReturn500() throws Exception {
+            mock(transaction);
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isInternalServerError());
+        }
+
+        private void mock(Transaction transaction) throws ServiceException {
+
+            when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+            when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+        }
     }
 
-    @Test
-    void shouldReturn404() throws Exception {
-        when(filingsService.generateLimitedPartnershipFiling(any(), any())).thenThrow(ResourceNotFoundException.class);
-        mockMvc.perform(get(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                )
-                .andExpect(status().isNotFound());
-    }
+    @Nested
+    class GeneralPartnerFilling {
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/general-partner/" + GeneralPartnerBuilder.GENERAL_PARTNER_ID + "/filings";
+        private final Transaction transaction = new TransactionBuilder().forPartner(
+                PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription(),
+                URL_GET_GENERAL_PARTNER,
+                GeneralPartnerBuilder.GENERAL_PARTNER_ID
+        ).build();
 
-    @Test
-    void shouldReturn500() throws Exception {
-        when(filingsService.generateLimitedPartnershipFiling(any(), any())).thenThrow(ServiceException.class);
-        mockMvc.perform(get(URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .characterEncoding("utf-8")
-                        .headers(httpHeaders)
-                        .requestAttr("transaction", transaction)
-                )
-                .andExpect(status().isInternalServerError());
-    }
+        @Test
+        void shouldReturn200() throws Exception {
+            mock(transaction);
 
-    private FilingApi buildFilingApi() {
-        FilingApi filingApi = new FilingApi();
-        filingApi.setKind(KIND);
-        Map<String, Object> data = new HashMap<>();
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipName("Test Partnership");
-        dataDto.setNameEnding(PartnershipNameEnding.LP);
-        limitedPartnershipDto.setData(dataDto);
-        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
-        filingApi.setData(data);
-        return filingApi;
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.general_partner.forename").value(generalPartner.getData().getForename()))
+                    .andExpect(jsonPath("[0].data.general_partner.surname").value(generalPartner.getData().getSurname()))
+                    .andExpect(jsonPath("[0].data.general_partner.kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(IncorporationKind.POST_TRANSITION.getDescription() + "#add-general-partner-person"));
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            mock(transaction);
+
+            when(generalPartnerService.getGeneralPartner(transaction, GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenThrow(ResourceNotFoundException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isNotFound());
+        }
+
+        private void mock(Transaction transaction) throws ResourceNotFoundException {
+
+            generalPartner.getData().setKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
+            limitedPartner.getData().setKind(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
+
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))).thenReturn(true);
+            when(generalPartnerService.getGeneralPartner(transaction, generalPartner.getId())).thenReturn(generalPartner);
+            when(limitedPartnerService.getLimitedPartner(transaction, limitedPartner.getId())).thenReturn(limitedPartner);
+        }
     }
 }

@@ -8,9 +8,10 @@ import org.testcontainers.utility.DockerImageName;
  */
 public class Containers {
 
-    private Containers() {}
+    private Containers() {
+    }
 
-    public static final String MONGO_IMAGE = "mongo:8.0.11-noble";
+    public static final String MONGO_IMAGE = "mongo:7.0.17-jammy";
 
     public static MongoDBContainer mongoDBContainer() {
         return new MongoDBContainer(DockerImageName.parse(MONGO_IMAGE));

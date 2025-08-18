@@ -48,7 +48,7 @@ public class GeneralPartnerService {
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
-        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri);
+        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri, insertedSubmission.getData().getKind());
 
         return insertedSubmission.getId();
     }
@@ -58,7 +58,7 @@ public class GeneralPartnerService {
         if (dao.getData().getKind() == null) {
             dao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
         }
-        
+
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
         dao.setCreatedBy(userId);
         dao.setUpdatedBy(userId);
@@ -77,9 +77,9 @@ public class GeneralPartnerService {
     }
 
     public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId);
-
         var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
+
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, generalPartnerDaoBeforePatch.getData().getKind());
 
         var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
 
@@ -102,9 +102,11 @@ public class GeneralPartnerService {
     }
 
     public GeneralPartnerDto getGeneralPartner(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
-        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId);
 
         var generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", generalPartnerId)));
+
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, generalPartnerDao.getData().getKind());
+
         return mapper.daoToDto(generalPartnerDao);
     }
 
@@ -154,10 +156,10 @@ public class GeneralPartnerService {
     }
 
     public void deleteGeneralPartner(Transaction transaction, String generalPartnerId, String requestId) throws ServiceException {
-        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId);
-
         GeneralPartnerDao generalPartnerDao = repository.findById(generalPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
+
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, generalPartnerDao.getData().getKind());
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
@@ -188,11 +190,11 @@ public class GeneralPartnerService {
         generalPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
-    private void checkGeneralPartnerIsLinkedToTransaction(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
+    private void checkGeneralPartnerIsLinkedToTransaction(Transaction transaction, String generalPartnerId, String kind) throws ResourceNotFoundException {
         String transactionId = transaction.getId();
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId);
 
-        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, FILING_KIND_GENERAL_PARTNER)) {
+        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, kind)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches general partner id: %s", transactionId, generalPartnerId));
         }

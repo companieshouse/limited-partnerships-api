@@ -14,20 +14,21 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
 public class TransactionService {
@@ -113,17 +114,18 @@ public class TransactionService {
     }
 
     public void updateTransactionWithLinksForGeneralPartner(
-            String requestId, Transaction transaction, String submissionUri) throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri, String kind) throws ServiceException {
         var generalPartnerResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
+        if (transaction.getFilingMode().equals("default")) {
+            linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+        }
 
         generalPartnerResource.setLinks(linksMap);
-        generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
+        generalPartnerResource.setKind(kind);
 
         transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
 
@@ -131,8 +133,8 @@ public class TransactionService {
     }
 
     public void updateTransactionWithLinksForLimitedPartner(String requestID,
-                                                             Transaction transaction,
-                                                             String submissionUri)
+                                                            Transaction transaction,
+                                                            String submissionUri)
             throws ServiceException {
         var limitedPartnerResource = new Resource();
 
