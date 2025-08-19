@@ -151,7 +151,7 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    void testGetLimitedPartner_TransactionNotLinked() throws ResourceNotFoundException {
+    void testGetLimitedPartner_TransactionNotLinked() {
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
         String submissionId = "sub-456";
