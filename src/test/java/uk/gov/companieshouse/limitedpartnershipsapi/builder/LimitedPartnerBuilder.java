@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 
 public class LimitedPartnerBuilder {
     public static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
@@ -25,6 +26,7 @@ public class LimitedPartnerBuilder {
 
         dto.setId(LIMITED_PARTNER_ID);
         LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
+
         dataDto.setForename("Jack");
         dataDto.setSurname("Jones");
         dataDto.setDateOfBirth(LocalDate.of(2000, 10, 3));
@@ -34,6 +36,8 @@ public class LimitedPartnerBuilder {
         contributionSubTypes.add(SHARES);
         dataDto.setContributionSubTypes(contributionSubTypes);
         dataDto.setUsualResidentialAddress(createAddressDto());
+        dataDto.setKind(FILING_KIND_LIMITED_PARTNER);
+
         dto.setData(dataDto);
 
         return dto;
@@ -42,7 +46,9 @@ public class LimitedPartnerBuilder {
     public LimitedPartnerDto legalEntityDto() {
         LimitedPartnerDto dto = new LimitedPartnerDto();
 
+        dto.setId(LIMITED_PARTNER_ID);
         LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
+
         dataDto.setLegalEntityName("Legal Entity Name");
         dataDto.setLegalForm("Form");
         dataDto.setGoverningLaw("Act of law");
@@ -51,10 +57,13 @@ public class LimitedPartnerBuilder {
         dataDto.setRegisteredCompanyNumber("12345678");
         dataDto.setContributionCurrencyType(Currency.GBP);
         dataDto.setContributionCurrencyValue("1000.00");
+
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDto.setContributionSubTypes(contributionSubTypes);
         dataDto.setPrincipalOfficeAddress(createAddressDto());
+        dataDto.setKind(FILING_KIND_LIMITED_PARTNER);
+
         dto.setData(dataDto);
 
         return dto;
@@ -88,6 +97,8 @@ public class LimitedPartnerBuilder {
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setUsualResidentialAddress(createAddressDao());
+        dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
+
         dao.setData(dataDao);
 
         return dao;
@@ -96,7 +107,9 @@ public class LimitedPartnerBuilder {
     public LimitedPartnerDao legalEntityDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
 
+        dao.setId(LIMITED_PARTNER_ID);
         LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
+
         dataDao.setLegalEntityName("My company ltd");
         dataDao.setLegalForm("Limited Company");
         dataDao.setGoverningLaw("Act of law");
@@ -104,13 +117,14 @@ public class LimitedPartnerBuilder {
         dataDao.setLegalEntityRegistrationLocation("United Kingdom");
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setRegisteredCompanyNumber("12345678");
+
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
+        dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
 
         dao.setData(dataDao);
-        dao.setId(LIMITED_PARTNER_ID);
 
         return dao;
     }
