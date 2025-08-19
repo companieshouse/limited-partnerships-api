@@ -120,7 +120,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/incorporation/limited-partnership/{filing_resource_id}/filings": {
+    "/private/transactions/{transaction_id}/incorporation/limited-partnership/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "Incorporation",
@@ -370,7 +370,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}/filings": {
+    "/private/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "Partnerships",
@@ -524,7 +524,7 @@
         ],
         "responses": {
           "200": {
-             "description": "General Partner has been successfully updated."
+            "description": "General Partner has been successfully updated."
           },
           "400": {
             "description": "Bad Request"
@@ -617,7 +617,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/general-partner/{filing_resource_id}/filings": {
+    "/private/transactions/{transaction_id}/limited-partnership/general-partner/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "General Partners",
@@ -771,7 +771,7 @@
         ],
         "responses": {
           "200": {
-             "description": "Limited Partner has been successfully updated."
+            "description": "Limited Partner has been successfully updated."
           },
           "400": {
             "description": "Bad Request"
@@ -861,7 +861,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/filings": {
+    "/private/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/filings": {
       "get": {
         "tags": [
           "Limited Partners",
@@ -981,72 +981,72 @@
       }
     },
     "PartnerData": {
-       "type": "object",
-       "properties": {
-          "date_effective_from": {
-            "type": "string",
-            "format": "date"
-          },
-          "date_of_birth": {
-            "type": "string",
-            "format": "date"
-          },
-          "etag": {
-            "type": "string"
-          },
-          "legal_entity_name": {
-            "type": "string"
-          },
-          "forename": {
-            "type": "string"
-          },
-          "former_names": {
-            "type": "string"
-          },
-          "governing_law": {
-            "type": "string"
-          },
-          "kind": {
-            "type": "string"
-          },
-          "legal_entity_register_name": {
-            "type": "string"
-          },
-          "legal_entity_registration_location": {
-            "$ref": "#/definitions/Country"
-          },
-          "legal_form": {
-            "type": "string"
-          },
-          "nationality1": {
-            "$ref": "#/definitions/Nationality"
-          },
-          "nationality2": {
-            "$ref": "#/definitions/Nationality"
-          },
-          "not_disqualified_statement_checked" :{
-            "type" : "boolean"
-          },
-          "principal_office_address": {
-             "$ref": "#/definitions/Address"
-          },
-          "registered_company_number": {
-            "type": "string"
-          },
-          "resignation_date": {
-            "type": "string",
-            "format": "date"
-          },
-          "service_address": {
-            "$ref": "#/definitions/Address"
-          },
-          "surname": {
-            "type": "string"
-          },
-          "usual_residential_address": {
-            "$ref": "#/definitions/Address"
-          }
-       }
+      "type": "object",
+      "properties": {
+        "date_effective_from": {
+          "type": "string",
+          "format": "date"
+        },
+        "date_of_birth": {
+          "type": "string",
+          "format": "date"
+        },
+        "etag": {
+          "type": "string"
+        },
+        "legal_entity_name": {
+          "type": "string"
+        },
+        "forename": {
+          "type": "string"
+        },
+        "former_names": {
+          "type": "string"
+        },
+        "governing_law": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "legal_entity_register_name": {
+          "type": "string"
+        },
+        "legal_entity_registration_location": {
+          "$ref": "#/definitions/Country"
+        },
+        "legal_form": {
+          "type": "string"
+        },
+        "nationality1": {
+          "$ref": "#/definitions/Nationality"
+        },
+        "nationality2": {
+          "$ref": "#/definitions/Nationality"
+        },
+        "not_disqualified_statement_checked": {
+          "type": "boolean"
+        },
+        "principal_office_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "registered_company_number": {
+          "type": "string"
+        },
+        "resignation_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "service_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "usual_residential_address": {
+          "$ref": "#/definitions/Address"
+        }
+      }
     },
     "LimitedPartnerData": {
       "allOf": [
@@ -1204,7 +1204,7 @@
       ],
       "properties": {
         "data": {
-         "$ref": "#/definitions/PartnerData"
+          "$ref": "#/definitions/PartnerData"
         }
       }
     },
@@ -1215,11 +1215,11 @@
       ],
       "properties": {
         "data": {
-         "$ref": "#/definitions/LimitedPartnerData"
+          "$ref": "#/definitions/LimitedPartnerData"
         }
       }
     },
-    "Address" : {
+    "Address": {
       "type": "object",
       "required": [
         "address_line_1",
@@ -1258,7 +1258,7 @@
         }
       }
     },
-    "Country" : {
+    "Country": {
       "type": "string",
       "enum": [
         "Afghanistan",
@@ -1521,7 +1521,7 @@
         ""
       ]
     },
-    "Nationality" : {
+    "Nationality": {
       "type": "string",
       "enum": [
         "Afghan",

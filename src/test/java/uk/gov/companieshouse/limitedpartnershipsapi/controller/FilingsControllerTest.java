@@ -146,6 +146,10 @@ class FilingsControllerTest {
 
         @Test
         void shouldReturn200() throws Exception {
+
+            FilingKind filingKind = new FilingKind();
+            String subKind = filingKind.getSubKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
+
             mock(transaction);
 
             mockMvc.perform(get(URL)
@@ -155,10 +159,10 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transaction)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.general_partner.forename").value(generalPartner.getData().getForename()))
-                    .andExpect(jsonPath("[0].data.general_partner.surname").value(generalPartner.getData().getSurname()))
-                    .andExpect(jsonPath("[0].data.general_partner.kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
-                    .andExpect(jsonPath("[0].kind").value(IncorporationKind.POST_TRANSITION.getDescription() + "#add-general-partner-person"));
+                    .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(IncorporationKind.POST_TRANSITION.getDescription() + "#" + subKind));
         }
 
         @Test
