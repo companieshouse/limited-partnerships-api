@@ -155,11 +155,11 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
                         tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
                         tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)
-        );
+                );
     }
 
     @ParameterizedTest
-    @EnumSource(value = PartnershipType.class, names = { "LP", "PFLP", "SLP", "SPFLP" })
+    @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
     void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException {
         var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
         // given
@@ -196,7 +196,7 @@ class LimitedPartnerServiceValidateTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = PartnershipType.class, names = { "LP", "PFLP", "SLP", "SPFLP" })
+    @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
     void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException {
         var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
 
@@ -295,6 +295,7 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setDateOfBirth(LocalDate.of(2000, 10, 3));
         dataDao.setNationality1(Nationality.EMIRATI.getDescription());
         dataDao.setUsualResidentialAddress(createAddressDao());
+        dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
         dao.setData(dataDao);
 
         return dao;
@@ -312,6 +313,7 @@ class LimitedPartnerServiceValidateTest {
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
         dataDao.setRegisteredCompanyNumber("LP111222");
         dataDao.setPrincipalOfficeAddress(createAddressDao());
+        dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
         dao.setData(dataDao);
 
         return dao;

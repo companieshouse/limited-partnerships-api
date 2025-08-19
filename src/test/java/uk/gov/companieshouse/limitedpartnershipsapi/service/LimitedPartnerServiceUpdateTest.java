@@ -174,7 +174,6 @@ class LimitedPartnerServiceUpdateTest {
         assertEquals(Nationality.GREENLANDIC.getDescription(), sentSubmission.getData().getNationality2());
     }
 
-
     @Test
     void shouldUpdateTheDaoWithCapitalContributions() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
@@ -304,9 +303,9 @@ class LimitedPartnerServiceUpdateTest {
 
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-        assertThatThrownBy(() -> service.updateLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", limitedPartnerDataDto, REQUEST_ID, USER_ID))
+        assertThatThrownBy(() -> service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"));
+                .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), LIMITED_PARTNER_ID));
     }
 
     @Nested
@@ -359,9 +358,9 @@ class LimitedPartnerServiceUpdateTest {
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-            assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION", REQUEST_ID))
+            assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
-                    .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), "LIMITED_PARTNER_ID_NOT_SAME_TRANSACTION"));
+                    .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), LIMITED_PARTNER_ID));
         }
     }
 }
