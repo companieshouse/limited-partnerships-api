@@ -32,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,7 +86,6 @@ class LimitedPartnerServiceTest {
 
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.empty());
-        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(true);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> limitedPartnerService.getLimitedPartner(transaction, SUBMISSION_ID));
         assertEquals("Limited partner submission with id abc-123 not found", resourceNotFoundException.getMessage());
     }
@@ -153,21 +151,14 @@ class LimitedPartnerServiceTest {
     }
 
     @Test
-    void testGetLimitedPartner_TransactionNotLinked() {
-        // Arrange
+    void testGetLimitedPartner_TransactionNotLinked() throws ResourceNotFoundException {
         Transaction transaction = new Transaction();
         transaction.setId("txn-123");
         String submissionId = "sub-456";
 
-        // Mock the behavior of isTransactionLinkedToLimitedPartnerSubmission method
-        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class))).thenReturn(false);
-
-        // Act & Assert
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+        assertThrows(ResourceNotFoundException.class, () -> {
             limitedPartnerService.getLimitedPartner(transaction, submissionId);
-        });
-        String expectedMessage = String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), submissionId);
-        assertEquals(expectedMessage, exception.getMessage());
+        }, String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), submissionId));
     }
 
     @Test
@@ -225,6 +216,7 @@ class LimitedPartnerServiceTest {
         dataDto.setForename("John");
         dataDto.setSurname("Doe");
         dataDto.setNationality1(Nationality.BELGIAN);
+        dataDto.setKind(FILING_KIND_LIMITED_PARTNER);
         dto.setData(dataDto);
         return dto;
     }
@@ -232,6 +224,7 @@ class LimitedPartnerServiceTest {
     private LimitedPartnerDao createDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
         LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
+        dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
         dao.setData(dataDao);
         return dao;
     }

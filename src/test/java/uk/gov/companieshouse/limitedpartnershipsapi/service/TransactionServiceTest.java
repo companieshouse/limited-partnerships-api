@@ -537,7 +537,7 @@ class TransactionServiceTest {
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
 
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
-        transactionService.updateTransactionWithLinksForLimitedPartner(SUBMISSION_ID, transaction, submissionUri);
+        transactionService.updateTransactionWithLinksForLimitedPartner(SUBMISSION_ID, transaction, submissionUri, FILING_KIND_LIMITED_PARTNER);
 
         assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
         assertEquals(FILING_KIND_LIMITED_PARTNER, transaction.getResources().get(submissionUri).getKind());
