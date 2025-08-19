@@ -24,6 +24,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RestController
 @RequestMapping("/private/transactions/{" + URL_PARAM_TRANSACTION_ID + "}")
 public class FilingsController {
+    private static final String FILINGS = "/filings";
 
     private final FilingsService filingsService;
 
@@ -32,7 +33,7 @@ public class FilingsController {
         this.filingsService = filingsService;
     }
 
-    @GetMapping("/incorporation/limited-partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
+    @GetMapping("/incorporation/limited-partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}" + FILINGS)
     public ResponseEntity<FilingApi[]> getFilings(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String incorporationId,
@@ -49,7 +50,7 @@ public class FilingsController {
         return ResponseEntity.ok(new FilingApi[]{filing});
     }
 
-    @GetMapping("/limited-partnership/general-partner/{" + URL_PARAM_FILING_RESOURCE_ID + "}/filings")
+    @GetMapping("/limited-partnership/general-partner/{" + URL_PARAM_FILING_RESOURCE_ID + "}" + FILINGS)
     public ResponseEntity<FilingApi[]> getGeneralPartnerFiling(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String generalPartnerId,

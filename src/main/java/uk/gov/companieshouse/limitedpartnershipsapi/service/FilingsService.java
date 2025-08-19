@@ -117,7 +117,7 @@ public class FilingsService {
 
         Map<String, Object> data = new HashMap<>();
 
-        data.put("general_partner", generalPartnerDataDto);
+        data.put(GENERAL_PARTNER_FIELD, List.of(generalPartnerDataDto));
 
         String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), generalPartnerDataDto.getKind());
         filing.setKind(kind);
