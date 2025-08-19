@@ -9,6 +9,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
@@ -117,6 +118,7 @@ public class FilingsService {
 
         Map<String, Object> data = new HashMap<>();
 
+        data.put(LIMITED_PARTNERSHIP_FIELD, buildLimitedPartnershipDataWithPartnershipNumber(transaction));
         data.put(GENERAL_PARTNER_FIELD, List.of(generalPartnerDataDto));
 
         String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), generalPartnerDataDto.getKind());
@@ -125,5 +127,11 @@ public class FilingsService {
         filing.setData(data);
 
         return filing;
+    }
+
+    private DataDto buildLimitedPartnershipDataWithPartnershipNumber(Transaction transaction) {
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipNumber(transaction.getCompanyNumber());
+        return dataDto;
     }
 }

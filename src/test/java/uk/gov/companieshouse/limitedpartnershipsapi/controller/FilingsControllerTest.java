@@ -159,6 +159,7 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transaction)
                     )
                     .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
                     .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
                     .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
