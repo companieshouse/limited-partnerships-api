@@ -9,6 +9,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
@@ -23,6 +24,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMIT
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @Service
 public class FilingsService {
@@ -120,6 +122,31 @@ public class FilingsService {
         data.put(GENERAL_PARTNER_FIELD, List.of(generalPartnerDataDto));
 
         String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), generalPartnerDataDto.getKind());
+        filing.setKind(kind);
+        setDescriptionFields(filing, transaction.getFilingMode());
+        filing.setData(data);
+
+        return filing;
+    }
+
+    public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
+        LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
+
+        LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
+
+        String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
+        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches Limited Partner id: %s", transaction.getId(), limitedPartnerId));
+        }
+
+        var filing = new FilingApi();
+
+        Map<String, Object> data = new HashMap<>();
+
+        data.put(LIMITED_PARTNER_FIELD, List.of(limitedPartnerDataDto));
+
+        String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), limitedPartnerDataDto.getKind());
         filing.setKind(kind);
         setDescriptionFields(filing, transaction.getFilingMode());
         filing.setData(data);
