@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
@@ -22,18 +23,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.Incorpor
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -53,12 +46,16 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class LimitedPartnerServiceUpdateTest {
-    private static final String TRANSACTION_ID = "863851-951242-143528";
-    private static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+    private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String USER_ID = "xbJf0l";
 
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LIMITED_PARTNER_ID
+    ).build();
 
     @Autowired
     private LimitedPartnerService service;
@@ -78,77 +75,16 @@ class LimitedPartnerServiceUpdateTest {
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
-    private LimitedPartnerDao createLimitedPartnerPersonDao() {
-        LimitedPartnerDao dao = new LimitedPartnerDao();
-
-        LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
-        dataDao.setForename("John");
-        dataDao.setSurname("Doe");
-        dataDao.setDateOfBirth(LocalDate.of(1980, 1, 1));
-        dataDao.setNationality1("American");
-
-        dao.setData(dataDao);
-        dao.setId(LIMITED_PARTNER_ID);
-
-        return dao;
-    }
-
-    private LimitedPartnerDao createLimitedPartnerLegalEntityDao() {
-        LimitedPartnerDao dao = new LimitedPartnerDao();
-
-        LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
-        dataDao.setLegalEntityName("My company ltd");
-        dataDao.setLegalForm("Limited Company");
-        dataDao.setGoverningLaw("Act of law");
-        dataDao.setLegalEntityRegisterName("UK Register");
-        dataDao.setLegalEntityRegistrationLocation("United Kingdom");
-        dataDao.setRegisteredCompanyNumber("12345678");
-
-        dao.setData(dataDao);
-        dao.setId(LIMITED_PARTNER_ID);
-
-        return dao;
-    }
-
-    private Transaction buildTransaction() {
-        Transaction trx = new Transaction();
-        trx.setId(TRANSACTION_ID);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNER);
-
-        String uri = String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, LIMITED_PARTNER_ID);
-
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", uri);
-        resource.setLinks(links);
-
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(uri, resource);
-        trx.setResources(resourceMap);
-
-        return trx;
-    }
-
-    @BeforeEach
-    void setUp() {
-        transaction = buildTransaction();
-    }
-
     @Test
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().legalEntityDao();
         limitedPartnerDao.getData().setNationality2(Nationality.GREENLANDIC.getDescription());
+        limitedPartnerDao.getData().setPrincipalOfficeAddress(null);
 
-        AddressDto principalOfficeAddress = new AddressDto();
-        principalOfficeAddress.setAddressLine1("DUNCALF STREET");
-        principalOfficeAddress.setCountry("England");
-        principalOfficeAddress.setLocality("STOKE-ON-TRENT");
-        principalOfficeAddress.setPostalCode("ST6 3LJ");
-        principalOfficeAddress.setPremises("2");
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().legalEntityDto().getData();
+        limitedPartnerDataDto.setDateEffectiveFrom(null);
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
-        limitedPartnerDataDto.setPrincipalOfficeAddress(principalOfficeAddress);
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -163,12 +99,14 @@ class LimitedPartnerServiceUpdateTest {
 
         LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
 
-        assertEquals("John", sentSubmission.getData().getForename());
-        assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalOfficeAddress().getAddressLine1());
-        assertEquals("England", sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
-        assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
-        assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalOfficeAddress().getPostalCode());
-        assertEquals("2", sentSubmission.getData().getPrincipalOfficeAddress().getPremises());
+        AddressDto principalOfficeAddress = limitedPartnerDataDto.getPrincipalOfficeAddress();
+
+        assertEquals(limitedPartnerDataDto.getForename(), sentSubmission.getData().getForename());
+        assertEquals(principalOfficeAddress.getAddressLine1(), sentSubmission.getData().getPrincipalOfficeAddress().getAddressLine1());
+        assertEquals(principalOfficeAddress.getCountry(), sentSubmission.getData().getPrincipalOfficeAddress().getCountry());
+        assertEquals(principalOfficeAddress.getLocality(), sentSubmission.getData().getPrincipalOfficeAddress().getLocality());
+        assertEquals(principalOfficeAddress.getPostalCode(), sentSubmission.getData().getPrincipalOfficeAddress().getPostalCode());
+        assertEquals(principalOfficeAddress.getPremises(), sentSubmission.getData().getPrincipalOfficeAddress().getPremises());
 
         // Ensure that second nationality isn't cleared if only address data is updated
         assertEquals(Nationality.GREENLANDIC.getDescription(), sentSubmission.getData().getNationality2());
@@ -176,27 +114,16 @@ class LimitedPartnerServiceUpdateTest {
 
     @Test
     void shouldUpdateTheDaoWithCapitalContributions() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
-        limitedPartnerDataDto.setContributionCurrencyType(Currency.GBP);
-        limitedPartnerDataDto.setContributionCurrencyValue("15.00");
-        List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
-        contributionSubtypes.add(ContributionSubTypes.MONEY);
-        contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
-        limitedPartnerDataDto.setContributionSubTypes(contributionSubtypes);
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipDto.setData(dataDto);
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
 
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
-
-        transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -206,18 +133,21 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
 
         assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
-        assertEquals("15.00", sentSubmission.getData().getContributionCurrencyValue());
+        assertEquals("1000.00", sentSubmission.getData().getContributionCurrencyValue());
         assertThat(sentSubmission.getData().getContributionSubTypes())
-                .contains(ContributionSubTypes.MONEY, ContributionSubTypes.SERVICES_OR_GOODS);
+                .contains(ContributionSubTypes.SHARES, ContributionSubTypes.SHARES);
     }
 
     @Test
     void shouldFailUpdateIfNationalitiesAreTheSame() {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
+        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(Nationality.AMERICAN);
+
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -231,11 +161,14 @@ class LimitedPartnerServiceUpdateTest {
 
     @Test
     void shouldAllowUpdateIfNationalitiesAreDifferent() throws Exception {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
+        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
+
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -252,11 +185,14 @@ class LimitedPartnerServiceUpdateTest {
 
     @Test
     void shouldClearSecondNationalityIfBeingReset() throws Exception {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
+        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(null);
+
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -273,10 +209,13 @@ class LimitedPartnerServiceUpdateTest {
 
     @Test
     void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerLegalEntityDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().legalEntityDao();
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().legalEntityDto().getData();
+        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
+
+        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -296,9 +235,10 @@ class LimitedPartnerServiceUpdateTest {
 
     @Test
     void testLimitedPartnerUpdateLimitedPartnerLinkFails() {
-        LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
+        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
@@ -312,7 +252,7 @@ class LimitedPartnerServiceUpdateTest {
     class DeleteLimitedPartner {
         @Test
         void shouldDeleteLimitedPartner() throws ServiceException {
-            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
             when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -327,7 +267,8 @@ class LimitedPartnerServiceUpdateTest {
 
         @Test
         void shouldNotDeleteLimitedPartnerIfTransactionResourceDeleteFails() throws ServiceException {
-            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
             when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
@@ -354,7 +295,7 @@ class LimitedPartnerServiceUpdateTest {
 
         @Test
         void testDeleteLimitedPartnerLinkFails() {
-            LimitedPartnerDao limitedPartnerDao = createLimitedPartnerPersonDao();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 

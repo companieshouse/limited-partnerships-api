@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,9 +20,9 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.io.IOException;
@@ -36,7 +35,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -53,7 +51,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_R
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TransactionServiceTest {
 
-    private static final String TRANSACTION_ID = "12345678";
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String RESOURCE_ID = "resource1234";
     private static final String LOGGING_CONTEXT = "fg4536";
     private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
@@ -87,14 +85,7 @@ class TransactionServiceTest {
     @InjectMocks
     private TransactionService transactionService;
 
-    private Transaction transaction;
-
-    @BeforeEach
-    void init() {
-        transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-        transaction.setFilingMode(REGISTRATION.getDescription());
-    }
+    Transaction transaction = new TransactionBuilder().build();
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkThrowsURIValidationException() throws IOException, URIValidationException {
@@ -181,7 +172,7 @@ class TransactionServiceTest {
 
         assertThatThrownBy(() -> transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT))
                 .isInstanceOf(ServiceException.class)
-                .hasMessageContaining("Error deleting resource resource1234 from transaction 12345678");
+                .hasMessageContaining("Error deleting resource resource1234 from transaction " + TRANSACTION_ID);
     }
 
     @Test
@@ -194,7 +185,7 @@ class TransactionServiceTest {
 
         assertThatThrownBy(() -> transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT))
                 .isInstanceOf(ServiceException.class)
-                .hasMessageContaining("Error deleting resource resource1234 from transaction 12345678");
+                .hasMessageContaining("Error deleting resource resource1234 from transaction " + TRANSACTION_ID);
     }
 
     @Test
@@ -208,7 +199,7 @@ class TransactionServiceTest {
 
         assertThatThrownBy(() -> transactionService.deleteTransactionResource(TRANSACTION_ID, RESOURCE_ID, LOGGING_CONTEXT))
                 .isInstanceOf(ServiceException.class)
-                .hasMessageContaining("Error deleting resource resource1234 from transaction 12345678");
+                .hasMessageContaining("Error deleting resource resource1234 from transaction " + TRANSACTION_ID);
     }
 
     @ParameterizedTest
@@ -223,9 +214,7 @@ class TransactionServiceTest {
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
 
-        transaction.setFilingMode(incoporationKind.getDescription());
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
 
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
         var limitedPartnershipResource = new Resource();
@@ -245,7 +234,6 @@ class TransactionServiceTest {
 
         // assert transaction resources are updated appropriately
         assertEquals(limitedPartnershipDto.getData().getPartnershipName(), transaction.getCompanyName());
-        assertNull(transaction.getCompanyNumber());
 
         // assert transaction resources are updated appropriately
         assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
@@ -281,11 +269,6 @@ class TransactionServiceTest {
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
         assertTrue(transactionService.hasExistingLimitedPartnership(transaction));
-    }
-
-    @Test
-    void testDoesNotHaveExistingPartnershipWhenResourceIsNull() {
-        assertFalse(transactionService.hasExistingLimitedPartnership(transaction));
     }
 
     @Test

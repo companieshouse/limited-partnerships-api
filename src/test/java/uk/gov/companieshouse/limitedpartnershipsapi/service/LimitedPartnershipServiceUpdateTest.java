@@ -16,9 +16,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
@@ -42,8 +40,8 @@ class LimitedPartnershipServiceUpdateTest {
     Transaction transaction = new TransactionBuilder().build();
 
     private static final String USER_ID = "xbJf0l";
-    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
 
     @Autowired
     private LimitedPartnershipService service;
@@ -57,15 +55,6 @@ class LimitedPartnershipServiceUpdateTest {
     @Captor
     private ArgumentCaptor<LimitedPartnershipDao> submissionCaptor;
 
-    private LimitedPartnershipDao createDao() {
-        LimitedPartnershipDao dao = new LimitedPartnershipDao();
-        dao.setId(SUBMISSION_ID);
-        DataDao dataDao = new DataDao();
-        dataDao.setPartnershipName("Asset Adders");
-        dao.setData(dataDao);
-        return dao;
-    }
-
     @Nested
     public class updateLimitedPartnership {
 
@@ -74,21 +63,16 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
-                var dataDao = new DataDao();
-                dataDao.setPartnershipName("Asset Strippers");
-                dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
-                limitedPartnershipDao.setData(dataDao);
-                limitedPartnershipDao.setCreatedBy("5fd36577288e");
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
                 var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setPartnershipName("Asset Strippers Updated");
+                limitedPartnershipPatchDto.setPartnershipName("Test Partnership Updated");
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
 
                 // dao partnership name before mapping/update
-                assertEquals("Asset Strippers", limitedPartnershipDao.getData().getPartnershipName());
+                assertEquals("Test Partnership", limitedPartnershipDao.getData().getPartnershipName());
 
                 // when
                 service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
@@ -98,17 +82,16 @@ class LimitedPartnershipServiceUpdateTest {
                 verify(repository).save(submissionCaptor.capture());
 
                 LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
-                assertEquals("5fd36577288e", sentSubmission.getCreatedBy());
                 assertEquals(USER_ID, sentSubmission.getUpdatedBy());
 
-                assertEquals("Asset Strippers Updated", sentSubmission.getData().getPartnershipName());
+                assertEquals("Test Partnership Updated", sentSubmission.getData().getPartnershipName());
             }
 
             @Test
             void shouldReturnDtoContainingPartnershipName() throws ResourceNotFoundException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
-                limitedPartnershipDao.getData().setPartnershipName("Asset Strippers Updated");
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                limitedPartnershipDao.getData().setPartnershipName("Test Partnership Updated");
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
@@ -119,7 +102,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 // then
                 verify(repository).findById(limitedPartnershipDao.getId());
-                assertEquals("Asset Strippers Updated", retrievedDto.getData().getPartnershipName());
+                assertEquals("Test Partnership Updated", retrievedDto.getData().getPartnershipName());
             }
         }
 
@@ -128,7 +111,7 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
                 AddressDto registeredOfficeAddress = getAddressDto();
 
@@ -150,11 +133,11 @@ class LimitedPartnershipServiceUpdateTest {
 
                 LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
 
-                assertEquals("DUNCALF STREET", sentSubmission.getData().getRegisteredOfficeAddress().getAddressLine1());
-                assertEquals("England", sentSubmission.getData().getRegisteredOfficeAddress().getCountry());
-                assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getRegisteredOfficeAddress().getLocality());
-                assertEquals("ST6 3LJ", sentSubmission.getData().getRegisteredOfficeAddress().getPostalCode());
-                assertEquals("2", sentSubmission.getData().getRegisteredOfficeAddress().getPremises());
+                assertEquals(registeredOfficeAddress.getAddressLine1(), sentSubmission.getData().getRegisteredOfficeAddress().getAddressLine1());
+                assertEquals(registeredOfficeAddress.getCountry(), sentSubmission.getData().getRegisteredOfficeAddress().getCountry());
+                assertEquals(registeredOfficeAddress.getLocality(), sentSubmission.getData().getRegisteredOfficeAddress().getLocality());
+                assertEquals(registeredOfficeAddress.getPostalCode(), sentSubmission.getData().getRegisteredOfficeAddress().getPostalCode());
+                assertEquals(registeredOfficeAddress.getPremises(), sentSubmission.getData().getRegisteredOfficeAddress().getPremises());
             }
 
             @Test
@@ -162,7 +145,7 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 AddressDao registeredOfficeAddress = getAddressDao();
 
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setRegisteredOfficeAddress(registeredOfficeAddress);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
@@ -175,11 +158,11 @@ class LimitedPartnershipServiceUpdateTest {
                 // then
                 verify(repository).findById(limitedPartnershipDao.getId());
 
-                assertEquals("DUNCALF STREET", retrievedDto.getData().getRegisteredOfficeAddress().getAddressLine1());
-                assertEquals("England", retrievedDto.getData().getRegisteredOfficeAddress().getCountry());
-                assertEquals("STOKE-ON-TRENT", retrievedDto.getData().getRegisteredOfficeAddress().getLocality());
-                assertEquals("ST6 3LJ", retrievedDto.getData().getRegisteredOfficeAddress().getPostalCode());
-                assertEquals("2", retrievedDto.getData().getRegisteredOfficeAddress().getPremises());
+                assertEquals(registeredOfficeAddress.getAddressLine1(), retrievedDto.getData().getRegisteredOfficeAddress().getAddressLine1());
+                assertEquals(registeredOfficeAddress.getCountry(), retrievedDto.getData().getRegisteredOfficeAddress().getCountry());
+                assertEquals(registeredOfficeAddress.getLocality(), retrievedDto.getData().getRegisteredOfficeAddress().getLocality());
+                assertEquals(registeredOfficeAddress.getPostalCode(), retrievedDto.getData().getRegisteredOfficeAddress().getPostalCode());
+                assertEquals(registeredOfficeAddress.getPremises(), retrievedDto.getData().getRegisteredOfficeAddress().getPremises());
             }
         }
 
@@ -188,7 +171,8 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                limitedPartnershipDao.getData().setTerm(null);
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setTerm(Term.BY_AGREEMENT);
@@ -214,7 +198,7 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingRegisteredOfficeAddress() throws ResourceNotFoundException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setTerm(Term.BY_AGREEMENT);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
@@ -237,7 +221,7 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
                 AddressDto principalPlaceOfBusinessAddress = getAddressDto();
 
@@ -259,11 +243,11 @@ class LimitedPartnershipServiceUpdateTest {
 
                 LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
 
-                assertEquals("DUNCALF STREET", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
-                assertEquals("England", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
-                assertEquals("STOKE-ON-TRENT", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
-                assertEquals("ST6 3LJ", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
-                assertEquals("2", sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
+                assertEquals(principalPlaceOfBusinessAddress.getAddressLine1(), sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
+                assertEquals(principalPlaceOfBusinessAddress.getCountry(), sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
+                assertEquals(principalPlaceOfBusinessAddress.getLocality(), sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
+                assertEquals(principalPlaceOfBusinessAddress.getPostalCode(), sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
+                assertEquals(principalPlaceOfBusinessAddress.getPremises(), sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
             }
 
             @Test
@@ -271,7 +255,7 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 AddressDao principalPlaceOfBusinessAddress = getAddressDao();
 
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
@@ -284,11 +268,11 @@ class LimitedPartnershipServiceUpdateTest {
                 // then
                 verify(repository).findById(limitedPartnershipDao.getId());
 
-                assertEquals("DUNCALF STREET", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
-                assertEquals("England", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
-                assertEquals("STOKE-ON-TRENT", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
-                assertEquals("ST6 3LJ", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
-                assertEquals("2", retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
+                assertEquals(principalPlaceOfBusinessAddress.getAddressLine1(), retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
+                assertEquals(principalPlaceOfBusinessAddress.getCountry(), retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
+                assertEquals(principalPlaceOfBusinessAddress.getLocality(), retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getLocality());
+                assertEquals(principalPlaceOfBusinessAddress.getPostalCode(), retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPostalCode());
+                assertEquals(principalPlaceOfBusinessAddress.getPremises(), retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getPremises());
             }
         }
 
@@ -297,7 +281,8 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                limitedPartnershipDao.getData().setSicCodes(null);
 
                 List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
 
@@ -327,7 +312,7 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
 
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
@@ -348,7 +333,8 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(null);
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
@@ -374,7 +360,7 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingLawfulPurposeStatementChecked() throws ResourceNotFoundException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = createDao();
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(true);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
@@ -392,22 +378,12 @@ class LimitedPartnershipServiceUpdateTest {
     }
 
     private static AddressDao getAddressDao() {
-        AddressDao addressDao = new AddressDao();
-        addressDao.setAddressLine1("DUNCALF STREET");
-        addressDao.setCountry("England");
-        addressDao.setLocality("STOKE-ON-TRENT");
-        addressDao.setPostalCode("ST6 3LJ");
-        addressDao.setPremises("2");
-        return addressDao;
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().withAddresses().buildDao();
+        return limitedPartnershipDao.getData().getRegisteredOfficeAddress();
     }
 
     private static AddressDto getAddressDto() {
-        AddressDto addressDto = new AddressDto();
-        addressDto.setAddressLine1("DUNCALF STREET");
-        addressDto.setCountry("England");
-        addressDto.setLocality("STOKE-ON-TRENT");
-        addressDto.setPostalCode("ST6 3LJ");
-        addressDto.setPremises("2");
-        return addressDto;
+        LimitedPartnershipDto limitedPartnershipDao = new LimitedPartnershipBuilder().withAddresses().buildDto();
+        return limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress();
     }
 }

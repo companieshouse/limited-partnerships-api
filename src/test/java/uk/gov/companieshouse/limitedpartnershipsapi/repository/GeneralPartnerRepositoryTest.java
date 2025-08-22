@@ -1,11 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +11,20 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @Testcontainers
 @SpringBootTest
 class GeneralPartnerRepositoryTest {
 
-    private static final String TRANSACTION_ID = "transaction-123";
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
@@ -43,8 +44,9 @@ class GeneralPartnerRepositoryTest {
 
     @Test
     void testGetGeneralPartnerListOrderedByUpdatedAtDesc() {
-        GeneralPartnerDao generalPartnerPerson = createGeneralPartnerPersonDao();
-        GeneralPartnerDao generalPartnerLegalEntity = createGeneralPartnerLegalEntityDao();
+        GeneralPartnerDao generalPartnerPerson = new GeneralPartnerBuilder().personDao();
+        GeneralPartnerDao generalPartnerLegalEntity = new GeneralPartnerBuilder().legalEntityDao();
+        generalPartnerLegalEntity.setId("8014b46c-29f6-4f42-a2b9-9ba512e0be4b");
 
         generalPartnerRepository.insert(generalPartnerPerson);
         generalPartnerRepository.insert(generalPartnerLegalEntity);
@@ -53,15 +55,16 @@ class GeneralPartnerRepositoryTest {
 
         assertThat(result)
                 .hasSize(2)
-                .satisfiesExactly(personPartner -> {
-                    assertThat(personPartner.getData().getLegalEntityName()).isEqualTo("My company ltd");
-                    assertThat(personPartner.getData().getLegalForm()).isEqualTo("Limited Company");
-                    assertThat(personPartner.getData().getNotDisqualifiedStatementChecked()).isNull();
-                }, legalEntityPartner -> {
-                    assertThat(legalEntityPartner.getData().getForename()).isEqualTo("John");
-                    assertThat(legalEntityPartner.getData().getSurname()).isEqualTo("Doe");
-                    assertThat(legalEntityPartner.getData().getNotDisqualifiedStatementChecked()).isTrue();
-                });
+                .satisfiesExactly(legalEntityPartner -> {
+                            AssertionsForClassTypes.assertThat(legalEntityPartner.getData().getLegalEntityName()).isEqualTo(generalPartnerLegalEntity.getData().getLegalEntityName());
+                            AssertionsForClassTypes.assertThat(legalEntityPartner.getData().getLegalForm()).isEqualTo(generalPartnerLegalEntity.getData().getLegalForm());
+                            AssertionsForClassTypes.assertThat(legalEntityPartner.getData().getNotDisqualifiedStatementChecked()).isTrue();
+                        },
+                        personPartner -> {
+                            AssertionsForClassTypes.assertThat(personPartner.getData().getForename()).isEqualTo(generalPartnerPerson.getData().getForename());
+                            AssertionsForClassTypes.assertThat(personPartner.getData().getSurname()).isEqualTo(generalPartnerPerson.getData().getSurname());
+                            AssertionsForClassTypes.assertThat(personPartner.getData().getNotDisqualifiedStatementChecked()).isTrue();
+                        });
     }
 
     @Test
@@ -73,40 +76,5 @@ class GeneralPartnerRepositoryTest {
         // Using current datetime in this test class so cannot assert actual value
         assertThat(generalPartnerDao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
         assertThat(generalPartnerDao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
-    }
-
-    private GeneralPartnerDao createGeneralPartnerPersonDao() {
-        GeneralPartnerDao dao = new GeneralPartnerDao();
-        dao.setTransactionId(TRANSACTION_ID);
-
-        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-        dataDao.setForename("John");
-        dataDao.setSurname("Doe");
-        dataDao.setDateOfBirth(LocalDate.of(1980, 1, 1));
-        dataDao.setNationality1("American");
-        dataDao.setNotDisqualifiedStatementChecked(true);
-
-        dao.setData(dataDao);
-        dao.setId("abc-123");
-
-        return dao;
-    }
-
-    private GeneralPartnerDao createGeneralPartnerLegalEntityDao() {
-        GeneralPartnerDao dao = new GeneralPartnerDao();
-        dao.setTransactionId(TRANSACTION_ID);
-
-        GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
-        dataDao.setLegalEntityName("My company ltd");
-        dataDao.setLegalForm("Limited Company");
-        dataDao.setGoverningLaw("Act of law");
-        dataDao.setLegalEntityRegisterName("UK Register");
-        dataDao.setLegalEntityRegistrationLocation("United Kingdom");
-        dataDao.setRegisteredCompanyNumber("12345678");
-
-        dao.setData(dataDao);
-        dao.setId("abc-456");
-
-        return dao;
     }
 }

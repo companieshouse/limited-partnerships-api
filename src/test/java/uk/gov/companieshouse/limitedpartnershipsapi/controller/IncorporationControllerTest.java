@@ -8,6 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDataDto;
@@ -33,13 +35,12 @@ class IncorporationControllerTest {
     @Mock
     private LimitedPartnershipIncorporationService incorporationService;
 
-    @Mock
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().build();
 
     private static final String REQUEST_ID = "5346336";
     private static final String USER_ID = "rjg736k791";
-    private static final String SUBMISSION_ID = "ABC123ABC456";
-    private static final String TRANSACTION_ID = "12321123";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     @Test
     void testCreateIncorporationIsSuccessful() throws ServiceException {
@@ -52,8 +53,6 @@ class IncorporationControllerTest {
                 transaction, incorporationDto, REQUEST_ID, USER_ID
         ))
                 .thenReturn(SUBMISSION_ID);
-
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
 
         // when
         var response = incorporationController.createIncorporation(
@@ -80,7 +79,6 @@ class IncorporationControllerTest {
 
         limitedPartnershipIncorporationDto.setKind(REGISTRATION.getDescription());
 
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenReturn(limitedPartnershipIncorporationDto);
 
         // when
@@ -117,7 +115,6 @@ class IncorporationControllerTest {
     @Test
     void testInternalServerErrorReturnedWhenGetIncorporationFailsWithServiceException() throws ServiceException {
         // given
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenThrow(new ServiceException("error"));
 
         // when
