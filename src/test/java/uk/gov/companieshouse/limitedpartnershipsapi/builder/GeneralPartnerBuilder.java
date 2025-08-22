@@ -70,8 +70,9 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerDao personDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
-
         dao.setId(GENERAL_PARTNER_ID);
+        dao.setTransactionId(TransactionBuilder.TRANSACTION_ID);
+
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setForename("Jack");
         dataDao.setSurname("Jones");
@@ -89,6 +90,8 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerDao legalEntityDao() {
         GeneralPartnerDao dao = new GeneralPartnerDao();
+        dao.setId(GENERAL_PARTNER_ID);
+        dao.setTransactionId(TransactionBuilder.TRANSACTION_ID);
 
         GeneralPartnerDataDao dataDao = new GeneralPartnerDataDao();
         dataDao.setLegalEntityName("My company ltd");
@@ -102,7 +105,6 @@ public class GeneralPartnerBuilder {
         dataDao.setKind(FILING_KIND_GENERAL_PARTNER);
 
         dao.setData(dataDao);
-        dao.setId(GENERAL_PARTNER_ID);
 
         return dao;
     }

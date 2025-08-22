@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
@@ -20,8 +22,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.Inco
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 
@@ -29,13 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -80,14 +80,15 @@ class LimitedPartnershipIncorporationServiceTest {
     private ArgumentCaptor<Transaction> transactionSubmissionCaptor;
 
     private static final String USER_ID = "xbJf0l";
-    private static final String SUBMISSION_ID = "abc-123";
-    private static final String TRANSACTION_ID = "12321123";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+
+    Transaction transaction = new TransactionBuilder().build();
 
     @Test
     void testCreateIncorporationIsSuccessful() throws ServiceException {
         // given
-        Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
 
@@ -152,7 +153,6 @@ class LimitedPartnershipIncorporationServiceTest {
     @Test
     void testGetIncorporationTypeWithoutSubResourcesIsSuccessful() throws ServiceException {
         // given
-        Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
@@ -170,9 +170,8 @@ class LimitedPartnershipIncorporationServiceTest {
     @Test
     void testGetIncorporationTypeWithSubResourcesIsSuccessful() throws ServiceException {
         // given
-        Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
-        LimitedPartnershipDto limitedPartnershipDto = createLimitedPartnershipSubmissionDto();
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
         List<LimitedPartnerDto> limitedPartnerList = List.of(new LimitedPartnerDto());
         List<GeneralPartnerDto> generalPartnerList = List.of(new GeneralPartnerDto());
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
@@ -199,7 +198,6 @@ class LimitedPartnershipIncorporationServiceTest {
     @Test
     void testGetIncorporationTypeReturnsNotFoundExceptionWhenNoLinkBetweenTransactionAndIncorporation() {
         // given
-        Transaction transaction = buildTransaction();
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
 
         // when + then
@@ -211,7 +209,6 @@ class LimitedPartnershipIncorporationServiceTest {
         final String INVALID_SUBMISSION_ID = "wrong-id";
 
         // given
-        Transaction transaction = buildTransaction();
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(INVALID_SUBMISSION_ID)).thenReturn(Optional.empty());
 
@@ -227,31 +224,14 @@ class LimitedPartnershipIncorporationServiceTest {
         return dao;
     }
 
-    private Transaction buildTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-        return transaction;
-    }
-
     private LimitedPartnershipIncorporationDto createLimitedPartnershipIncorporationDto() {
         LimitedPartnershipIncorporationDto dto = new LimitedPartnershipIncorporationDto();
         dto.setKind(REGISTRATION.getDescription());
         return dto;
     }
 
-    private LimitedPartnershipDto createLimitedPartnershipSubmissionDto() {
-        var submissionDto = new LimitedPartnershipDto();
-        var dataDto = new DataDto();
-        dataDto.setPartnershipName("Asset Strippers");
-        dataDto.setNameEnding(PartnershipNameEnding.LP);
-        submissionDto.setData(dataDto);
-
-        return submissionDto;
-    }
-
     private void createIncorporation(IncorporationKind incorporationKind) throws ServiceException {
         // given
-        Transaction transaction = buildTransaction();
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
         when(transactionService.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));

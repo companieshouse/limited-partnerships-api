@@ -10,6 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -28,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,9 +39,9 @@ class GeneralPartnerControllerTest {
 
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
-    private static final String SUBMISSION_ID = "submission123";
-    private static final String TRANSACTION_ID = "transaction123";
-    private static final String GENERAL_PARTNER_ID = "abc-123";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+    private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
 
     @InjectMocks
     private GeneralPartnerController generalPartnerController;
@@ -45,16 +49,17 @@ class GeneralPartnerControllerTest {
     @Mock
     private GeneralPartnerService generalPartnerService;
 
-    @Mock
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_GENERAL_PARTNER,
+            URL_GET_GENERAL_PARTNER,
+            GENERAL_PARTNER_ID
+    ).build();
 
     private GeneralPartnerDto generalPartnerDto;
 
     @BeforeEach
     void init() {
-        GeneralPartnerDataDto data = new GeneralPartnerDataDto();
-        generalPartnerDto = new GeneralPartnerDto();
-        generalPartnerDto.setData(data);
+        generalPartnerDto = new GeneralPartnerBuilder().personDto();
     }
 
     @Test
@@ -85,8 +90,6 @@ class GeneralPartnerControllerTest {
                 eq(REQUEST_ID),
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
-
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
 
         var response = generalPartnerController.createGeneralPartner(
                 transaction,

@@ -17,7 +17,7 @@ import java.util.List;
 public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
-    private static final String PARTNERSHIP_NAME = "Asset Adders";
+    private static final String PARTNERSHIP_NAME = "Test Partnership";
     private static final PartnershipNameEnding PARTNERSHIP_NAME_ENDING = PartnershipNameEnding.LIMITED_PARTNERSHIP;
     private static final PartnershipType PARTNERSHIP_TYPE = PartnershipType.LP;
     private static final String PARTNERSHIP_NUMBER = "LP123456";

@@ -10,9 +10,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
@@ -26,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder.LIMITED_PARTNER_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,8 +37,8 @@ class LimitedPartnerControllerTest {
 
     private static final String REQUEST_ID = "5346336";
     private static final String USER_ID = "rjg736k791";
-    private static final String SUBMISSION_ID = "ABC123ABC456";
-    private static final String TRANSACTION_ID = "12321123";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     @InjectMocks
     private LimitedPartnerController limitedPartnerController;
@@ -42,16 +46,17 @@ class LimitedPartnerControllerTest {
     @Mock
     private LimitedPartnerService limitedPartnerService;
 
-    @Mock
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LIMITED_PARTNER_ID
+    ).build();
 
     private LimitedPartnerDto limitedPartnerDto;
 
     @BeforeEach
     void init() {
-        LimitedPartnerDataDto data = new LimitedPartnerDataDto();
-        limitedPartnerDto = new LimitedPartnerDto();
-        limitedPartnerDto.setData(data);
+        limitedPartnerDto = new LimitedPartnerBuilder().personDto();
     }
 
     @Test
@@ -62,8 +67,6 @@ class LimitedPartnerControllerTest {
                 eq(REQUEST_ID),
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
-
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
 
         var response = limitedPartnerController.createLimitedPartner(
                 transaction,

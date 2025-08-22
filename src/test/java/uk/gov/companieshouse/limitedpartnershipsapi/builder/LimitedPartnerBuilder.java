@@ -23,10 +23,9 @@ public class LimitedPartnerBuilder {
 
     public LimitedPartnerDto personDto() {
         LimitedPartnerDto dto = new LimitedPartnerDto();
-
         dto.setId(LIMITED_PARTNER_ID);
-        LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
 
+        LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
         dataDto.setForename("Jack");
         dataDto.setSurname("Jones");
         dataDto.setDateOfBirth(LocalDate.of(2000, 10, 3));
@@ -35,6 +34,8 @@ public class LimitedPartnerBuilder {
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDto.setContributionSubTypes(contributionSubTypes);
+        dataDto.setContributionCurrencyValue("1000.00");
+        dataDto.setContributionCurrencyType(Currency.GBP);
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setKind(FILING_KIND_LIMITED_PARTNER);
 
@@ -45,10 +46,9 @@ public class LimitedPartnerBuilder {
 
     public LimitedPartnerDto legalEntityDto() {
         LimitedPartnerDto dto = new LimitedPartnerDto();
-
         dto.setId(LIMITED_PARTNER_ID);
-        LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
 
+        LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
         dataDto.setLegalEntityName("Legal Entity Name");
         dataDto.setLegalForm("Form");
         dataDto.setGoverningLaw("Act of law");
@@ -83,8 +83,9 @@ public class LimitedPartnerBuilder {
 
     public LimitedPartnerDao personDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
-
         dao.setId(LIMITED_PARTNER_ID);
+        dao.setTransactionId(TransactionBuilder.TRANSACTION_ID);
+
         LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
         dataDao.setForename("Jack");
         dataDao.setSurname("Jones");
@@ -93,7 +94,7 @@ public class LimitedPartnerBuilder {
 
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
-        dataDao.setContributionCurrencyValue("11.00");
+        dataDao.setContributionCurrencyValue("1000.00");
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setUsualResidentialAddress(createAddressDao());
@@ -106,8 +107,9 @@ public class LimitedPartnerBuilder {
 
     public LimitedPartnerDao legalEntityDao() {
         LimitedPartnerDao dao = new LimitedPartnerDao();
-
         dao.setId(LIMITED_PARTNER_ID);
+        dao.setTransactionId(TransactionBuilder.TRANSACTION_ID);
+
         LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
 
         dataDao.setLegalEntityName("My company ltd");
@@ -121,6 +123,8 @@ public class LimitedPartnerBuilder {
         List<ContributionSubTypes> contributionSubTypes = new ArrayList<>();
         contributionSubTypes.add(SHARES);
         dataDao.setContributionSubTypes(contributionSubTypes);
+        dataDao.setContributionCurrencyValue("1000.00");
+        dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
         dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
 

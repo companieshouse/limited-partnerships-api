@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -40,8 +42,8 @@ class PartnershipControllerTest {
 
     private static final String REQUEST_ID = "5346336";
     private static final String USER_ID = "rjg736k791";
-    private static final String SUBMISSION_ID = "ABC123ABC456";
-    private static final String TRANSACTION_ID = "12321123";
+    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     @InjectMocks
     private PartnershipController partnershipController;
@@ -49,16 +51,13 @@ class PartnershipControllerTest {
     @Mock
     private LimitedPartnershipService limitedPartnershipService;
 
-    @Mock
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().build();
 
     private LimitedPartnershipDto limitedPartnershipDto;
 
     @BeforeEach
     void init() {
-        DataDto data = new DataDto();
-        limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(data);
+        limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
     }
 
     @Test
@@ -70,8 +69,6 @@ class PartnershipControllerTest {
                 eq(REQUEST_ID),
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
-
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
 
         // when
         var response = partnershipController.createPartnership(
@@ -116,8 +113,6 @@ class PartnershipControllerTest {
     void testUpdatePartnershipIsSuccessful() throws ServiceException {
         // given
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
 
         // when
         var response = partnershipController.updatePartnership(
@@ -195,7 +190,6 @@ class PartnershipControllerTest {
         dataDto.setPartnershipName("Test name");
         limitedPartnershipDto.setData(dataDto);
 
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(
                 limitedPartnershipDto);
 
@@ -216,7 +210,6 @@ class PartnershipControllerTest {
     @Test
     void testNotFoundReturnedWhenGetPartnershipFailsToFindResource() throws ResourceNotFoundException {
         // given
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));
 
         // when
@@ -234,7 +227,6 @@ class PartnershipControllerTest {
     @Test
     void testValidationStatusWhenPartnershipDataIsValid() throws ServiceException {
         // given
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.validateLimitedPartnership(transaction)).thenReturn(new ArrayList<>());
 
         // when
@@ -255,7 +247,6 @@ class PartnershipControllerTest {
     @Test
     void testValidationStatusWhenPartnershipDataIsNotValid() throws ServiceException {
         // given
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
         List<ValidationStatusError> errors = new ArrayList<>();
         errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));
         errors.add(new ValidationStatusError("Email must not be null", "data.email", null, null));
@@ -283,7 +274,6 @@ class PartnershipControllerTest {
     @Test
     void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ServiceException {
         // given
-        when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(limitedPartnershipService.validateLimitedPartnership(transaction)).thenThrow(new ResourceNotFoundException("error"));
 
         // when

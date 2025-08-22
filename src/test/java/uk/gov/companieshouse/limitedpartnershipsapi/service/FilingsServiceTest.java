@@ -7,12 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
-import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.util.ArrayList;
 
@@ -47,12 +46,10 @@ class FilingsServiceTest {
 
     @Test
     void testFilingGenerationSuccess() throws ServiceException {
-        var transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-        transaction.setFilingMode(IncorporationKind.REGISTRATION.getDescription());
+        var transaction = new TransactionBuilder().build();
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID);
@@ -66,12 +63,10 @@ class FilingsServiceTest {
 
     @Test
     void testFilingDescriptionSetCorrectlyForTransition() throws ServiceException {
-        var transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        var transaction = new TransactionBuilder().withIncorporationKind(IncorporationKind.TRANSITION).build();
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(buildLimitedPartnership());
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID);
@@ -81,8 +76,7 @@ class FilingsServiceTest {
 
     @Test
     void testFilingGenerationFailureWhenTransactionNotLinkedToIncorporation() {
-        var transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
+        var transaction = new TransactionBuilder().build();
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
         assertThrows(ResourceNotFoundException.class, () -> filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID));
@@ -90,16 +84,9 @@ class FilingsServiceTest {
 
     @Test
     void testFilingGenerationFailureWhenLimitedPartnershipNotFound() throws ServiceException {
-        var transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
+        var transaction = new TransactionBuilder().build();
+
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
         assertThrows(ServiceException.class, () -> filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID));
-    }
-
-    private LimitedPartnershipDto buildLimitedPartnership() {
-       var limitedPartnershipDto = new LimitedPartnershipDto();
-       var dataDto = new DataDto();
-       limitedPartnershipDto.setData(dataDto);
-       return limitedPartnershipDto;
     }
 }

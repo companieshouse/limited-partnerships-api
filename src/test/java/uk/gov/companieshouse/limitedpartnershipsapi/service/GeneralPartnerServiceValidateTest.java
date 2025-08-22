@@ -43,7 +43,11 @@ class GeneralPartnerServiceValidateTest {
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
-    private Transaction transaction;
+    private final Transaction transaction = new TransactionBuilder().forPartner(
+            FILING_KIND_GENERAL_PARTNER,
+            URL_GET_GENERAL_PARTNER,
+            GENERAL_PARTNER_ID
+    ).build();
 
     @Autowired
     private GeneralPartnerService service;
@@ -59,12 +63,6 @@ class GeneralPartnerServiceValidateTest {
 
     @BeforeEach
     void setup() throws ServiceException {
-        transaction = new TransactionBuilder().forPartner(
-                FILING_KIND_GENERAL_PARTNER,
-                URL_GET_GENERAL_PARTNER,
-                GENERAL_PARTNER_ID
-        ).build();
-
         when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
     }
 
