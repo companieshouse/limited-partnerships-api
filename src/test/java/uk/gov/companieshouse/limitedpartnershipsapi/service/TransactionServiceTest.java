@@ -308,7 +308,7 @@ class TransactionServiceTest {
         transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
         transaction.setResources(transactionResources);
         // when
-        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction);
+        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP);
         // then
         assertTrue(result);
     }
@@ -316,7 +316,7 @@ class TransactionServiceTest {
     @Test
     void givenTransactionHasALimitedPartnershipCalledWithNullTransaction_thenReturnFalse() {
         // when
-        var result = transactionService.doesTransactionHaveALimitedPartnership(null);
+        var result = transactionService.doesTransactionHaveALimitedPartnership(null, FILING_KIND_LIMITED_PARTNERSHIP);
         // then
         assertFalse(result);
     }
@@ -330,7 +330,7 @@ class TransactionServiceTest {
         transactionResources.put(LIMITED_PARTNERSHIP_SELF_LINK, limitedPartnershipResource);
         transaction.setResources(transactionResources);
         // when
-        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction);
+        var result = transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP);
         // then
         assertFalse(result);
     }

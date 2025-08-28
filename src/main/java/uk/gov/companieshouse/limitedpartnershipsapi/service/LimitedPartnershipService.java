@@ -145,11 +145,6 @@ public class LimitedPartnershipService {
     }
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction) throws ServiceException {
-        if (!transactionService.doesTransactionHaveALimitedPartnership(transaction)) {
-            throw new ResourceNotFoundException(String.format(
-                    "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
-        }
-
         var limitedPartnerships = repository.findByTransactionId(transaction.getId());
 
         if (limitedPartnerships.isEmpty()) {
@@ -159,6 +154,11 @@ public class LimitedPartnershipService {
         }
 
         var limitedPartnershipDao = limitedPartnerships.getFirst();
+
+        if (!transactionService.doesTransactionHaveALimitedPartnership(transaction, limitedPartnershipDao.getData().getKind())) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
+        }
 
         return mapper.daoToDto(limitedPartnershipDao);
     }

@@ -81,6 +81,9 @@ public class DataDto {
     @JsonProperty("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
 
+    @JsonProperty("kind")
+    private String kind;
+
     public String getPartnershipNumber() {
         return partnershipNumber;
     }
@@ -167,5 +170,13 @@ public class DataDto {
 
     public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
         this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 }
