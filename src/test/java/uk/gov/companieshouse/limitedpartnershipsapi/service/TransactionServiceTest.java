@@ -254,7 +254,7 @@ class TransactionServiceTest {
     @Test
     void testCreateLimitedPartnershipTransactionResource() {
         String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
-        Resource resource = transactionService.createLimitedPartnershipTransactionResource(submissionUri);
+        Resource resource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, FILING_KIND_LIMITED_PARTNERSHIP);
         assertEquals(submissionUri, resource.getLinks().get(LINK_RESOURCE));
         assertEquals(FILING_KIND_LIMITED_PARTNERSHIP, resource.getKind());
     }

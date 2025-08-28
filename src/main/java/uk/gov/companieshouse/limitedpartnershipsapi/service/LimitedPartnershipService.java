@@ -68,7 +68,7 @@ public class LimitedPartnershipService {
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
-        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(submissionUri);
+        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, insertedLimitedPartnership.getData().getKind());
 
         transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
