@@ -250,6 +250,18 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
+    void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() {
+        // given
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(
+                limitedPartnershipDao));
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(false);
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction));
+    }
+
+    @Test
     void givenTransactionIdHasMultipleLpSubmissions_whenGetLp_ThenServiceExceptionThrown() {
         // given
         LimitedPartnershipDao lpDao1 = new LimitedPartnershipBuilder().buildDao();
