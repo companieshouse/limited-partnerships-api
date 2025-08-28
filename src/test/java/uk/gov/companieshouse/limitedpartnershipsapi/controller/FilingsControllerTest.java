@@ -280,7 +280,7 @@ class FilingsControllerTest {
         private void mockPartnership(Transaction transaction, PartnershipKind kind) throws ServiceException {
             limitedPartnershipDto.getData().setKind(kind.getDescription());
 
-            when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+            when(transactionService.doesTransactionHaveALimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
 
             when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
         }

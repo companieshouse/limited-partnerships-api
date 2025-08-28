@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.common;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum PartnershipKind {
@@ -18,16 +17,5 @@ public enum PartnershipKind {
 
     public String getDescription() {
         return description;
-    }
-
-    @JsonCreator
-    public static PartnerKind fromDescription(String description) {
-        for (PartnerKind kind : PartnerKind.values()) {
-            if (kind.getDescription().equalsIgnoreCase(description)) {
-                return kind;
-            }
-        }
-
-        return PartnerKind.UNKNOWN;
     }
 }
