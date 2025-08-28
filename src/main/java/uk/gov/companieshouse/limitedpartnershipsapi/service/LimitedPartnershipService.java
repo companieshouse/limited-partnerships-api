@@ -68,7 +68,7 @@ public class LimitedPartnershipService {
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
-        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(submissionUri);
+        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, insertedLimitedPartnership.getData().getKind());
 
         transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
@@ -165,8 +165,13 @@ public class LimitedPartnershipService {
 
     public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction)
             throws ServiceException {
-        LimitedPartnershipDto dto = getLimitedPartnership(transaction);
+        LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
-        return limitedPartnershipValidator.validateFull(dto, IncorporationKind.fromDescription(transaction.getFilingMode()));
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            return limitedPartnershipValidator.validatePostTransition(limitedPartnershipDto);
+        }
+
+        return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
     }
+
 }

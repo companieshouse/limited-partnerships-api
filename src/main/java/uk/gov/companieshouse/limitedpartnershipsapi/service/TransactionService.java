@@ -32,6 +32,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALID
 @Service
 public class TransactionService {
 
+    public static final String DEFAULT = "default";
     private final ApiClientService apiClientService;
 
     @Autowired
@@ -90,17 +91,18 @@ public class TransactionService {
         return false;
     }
 
-    public Resource createLimitedPartnershipTransactionResource(String submissionUri) {
+    public Resource createLimitedPartnershipTransactionResource(Transaction transaction, String submissionUri, String kind) {
         var limitedPartnershipResource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        // TODO When post-transition journey is implemented, add a 'validation_status' link if this is NOT an
-        //      incorporation journey (registration or transition)
+        if (transaction.getFilingMode().equals(DEFAULT)) {
+            linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+        }
 
         limitedPartnershipResource.setLinks(linksMap);
-        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        limitedPartnershipResource.setKind(kind);
 
         return limitedPartnershipResource;
     }
@@ -119,7 +121,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals("default")) {
+        if (transaction.getFilingMode().equals(DEFAULT)) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
@@ -140,7 +142,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals("default")) {
+        if (transaction.getFilingMode().equals(DEFAULT)) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 

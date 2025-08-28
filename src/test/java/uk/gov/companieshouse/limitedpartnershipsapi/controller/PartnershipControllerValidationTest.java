@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
@@ -813,5 +814,85 @@ class PartnershipControllerValidationTest {
                 .buildDao();
 
         mocks(limitedPartnershipDao);
+    }
+
+    @Nested
+    class ValidatePostTransition {
+        @BeforeEach
+        void setUp() {
+            // Set the filing mode to 'default' to simulate a post-transition journey
+            transaction.setFilingMode(TransactionService.DEFAULT);
+        }
+
+        @Nested
+        class ValidatePartnershipRegisteredOfficeAddress {
+
+            @Test
+            void shouldReturn200IfNoErrors() throws Exception {
+
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
+                        .withAddresses()
+                        .buildDao();
+
+                mocks(limitedPartnershipDao);
+
+                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(""))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("is_valid").value("true"));
+            }
+
+            @Test
+            void shouldReturn200AndErrorDetailsIfNoRegisteredOfficeAddress() throws Exception {
+
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
+                        .buildDao();
+
+                mocks(limitedPartnershipDao);
+
+                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(""))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("is_valid").value("false"))
+                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.registeredOfficeAddress"))
+                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Registered office address is required"))
+                        .andExpect(jsonPath("$.['errors'][1].['location']").doesNotExist());
+            }
+
+            @Test
+            void shouldReturn200AndErrorDetailsIfRegisteredOfficeAddressNotCorrect() throws Exception {
+
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
+                        .withAddresses()
+                        .buildDao();
+
+                limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(null);
+                limitedPartnershipDao.getData().getRegisteredOfficeAddress().setPostalCode(null);
+
+                mocks(limitedPartnershipDao);
+
+                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(""))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("is_valid").value("false"))
+                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.registeredOfficeAddress.postalCode"))
+                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Postcode must not be null"));
+            }
+        }
     }
 }
