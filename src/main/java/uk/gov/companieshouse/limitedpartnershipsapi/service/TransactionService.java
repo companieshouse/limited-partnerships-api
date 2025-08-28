@@ -32,6 +32,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALID
 @Service
 public class TransactionService {
 
+    public static final String DEFAULT = "default";
     private final ApiClientService apiClientService;
 
     @Autowired
@@ -96,7 +97,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals("default")) {
+        if (transaction.getFilingMode().equals(DEFAULT)) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
@@ -120,7 +121,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals("default")) {
+        if (transaction.getFilingMode().equals(DEFAULT)) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
@@ -141,7 +142,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals("default")) {
+        if (transaction.getFilingMode().equals(DEFAULT)) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 

@@ -46,8 +46,8 @@ public class LimitedPartnershipValidator {
         return errorsList;
     }
 
-    public List<ValidationStatusError> validatePartial(LimitedPartnershipDto limitedPartnershipDto,
-                                                       IncorporationKind incorporationKind)
+    public void validatePartial(LimitedPartnershipDto limitedPartnershipDto,
+                                IncorporationKind incorporationKind)
             throws NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnershipDto, DataDto.class.getName());
 
@@ -61,12 +61,12 @@ public class LimitedPartnershipValidator {
             var methodParameter = new MethodParameter(DataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
-        return null;
     }
 
     public List<ValidationStatusError> validatePostTransition(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+
         if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS.getDescription())) {
-            List<ValidationStatusError> errorsList = new ArrayList<>();
 
             checkFieldConstraints(limitedPartnershipDto, null, errorsList);
 
@@ -74,10 +74,9 @@ public class LimitedPartnershipValidator {
                 errorsList.add(createValidationStatusError("Registered office address is required",
                         "data.registeredOfficeAddress"));
             }
-
-            return errorsList;
         }
-        return null;
+
+        return errorsList;
     }
 
     private void checkCommonFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {

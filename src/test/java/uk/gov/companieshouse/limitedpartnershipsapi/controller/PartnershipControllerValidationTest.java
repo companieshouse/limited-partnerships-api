@@ -821,7 +821,7 @@ class PartnershipControllerValidationTest {
         @BeforeEach
         void setUp() {
             // Set the filing mode to 'default' to simulate a post-transition journey
-            transaction.setFilingMode("default");
+            transaction.setFilingMode(TransactionService.DEFAULT);
         }
 
         @Nested

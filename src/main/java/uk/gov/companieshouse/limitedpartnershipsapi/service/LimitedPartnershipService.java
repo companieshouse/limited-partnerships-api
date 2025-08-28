@@ -167,7 +167,7 @@ public class LimitedPartnershipService {
             throws ServiceException {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
-        if (transaction.getFilingMode().equals("default")) {
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
             final List<ValidationStatusError> errorsList = limitedPartnershipValidator.validatePostTransition(limitedPartnershipDto);
 
             if (errorsList != null) return errorsList;
