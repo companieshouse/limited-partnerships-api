@@ -45,7 +45,7 @@ public class FilingsController {
 
         ApiLogger.infoContext(requestId, "Calling service to retrieve filing", logMap);
 
-        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, incorporationId);
+        FilingApi filing = filingsService.generateIncorporationFiling(transaction, incorporationId);
 
         return ResponseEntity.ok(new FilingApi[]{filing});
     }
@@ -80,6 +80,23 @@ public class FilingsController {
         ApiLogger.infoContext(requestId, "Calling service to retrieve limited partner filing", logMap);
 
         FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, limitedPartnerId);
+
+        return ResponseEntity.ok(new FilingApi[]{filing});
+    }
+
+    @GetMapping("/limited-partnership/partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}" + FILINGS)
+    public ResponseEntity<FilingApi[]> getLimitedPartnershipFiling(
+            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+            @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String limitedPartnerId,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
+
+        var logMap = new HashMap<String, Object>();
+        logMap.put(TRANSACTION_KEY, transaction.getId());
+        logMap.put(URL_PARAM_FILING_RESOURCE_ID, limitedPartnerId);
+
+        ApiLogger.infoContext(requestId, "Calling service to retrieve limited partnership filing", logMap);
+
+        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction);
 
         return ResponseEntity.ok(new FilingApi[]{filing});
     }

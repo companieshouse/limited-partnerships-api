@@ -52,7 +52,7 @@ class FilingsServiceTest {
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
-        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID);
+        FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
         assertNotNull(filing);
         assertNotNull(filing.getData());
         assertTrue(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
@@ -69,7 +69,7 @@ class FilingsServiceTest {
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
-        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID);
+        FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
         assertNotNull(filing);
         assertEquals("Transition a Limited Partnership", filing.getDescription());
     }
@@ -79,7 +79,7 @@ class FilingsServiceTest {
         var transaction = new TransactionBuilder().build();
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(false);
-        assertThrows(ResourceNotFoundException.class, () -> filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID));
+        assertThrows(ResourceNotFoundException.class, () -> filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID));
     }
 
     @Test
@@ -87,6 +87,6 @@ class FilingsServiceTest {
         var transaction = new TransactionBuilder().build();
 
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
-        assertThrows(ServiceException.class, () -> filingsService.generateLimitedPartnershipFiling(transaction, INCORPORATION_ID));
+        assertThrows(ServiceException.class, () -> filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID));
     }
 }

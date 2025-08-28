@@ -98,7 +98,6 @@ class IncorporationControllerValidationTest {
     @MockitoBean
     private InterceptorConfig interceptorConfig;
 
-
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -140,7 +139,7 @@ class IncorporationControllerValidationTest {
     class ValidateIncorporation {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            when(transactionService.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
+            when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new GeneralPartnerBuilder().personDao()));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
@@ -161,7 +160,7 @@ class IncorporationControllerValidationTest {
             generalPartnerDao.getData().setForename("");
             generalPartnerDao.getData().setNationality1("UNKNOWN");
 
-            when(transactionService.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
+            when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(generalPartnerDao));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
@@ -182,7 +181,7 @@ class IncorporationControllerValidationTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfInsufficientNumberOfPartners() throws Exception {
-            when(transactionService.doesTransactionHaveALimitedPartnership(any())).thenReturn(true);
+            when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
             when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());

@@ -42,6 +42,9 @@ public class DataDao {
     @Field("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
 
+    @Field("kind")
+    private String kind;
+
     public String getPartnershipNumber() {
         return partnershipNumber;
     }
@@ -128,5 +131,13 @@ public class DataDao {
 
     public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
         this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 }

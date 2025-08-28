@@ -226,7 +226,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
         LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
-        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(
                 limitedPartnershipDao));
         when(mapper.daoToDto(limitedPartnershipDao)).thenReturn(limitedPartnershipDto);
@@ -243,7 +243,6 @@ class LimitedPartnershipServiceTest {
     @Test
     void givenInvalidTransactionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(Collections.emptyList());
 
         // when + then
@@ -253,7 +252,10 @@ class LimitedPartnershipServiceTest {
     @Test
     void givenTransactionIdHasNoLpSubmission_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(false);
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(
+                limitedPartnershipDao));
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction));
@@ -265,7 +267,6 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao lpDao1 = new LimitedPartnershipBuilder().buildDao();
         LimitedPartnershipDao lpDao2 = new LimitedPartnershipBuilder().buildDao();
 
-        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao1, lpDao2));
 
         // when + then
@@ -278,7 +279,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto limitedPartnershipSubmissionDto = new LimitedPartnershipBuilder().buildDto();
         LimitedPartnershipDao limitedPartnershipSubmissionDao = new LimitedPartnershipBuilder().buildDao();
 
-        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(true);
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(new ArrayList<>());
@@ -296,7 +297,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto limitedPartnershipSubmissionDto = new LimitedPartnershipBuilder().buildDto();
         LimitedPartnershipDao limitedPartnershipSubmissionDao = new LimitedPartnershipBuilder().buildDao();
 
-        when(transactionService.doesTransactionHaveALimitedPartnership(transaction)).thenReturn(true);
+        when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(true);
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         List<ValidationStatusError> errorsList = new ArrayList<>();

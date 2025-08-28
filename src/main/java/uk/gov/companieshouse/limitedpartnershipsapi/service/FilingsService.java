@@ -54,7 +54,7 @@ public class FilingsService {
         this.filingKind = filingKind;
     }
 
-    public FilingApi generateLimitedPartnershipFiling(Transaction transaction, String incorporationId) throws ServiceException {
+    public FilingApi generateIncorporationFiling(Transaction transaction, String incorporationId) throws ServiceException {
         String submissionUri = String.format(URL_GET_INCORPORATION, transaction.getId(), incorporationId);
         if (!transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(
@@ -161,5 +161,24 @@ public class FilingsService {
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipNumber(transaction.getCompanyNumber());
         return dataDto;
+    }
+
+    public FilingApi generateLimitedPartnershipFiling(Transaction transaction) throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+
+        DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
+
+        var filing = new FilingApi();
+
+        Map<String, Object> data = new HashMap<>();
+
+        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDataDto);
+
+        String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), limitedPartnershipDataDto.getKind());
+        filing.setKind(kind);
+        setDescriptionFields(filing, transaction.getFilingMode());
+        filing.setData(data);
+
+        return filing;
     }
 }

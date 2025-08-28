@@ -14,6 +14,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 
 import java.util.List;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+
 public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
@@ -148,6 +150,7 @@ public class LimitedPartnershipBuilder {
         LimitedPartnershipDto dto = new LimitedPartnershipDto();
         DataDto dataDto = new DataDto();
 
+        dataDto.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
         dataDto.setPartnershipName(PARTNERSHIP_NAME);
         dataDto.setNameEnding(PARTNERSHIP_NAME_ENDING);
         dataDto.setPartnershipType(PARTNERSHIP_TYPE);
@@ -171,6 +174,7 @@ public class LimitedPartnershipBuilder {
 
         DataDao dataDao = new DataDao();
 
+        dataDao.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
         dataDao.setPartnershipName(PARTNERSHIP_NAME);
         dataDao.setNameEnding(PARTNERSHIP_NAME_ENDING.getDescription());
         dataDao.setPartnershipType(PARTNERSHIP_TYPE);
