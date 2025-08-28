@@ -168,9 +168,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
         if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
-            final List<ValidationStatusError> errorsList = limitedPartnershipValidator.validatePostTransition(limitedPartnershipDto);
-
-            if (errorsList != null) return errorsList;
+            return limitedPartnershipValidator.validatePostTransition(limitedPartnershipDto);
         }
 
         return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
