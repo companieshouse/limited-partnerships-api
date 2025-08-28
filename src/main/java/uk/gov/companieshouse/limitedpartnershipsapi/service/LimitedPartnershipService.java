@@ -165,8 +165,15 @@ public class LimitedPartnershipService {
 
     public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction)
             throws ServiceException {
-        LimitedPartnershipDto dto = getLimitedPartnership(transaction);
+        LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
-        return limitedPartnershipValidator.validateFull(dto, IncorporationKind.fromDescription(transaction.getFilingMode()));
+        if (transaction.getFilingMode().equals("default")) {
+            final List<ValidationStatusError> errorsList = limitedPartnershipValidator.validatePostTransition(limitedPartnershipDto);
+
+            if (errorsList != null) return errorsList;
+        }
+
+        return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
     }
+
 }

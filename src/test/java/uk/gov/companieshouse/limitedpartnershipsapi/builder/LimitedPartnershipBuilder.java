@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
@@ -28,6 +29,9 @@ public class LimitedPartnershipBuilder {
     private static final String EMAIL = "test@test.com";
     private static final Jurisdiction JURISDICTION = Jurisdiction.ENGLAND_AND_WALES;
     private boolean lawfulPurposeStatementChecked = true;
+
+    private String partnershipKind = FILING_KIND_LIMITED_PARTNERSHIP;
+
     private AddressDto registeredOfficeAddressDto = null;
     private AddressDto principalPalceOfBusinessAddressDto = null;
     private AddressDao registeredOfficeAddressDao = null;
@@ -146,11 +150,16 @@ public class LimitedPartnershipBuilder {
         return this;
     }
 
+    public LimitedPartnershipBuilder withPartnershipKind(PartnershipKind partnershipKind) {
+        this.partnershipKind = partnershipKind.getDescription();
+        return this;
+    }
+
     public LimitedPartnershipDto buildDto() {
         LimitedPartnershipDto dto = new LimitedPartnershipDto();
         DataDto dataDto = new DataDto();
 
-        dataDto.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        dataDto.setKind(partnershipKind);
         dataDto.setPartnershipName(PARTNERSHIP_NAME);
         dataDto.setNameEnding(PARTNERSHIP_NAME_ENDING);
         dataDto.setPartnershipType(PARTNERSHIP_TYPE);
@@ -174,7 +183,7 @@ public class LimitedPartnershipBuilder {
 
         DataDao dataDao = new DataDao();
 
-        dataDao.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        dataDao.setKind(partnershipKind);
         dataDao.setPartnershipName(PARTNERSHIP_NAME);
         dataDao.setNameEnding(PARTNERSHIP_NAME_ENDING.getDescription());
         dataDao.setPartnershipType(PARTNERSHIP_TYPE);

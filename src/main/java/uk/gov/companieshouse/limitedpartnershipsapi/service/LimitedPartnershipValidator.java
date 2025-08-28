@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -45,19 +46,38 @@ public class LimitedPartnershipValidator {
         return errorsList;
     }
 
-    public void validatePartial(LimitedPartnershipDto limitedPartnershipDto,
-                                IncorporationKind incorporationKind)
+    public List<ValidationStatusError> validatePartial(LimitedPartnershipDto limitedPartnershipDto,
+                                                       IncorporationKind incorporationKind)
             throws NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnershipDto, DataDto.class.getName());
 
         dtoValidation(limitedPartnershipDto, bindingResult);
 
-        checkJourneySpecificFields(limitedPartnershipDto.getData(), incorporationKind, bindingResult);
+        if (incorporationKind != null) {
+            checkJourneySpecificFields(limitedPartnershipDto.getData(), incorporationKind, bindingResult);
+        }
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(DataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
+        return null;
+    }
+
+    public List<ValidationStatusError> validatePostTransition(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
+        if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS.getDescription())) {
+            List<ValidationStatusError> errorsList = new ArrayList<>();
+
+            checkFieldConstraints(limitedPartnershipDto, null, errorsList);
+
+            if (limitedPartnershipDto.getData().getRegisteredOfficeAddress() == null) {
+                errorsList.add(createValidationStatusError("Registered office address is required",
+                        "data.registeredOfficeAddress"));
+            }
+
+            return errorsList;
+        }
+        return null;
     }
 
     private void checkCommonFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
