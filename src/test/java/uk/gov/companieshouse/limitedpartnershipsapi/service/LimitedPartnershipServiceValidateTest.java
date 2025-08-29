@@ -15,8 +15,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
 import java.util.List;
@@ -226,12 +226,12 @@ class LimitedPartnershipServiceValidateTest {
                 .withAddresses()
                 .buildDao();
 
-        DataDao dataDao = dao.getData();
-        dataDao.setPartnershipType(type);
+        LimitedPartnershipDataDao limitedPartnershipDataDao = dao.getData();
+        limitedPartnershipDataDao.setPartnershipType(type);
 
         if (LP.equals(type) || SLP.equals(type)) {
-            dataDao.setTerm(Term.BY_AGREEMENT);
-            dataDao.setSicCodes(List.of("12345"));
+            limitedPartnershipDataDao.setTerm(Term.BY_AGREEMENT);
+            limitedPartnershipDataDao.setSicCodes(List.of("12345"));
         }
 
         return dao;

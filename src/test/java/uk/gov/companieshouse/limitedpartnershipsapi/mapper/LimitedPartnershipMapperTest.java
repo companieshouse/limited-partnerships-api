@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
@@ -28,7 +28,7 @@ class LimitedPartnershipMapperTest {
         LimitedPartnershipDao destination = LimitedPartnershipMapper.INSTANCE.dtoToDao(source);
 
         // then
-        DataDao destinationData = destination.getData();
+        LimitedPartnershipDataDao destinationData = destination.getData();
         assertEquals(sourceData.getPartnershipName(), destinationData.getPartnershipName());
         assertEquals(sourceData.getNameEnding(), destinationData.getNameEnding());
         assertEquals(sourceData.getPartnershipType(), destinationData.getPartnershipType());
