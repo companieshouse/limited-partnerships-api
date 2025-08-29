@@ -28,7 +28,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
@@ -365,9 +365,9 @@ class LimitedPartnerServiceCreateTest {
 
     private void mockLimitedPartnershipService() throws ServiceException {
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipDto.setData(dataDto);
+        LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
+        limitedPartnershipDataDto.setPartnershipType(PartnershipType.LP);
+        limitedPartnershipDto.setData(limitedPartnershipDataDto);
 
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }

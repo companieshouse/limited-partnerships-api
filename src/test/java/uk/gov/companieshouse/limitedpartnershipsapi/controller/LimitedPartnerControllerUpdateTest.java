@@ -27,7 +27,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperI
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
@@ -47,7 +47,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
@@ -328,7 +327,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -351,7 +350,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -372,7 +371,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -412,7 +411,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -588,7 +587,7 @@ class LimitedPartnerControllerUpdateTest {
         when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(limitedPartners);
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
         limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
 
         when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -599,7 +598,6 @@ class LimitedPartnerControllerUpdateTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].data.completed").value(true))
                 .andExpect(jsonPath("$.[1].data.completed").value(false));
@@ -614,9 +612,9 @@ class LimitedPartnerControllerUpdateTest {
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipDto.setData(dataDto);
+        LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
+        limitedPartnershipDataDto.setPartnershipType(PartnershipType.LP);
+        limitedPartnershipDto.setData(limitedPartnershipDataDto);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 

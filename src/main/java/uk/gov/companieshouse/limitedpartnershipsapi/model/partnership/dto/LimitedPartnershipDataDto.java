@@ -20,16 +20,22 @@ import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 
 @NameSize
-public class LimitedPartnershipPatchDto {
+public class LimitedPartnershipDataDto {
+
+    public static final String NAME_MIN_SIZE_MESSAGE = "Limited partnership name must be greater than {min}";
+    public static final String NAME_MAX_SIZE_MESSAGE = "Limited partnership name must be less than {max}";
+
+    @JsonProperty("partnership_number")
+    @Pattern(regexp = "^(LP|NL|SL)\\d{6}$", message = "Partnership number must be valid")
+    private String partnershipNumber;
+
     @JsonProperty("partnership_name")
-    @Size(min = MIN_SIZE, message = "Limited partnership name " + MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = "Limited partnership name " + MAX_SIZE_MESSAGE)
+    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)
     private String partnershipName;
 
@@ -68,10 +74,21 @@ public class LimitedPartnershipPatchDto {
     @JsonProperty("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
 
+    @JsonProperty("kind")
+    private String kind;
+
     @JsonProperty("date_of_update")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Past(message = "Date of update must be in the past")
     private LocalDate dateOfUpdate;
+
+    public String getPartnershipNumber() {
+        return partnershipNumber;
+    }
+
+    public void setPartnershipNumber(String partnershipNumber) {
+        this.partnershipNumber = partnershipNumber;
+    }
 
     public String getPartnershipName() {
         return partnershipName;
@@ -81,8 +98,8 @@ public class LimitedPartnershipPatchDto {
         this.partnershipName = partnershipName;
     }
 
-    public PartnershipNameEnding getNameEnding() {
-        return nameEnding;
+    public String getNameEnding() {
+        return nameEnding != null ? nameEnding.getDescription() : null;
     }
 
     public void setNameEnding(PartnershipNameEnding nameEnding) {
@@ -105,8 +122,8 @@ public class LimitedPartnershipPatchDto {
         this.partnershipType = partnershipType;
     }
 
-    public Jurisdiction getJurisdiction() {
-        return jurisdiction;
+    public String getJurisdiction() {
+        return jurisdiction != null ? jurisdiction.getApiKey() : null;
     }
 
     public void setJurisdiction(Jurisdiction jurisdiction) {
@@ -145,12 +162,20 @@ public class LimitedPartnershipPatchDto {
         this.sicCodes = sicCodes;
     }
 
+    public Boolean getLawfulPurposeStatementChecked() {
+        return lawfulPurposeStatementChecked;
+    }
+
     public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
         this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
     }
 
-    public Boolean getLawfulPurposeStatementChecked() {
-        return lawfulPurposeStatementChecked;
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 
     public LocalDate getDateOfUpdate() {

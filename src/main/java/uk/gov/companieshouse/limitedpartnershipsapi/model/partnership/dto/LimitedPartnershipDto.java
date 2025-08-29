@@ -11,13 +11,13 @@ public class LimitedPartnershipDto {
     @JsonInclude(NON_NULL)
     @JsonProperty("data")
     @Valid
-    private DataDto data;
+    private LimitedPartnershipDataDto data;
 
-    public DataDto getData() {
+    public LimitedPartnershipDataDto getData() {
         return data;
     }
 
-    public void setData(DataDto data) {
+    public void setData(LimitedPartnershipDataDto data) {
         this.data = data;
     }
 }
