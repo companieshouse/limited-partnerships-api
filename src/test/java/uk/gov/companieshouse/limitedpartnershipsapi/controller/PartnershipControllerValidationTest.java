@@ -37,6 +37,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipVa
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -799,23 +800,6 @@ class PartnershipControllerValidationTest {
         }
     }
 
-    private void mocks(LimitedPartnershipDao limitedPartnershipDao) {
-        when(repository.insert((LimitedPartnershipDao) any())).thenReturn(limitedPartnershipDao);
-        when(repository.save(any())).thenReturn(limitedPartnershipDao);
-        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
-        when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipDao));
-
-        when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
-    }
-
-    private void mocks() {
-        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                .withAddresses()
-                .buildDao();
-
-        mocks(limitedPartnershipDao);
-    }
-
     @Nested
     class ValidatePostTransition {
         @BeforeEach
@@ -833,6 +817,7 @@ class PartnershipControllerValidationTest {
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
                         .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
                         .withAddresses()
+                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
                         .buildDao();
 
                 mocks(limitedPartnershipDao);
@@ -852,6 +837,7 @@ class PartnershipControllerValidationTest {
 
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
                         .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
+                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
                         .buildDao();
 
                 mocks(limitedPartnershipDao);
@@ -875,6 +861,7 @@ class PartnershipControllerValidationTest {
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
                         .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
                         .withAddresses()
+                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
                         .buildDao();
 
                 limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(null);
@@ -893,6 +880,45 @@ class PartnershipControllerValidationTest {
                         .andExpect(jsonPath("$.['errors'][0].['location']").value("data.registeredOfficeAddress.postalCode"))
                         .andExpect(jsonPath("$.['errors'][0].['error']").value("Postcode must not be null"));
             }
+
+            @Test
+            void shouldReturn200AndErrorDetailsIfRegisteredOfficeAddressPresentButNoDateOfUpdate() throws Exception {
+
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
+                        .withAddresses()
+                        .buildDao();
+
+                mocks(limitedPartnershipDao);
+
+                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(""))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("is_valid").value("false"))
+                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.dateOfUpdate"))
+                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Date of update is required"));
+            }
         }
+    }
+
+    private void mocks(LimitedPartnershipDao limitedPartnershipDao) {
+        when(repository.insert((LimitedPartnershipDao) any())).thenReturn(limitedPartnershipDao);
+        when(repository.save(any())).thenReturn(limitedPartnershipDao);
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
+        when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipDao));
+
+        when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
+    }
+
+    private void mocks() {
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                .withAddresses()
+                .buildDao();
+
+        mocks(limitedPartnershipDao);
     }
 }

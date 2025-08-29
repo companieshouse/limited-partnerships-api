@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, LimitedPartnershipMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {PartnershipController.class})
-public class PartnershipControllerUpdateTest {
+class PartnershipControllerUpdateTest {
 
     private static final String PARTNERSHIP_PATCH_URL = "/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID;
 

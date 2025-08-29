@@ -13,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
@@ -29,6 +30,7 @@ public class LimitedPartnershipBuilder {
     private static final String EMAIL = "test@test.com";
     private static final Jurisdiction JURISDICTION = Jurisdiction.ENGLAND_AND_WALES;
     private boolean lawfulPurposeStatementChecked = true;
+    private LocalDate dateOfUpdate = null;
 
     private String partnershipKind = FILING_KIND_LIMITED_PARTNERSHIP;
 
@@ -155,6 +157,11 @@ public class LimitedPartnershipBuilder {
         return this;
     }
 
+    public LimitedPartnershipBuilder withDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
+        return this;
+    }
+
     public LimitedPartnershipDto buildDto() {
         LimitedPartnershipDto dto = new LimitedPartnershipDto();
         DataDto dataDto = new DataDto();
@@ -171,6 +178,7 @@ public class LimitedPartnershipBuilder {
         dataDto.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
         dataDto.setRegisteredOfficeAddress(registeredOfficeAddressDto);
         dataDto.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDto);
+        dataDto.setDateOfUpdate(dateOfUpdate);
 
         dto.setData(dataDto);
 
@@ -195,9 +203,11 @@ public class LimitedPartnershipBuilder {
         dataDao.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
         dataDao.setRegisteredOfficeAddress(registeredOfficeAddressDao);
         dataDao.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDao);
+        dataDao.setDateOfUpdate(dateOfUpdate);
 
         dao.setData(dataDao);
 
         return dao;
     }
+
 }
