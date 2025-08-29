@@ -146,7 +146,6 @@ class LimitedPartnershipServiceTest {
 
         when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                 limitedPartnershipDao));
-//        when(mapper.daoToDto((LimitedPartnershipDao) any())).thenReturn(limitedPartnershipDto);
         LimitedPartnershipDao limitedPartnershipDaoAfterPatch = new LimitedPartnershipBuilder().buildDao();
         when(mapper.dtoToDao((LimitedPartnershipDto) any())).thenReturn(
                 limitedPartnershipDaoAfterPatch);
