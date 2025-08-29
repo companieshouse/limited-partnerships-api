@@ -131,16 +131,12 @@ public class LimitedPartnershipValidator {
     }
 
     private void checkJourneySpecificFields(LimitedPartnershipDataDto limitedPartnershipDataDto, IncorporationKind incorporationKind, BindingResult bindingResult) {
-        if (!IncorporationKind.REGISTRATION.equals(incorporationKind)) {
-            if (limitedPartnershipDataDto.getPartnershipNumber() == null) {
-                addError("data.partnershipNumber", "Limited partnership number is required", bindingResult);
-            }
+        if (!IncorporationKind.REGISTRATION.equals(incorporationKind) && limitedPartnershipDataDto.getPartnershipNumber() == null) {
+            addError("data.partnershipNumber", "Limited partnership number is required", bindingResult);
         }
 
-        if (IncorporationKind.REGISTRATION.equals(incorporationKind)) {
-            if (limitedPartnershipDataDto.getNameEnding() == null) {
-                addError("data.nameEnding", "Name ending is required", bindingResult);
-            }
+        if (IncorporationKind.REGISTRATION.equals(incorporationKind) && limitedPartnershipDataDto.getNameEnding() == null) {
+            addError("data.nameEnding", "Name ending is required", bindingResult);
         }
 
         if (limitedPartnershipDataDto.getPartnershipName() == null) {
