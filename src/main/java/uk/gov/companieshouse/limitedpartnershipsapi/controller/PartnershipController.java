@@ -20,9 +20,9 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -79,7 +79,7 @@ public class PartnershipController {
     public ResponseEntity<Object> updatePartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @Valid @RequestBody LimitedPartnershipPatchDto limitedPartnershipPatchDto,
+            @Valid @RequestBody DataDto limitedPartnershipDataDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId) {
 
@@ -89,7 +89,7 @@ public class PartnershipController {
         logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
 
         try {
-            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, limitedPartnershipPatchDto, requestId, userId);
+            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, limitedPartnershipDataDto, requestId, userId);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ResourceNotFoundException e) {

@@ -8,11 +8,10 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -26,19 +25,16 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 public class LimitedPartnershipService {
 
     private final LimitedPartnershipMapper mapper;
-    private final LimitedPartnershipPatchMapper patchMapper;
     private final LimitedPartnershipRepository repository;
     private final TransactionService transactionService;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
-                                     LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipRepository repository,
                                      TransactionService transactionService,
                                      LimitedPartnershipValidator limitedPartnershipValidator) {
         this.mapper = mapper;
-        this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
         this.limitedPartnershipValidator = limitedPartnershipValidator;
@@ -80,7 +76,7 @@ public class LimitedPartnershipService {
 
     public void updateLimitedPartnership(Transaction transaction,
                                          String submissionId,
-                                         LimitedPartnershipPatchDto limitedPartnershipPatchDto,
+                                         DataDto limitedPartnershipDataDto,
                                          String requestId,
                                          String userId) throws ServiceException {
         var optionalLpSubmissionDaoBeforePatch = repository.findById(submissionId);
@@ -90,11 +86,11 @@ public class LimitedPartnershipService {
         }
 
         var lpSubmissionDaoBeforePatch = optionalLpSubmissionDaoBeforePatch.get();
-        var lpSubmissionDto = mapper.daoToDto(lpSubmissionDaoBeforePatch);
 
-        patchMapper.update(limitedPartnershipPatchDto, lpSubmissionDto.getData());
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        limitedPartnershipDto.setData(limitedPartnershipDataDto);
 
-        var lpSubmissionDaoAfterPatch = mapper.dtoToDao(lpSubmissionDto);
+        var lpSubmissionDaoAfterPatch = mapper.dtoToDao(limitedPartnershipDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
         copyMetaDataForUpdate(lpSubmissionDaoBeforePatch, lpSubmissionDaoAfterPatch);

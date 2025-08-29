@@ -18,8 +18,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
 import java.util.Arrays;
@@ -65,8 +65,8 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
-                var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setPartnershipName("Test Partnership Updated");
+                var limitedPartnershipDataDto = new DataDto();
+                limitedPartnershipDataDto.setPartnershipName("Test Partnership Updated");
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
@@ -75,7 +75,7 @@ class LimitedPartnershipServiceUpdateTest {
                 assertEquals("Test Partnership", limitedPartnershipDao.getData().getPartnershipName());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipDataDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
@@ -115,8 +115,8 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDto registeredOfficeAddress = getAddressDto();
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setRegisteredOfficeAddress(registeredOfficeAddress);
+                DataDto limitedPartnershipDataDto = new DataDto();
+                limitedPartnershipDataDto.setRegisteredOfficeAddress(registeredOfficeAddress);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
@@ -125,7 +125,7 @@ class LimitedPartnershipServiceUpdateTest {
                 assertNull(limitedPartnershipDao.getData().getRegisteredOfficeAddress());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipDataDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
@@ -174,8 +174,8 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setTerm(null);
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setTerm(Term.BY_AGREEMENT);
+                DataDto limitedPartnershipDataDto = new DataDto();
+                limitedPartnershipDataDto.setTerm(Term.BY_AGREEMENT);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
@@ -184,7 +184,7 @@ class LimitedPartnershipServiceUpdateTest {
                 assertNull(limitedPartnershipDao.getData().getTerm());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipDataDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
@@ -225,8 +225,8 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDto principalPlaceOfBusinessAddress = getAddressDto();
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
+                DataDto limitedPartnershipDataDto = new DataDto();
+                limitedPartnershipDataDto.setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
@@ -235,7 +235,7 @@ class LimitedPartnershipServiceUpdateTest {
                 assertNull(limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipDataDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
@@ -286,8 +286,8 @@ class LimitedPartnershipServiceUpdateTest {
 
                 List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setSicCodes(sicCodes);
+                DataDto limitedPartnershipDataDto = new DataDto();
+                limitedPartnershipDataDto.setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
                 when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
@@ -296,7 +296,7 @@ class LimitedPartnershipServiceUpdateTest {
                 assertNull(limitedPartnershipDao.getData().getSicCodes());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipDataDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
@@ -336,8 +336,8 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(null);
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
+                DataDto limitedPartnershipDataDto = new DataDto();
+                limitedPartnershipDataDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
                 when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
@@ -346,7 +346,7 @@ class LimitedPartnershipServiceUpdateTest {
                 assertNull(limitedPartnershipDao.getData().getLawfulPurposeStatementChecked());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipDataDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);

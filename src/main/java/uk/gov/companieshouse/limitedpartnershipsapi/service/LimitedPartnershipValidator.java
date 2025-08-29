@@ -135,9 +135,17 @@ public class LimitedPartnershipValidator {
             if (dataDto.getNameEnding() == null) {
                 addError("data.nameEnding", "Name ending is required", bindingResult);
             }
+
+            if (dataDto.getPartnershipName() == null) {
+                addError("data.partnershipName", "Limited partnership name is required", bindingResult);
+            }
+
+            if (dataDto.getPartnershipType() == null) {
+                addError("data.partnershipType", "Limited partnership type is required", bindingResult);
+            }
         } else {
             if (dataDto.getPartnershipNumber() == null) {
-                addError("data.partnershipNumber", "Partnership number is required", bindingResult);
+                addError("data.partnershipNumber", "Limited partnership number is required", bindingResult);
             }
         }
     }

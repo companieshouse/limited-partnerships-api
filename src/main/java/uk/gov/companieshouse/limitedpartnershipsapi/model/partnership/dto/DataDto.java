@@ -1,11 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -20,7 +18,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
@@ -32,20 +29,20 @@ public class DataDto {
     public static final String NAME_MIN_SIZE_MESSAGE = "Limited partnership name must be greater than {min}";
     public static final String NAME_MAX_SIZE_MESSAGE = "Limited partnership name must be less than {max}";
 
-    @JsonInclude(NON_NULL)
+    //    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_number")
     @Pattern(regexp = "^(LP|NL|SL)\\d{6}$", message = "Partnership number must be valid")
     private String partnershipNumber;
 
-    @JsonInclude(NON_NULL)
+    //    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-    @NotNull(message = "Limited partnership name must not be null")
+//    @NotNull(message = "Limited partnership name must not be null")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)
     private String partnershipName;
 
-    @JsonInclude(NON_NULL)
+    //    @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
     @EnumValid(message = "Name ending must be valid")
     private PartnershipNameEnding nameEnding;
@@ -54,13 +51,13 @@ public class DataDto {
     @Email
     private String email;
 
-    @JsonInclude(NON_NULL)
+    //    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_type")
-    @NotNull(message = "Partnership type must not be null")
+//    @NotNull(message = "Partnership type must not be null")
     @EnumValid(message = "Partnership type must be valid")
     private PartnershipType partnershipType;
 
-    @JsonInclude(NON_NULL)
+    //    @JsonInclude(NON_NULL)
     @JsonProperty("jurisdiction")
     @EnumValid(message = "Jurisdiction must be valid")
     private Jurisdiction jurisdiction;

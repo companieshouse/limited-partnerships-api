@@ -85,7 +85,7 @@ class LimitedPartnershipServiceValidateTest {
 
         // then
         assertEquals(6, results.size());
-        checkForError(results, "Limited partnership name must not be null", "data.partnershipName");
+        checkForError(results, "Limited partnership name is required", "data.partnershipName");
         checkForError(results, "must be a well-formed email address", "data.email");
         checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
         checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");

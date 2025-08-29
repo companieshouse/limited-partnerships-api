@@ -18,7 +18,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
 import java.util.ArrayList;
@@ -112,13 +111,13 @@ class PartnershipControllerTest {
     @Test
     void testUpdatePartnershipIsSuccessful() throws ServiceException {
         // given
-        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        var limitedPartnershipDataDto = new DataDto();
 
         // when
         var response = partnershipController.updatePartnership(
                 transaction,
                 SUBMISSION_ID,
-                limitedPartnershipPatchDto,
+                limitedPartnershipDataDto,
                 REQUEST_ID,
                 USER_ID);
 
@@ -128,7 +127,7 @@ class PartnershipControllerTest {
         verify(limitedPartnershipService, times(1)).updateLimitedPartnership(
                 transaction,
                 SUBMISSION_ID,
-                limitedPartnershipPatchDto,
+                limitedPartnershipDataDto,
                 REQUEST_ID,
                 USER_ID);
     }
@@ -136,13 +135,13 @@ class PartnershipControllerTest {
     @Test
     void testInternalServerErrorReturnedWhenUpdatePartnershipFails() throws ServiceException {
         // given
-        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        var limitedPartnershipDataDto = new DataDto();
 
         doThrow(new ServiceException(String.format("Submission with id %s not found", SUBMISSION_ID)))
                 .when(limitedPartnershipService).updateLimitedPartnership(
                         transaction,
                         SUBMISSION_ID,
-                        limitedPartnershipPatchDto,
+                        limitedPartnershipDataDto,
                         REQUEST_ID,
                         USER_ID);
 
@@ -150,7 +149,7 @@ class PartnershipControllerTest {
         var response = partnershipController.updatePartnership(
                 transaction,
                 SUBMISSION_ID,
-                limitedPartnershipPatchDto,
+                limitedPartnershipDataDto,
                 REQUEST_ID,
                 USER_ID);
 
@@ -161,12 +160,12 @@ class PartnershipControllerTest {
     @Test
     void testNotFoundReturnedWhenUpdatePartnershipFailsToFindResource() throws ServiceException {
         // given
-        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        var limitedPartnershipDataDto = new DataDto();
         doThrow(new ResourceNotFoundException("error"))
                 .when(limitedPartnershipService).updateLimitedPartnership(
                         transaction,
                         SUBMISSION_ID,
-                        limitedPartnershipPatchDto,
+                        limitedPartnershipDataDto,
                         REQUEST_ID,
                         USER_ID);
 
@@ -174,7 +173,7 @@ class PartnershipControllerTest {
         var response = partnershipController.updatePartnership(
                 transaction,
                 SUBMISSION_ID,
-                limitedPartnershipPatchDto,
+                limitedPartnershipDataDto,
                 REQUEST_ID,
                 USER_ID);
 
