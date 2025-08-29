@@ -29,20 +29,16 @@ public class LimitedPartnershipDataDto {
     public static final String NAME_MIN_SIZE_MESSAGE = "Limited partnership name must be greater than {min}";
     public static final String NAME_MAX_SIZE_MESSAGE = "Limited partnership name must be less than {max}";
 
-    //    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_number")
     @Pattern(regexp = "^(LP|NL|SL)\\d{6}$", message = "Partnership number must be valid")
     private String partnershipNumber;
 
-    //    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-//    @NotNull(message = "Limited partnership name must not be null")
     @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)
     private String partnershipName;
 
-    //    @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
     @EnumValid(message = "Name ending must be valid")
     private PartnershipNameEnding nameEnding;
@@ -51,13 +47,10 @@ public class LimitedPartnershipDataDto {
     @Email
     private String email;
 
-    //    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_type")
-//    @NotNull(message = "Partnership type must not be null")
     @EnumValid(message = "Partnership type must be valid")
     private PartnershipType partnershipType;
 
-    //    @JsonInclude(NON_NULL)
     @JsonProperty("jurisdiction")
     @EnumValid(message = "Jurisdiction must be valid")
     private Jurisdiction jurisdiction;
