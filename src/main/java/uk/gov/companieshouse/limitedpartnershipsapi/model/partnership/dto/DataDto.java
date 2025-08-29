@@ -1,10 +1,12 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
@@ -15,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -83,6 +86,11 @@ public class DataDto {
 
     @JsonProperty("kind")
     private String kind;
+
+    @JsonProperty("date_of_update")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "Date of update must be in the past")
+    private LocalDate dateOfUpdate;
 
     public String getPartnershipNumber() {
         return partnershipNumber;
@@ -178,5 +186,13 @@ public class DataDto {
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public LocalDate getDateOfUpdate() {
+        return dateOfUpdate;
+    }
+
+    public void setDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
     }
 }

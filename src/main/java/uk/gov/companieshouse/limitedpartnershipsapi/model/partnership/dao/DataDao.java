@@ -5,6 +5,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class DataDao {
@@ -44,6 +45,9 @@ public class DataDao {
 
     @Field("kind")
     private String kind;
+
+    @Field("date_of_update")
+    private LocalDate dateOfUpdate;
 
     public String getPartnershipNumber() {
         return partnershipNumber;
@@ -139,5 +143,13 @@ public class DataDao {
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public LocalDate getDateOfUpdate() {
+        return dateOfUpdate;
+    }
+
+    public void setDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
     }
 }
