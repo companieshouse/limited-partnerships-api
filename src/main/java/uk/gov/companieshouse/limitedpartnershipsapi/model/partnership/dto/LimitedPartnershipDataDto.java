@@ -24,7 +24,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_S
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 
 @NameSize
-public class DataDto {
+public class LimitedPartnershipDataDto {
 
     public static final String NAME_MIN_SIZE_MESSAGE = "Limited partnership name must be greater than {min}";
     public static final String NAME_MAX_SIZE_MESSAGE = "Limited partnership name must be less than {max}";

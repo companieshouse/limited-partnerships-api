@@ -28,7 +28,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
@@ -101,7 +101,7 @@ class PartnershipControllerValidationTest {
             transaction.getResources().clear();
 
             LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-            DataDto dto = new DataDto();
+            LimitedPartnershipDataDto dto = new LimitedPartnershipDataDto();
 
             dto.setPartnershipName("test name");
             dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
@@ -123,7 +123,7 @@ class PartnershipControllerValidationTest {
         void shouldReturnBadRequestErrorIfPartnershipNameIsLessThan1Character() throws Exception {
             LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
 
-            DataDto dto = new DataDto();
+            LimitedPartnershipDataDto dto = new LimitedPartnershipDataDto();
             dto.setPartnershipName("");
             dto.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
             dto.setPartnershipType(PartnershipType.LP);
@@ -307,7 +307,7 @@ class PartnershipControllerValidationTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.['errors'].['dataDto']").value("Max length 'partnership name + name ending' is 160 characters"));
+                        .andExpect(jsonPath("$.['errors'].['data.partnershipName']").value("Max length 'partnership name + name ending' is 160 characters"));
 
             }
         }

@@ -10,7 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
@@ -157,16 +157,16 @@ public class FilingsService {
         return filing;
     }
 
-    private DataDto buildLimitedPartnershipDataWithPartnershipNumber(Transaction transaction) {
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipNumber(transaction.getCompanyNumber());
-        return dataDto;
+    private LimitedPartnershipDataDto buildLimitedPartnershipDataWithPartnershipNumber(Transaction transaction) {
+        LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
+        limitedPartnershipDataDto.setPartnershipNumber(transaction.getCompanyNumber());
+        return limitedPartnershipDataDto;
     }
 
     public FilingApi generateLimitedPartnershipFiling(Transaction transaction) throws ServiceException {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
 
-        DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
+        LimitedPartnershipDataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
 
         var filing = new FilingApi();
 

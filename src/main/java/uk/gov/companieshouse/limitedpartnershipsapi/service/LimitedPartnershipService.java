@@ -10,7 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -76,7 +76,7 @@ public class LimitedPartnershipService {
 
     public void updateLimitedPartnership(Transaction transaction,
                                          String submissionId,
-                                         DataDto limitedPartnershipDataDto,
+                                         LimitedPartnershipDataDto limitedPartnershipDataDto,
                                          String requestId,
                                          String userId) throws ServiceException {
         var optionalLpSubmissionDaoBeforePatch = repository.findById(submissionId);

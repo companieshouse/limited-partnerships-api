@@ -27,7 +27,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperI
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
@@ -328,7 +328,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -351,7 +351,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -372,7 +372,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -412,7 +412,7 @@ class LimitedPartnerControllerUpdateTest {
                 mocks();
 
                 LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
+                limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
                 limitedPartnershipDto.getData().setPartnershipType(type);
 
                 when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -588,7 +588,7 @@ class LimitedPartnerControllerUpdateTest {
         when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(limitedPartners);
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
+        limitedPartnershipDto.setData(new LimitedPartnershipDataDto());
         limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
 
         when(limitedPartnershipService.getLimitedPartnership(transaction))
@@ -614,9 +614,9 @@ class LimitedPartnerControllerUpdateTest {
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipDto.setData(dataDto);
+        LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
+        limitedPartnershipDataDto.setPartnershipType(PartnershipType.LP);
+        limitedPartnershipDto.setData(limitedPartnershipDataDto);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
 

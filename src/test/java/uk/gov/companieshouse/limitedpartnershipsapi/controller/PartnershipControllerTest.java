@@ -15,8 +15,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 
@@ -111,7 +111,7 @@ class PartnershipControllerTest {
     @Test
     void testUpdatePartnershipIsSuccessful() throws ServiceException {
         // given
-        var limitedPartnershipDataDto = new DataDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
 
         // when
         var response = partnershipController.updatePartnership(
@@ -135,7 +135,7 @@ class PartnershipControllerTest {
     @Test
     void testInternalServerErrorReturnedWhenUpdatePartnershipFails() throws ServiceException {
         // given
-        var limitedPartnershipDataDto = new DataDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
 
         doThrow(new ServiceException(String.format("Submission with id %s not found", SUBMISSION_ID)))
                 .when(limitedPartnershipService).updateLimitedPartnership(
@@ -160,7 +160,7 @@ class PartnershipControllerTest {
     @Test
     void testNotFoundReturnedWhenUpdatePartnershipFailsToFindResource() throws ServiceException {
         // given
-        var limitedPartnershipDataDto = new DataDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
         doThrow(new ResourceNotFoundException("error"))
                 .when(limitedPartnershipService).updateLimitedPartnership(
                         transaction,
@@ -185,9 +185,9 @@ class PartnershipControllerTest {
     @Test
     void testGetPartnershipIsSuccessful() throws ResourceNotFoundException {
         // given
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipName("Test name");
-        limitedPartnershipDto.setData(dataDto);
+        LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
+        limitedPartnershipDataDto.setPartnershipName("Test name");
+        limitedPartnershipDto.setData(limitedPartnershipDataDto);
 
         when(limitedPartnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(
                 limitedPartnershipDto);

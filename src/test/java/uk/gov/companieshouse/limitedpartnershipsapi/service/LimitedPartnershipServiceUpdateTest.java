@@ -18,7 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
@@ -65,7 +65,7 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
-                var limitedPartnershipDataDto = new DataDto();
+                var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
                 limitedPartnershipDataDto.setPartnershipName("Test Partnership Updated");
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
@@ -115,7 +115,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDto registeredOfficeAddress = getAddressDto();
 
-                DataDto limitedPartnershipDataDto = new DataDto();
+                LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
                 limitedPartnershipDataDto.setRegisteredOfficeAddress(registeredOfficeAddress);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
@@ -174,7 +174,7 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setTerm(null);
 
-                DataDto limitedPartnershipDataDto = new DataDto();
+                LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
                 limitedPartnershipDataDto.setTerm(Term.BY_AGREEMENT);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
@@ -225,7 +225,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 AddressDto principalPlaceOfBusinessAddress = getAddressDto();
 
-                DataDto limitedPartnershipDataDto = new DataDto();
+                LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
                 limitedPartnershipDataDto.setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
@@ -286,7 +286,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
 
-                DataDto limitedPartnershipDataDto = new DataDto();
+                LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
                 limitedPartnershipDataDto.setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
@@ -336,7 +336,7 @@ class LimitedPartnershipServiceUpdateTest {
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(null);
 
-                DataDto limitedPartnershipDataDto = new DataDto();
+                LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
                 limitedPartnershipDataDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));

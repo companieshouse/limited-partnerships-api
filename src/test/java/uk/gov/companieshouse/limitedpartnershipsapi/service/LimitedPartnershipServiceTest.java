@@ -18,7 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMap
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
@@ -122,7 +122,7 @@ class LimitedPartnershipServiceTest {
     @Test
     void giveInvalidSubmissionId_whenUpdateLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        var limitedPartnershipDataDto = new DataDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
         // when + then
@@ -142,7 +142,7 @@ class LimitedPartnershipServiceTest {
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
 
-        var limitedPartnershipDataDto = new DataDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
 
         when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                 limitedPartnershipDao));
@@ -170,7 +170,7 @@ class LimitedPartnershipServiceTest {
         // given
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
-        var limitedPartnershipDataDto = new DataDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
 
         // when + then
         assertThrows(ServiceException.class, () -> service.updateLimitedPartnership(
