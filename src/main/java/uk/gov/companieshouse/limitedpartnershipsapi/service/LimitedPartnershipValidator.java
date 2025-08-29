@@ -66,6 +66,11 @@ public class LimitedPartnershipValidator {
     public List<ValidationStatusError> validatePostTransition(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
+        if (limitedPartnershipDto.getData().getDateOfUpdate() == null) {
+            errorsList.add(createValidationStatusError("Date of update is required",
+                    "data.dateOfUpdate"));
+        }
+
         if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS.getDescription())) {
 
             checkFieldConstraints(limitedPartnershipDto, null, errorsList);

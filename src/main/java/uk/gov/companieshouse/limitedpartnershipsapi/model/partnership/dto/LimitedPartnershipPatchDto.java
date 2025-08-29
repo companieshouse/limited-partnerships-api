@@ -1,8 +1,10 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
@@ -13,6 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
@@ -64,6 +67,11 @@ public class LimitedPartnershipPatchDto {
 
     @JsonProperty("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
+
+    @JsonProperty("date_of_update")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "Date of update must be in the past")
+    private LocalDate dateOfUpdate;
 
     public String getPartnershipName() {
         return partnershipName;
@@ -143,5 +151,13 @@ public class LimitedPartnershipPatchDto {
 
     public Boolean getLawfulPurposeStatementChecked() {
         return lawfulPurposeStatementChecked;
+    }
+
+    public LocalDate getDateOfUpdate() {
+        return dateOfUpdate;
+    }
+
+    public void setDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
     }
 }
