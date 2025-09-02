@@ -11,10 +11,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 
 import java.time.LocalDate;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
-
 public class GeneralPartnerBuilder {
     public static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+    private String generalPartnerKind = null;
+
+    public GeneralPartnerBuilder withGeneralPartnerKind(String kind) {
+        this.generalPartnerKind = kind;
+        return this;
+    }
 
     public GeneralPartnerDto personDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
@@ -29,7 +33,7 @@ public class GeneralPartnerBuilder {
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setServiceAddress(createAddressDto());
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
-        dataDto.setKind(FILING_KIND_GENERAL_PARTNER);
+        dataDto.setKind(generalPartnerKind);
 
         dto.setData(dataDto);
 
@@ -49,7 +53,7 @@ public class GeneralPartnerBuilder {
         dataDto.setRegisteredCompanyNumber("12345678");
         dataDto.setPrincipalOfficeAddress(createAddressDto());
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
-        dataDto.setKind(FILING_KIND_GENERAL_PARTNER);
+        dataDto.setKind(generalPartnerKind);
 
         dto.setData(dataDto);
 
@@ -81,7 +85,7 @@ public class GeneralPartnerBuilder {
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setUsualResidentialAddress(createAddressDao());
         dataDao.setServiceAddress(createAddressDao());
-        dataDao.setKind(FILING_KIND_GENERAL_PARTNER);
+        dataDao.setKind(generalPartnerKind);
 
         dao.setData(dataDao);
 
@@ -102,7 +106,7 @@ public class GeneralPartnerBuilder {
         dataDao.setRegisteredCompanyNumber("12345678");
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
-        dataDao.setKind(FILING_KIND_GENERAL_PARTNER);
+        dataDao.setKind(generalPartnerKind);
 
         dao.setData(dataDao);
 
