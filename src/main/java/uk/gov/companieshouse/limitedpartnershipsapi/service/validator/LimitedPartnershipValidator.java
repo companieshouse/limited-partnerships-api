@@ -11,7 +11,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -63,41 +62,6 @@ public class LimitedPartnershipValidator {
             var methodParameter = new MethodParameter(DataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
-    }
-
-    public List<ValidationStatusError> validatePostTransition(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
-        List<ValidationStatusError> errorsList = new ArrayList<>();
-
-        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
-
-        if (!violations.isEmpty()) {
-            violations.forEach(violation ->
-                    errorsList.add(validationStatus.createValidationStatusError(violation.getMessage(), violation.getPropertyPath().toString()))
-            );
-        }
-
-        if (limitedPartnershipDto.getData().getDateOfUpdate() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
-                    "data.dateOfUpdate"));
-        }
-
-        if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS.getDescription())) {
-
-            if (limitedPartnershipDto.getData().getRegisteredOfficeAddress() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Registered office address is required",
-                        "data.registeredOfficeAddress"));
-            }
-        }
-
-        if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_NAME.getDescription())) {
-
-            if (limitedPartnershipDto.getData().getPartnershipName() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Name ending is required",
-                        "data.nameEnding"));
-            }
-        }
-
-        return errorsList;
     }
 
     private void checkCommonFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
