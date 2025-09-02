@@ -115,6 +115,36 @@ class PartnershipControllerUpdateTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void UpdateNameShouldReturn200() throws Exception {
+        mocks();
+
+        String body = "{ \"partnership_name\" : \"Test name\", \"name_ending\" : \"LP\" }";
+
+        mockMvc.perform(patch(PARTNERSHIP_PATCH_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void UpdateNameShouldReturn400IfNameEndingIsNotCorrect() throws Exception {
+        mocks();
+
+        String body = "{ \"partnership_name\" : \"Test name\", \"name_ending\" : \"PP\" }";
+
+        mockMvc.perform(patch(PARTNERSHIP_PATCH_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
     private void mocks(LimitedPartnershipDao limitedPartnershipDao) throws ServiceException {
         when(limitedPartnershipRepository.insert((LimitedPartnershipDao) any())).thenReturn(limitedPartnershipDao);
         when(limitedPartnershipRepository.save(any())).thenReturn(limitedPartnershipDao);

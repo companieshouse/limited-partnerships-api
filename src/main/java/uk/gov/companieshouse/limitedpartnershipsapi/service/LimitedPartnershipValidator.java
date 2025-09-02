@@ -81,6 +81,21 @@ public class LimitedPartnershipValidator {
             }
         }
 
+        if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_NAME.getDescription())) {
+            Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
+
+            if (!violations.isEmpty()) {
+                violations.forEach(violation ->
+                        errorsList.add(createValidationStatusError(violation.getMessage(), violation.getPropertyPath().toString()))
+                );
+            }
+
+            if (limitedPartnershipDto.getData().getPartnershipName() == null) {
+                errorsList.add(createValidationStatusError("Name ending is required",
+                        "data.nameEnding"));
+            }
+        }
+
         return errorsList;
     }
 
