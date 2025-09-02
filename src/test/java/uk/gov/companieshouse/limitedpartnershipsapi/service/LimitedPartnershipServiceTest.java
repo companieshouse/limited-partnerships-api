@@ -187,9 +187,9 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
         LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
-        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                 limitedPartnershipDao));
+        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class), eq(FILING_KIND_LIMITED_PARTNERSHIP))).thenReturn(true);
         when(mapper.daoToDto(limitedPartnershipDao)).thenReturn(limitedPartnershipDto);
 
         // when
@@ -204,7 +204,6 @@ class LimitedPartnershipServiceTest {
     @Test
     void giveInvalidSubmissionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
         // when + then
@@ -214,7 +213,10 @@ class LimitedPartnershipServiceTest {
     @Test
     void giveSubmissionIdAndTransactionIdDoNotMatch_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(false);
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+        when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
+                limitedPartnershipDao));
+        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class), any(String.class))).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction, SUBMISSION_ID));
