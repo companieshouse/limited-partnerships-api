@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.postTransition;
+package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition;
 
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;

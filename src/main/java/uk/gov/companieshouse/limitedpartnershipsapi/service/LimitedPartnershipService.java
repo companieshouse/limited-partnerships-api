@@ -15,7 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.postTransition.PostTransitionValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.Collections;

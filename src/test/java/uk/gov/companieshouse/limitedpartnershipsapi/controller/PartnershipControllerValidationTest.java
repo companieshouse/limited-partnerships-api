@@ -36,7 +36,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.postTransition.PostTransitionValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionValidator;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;

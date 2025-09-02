@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.postTransition;
+package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
