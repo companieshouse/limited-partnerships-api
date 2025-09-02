@@ -16,8 +16,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import java.time.LocalDate;
 import java.util.List;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-
 public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
@@ -32,7 +30,7 @@ public class LimitedPartnershipBuilder {
     private boolean lawfulPurposeStatementChecked = true;
     private LocalDate dateOfUpdate = null;
 
-    private String partnershipKind = FILING_KIND_LIMITED_PARTNERSHIP;
+    private String partnershipKind = null;
 
     private AddressDto registeredOfficeAddressDto = null;
     private AddressDto principalPalceOfBusinessAddressDto = null;

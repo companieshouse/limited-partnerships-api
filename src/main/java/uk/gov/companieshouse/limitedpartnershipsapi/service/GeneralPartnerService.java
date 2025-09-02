@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
@@ -48,7 +49,10 @@ public class GeneralPartnerService {
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
-        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri, insertedSubmission.getData().getKind());
+
+        String kind = insertedSubmission.getData().getKind() != null ? insertedSubmission.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+
+        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri, kind);
 
         return insertedSubmission.getId();
     }
@@ -79,7 +83,9 @@ public class GeneralPartnerService {
     public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
 
-        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, generalPartnerDaoBeforePatch.getData().getKind());
+        String kind = generalPartnerDaoBeforePatch.getData().getKind() != null ? generalPartnerDaoBeforePatch.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 
         var generalPartnerDto = mapper.daoToDto(generalPartnerDaoBeforePatch);
 
@@ -105,7 +111,9 @@ public class GeneralPartnerService {
 
         var generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", generalPartnerId)));
 
-        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, generalPartnerDao.getData().getKind());
+        String kind = generalPartnerDao.getData().getKind() != null ? generalPartnerDao.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 
         return mapper.daoToDto(generalPartnerDao);
     }
@@ -159,7 +167,9 @@ public class GeneralPartnerService {
         GeneralPartnerDao generalPartnerDao = repository.findById(generalPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
 
-        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, generalPartnerDao.getData().getKind());
+        String kind = generalPartnerDao.getData().getKind() != null ? generalPartnerDao.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+
+        checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 

@@ -19,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import java.util.Collections;
 import java.util.List;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
@@ -67,8 +68,10 @@ public class LimitedPartnershipService {
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedLimitedPartnership.getId());
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
+        String kind = insertedLimitedPartnership.getData().getKind() != null ? insertedLimitedPartnership.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+
         // Create the Resource to be added to the Transaction (includes various links to the resource)
-        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, insertedLimitedPartnership.getData().getKind());
+        var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, kind);
 
         transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
@@ -155,7 +158,9 @@ public class LimitedPartnershipService {
 
         var limitedPartnershipDao = limitedPartnerships.getFirst();
 
-        if (!transactionService.doesTransactionHaveALimitedPartnership(transaction, limitedPartnershipDao.getData().getKind())) {
+        String kind = limitedPartnershipDao.getData().getKind() != null ? limitedPartnershipDao.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+
+        if (!transactionService.doesTransactionHaveALimitedPartnership(transaction, kind)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a limited partnership resource", transaction.getId()));
         }

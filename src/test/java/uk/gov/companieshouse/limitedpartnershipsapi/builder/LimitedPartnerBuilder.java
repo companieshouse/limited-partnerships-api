@@ -16,10 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 
 public class LimitedPartnerBuilder {
     public static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
+
+    private String limitedPartnerKind = null;
+
+    public LimitedPartnerBuilder withLimitedPartnerKind(String kind) {
+        this.limitedPartnerKind = kind;
+        return this;
+    }
 
     public LimitedPartnerDto personDto() {
         LimitedPartnerDto dto = new LimitedPartnerDto();
@@ -37,7 +43,7 @@ public class LimitedPartnerBuilder {
         dataDto.setContributionCurrencyValue("1000.00");
         dataDto.setContributionCurrencyType(Currency.GBP);
         dataDto.setUsualResidentialAddress(createAddressDto());
-        dataDto.setKind(FILING_KIND_LIMITED_PARTNER);
+        dataDto.setKind(limitedPartnerKind);
 
         dto.setData(dataDto);
 
@@ -62,7 +68,7 @@ public class LimitedPartnerBuilder {
         contributionSubTypes.add(SHARES);
         dataDto.setContributionSubTypes(contributionSubTypes);
         dataDto.setPrincipalOfficeAddress(createAddressDto());
-        dataDto.setKind(FILING_KIND_LIMITED_PARTNER);
+        dataDto.setKind(limitedPartnerKind);
 
         dto.setData(dataDto);
 
@@ -98,7 +104,7 @@ public class LimitedPartnerBuilder {
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setUsualResidentialAddress(createAddressDao());
-        dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
+        dataDao.setKind(limitedPartnerKind);
 
         dao.setData(dataDao);
 
@@ -126,7 +132,7 @@ public class LimitedPartnerBuilder {
         dataDao.setContributionCurrencyValue("1000.00");
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
-        dataDao.setKind(FILING_KIND_LIMITED_PARTNER);
+        dataDao.setKind(limitedPartnerKind);
 
         dao.setData(dataDao);
 
