@@ -976,10 +976,10 @@ class PartnershipControllerValidationTest {
                                 .content(""))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("is_valid").value("false"))
-                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.partnershipName"))
-                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Limited partnership name must be less than 160"))
-                        .andExpect(jsonPath("$.['errors'][1].['location']").value("data"))
-                        .andExpect(jsonPath("$.['errors'][1].['error']").value("Max length 'partnership name + name ending' is 160 characters"))
+                        .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                                allOf(hasEntry("location", "data.partnershipName"), hasEntry("error", "Limited partnership name must be less than 160")),
+                                allOf(hasEntry("location", "data"), hasEntry("error", "Max length 'partnership name + name ending' is 160 characters")))
+                        ))
                         .andExpect(jsonPath("$.['errors'][2].['location']").doesNotExist());
             }
         }
