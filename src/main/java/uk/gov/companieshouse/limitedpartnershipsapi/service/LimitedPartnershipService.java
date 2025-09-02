@@ -137,8 +137,8 @@ public class LimitedPartnershipService {
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException {
         String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
-        var submission = repository.findById(submissionId);
-        var limitedPartnershipDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
+        var limitedPartnershipDao = repository.findById(submissionId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
 
         String kind = limitedPartnershipDao.getData().getKind() != null ? limitedPartnershipDao.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
 
