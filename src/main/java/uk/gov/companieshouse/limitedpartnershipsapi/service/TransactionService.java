@@ -191,8 +191,8 @@ public class TransactionService {
         return IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode());
     }
 
-    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
-        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
+    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink,String  kind) {
+        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, kind);
     }
 
     public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
