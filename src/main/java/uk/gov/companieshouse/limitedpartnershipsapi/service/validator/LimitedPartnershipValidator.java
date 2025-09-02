@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.service.validator;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -26,10 +26,12 @@ public class LimitedPartnershipValidator {
     private static final String CLASS_NAME = DataDto.class.getName();
 
     private final Validator validator;
+    private final ValidationStatus validationStatus;
 
     @Autowired
-    public LimitedPartnershipValidator(Validator validator) {
+    public LimitedPartnershipValidator(Validator validator, ValidationStatus validationStatus) {
         this.validator = validator;
+        this.validationStatus = validationStatus;
     }
 
     public List<ValidationStatusError> validateFull(LimitedPartnershipDto limitedPartnershipDto,
@@ -66,32 +68,31 @@ public class LimitedPartnershipValidator {
     public List<ValidationStatusError> validatePostTransition(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
+        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    errorsList.add(validationStatus.createValidationStatusError(violation.getMessage(), violation.getPropertyPath().toString()))
+            );
+        }
+
         if (limitedPartnershipDto.getData().getDateOfUpdate() == null) {
-            errorsList.add(createValidationStatusError("Date of update is required",
+            errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
                     "data.dateOfUpdate"));
         }
 
         if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS.getDescription())) {
 
-            checkFieldConstraints(limitedPartnershipDto, null, errorsList);
-
             if (limitedPartnershipDto.getData().getRegisteredOfficeAddress() == null) {
-                errorsList.add(createValidationStatusError("Registered office address is required",
+                errorsList.add(validationStatus.createValidationStatusError("Registered office address is required",
                         "data.registeredOfficeAddress"));
             }
         }
 
         if (limitedPartnershipDto.getData().getKind().equals(PartnershipKind.UPDATE_PARTNERSHIP_NAME.getDescription())) {
-            Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
-
-            if (!violations.isEmpty()) {
-                violations.forEach(violation ->
-                        errorsList.add(createValidationStatusError(violation.getMessage(), violation.getPropertyPath().toString()))
-                );
-            }
 
             if (limitedPartnershipDto.getData().getPartnershipName() == null) {
-                errorsList.add(createValidationStatusError("Name ending is required",
+                errorsList.add(validationStatus.createValidationStatusError("Name ending is required",
                         "data.nameEnding"));
             }
         }
@@ -101,25 +102,25 @@ public class LimitedPartnershipValidator {
 
     private void checkCommonFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
         if (dataDto.getEmail() == null) {
-            errorsList.add(createValidationStatusError("Email is required", "data.email"));
+            errorsList.add(validationStatus.createValidationStatusError("Email is required", "data.email"));
         }
 
         if (dataDto.getJurisdiction() == null) {
-            errorsList.add(createValidationStatusError("Jurisdiction is required", "data.jurisdiction"));
+            errorsList.add(validationStatus.createValidationStatusError("Jurisdiction is required", "data.jurisdiction"));
         }
 
         if (dataDto.getRegisteredOfficeAddress() == null) {
-            errorsList.add(createValidationStatusError("Registered office address is required",
+            errorsList.add(validationStatus.createValidationStatusError("Registered office address is required",
                     "data.registeredOfficeAddress"));
         }
 
         if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
-            errorsList.add(createValidationStatusError("Principal place of business address is required",
+            errorsList.add(validationStatus.createValidationStatusError("Principal place of business address is required",
                     "data.principalPlaceOfBusinessAddress"));
         }
 
         if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
-            errorsList.add(createValidationStatusError("Lawful purpose statement checked is required",
+            errorsList.add(validationStatus.createValidationStatusError("Lawful purpose statement checked is required",
                     "data.lawfulPurposeStatementChecked"));
         }
     }
@@ -128,19 +129,19 @@ public class LimitedPartnershipValidator {
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
             if (dataDto.getTerm() != null) {
-                errorsList.add(createValidationStatusError("Term is not required", "data.term"));
+                errorsList.add(validationStatus.createValidationStatusError("Term is not required", "data.term"));
             }
 
             if (dataDto.getSicCodes() != null) {
-                errorsList.add(createValidationStatusError("SIC codes are not required", "data.sicCodes"));
+                errorsList.add(validationStatus.createValidationStatusError("SIC codes are not required", "data.sicCodes"));
             }
         } else {
             if (dataDto.getTerm() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
-                errorsList.add(createValidationStatusError("Term is required", "data.term"));
+                errorsList.add(validationStatus.createValidationStatusError("Term is required", "data.term"));
             }
 
             if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
-                errorsList.add(createValidationStatusError("SIC codes are required", "data.sicCodes"));
+                errorsList.add(validationStatus.createValidationStatusError("SIC codes are required", "data.sicCodes"));
             }
         }
     }
@@ -171,26 +172,14 @@ public class LimitedPartnershipValidator {
         bindingResult.addError(new FieldError(CLASS_NAME, fieldName, defaultMessage));
     }
 
-    private ValidationStatusError createValidationStatusError(String errorMessage, String location) {
-        var error = new ValidationStatusError();
-        error.setError(errorMessage);
-        error.setLocation(location);
-        return error;
-    }
-
     private void checkFieldConstraints(LimitedPartnershipDto limitedPartnershipDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
             validatePartial(limitedPartnershipDto, incorporationKind);
         } catch (MethodArgumentNotValidException e) {
-            convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
+            validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
         }
-    }
-
-    private void convertFieldErrorsToValidationStatusErrors(BindingResult bindingResult, List<ValidationStatusError> errorsList) {
-        bindingResult.getFieldErrors().forEach(fe ->
-                errorsList.add(createValidationStatusError(fe.getDefaultMessage(), fe.getField())));
     }
 }
