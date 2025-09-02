@@ -8,7 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import java.time.LocalDate;
 import java.util.List;
 
-public class DataDao {
+public class LimitedPartnershipDataDao {
 
     @Field("partnership_number")
     private String partnershipNumber;

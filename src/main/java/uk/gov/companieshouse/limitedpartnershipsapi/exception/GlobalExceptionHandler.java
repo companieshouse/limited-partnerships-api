@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
         }
 
         for (ObjectError error : globalErrors) {
-            String fieldName = error.getObjectName().equals("limitedPartnershipPatchDto") ? "data.partnershipName" : error.getObjectName();
+            String fieldName = error.getObjectName().equals("limitedPartnershipDataDto") ? "data.partnershipName" : error.getObjectName();
             errorFields.put(fieldName, error.getDefaultMessage());
         }
 

@@ -33,7 +33,7 @@ public class LimitedPartnershipDao {
     private String transactionId;
 
     @Field("data")
-    private DataDao data;
+    private LimitedPartnershipDataDao data;
 
     @Field("links")
     private Map<String, String> links;
@@ -62,11 +62,11 @@ public class LimitedPartnershipDao {
         this.transactionId = transactionId;
     }
 
-    public DataDao getData() {
+    public LimitedPartnershipDataDao getData() {
         return data;
     }
 
-    public void setData(DataDao data) {
+    public void setData(LimitedPartnershipDataDao data) {
         this.data = data;
     }
 

@@ -15,8 +15,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
 import java.util.List;
@@ -85,7 +85,7 @@ class LimitedPartnershipServiceValidateTest {
 
         // then
         assertEquals(6, results.size());
-        checkForError(results, "Limited partnership name must not be null", "data.partnershipName");
+        checkForError(results, "Limited partnership name is required", "data.partnershipName");
         checkForError(results, "must be a well-formed email address", "data.email");
         checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
         checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");
@@ -226,12 +226,12 @@ class LimitedPartnershipServiceValidateTest {
                 .withAddresses()
                 .buildDao();
 
-        DataDao dataDao = dao.getData();
-        dataDao.setPartnershipType(type);
+        LimitedPartnershipDataDao limitedPartnershipDataDao = dao.getData();
+        limitedPartnershipDataDao.setPartnershipType(type);
 
         if (LP.equals(type) || SLP.equals(type)) {
-            dataDao.setTerm(Term.BY_AGREEMENT);
-            dataDao.setSicCodes(List.of("12345"));
+            limitedPartnershipDataDao.setTerm(Term.BY_AGREEMENT);
+            limitedPartnershipDataDao.setSicCodes(List.of("12345"));
         }
 
         return dao;

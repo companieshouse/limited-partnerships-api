@@ -15,12 +15,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
 import java.util.ArrayList;
@@ -58,9 +57,6 @@ class LimitedPartnershipServiceTest {
 
     @Mock
     private LimitedPartnershipMapper mapper;
-
-    @Mock
-    private LimitedPartnershipPatchMapper patchMapper;
 
     @Mock
     private LimitedPartnershipRepository repository;
@@ -126,18 +122,18 @@ class LimitedPartnershipServiceTest {
     @Test
     void giveInvalidSubmissionId_whenUpdateLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
         // when + then
-        assertThrows(ResourceNotFoundException.class, () -> service.updateLimitedPartnership(transaction, "wrong-id", limitedPartnershipPatchDto, REQUEST_ID, USER_ID));
+        assertThrows(ResourceNotFoundException.class, () -> service.updateLimitedPartnership(transaction, "wrong-id", limitedPartnershipDataDto, REQUEST_ID, USER_ID));
     }
 
     @Test
     void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException {
         // given
         LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-        var dataDao = new DataDao();
+        var dataDao = new LimitedPartnershipDataDao();
         dataDao.setPartnershipName("Asset Strippers");
         dataDao.setNameEnding(PartnershipNameEnding.LP.getDescription());
         dataDao.setJurisdiction("Scotland");
@@ -146,17 +142,16 @@ class LimitedPartnershipServiceTest {
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
 
-        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
 
         when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                 limitedPartnershipDao));
-        when(mapper.daoToDto(limitedPartnershipDao)).thenReturn(limitedPartnershipDto);
         LimitedPartnershipDao limitedPartnershipDaoAfterPatch = new LimitedPartnershipBuilder().buildDao();
-        when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(
+        when(mapper.dtoToDao((LimitedPartnershipDto) any())).thenReturn(
                 limitedPartnershipDaoAfterPatch);
 
         // when
-        service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+        service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipDataDto, REQUEST_ID, USER_ID);
 
         // then
         verify(repository).findById(SUBMISSION_ID);
@@ -174,11 +169,11 @@ class LimitedPartnershipServiceTest {
         // given
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
-        var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+        var limitedPartnershipDataDto = new LimitedPartnershipDataDto();
 
         // when + then
         assertThrows(ServiceException.class, () -> service.updateLimitedPartnership(
-                transaction, "wrong-id", limitedPartnershipPatchDto, REQUEST_ID, USER_ID));
+                transaction, "wrong-id", limitedPartnershipDataDto, REQUEST_ID, USER_ID));
     }
 
     @Test

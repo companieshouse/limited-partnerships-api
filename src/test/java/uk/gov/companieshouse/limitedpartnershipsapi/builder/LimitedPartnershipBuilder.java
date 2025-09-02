@@ -8,9 +8,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdicti
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.time.LocalDate;
@@ -162,23 +162,23 @@ public class LimitedPartnershipBuilder {
 
     public LimitedPartnershipDto buildDto() {
         LimitedPartnershipDto dto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
+        LimitedPartnershipDataDto limitedPartnershipDataDto = new LimitedPartnershipDataDto();
 
-        dataDto.setKind(partnershipKind);
-        dataDto.setPartnershipName(PARTNERSHIP_NAME);
-        dataDto.setNameEnding(PARTNERSHIP_NAME_ENDING);
-        dataDto.setPartnershipType(PARTNERSHIP_TYPE);
-        dataDto.setPartnershipNumber(PARTNERSHIP_NUMBER);
-        dataDto.setEmail(EMAIL);
-        dataDto.setJurisdiction(JURISDICTION);
-        dataDto.setTerm(term);
-        dataDto.setSicCodes(sicCodes);
-        dataDto.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
-        dataDto.setRegisteredOfficeAddress(registeredOfficeAddressDto);
-        dataDto.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDto);
-        dataDto.setDateOfUpdate(dateOfUpdate);
+        limitedPartnershipDataDto.setKind(partnershipKind);
+        limitedPartnershipDataDto.setPartnershipName(PARTNERSHIP_NAME);
+        limitedPartnershipDataDto.setNameEnding(PARTNERSHIP_NAME_ENDING);
+        limitedPartnershipDataDto.setPartnershipType(PARTNERSHIP_TYPE);
+        limitedPartnershipDataDto.setPartnershipNumber(PARTNERSHIP_NUMBER);
+        limitedPartnershipDataDto.setEmail(EMAIL);
+        limitedPartnershipDataDto.setJurisdiction(JURISDICTION);
+        limitedPartnershipDataDto.setTerm(term);
+        limitedPartnershipDataDto.setSicCodes(sicCodes);
+        limitedPartnershipDataDto.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
+        limitedPartnershipDataDto.setRegisteredOfficeAddress(registeredOfficeAddressDto);
+        limitedPartnershipDataDto.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDto);
+        limitedPartnershipDataDto.setDateOfUpdate(dateOfUpdate);
 
-        dto.setData(dataDto);
+        dto.setData(limitedPartnershipDataDto);
 
         return dto;
     }
@@ -187,23 +187,23 @@ public class LimitedPartnershipBuilder {
         LimitedPartnershipDao dao = new LimitedPartnershipDao();
         dao.setId(SUBMISSION_ID);
 
-        DataDao dataDao = new DataDao();
+        LimitedPartnershipDataDao limitedPartnershipDataDao = new LimitedPartnershipDataDao();
 
-        dataDao.setKind(partnershipKind);
-        dataDao.setPartnershipName(PARTNERSHIP_NAME);
-        dataDao.setNameEnding(PARTNERSHIP_NAME_ENDING.getDescription());
-        dataDao.setPartnershipType(PARTNERSHIP_TYPE);
-        dataDao.setPartnershipNumber(PARTNERSHIP_NUMBER);
-        dataDao.setEmail(EMAIL);
-        dataDao.setJurisdiction(JURISDICTION.getApiKey());
-        dataDao.setTerm(term);
-        dataDao.setSicCodes(sicCodes);
-        dataDao.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
-        dataDao.setRegisteredOfficeAddress(registeredOfficeAddressDao);
-        dataDao.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDao);
-        dataDao.setDateOfUpdate(dateOfUpdate);
+        limitedPartnershipDataDao.setKind(partnershipKind);
+        limitedPartnershipDataDao.setPartnershipName(PARTNERSHIP_NAME);
+        limitedPartnershipDataDao.setNameEnding(PARTNERSHIP_NAME_ENDING.getDescription());
+        limitedPartnershipDataDao.setPartnershipType(PARTNERSHIP_TYPE);
+        limitedPartnershipDataDao.setPartnershipNumber(PARTNERSHIP_NUMBER);
+        limitedPartnershipDataDao.setEmail(EMAIL);
+        limitedPartnershipDataDao.setJurisdiction(JURISDICTION.getApiKey());
+        limitedPartnershipDataDao.setTerm(term);
+        limitedPartnershipDataDao.setSicCodes(sicCodes);
+        limitedPartnershipDataDao.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
+        limitedPartnershipDataDao.setRegisteredOfficeAddress(registeredOfficeAddressDao);
+        limitedPartnershipDataDao.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDao);
+        limitedPartnershipDataDao.setDateOfUpdate(dateOfUpdate);
 
-        dao.setData(dataDao);
+        dao.setData(limitedPartnershipDataDao);
 
         return dao;
     }
