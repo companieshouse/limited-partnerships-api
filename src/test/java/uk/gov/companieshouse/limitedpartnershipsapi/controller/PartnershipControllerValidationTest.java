@@ -903,6 +903,86 @@ class PartnershipControllerValidationTest {
                         .andExpect(jsonPath("$.['errors'][0].['error']").value("Date of update is required"));
             }
         }
+
+        @Nested
+        class ValidatePartnershipName {
+
+            @Test
+            void shouldReturn200IfNoErrors() throws Exception {
+
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
+                        .withAddresses()
+                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
+                        .buildDao();
+
+                mocks(limitedPartnershipDao);
+
+                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(""))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("is_valid").value("true"));
+            }
+
+            @Test
+            void shouldReturn200AndErrorDetailsIfNoName() throws Exception {
+
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
+                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
+                        .buildDao();
+
+                limitedPartnershipDao.getData().setPartnershipName(null);
+                limitedPartnershipDao.getData().setNameEnding(null);
+
+                mocks(limitedPartnershipDao);
+
+                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(""))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("is_valid").value("false"))
+                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.partnershipName"))
+                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Limited partnership name must not be null"))
+                        .andExpect(jsonPath("$.['errors'][1].['location']").value("data.nameEnding"))
+                        .andExpect(jsonPath("$.['errors'][1].['error']").value("Name ending is required"))
+                        .andExpect(jsonPath("$.['errors'][2].['location']").doesNotExist());
+            }
+
+            @Test
+            void shouldReturn200AndErrorDetailsIfNameIsTooLong() throws Exception {
+
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
+                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
+                        .buildDao();
+
+                limitedPartnershipDao.getData().setPartnershipName(StringUtils.repeat("A", 161));
+
+                mocks(limitedPartnershipDao);
+
+                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(""))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("is_valid").value("false"))
+                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.partnershipName"))
+                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Limited partnership name must be less than 160"))
+                        .andExpect(jsonPath("$.['errors'][1].['location']").value("data"))
+                        .andExpect(jsonPath("$.['errors'][1].['error']").value("Max length 'partnership name + name ending' is 160 characters"))
+                        .andExpect(jsonPath("$.['errors'][2].['location']").doesNotExist());
+            }
+        }
     }
 
     private void mocks(LimitedPartnershipDao limitedPartnershipDao) {
