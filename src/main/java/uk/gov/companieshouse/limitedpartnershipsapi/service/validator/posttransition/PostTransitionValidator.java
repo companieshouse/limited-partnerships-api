@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
@@ -21,15 +20,14 @@ public class PostTransitionValidator {
     private final Validator validator;
     private final ValidationStatus validationStatus;
 
-    private final Map<String, PostTransitionStrategy> strategyMap = Map.of(
-            PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS.getDescription(), new UpdateRegisteredOfficeAddress(),
-            PartnershipKind.UPDATE_PARTNERSHIP_NAME.getDescription(), new UpdatePartnershipName()
-    );
+    private final Map<String, PostTransitionStrategy> strategyMap;
 
     @Autowired
-    public PostTransitionValidator(Validator validator, ValidationStatus validationStatus) {
+    public PostTransitionValidator(Map<String, PostTransitionStrategy> strategyMap, Validator validator, ValidationStatus validationStatus) {
+        this.strategyMap = strategyMap;
         this.validator = validator;
         this.validationStatus = validationStatus;
+
     }
 
     public List<ValidationStatusError> validate(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
