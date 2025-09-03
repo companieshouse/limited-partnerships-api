@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition;
 
+import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -14,5 +15,10 @@ public class UpdateRegisteredOfficeAddress implements PostTransitionStrategy {
             errorsList.add(validationStatus.createValidationStatusError("Registered office address is required",
                     "data.registeredOfficeAddress"));
         }
+    }
+
+    @Override
+    public Cost getCost(Cost cost) {
+        return null;
     }
 }
