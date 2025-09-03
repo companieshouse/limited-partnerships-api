@@ -33,8 +33,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDt
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyConfig;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionValidator;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -54,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, LimitedPartnershipMapperImpl.class, LimitedPartnershipPatchMapperImpl.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, PostTransitionValidator.class, PostTransitionStrategyConfig.class, ValidationStatus.class, LimitedPartnershipMapperImpl.class, LimitedPartnershipPatchMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
 
@@ -981,6 +984,7 @@ class PartnershipControllerValidationTest {
                                 allOf(hasEntry("location", "data"), hasEntry("error", "Max length 'partnership name + name ending' is 160 characters")))
                         ))
                         .andExpect(jsonPath("$.['errors'][2].['location']").doesNotExist());
+
             }
         }
     }

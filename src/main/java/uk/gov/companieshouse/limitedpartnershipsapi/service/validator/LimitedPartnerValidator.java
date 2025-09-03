@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.service.validator;
 
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.math.BigDecimal;
@@ -32,8 +34,8 @@ public class LimitedPartnerValidator extends PartnerValidator {
     private static final String CLASS_NAME = LimitedPartnerDataDto.class.getName();
 
     @Autowired
-    public LimitedPartnerValidator(Validator validator, CompanyService companyService, LimitedPartnershipService limitedPartnershipService) {
-        super(validator, companyService);
+    public LimitedPartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService, LimitedPartnershipService limitedPartnershipService) {
+        super(validator, validationStatus, companyService);
         this.limitedPartnershipService = limitedPartnershipService;
     }
 
@@ -45,11 +47,11 @@ public class LimitedPartnerValidator extends PartnerValidator {
         var dataDto = limitedPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
             if (dataDto.getPrincipalOfficeAddress() == null) {
-                errorsList.add(createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+                errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
             }
         } else {
             if (dataDto.getUsualResidentialAddress() == null) {
-                errorsList.add(createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+                errorsList.add(validationStatus.createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
             }
         }
 
@@ -128,13 +130,13 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    private boolean contributionCurrencyValueIsZero(String contributionCurrencyValue){
+    private boolean contributionCurrencyValueIsZero(String contributionCurrencyValue) {
         try {
-           BigDecimal fomattedValue = new BigDecimal(contributionCurrencyValue);
-           return BigDecimal.ZERO.compareTo(fomattedValue) == 0 ;
+            BigDecimal fomattedValue = new BigDecimal(contributionCurrencyValue);
+            return BigDecimal.ZERO.compareTo(fomattedValue) == 0;
         } catch (NumberFormatException e) {
-           ApiLogger.errorContext(contributionCurrencyValue,"Unexpected currency contribution value string format error", e);
-           return false;
+            ApiLogger.errorContext(contributionCurrencyValue, "Unexpected currency contribution value string format error", e);
+            return false;
         }
     }
 
@@ -162,7 +164,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         try {
             validatePartial(limitedPartnerDto, transaction);
         } catch (MethodArgumentNotValidException e) {
-            convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
+            validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
         }

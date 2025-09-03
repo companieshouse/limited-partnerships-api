@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.service.validator;
 
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +14,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +24,8 @@ public class GeneralPartnerValidator extends PartnerValidator {
     private static final String CLASS_NAME = GeneralPartnerDataDto.class.getName();
 
     @Autowired
-    public GeneralPartnerValidator(Validator validator, CompanyService companyService) {
-        super(validator, companyService);
+    public GeneralPartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService) {
+        super(validator, validationStatus, companyService);
     }
 
     public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
@@ -35,15 +36,15 @@ public class GeneralPartnerValidator extends PartnerValidator {
         var dataDto = generalPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
             if (dataDto.getPrincipalOfficeAddress() == null) {
-                errorsList.add(createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+                errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
             }
         } else {
             if (dataDto.getUsualResidentialAddress() == null) {
-                errorsList.add(createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+                errorsList.add(validationStatus.createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
             }
 
             if (dataDto.getServiceAddress() == null) {
-                errorsList.add(createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
+                errorsList.add(validationStatus.createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
             }
         }
 
@@ -101,7 +102,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
         try {
             validatePartial(generalPartnerDto, transaction);
         } catch (MethodArgumentNotValidException e) {
-            convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
+            validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
         }

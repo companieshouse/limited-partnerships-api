@@ -14,6 +14,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.Collections;
@@ -31,18 +33,21 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipRepository repository;
     private final TransactionService transactionService;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
+    private final PostTransitionValidator postTransitionValidator;
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
                                      LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipRepository repository,
                                      TransactionService transactionService,
-                                     LimitedPartnershipValidator limitedPartnershipValidator) {
+                                     LimitedPartnershipValidator limitedPartnershipValidator,
+                                     PostTransitionValidator postTransitionValidator) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
         this.limitedPartnershipValidator = limitedPartnershipValidator;
+        this.postTransitionValidator = postTransitionValidator;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -176,7 +181,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
         if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
-            return limitedPartnershipValidator.validatePostTransition(limitedPartnershipDto);
+            return postTransitionValidator.validate(limitedPartnershipDto);
         }
 
         return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));

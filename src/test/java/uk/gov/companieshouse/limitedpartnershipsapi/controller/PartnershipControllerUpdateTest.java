@@ -22,8 +22,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, LimitedPartnershipMapperImpl.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, ValidationStatus.class, LimitedPartnershipMapperImpl.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerUpdateTest {
 
