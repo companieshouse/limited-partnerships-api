@@ -14,10 +14,18 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -28,7 +36,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 
-@ContextConfiguration(classes = {IncorporationController.class, CostsService.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {
+        IncorporationController.class,
+        CostsService.class,
+        LimitedPartnershipService.class,
+        LimitedPartnershipMapperImpl.class,
+        LimitedPartnershipPatchMapperImpl.class,
+        LimitedPartnershipValidator.class,
+        ValidationStatus.class,
+        PostTransitionStrategyHandler.class,
+        GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {IncorporationController.class})
 class IncorporationControllerUpdateTest {
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
@@ -47,6 +64,12 @@ class IncorporationControllerUpdateTest {
 
     @MockitoBean
     LimitedPartnershipIncorporationRepository repository;
+
+    @MockitoBean
+    LimitedPartnershipRepository limitedPartnershipRepository;
+
+    @MockitoBean
+    private TransactionService transactionService;
 
     @MockitoBean
     private TransactionInterceptor transactionInterceptor;

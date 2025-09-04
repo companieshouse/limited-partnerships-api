@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -31,13 +32,17 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.UpdatePartnershipName;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.UpdateRegisteredOfficeAddress;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -57,10 +62,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, PostTransitionStrategyHandler.class, PostTransitionStrategyConfig.class, ValidationStatus.class, LimitedPartnershipMapperImpl.class, LimitedPartnershipPatchMapperImpl.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {
+        PartnershipController.class,
+        LimitedPartnershipService.class,
+        LimitedPartnershipValidator.class,
+        PostTransitionStrategyHandler.class,
+        PostTransitionStrategyConfig.class,
+        Validator.class,
+        ValidationStatus.class,
+        LimitedPartnershipMapperImpl.class,
+        LimitedPartnershipPatchMapperImpl.class,
+        CostsService.class,
+        GlobalExceptionHandler.class,
+
+        UpdateRegisteredOfficeAddress.class,
+        UpdatePartnershipName.class,
+
+})
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
-
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String SUBMISSION_ID = TransactionBuilder.SUBMISSION_ID;
 
@@ -79,6 +99,9 @@ class PartnershipControllerValidationTest {
 
     @MockitoBean
     private LimitedPartnershipRepository repository;
+
+    @MockitoBean
+    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @MockitoBean
     private TransactionService transactionService;

@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,25 +17,48 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyConfig;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.UpdatePartnershipName;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.UpdateRegisteredOfficeAddress;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, ValidationStatus.class, LimitedPartnershipMapperImpl.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {
+        PartnershipController.class,
+        LimitedPartnershipService.class,
+        LimitedPartnershipValidator.class,
+        ValidationStatus.class,
+        LimitedPartnershipMapperImpl.class,
+        CostsService.class,
+        PostTransitionStrategyHandler.class,
+        PostTransitionStrategyConfig.class,
+        GlobalExceptionHandler.class,
+
+        UpdateRegisteredOfficeAddress.class,
+        UpdatePartnershipName.class
+})
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerUpdateTest {
 
@@ -48,6 +72,9 @@ class PartnershipControllerUpdateTest {
 
     @MockitoBean
     private LimitedPartnershipRepository limitedPartnershipRepository;
+
+    @MockitoBean
+    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @MockitoBean
     private TransactionService transactionService;
@@ -164,4 +191,50 @@ class PartnershipControllerUpdateTest {
         mocks(limitedPartnershipDao);
     }
 
+    @Nested
+    class Costs {
+        private static final String PARTNERSHIP_COST_URL = "/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/costs";
+
+        @Test
+        void shouldReturn200() throws Exception {
+            costMocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
+
+            mockMvc.perform(get(PARTNERSHIP_COST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.[0].amount").value("50.00"))
+                    .andExpect(jsonPath("$.[0].description").value("Update of Limited Partnership name fee"));
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            costMocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(new ResourceNotFoundException("not found"));
+
+            mockMvc.perform(get(PARTNERSHIP_COST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction))
+                    .andExpect(status().isNotFound());
+        }
+
+        void costMocks(PartnershipKind partnershipKind) throws ServiceException {
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+            limitedPartnershipDao.getData().setKind(partnershipKind.getDescription());
+
+            when(limitedPartnershipRepository.findById(LimitedPartnershipBuilder.SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
+
+            when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            limitedPartnershipDto.getData().setKind(partnershipKind.getDescription());
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+        }
+    }
 }

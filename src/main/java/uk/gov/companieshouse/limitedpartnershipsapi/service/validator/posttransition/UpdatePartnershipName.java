@@ -9,13 +9,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.Validation
 
 import java.util.List;
 
-@Component
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.UPDATE_PARTNERSHIP_NAME_DESCRIPTION;
+
+@Component(UPDATE_PARTNERSHIP_NAME_DESCRIPTION)
 public class UpdatePartnershipName implements PostTransitionStrategy {
 
-    @Value("${LP_REGISTRATION_COST}")
+    @Value("${UPDATE_PARTNERSHIP_NAME_COST}")
     private String UPDATE_PARTNERSHIP_NAME_COST;
 
-    private static final String REGISTER_COST_DESCRIPTION = "Update of Limited Partnership name";
+    private static final String REGISTER_COST_DESCRIPTION = "Update of Limited Partnership name fee";
 
     @Override
     public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
