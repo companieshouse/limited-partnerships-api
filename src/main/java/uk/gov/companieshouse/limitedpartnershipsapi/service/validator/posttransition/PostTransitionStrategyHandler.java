@@ -87,7 +87,6 @@ public class PostTransitionStrategyHandler {
         cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
         cost.setClassOfPayment(Collections.singletonList(PAYMENT_ACCOUNT));
         cost.setKind(PAYMENT_SESSION);
-//        cost.setProductType(REGISTER_PRODUCT_TYPE);;
 
         return cost;
     }

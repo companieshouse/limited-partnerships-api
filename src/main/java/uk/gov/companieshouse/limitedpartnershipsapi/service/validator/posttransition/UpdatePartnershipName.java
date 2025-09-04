@@ -17,7 +17,7 @@ public class UpdatePartnershipName implements PostTransitionStrategy {
     @Value("${UPDATE_PARTNERSHIP_NAME_COST}")
     private String UPDATE_PARTNERSHIP_NAME_COST;
 
-    private static final String REGISTER_COST_DESCRIPTION = "Update of Limited Partnership name fee";
+    private static final String COST_DESCRIPTION = "Update of Limited Partnership name fee";
 
     @Override
     public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
@@ -31,8 +31,11 @@ public class UpdatePartnershipName implements PostTransitionStrategy {
 
     @Override
     public Cost getCost(Cost cost) {
+        String productType = "lp-" + UPDATE_PARTNERSHIP_NAME_DESCRIPTION.split("#")[1];
+
         cost.setAmount(UPDATE_PARTNERSHIP_NAME_COST);
-        cost.setDescription(REGISTER_COST_DESCRIPTION);
+        cost.setDescription(COST_DESCRIPTION);
+        cost.setProductType(productType);
 
         return cost;
     }

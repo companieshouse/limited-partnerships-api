@@ -206,6 +206,7 @@ class PartnershipControllerUpdateTest {
                             .requestAttr("transaction", transaction))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.[0].amount").value("50.00"))
+                    .andExpect(jsonPath("$.[0].product_type").value("lp-update-partnership-name"))
                     .andExpect(jsonPath("$.[0].description").value("Update of Limited Partnership name fee"));
         }
 
