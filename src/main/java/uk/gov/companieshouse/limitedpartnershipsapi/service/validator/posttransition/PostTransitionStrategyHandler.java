@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @Component
@@ -28,6 +29,10 @@ public class PostTransitionStrategyHandler {
     private final ValidationStatus validationStatus;
 
     Map<String, PostTransitionStrategy> strategyMap;
+
+    private static final String PAYMENT_ACCOUNT = "data-maintenance";
+    private static final String CREDIT_CARD = "credit-card";
+    private static final String PAYMENT_SESSION = "payment-session#payment-session";
 
     @Autowired
     public PostTransitionStrategyHandler(Validator validator, ValidationStatus validationStatus, ObjectProvider<PostTransitionStrategy> strategies) {
@@ -54,13 +59,11 @@ public class PostTransitionStrategyHandler {
                     "data.dateOfUpdate"));
         }
 
-        String limitedPartnershipKind = limitedPartnershipDto.getData().getKind() != null ? limitedPartnershipDto.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String limitedPartnershipKind = firstNonNull(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
 
-        if (strategy == null) {
-            throw new ServiceException("No strategy found for kind: " + limitedPartnershipDto.getData().getKind());
-        }
+        throwErrorIfNoStrategyFound(limitedPartnershipDto, strategy);
 
         strategy.validate(limitedPartnershipDto, errorsList, validationStatus);
 
@@ -72,9 +75,7 @@ public class PostTransitionStrategyHandler {
 
         PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
 
-        if (strategy == null) {
-            throw new ServiceException("No strategy found for kind: " + limitedPartnershipDto.getData().getKind());
-        }
+        throwErrorIfNoStrategyFound(limitedPartnershipDto, strategy);
 
         Cost cost = getCostObject();
 
@@ -82,10 +83,6 @@ public class PostTransitionStrategyHandler {
 
         return strategy.getCost(cost);
     }
-
-    private static final String PAYMENT_ACCOUNT = "data-maintenance";
-    private static final String CREDIT_CARD = "credit-card";
-    private static final String PAYMENT_SESSION = "payment-session#payment-session";
 
     private Cost getCostObject() {
         Cost cost = new Cost();
@@ -97,7 +94,7 @@ public class PostTransitionStrategyHandler {
         return cost;
     }
 
-    public Map<String, PostTransitionStrategy> setStrategyMap(ObjectProvider<PostTransitionStrategy> strategies) {
+    private Map<String, PostTransitionStrategy> setStrategyMap(ObjectProvider<PostTransitionStrategy> strategies) {
 
         return strategies.stream()
                 .filter(Objects::nonNull)
@@ -105,5 +102,11 @@ public class PostTransitionStrategyHandler {
                         PostTransitionStrategy::getKind,
                         strategy -> strategy
                 ));
+    }
+
+    private static void throwErrorIfNoStrategyFound(LimitedPartnershipDto limitedPartnershipDto, PostTransitionStrategy strategy) throws ServiceException {
+        if (strategy == null) {
+            throw new ServiceException("No strategy found for kind: " + limitedPartnershipDto.getData().getKind());
+        }
     }
 }
