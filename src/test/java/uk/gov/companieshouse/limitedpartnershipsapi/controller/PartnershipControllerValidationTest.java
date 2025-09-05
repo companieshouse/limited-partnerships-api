@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -23,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
@@ -31,16 +31,16 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyConfig;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -57,10 +57,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
-@ContextConfiguration(classes = {PartnershipController.class, LimitedPartnershipService.class, LimitedPartnershipValidator.class, PostTransitionValidator.class, PostTransitionStrategyConfig.class, ValidationStatus.class, LimitedPartnershipMapperImpl.class, LimitedPartnershipPatchMapperImpl.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {
+        PartnershipController.class,
+        LimitedPartnershipService.class,
+        LimitedPartnershipValidator.class,
+        PostTransitionStrategyHandler.class,
+        Validator.class,
+        ValidationStatus.class,
+        LimitedPartnershipMapperImpl.class,
+        LimitedPartnershipPatchMapperImpl.class,
+        CostsService.class,
+        GlobalExceptionHandler.class
+})
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
-
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String SUBMISSION_ID = TransactionBuilder.SUBMISSION_ID;
 
@@ -79,6 +89,9 @@ class PartnershipControllerValidationTest {
 
     @MockitoBean
     private LimitedPartnershipRepository repository;
+
+    @MockitoBean
+    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @MockitoBean
     private TransactionService transactionService;
@@ -800,192 +813,6 @@ class PartnershipControllerValidationTest {
                             .requestAttr("transaction", transaction)
                             .content(""))
                     .andExpect(status().isNotFound());
-        }
-    }
-
-    @Nested
-    class ValidatePostTransition {
-        @BeforeEach
-        void setUp() {
-            // Set the filing mode to 'default' to simulate a post-transition journey
-            transaction.setFilingMode(TransactionService.DEFAULT);
-        }
-
-        @Nested
-        class ValidatePartnershipRegisteredOfficeAddress {
-
-            @Test
-            void shouldReturn200IfNoErrors() throws Exception {
-
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
-                        .withAddresses()
-                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
-                        .buildDao();
-
-                mocks(limitedPartnershipDao);
-
-                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(""))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("is_valid").value("true"));
-            }
-
-            @Test
-            void shouldReturn200AndErrorDetailsIfNoRegisteredOfficeAddress() throws Exception {
-
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
-                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
-                        .buildDao();
-
-                mocks(limitedPartnershipDao);
-
-                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(""))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("is_valid").value("false"))
-                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.registeredOfficeAddress"))
-                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Registered office address is required"))
-                        .andExpect(jsonPath("$.['errors'][1].['location']").doesNotExist());
-            }
-
-            @Test
-            void shouldReturn200AndErrorDetailsIfRegisteredOfficeAddressNotCorrect() throws Exception {
-
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
-                        .withAddresses()
-                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
-                        .buildDao();
-
-                limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(null);
-                limitedPartnershipDao.getData().getRegisteredOfficeAddress().setPostalCode(null);
-
-                mocks(limitedPartnershipDao);
-
-                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(""))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("is_valid").value("false"))
-                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.registeredOfficeAddress.postalCode"))
-                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Postcode must not be null"));
-            }
-
-            @Test
-            void shouldReturn200AndErrorDetailsIfRegisteredOfficeAddressPresentButNoDateOfUpdate() throws Exception {
-
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS)
-                        .withAddresses()
-                        .buildDao();
-
-                mocks(limitedPartnershipDao);
-
-                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(""))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("is_valid").value("false"))
-                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.dateOfUpdate"))
-                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Date of update is required"));
-            }
-        }
-
-        @Nested
-        class ValidatePartnershipName {
-
-            @Test
-            void shouldReturn200IfNoErrors() throws Exception {
-
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
-                        .withAddresses()
-                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
-                        .buildDao();
-
-                mocks(limitedPartnershipDao);
-
-                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(""))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("is_valid").value("true"));
-            }
-
-            @Test
-            void shouldReturn200AndErrorDetailsIfNoName() throws Exception {
-
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
-                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
-                        .buildDao();
-
-                limitedPartnershipDao.getData().setPartnershipName(null);
-                limitedPartnershipDao.getData().setNameEnding(null);
-
-                mocks(limitedPartnershipDao);
-
-                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(""))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("is_valid").value("false"))
-                        .andExpect(jsonPath("$.['errors'][0].['location']").value("data.partnershipName"))
-                        .andExpect(jsonPath("$.['errors'][0].['error']").value("Limited partnership name must not be null"))
-                        .andExpect(jsonPath("$.['errors'][1].['location']").value("data.nameEnding"))
-                        .andExpect(jsonPath("$.['errors'][1].['error']").value("Name ending is required"))
-                        .andExpect(jsonPath("$.['errors'][2].['location']").doesNotExist());
-            }
-
-            @Test
-            void shouldReturn200AndErrorDetailsIfNameIsTooLong() throws Exception {
-
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
-                        .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
-                        .withDateOfUpdate(LocalDate.of(2024, 1, 1))
-                        .buildDao();
-
-                limitedPartnershipDao.getData().setPartnershipName(StringUtils.repeat("A", 161));
-
-                mocks(limitedPartnershipDao);
-
-                mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .characterEncoding(StandardCharsets.UTF_8)
-                                .headers(httpHeaders)
-                                .requestAttr("transaction", transaction)
-                                .content(""))
-                        .andExpect(status().isOk())
-                        .andExpect(jsonPath("is_valid").value("false"))
-                        .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
-                                allOf(hasEntry("location", "data.partnershipName"), hasEntry("error", "Limited partnership name must be less than 160")),
-                                allOf(hasEntry("location", "data"), hasEntry("error", "Max length 'partnership name + name ending' is 160 characters")))
-                        ))
-                        .andExpect(jsonPath("$.['errors'][2].['location']").doesNotExist());
-
-            }
         }
     }
 

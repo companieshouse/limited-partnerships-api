@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -15,13 +17,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.Collections;
 import java.util.List;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
@@ -33,7 +37,7 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipRepository repository;
     private final TransactionService transactionService;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
-    private final PostTransitionValidator postTransitionValidator;
+    private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
@@ -41,13 +45,13 @@ public class LimitedPartnershipService {
                                      LimitedPartnershipRepository repository,
                                      TransactionService transactionService,
                                      LimitedPartnershipValidator limitedPartnershipValidator,
-                                     PostTransitionValidator postTransitionValidator) {
+                                     PostTransitionStrategyHandler postTransitionStrategyHandler) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
         this.limitedPartnershipValidator = limitedPartnershipValidator;
-        this.postTransitionValidator = postTransitionValidator;
+        this.postTransitionStrategyHandler = postTransitionStrategyHandler;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -78,12 +82,23 @@ public class LimitedPartnershipService {
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, kind);
 
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            addCostLink(limitedPartnershipDto, limitedPartnershipResource, submissionUri);
+        }
+
         transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership created with id: %s", insertedLimitedPartnership.getId()));
 
         return insertedLimitedPartnership.getId();
+    }
+
+    private void addCostLink(LimitedPartnershipDto limitedPartnershipDto, Resource limitedPartnershipResource, String submissionUri) throws ServiceException {
+        Cost cost = postTransitionStrategyHandler.getCost(limitedPartnershipDto);
+        if (cost != null) {
+            limitedPartnershipResource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
+        }
     }
 
     public void updateLimitedPartnership(Transaction transaction,
@@ -181,7 +196,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
         if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
-            return postTransitionValidator.validate(limitedPartnershipDto);
+            return postTransitionStrategyHandler.validate(limitedPartnershipDto);
         }
 
         return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));

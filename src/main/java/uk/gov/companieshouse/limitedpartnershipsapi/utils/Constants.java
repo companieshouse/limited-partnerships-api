@@ -51,7 +51,6 @@ public class Constants {
     public static final String GENERAL_PARTNER_FIELD = "general_partners";
     public static final String LIMITED_PARTNER_FIELD = "limited_partners";
 
-
     private Constants() {
     }
 }

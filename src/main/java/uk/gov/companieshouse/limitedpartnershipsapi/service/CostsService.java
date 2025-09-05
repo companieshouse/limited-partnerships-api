@@ -3,9 +3,13 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.Collections;
@@ -13,10 +17,17 @@ import java.util.Collections;
 @Service
 public class CostsService {
 
-    private final LimitedPartnershipIncorporationRepository repository;
+    private final LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+    private final LimitedPartnershipService limitedPartnershipService;
+    private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
-    public CostsService(LimitedPartnershipIncorporationRepository repository) {
-        this.repository = repository;
+    public CostsService(
+            LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository,
+            LimitedPartnershipService limitedPartnershipService,
+            PostTransitionStrategyHandler postTransitionStrategyHandler) {
+        this.limitedPartnershipIncorporationRepository = limitedPartnershipIncorporationRepository;
+        this.limitedPartnershipService = limitedPartnershipService;
+        this.postTransitionStrategyHandler = postTransitionStrategyHandler;
     }
 
     @Value("${LP_REGISTRATION_COST}")
@@ -34,7 +45,7 @@ public class CostsService {
     private static final String VALUE = "Value";
 
     public Cost getCost(String incorporationId, String requestId) throws ResourceNotFoundException {
-        LimitedPartnershipIncorporationDao incorporationDao = repository.findById(incorporationId).orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
+        LimitedPartnershipIncorporationDao incorporationDao = limitedPartnershipIncorporationRepository.findById(incorporationId).orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
 
         ApiLogger.infoContext(requestId, String.format("Cost for incorporation with id: %s and kind: %s", incorporationId, incorporationDao.getData().getKind()));
 
@@ -55,5 +66,11 @@ public class CostsService {
         cost.setProductType(REGISTER_PRODUCT_TYPE);
 
         return cost;
+    }
+
+    public Cost getPostTransitionCost(Transaction transaction) throws ServiceException {
+        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+
+        return postTransitionStrategyHandler.getCost(limitedPartnershipDto);
     }
 }
