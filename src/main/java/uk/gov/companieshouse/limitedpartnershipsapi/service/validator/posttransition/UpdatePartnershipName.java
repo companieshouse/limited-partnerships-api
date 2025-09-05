@@ -15,7 +15,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.UPDAT
 public class UpdatePartnershipName implements PostTransitionStrategy {
 
     @Value("${UPDATE_PARTNERSHIP_NAME_COST}")
-    private String UPDATE_PARTNERSHIP_NAME_COST;
+    private String updatePartnershipNameCost;
 
     private static final String COST_DESCRIPTION = "Update of Limited Partnership name fee";
 
@@ -36,7 +36,7 @@ public class UpdatePartnershipName implements PostTransitionStrategy {
     public Cost getCost(Cost cost) {
         String productType = "lp-" + UPDATE_PARTNERSHIP_NAME_DESCRIPTION.split("#")[1];
 
-        cost.setAmount(UPDATE_PARTNERSHIP_NAME_COST);
+        cost.setAmount(updatePartnershipNameCost);
         cost.setDescription(COST_DESCRIPTION);
         cost.setProductType(productType);
 

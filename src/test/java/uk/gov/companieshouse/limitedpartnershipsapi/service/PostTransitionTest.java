@@ -32,7 +32,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class PostTransitionTest {
+class PostTransitionTest {
 
     @Autowired
     private CostsService costsService;
@@ -56,7 +56,7 @@ public class PostTransitionTest {
             .buildDao();
 
     @Test
-    void shouldReturn200IfNoErrors() throws Exception {
+    void shouldReturn200IfNoErrors() {
 
         mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 
