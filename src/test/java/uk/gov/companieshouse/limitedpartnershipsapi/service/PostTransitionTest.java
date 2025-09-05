@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
@@ -23,9 +24,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -52,31 +55,18 @@ public class PostTransitionTest {
             .withDateOfUpdate(LocalDate.of(2024, 1, 1))
             .buildDao();
 
-    @Nested
-    class Costs {
-        @Test
-        void shouldReturn200AndFeeForKindName() throws Exception {
+    @Test
+    void shouldReturn200IfNoErrors() throws Exception {
 
-            mocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
+        mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 
-            var result = costsService.getPostTransitionCost(transaction);
+        limitedPartnershipDao.getData().setKind(FILING_KIND_LIMITED_PARTNERSHIP);
 
-            assertAll("Cost validation",
-                    () -> assertEquals("50.00", result.getAmount()),
-                    () -> assertEquals("lp-update-partnership-name", result.getProductType()),
-                    () -> assertEquals("Update of Limited Partnership name fee", result.getDescription())
-            );
-        }
+        var exception = assertThrows(ServiceException.class, () ->
+                limitedPartnershipService.validateLimitedPartnership(transaction)
+        );
 
-        @Test
-        void shouldReturn200AndNoFeeForKindROA() throws Exception {
-
-            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
-
-            var result = costsService.getPostTransitionCost(transaction);
-
-            assertNull(result);
-        }
+        assertEquals("No strategy found for kind: limited-partnership", exception.getMessage());
     }
 
     @Nested
@@ -185,7 +175,7 @@ public class PostTransitionTest {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
 
             limitedPartnershipDao.getData().setPartnershipName(StringUtils.repeat("A", 161));
-            
+
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
             assertEquals(2, result.size());
@@ -195,6 +185,33 @@ public class PostTransitionTest {
                             Map.entry("data.partnershipName", "Limited partnership name must be less than 160"),
                             Map.entry("data", "Max length 'partnership name + name ending' is 160 characters")
                     );
+        }
+    }
+
+    @Nested
+    class Costs {
+        @Test
+        void shouldReturn200AndFeeForKindName() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
+
+            var result = costsService.getPostTransitionCost(transaction);
+
+            assertAll("Cost validation",
+                    () -> assertEquals("50.00", result.getAmount()),
+                    () -> assertEquals("lp-update-partnership-name", result.getProductType()),
+                    () -> assertEquals("Update of Limited Partnership name fee", result.getDescription())
+            );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKindROA() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+
+            var result = costsService.getPostTransitionCost(transaction);
+
+            assertNull(result);
         }
     }
 
