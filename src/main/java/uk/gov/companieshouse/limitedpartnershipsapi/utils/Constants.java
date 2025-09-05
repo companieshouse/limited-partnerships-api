@@ -51,10 +51,6 @@ public class Constants {
     public static final String GENERAL_PARTNER_FIELD = "general_partners";
     public static final String LIMITED_PARTNER_FIELD = "limited_partners";
 
-    // Post transition
-    public static final String UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS_DESCRIPTION = "limited-partnership#update-partnership-registered-office-address";
-    public static final String UPDATE_PARTNERSHIP_NAME_DESCRIPTION = "limited-partnership#update-partnership-name";
-
     private Constants() {
     }
 }
