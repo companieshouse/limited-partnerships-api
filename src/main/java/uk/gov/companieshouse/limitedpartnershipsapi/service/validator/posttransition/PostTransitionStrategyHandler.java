@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttrans
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.payment.Cost;
@@ -14,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
@@ -24,14 +27,15 @@ public class PostTransitionStrategyHandler {
     private final Validator validator;
     private final ValidationStatus validationStatus;
 
-    private final Map<String, PostTransitionStrategy> strategyMap;
+    Map<String, PostTransitionStrategy> strategyMap;
 
     @Autowired
-    public PostTransitionStrategyHandler(Map<String, PostTransitionStrategy> strategyMap, Validator validator, ValidationStatus validationStatus) {
-        this.strategyMap = strategyMap;
+    public PostTransitionStrategyHandler(Validator validator, ValidationStatus validationStatus, ObjectProvider<PostTransitionStrategy> strategies) {
+
         this.validator = validator;
         this.validationStatus = validationStatus;
 
+        this.strategyMap = setStrategyMap(strategies);
     }
 
     public List<ValidationStatusError> validate(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
@@ -50,7 +54,9 @@ public class PostTransitionStrategyHandler {
                     "data.dateOfUpdate"));
         }
 
-        PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipDto.getData().getKind());
+        String limitedPartnershipKind = limitedPartnershipDto.getData().getKind() != null ? limitedPartnershipDto.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+
+        PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
 
         if (strategy == null) {
             throw new ServiceException("No strategy found for kind: " + limitedPartnershipDto.getData().getKind());
@@ -62,15 +68,15 @@ public class PostTransitionStrategyHandler {
     }
 
     public Cost getCost(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
-        PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipDto.getData().getKind());
+        String limitedPartnershipKind = limitedPartnershipDto.getData().getKind() != null ? limitedPartnershipDto.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+
+        PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
 
         if (strategy == null) {
             throw new ServiceException("No strategy found for kind: " + limitedPartnershipDto.getData().getKind());
         }
 
         Cost cost = getCostObject();
-
-        String limitedPartnershipKind = limitedPartnershipDto.getData().getKind() != null ? limitedPartnershipDto.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
 
         cost.setResourceKind(limitedPartnershipKind);
 
@@ -89,5 +95,15 @@ public class PostTransitionStrategyHandler {
         cost.setKind(PAYMENT_SESSION);
 
         return cost;
+    }
+
+    public Map<String, PostTransitionStrategy> setStrategyMap(ObjectProvider<PostTransitionStrategy> strategies) {
+
+        return strategies.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(
+                        PostTransitionStrategy::getKind,
+                        strategy -> strategy
+                ));
     }
 }

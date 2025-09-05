@@ -8,6 +8,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.Validation
 import java.util.List;
 
 public interface PostTransitionStrategy {
+    String getKind();
+
     void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus);
 
     Cost getCost(Cost cost);

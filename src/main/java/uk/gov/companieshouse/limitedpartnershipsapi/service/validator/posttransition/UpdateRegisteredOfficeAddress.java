@@ -10,8 +10,13 @@ import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS_DESCRIPTION;
 
-@Component(UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS_DESCRIPTION)
+@Component
 public class UpdateRegisteredOfficeAddress implements PostTransitionStrategy {
+
+    @Override
+    public String getKind() {
+        return UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS_DESCRIPTION;
+    }
 
     @Override
     public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {

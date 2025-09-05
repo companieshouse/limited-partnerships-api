@@ -11,7 +11,7 @@ import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.UPDATE_PARTNERSHIP_NAME_DESCRIPTION;
 
-@Component(UPDATE_PARTNERSHIP_NAME_DESCRIPTION)
+@Component
 public class UpdatePartnershipName implements PostTransitionStrategy {
 
     @Value("${UPDATE_PARTNERSHIP_NAME_COST}")
@@ -20,10 +20,13 @@ public class UpdatePartnershipName implements PostTransitionStrategy {
     private static final String COST_DESCRIPTION = "Update of Limited Partnership name fee";
 
     @Override
-    public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
-        System.out.println("The cost of LP Registration is: " + UPDATE_PARTNERSHIP_NAME_COST);
+    public String getKind() {
+        return UPDATE_PARTNERSHIP_NAME_DESCRIPTION;
+    }
 
-        if (limitedPartnershipDto.getData().getPartnershipName() == null) {
+    @Override
+    public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
+        if (limitedPartnershipDto.getData().getNameEnding() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Name ending is required",
                     "data.nameEnding"));
         }
