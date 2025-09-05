@@ -3,8 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,7 +28,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class PostTransitionTest {
 
@@ -78,7 +75,7 @@ class PostTransitionTest {
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
-            assertEquals(0, result.size());
+            assertThat(result).isEmpty();
         }
 
         @Test
@@ -90,8 +87,7 @@ class PostTransitionTest {
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
-            assertEquals(1, result.size());
-            assertThat(result)
+            assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
                             Map.entry("data.registeredOfficeAddress", "Registered office address is required")
@@ -108,8 +104,7 @@ class PostTransitionTest {
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
-            assertEquals(1, result.size());
-            assertThat(result)
+            assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
                             Map.entry("data.registeredOfficeAddress.postalCode", "Postcode must not be null")
@@ -126,13 +121,11 @@ class PostTransitionTest {
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
-            assertEquals(1, result.size());
-            assertThat(result)
+            assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
                             Map.entry("data.dateOfUpdate", "Date of update is required")
                     );
-
         }
     }
 
@@ -145,8 +138,7 @@ class PostTransitionTest {
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
-            assertEquals(0, result.size());
-
+            assertThat(result).isEmpty();
         }
 
         @Test
@@ -159,8 +151,7 @@ class PostTransitionTest {
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
-            assertEquals(2, result.size());
-            assertThat(result)
+            assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
                             Map.entry("data.partnershipName", "Limited partnership name must not be null"),
@@ -178,8 +169,7 @@ class PostTransitionTest {
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
 
-            assertEquals(2, result.size());
-            assertThat(result)
+            assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
                             Map.entry("data.partnershipName", "Limited partnership name must be less than 160"),

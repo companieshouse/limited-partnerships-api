@@ -23,7 +23,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,9 +71,6 @@ class LimitedPartnershipServiceTest {
 
     @Mock
     private LimitedPartnershipValidator limitedPartnershipValidator;
-
-    @Mock
-    private PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     @Captor
     private ArgumentCaptor<LimitedPartnershipDao> submissionCaptor;
