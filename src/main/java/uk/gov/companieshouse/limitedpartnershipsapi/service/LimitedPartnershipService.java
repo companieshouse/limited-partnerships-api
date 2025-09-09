@@ -105,7 +105,7 @@ public class LimitedPartnershipService {
                                          String submissionId,
                                          LimitedPartnershipPatchDto limitedPartnershipPatchDto,
                                          String requestId,
-                                         String userId) throws ServiceException {
+                                         String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var optionalLpSubmissionDaoBeforePatch = repository.findById(submissionId);
 
         if (optionalLpSubmissionDaoBeforePatch.isEmpty()) {
@@ -116,6 +116,8 @@ public class LimitedPartnershipService {
         var lpSubmissionDto = mapper.daoToDto(lpSubmissionDaoBeforePatch);
 
         patchMapper.update(limitedPartnershipPatchDto, lpSubmissionDto.getData());
+
+        limitedPartnershipValidator.validateUpdate(lpSubmissionDto, transaction);
 
         var lpSubmissionDaoAfterPatch = mapper.dtoToDao(lpSubmissionDto);
 

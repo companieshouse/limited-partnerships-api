@@ -9,13 +9,18 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -26,11 +31,13 @@ public class LimitedPartnershipValidator {
 
     private final Validator validator;
     private final ValidationStatus validationStatus;
+    private final CompanyService companyService;
 
     @Autowired
-    public LimitedPartnershipValidator(Validator validator, ValidationStatus validationStatus) {
+    public LimitedPartnershipValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService) {
         this.validator = validator;
         this.validationStatus = validationStatus;
+        this.companyService = companyService;
     }
 
     public List<ValidationStatusError> validateFull(LimitedPartnershipDto limitedPartnershipDto,
@@ -61,6 +68,31 @@ public class LimitedPartnershipValidator {
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(DataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    public void validateUpdate(LimitedPartnershipDto limitedPartnershipDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
+        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnershipDto, LimitedPartnerDataDto.class.getName());
+
+        dtoValidation(limitedPartnershipDto, bindingResult);
+
+        validateDateOfUpdate(transaction, limitedPartnershipDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    protected void validateDateOfUpdate(Transaction transaction, LimitedPartnershipDto limitedPartnershipDto, BindingResult bindingResult) throws ServiceException {
+        if (limitedPartnershipDto.getData().getDateOfUpdate() != null) {
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate dateEffectiveFrom = limitedPartnershipDto.getData().getDateOfUpdate();
+
+            if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
+            }
         }
     }
 
