@@ -7,6 +7,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -135,7 +136,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException {
+    void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
         var dataDao = new DataDao();

@@ -12,16 +12,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.CompanyBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -35,6 +39,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = {
@@ -43,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         LimitedPartnershipValidator.class,
         ValidationStatus.class,
         LimitedPartnershipMapperImpl.class,
+        LimitedPartnershipPatchMapperImpl.class,
         CostsService.class,
         PostTransitionStrategyHandler.class,
         GlobalExceptionHandler.class
@@ -71,7 +77,7 @@ class PartnershipControllerUpdateTest {
     private TransactionInterceptor transactionInterceptor;
 
     @MockitoBean
-    private LimitedPartnershipService limitedPartnershipService;
+    private CompanyService companyService;
 
     @BeforeEach
     void setUp() {
@@ -128,7 +134,24 @@ class PartnershipControllerUpdateTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.['errors'].['dateOfUpdate']").value("Date of update must be in the past"));
+    }
+
+    @Test
+    void UpdateDateShouldReturn400IfDateIsBeforeCompanyDateOfCreation() throws Exception {
+        mocks();
+
+        String body = "{ \"date_of_update\" : \"2020-01-01\" }";
+
+        mockMvc.perform(patch(PARTNERSHIP_PATCH_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.['errors'].['data.dateOfUpdate']").value("Limited partnership date of update cannot be before the incorporation date"));
     }
 
     @Test
@@ -168,9 +191,8 @@ class PartnershipControllerUpdateTest {
 
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
-
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+        CompanyProfileApi companyProfile = new CompanyBuilder().build();
+        when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
     }
 
     private void mocks() throws ServiceException {
