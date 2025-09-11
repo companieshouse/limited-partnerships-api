@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -202,6 +203,52 @@ class PostTransitionTest {
             var result = costsService.getPostTransitionCost(transaction);
 
             assertNull(result);
+        }
+    }
+
+    @Nested
+    class ValidateTerm {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_TERM);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoTerm() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_TERM);
+
+            limitedPartnershipDao.getData().setTerm(null);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.term", "Term is required")
+                    );
+
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfTermIsIncorrect() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_TERM);
+
+            limitedPartnershipDao.getData().setTerm(Term.UNKNOWN);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.term", "Term must be valid")
+                    );
         }
     }
 
