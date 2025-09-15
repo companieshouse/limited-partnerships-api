@@ -198,7 +198,6 @@ class LimitedPartnerServiceCreateTest {
             if (TRANSITION.equals(incorporationKind)) {
                 dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
                 CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
-                when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.now().minusDays(2));
                 when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
             }
 
