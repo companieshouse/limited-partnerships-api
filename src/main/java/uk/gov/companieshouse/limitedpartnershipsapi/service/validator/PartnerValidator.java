@@ -80,7 +80,7 @@ public abstract class PartnerValidator {
     }
 
     protected void checkNotNullDateEffectiveFrom(String className, PartnerDto partnerDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
-        if (!transaction.getFilingMode().equals(IncorporationKind.REGISTRATION.getDescription())) {
+        if (transaction.getFilingMode().equals(IncorporationKind.POST_TRANSITION.getDescription())) {
             if (partnerDto.getData().getDateEffectiveFrom() == null) {
                 addError(className, "data.dateEffectiveFrom", "Partner date effective from is required", bindingResult);
             }
