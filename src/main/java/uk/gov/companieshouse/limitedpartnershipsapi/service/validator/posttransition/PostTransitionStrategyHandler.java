@@ -33,6 +33,10 @@ public class PostTransitionStrategyHandler {
     private static final String PAYMENT_ACCOUNT = "data-maintenance";
     private static final String CREDIT_CARD = "credit-card";
     private static final String PAYMENT_SESSION = "payment-session#payment-session";
+    private static final String DESCRIPTION_IDENTIFIER = "description-identifier";
+    private static final String RESOURCE_KIND = "limited-partnership";
+    private static final String KEY = "Key";
+    private static final String VALUE = "Value";
 
     @Autowired
     public PostTransitionStrategyHandler(Validator validator, ValidationStatus validationStatus, ObjectProvider<PostTransitionStrategy> strategies) {
@@ -89,6 +93,9 @@ public class PostTransitionStrategyHandler {
 
         cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
         cost.setClassOfPayment(Collections.singletonList(PAYMENT_ACCOUNT));
+        cost.setDescriptionValues(Collections.singletonMap(KEY, VALUE));
+        cost.setDescriptionIdentifier(DESCRIPTION_IDENTIFIER);
+        cost.setResourceKind(RESOURCE_KIND);
         cost.setKind(PAYMENT_SESSION);
 
         return cost;
