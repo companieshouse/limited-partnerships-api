@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -51,7 +52,7 @@ public class GeneralPartnerService {
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
 
-        String kind = insertedSubmission.getData().getKind() != null ? insertedSubmission.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri, kind);
 
@@ -84,7 +85,7 @@ public class GeneralPartnerService {
     public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
 
-        String kind = generalPartnerDaoBeforePatch.getData().getKind() != null ? generalPartnerDaoBeforePatch.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+        String kind = requireNonNullElse(generalPartnerDaoBeforePatch.getData().getKind(), FILING_KIND_GENERAL_PARTNER);
 
         checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 
@@ -112,7 +113,7 @@ public class GeneralPartnerService {
 
         var generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", generalPartnerId)));
 
-        String kind = generalPartnerDao.getData().getKind() != null ? generalPartnerDao.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+        String kind = requireNonNullElse(generalPartnerDao.getData().getKind(), FILING_KIND_GENERAL_PARTNER);
 
         checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 
@@ -168,7 +169,7 @@ public class GeneralPartnerService {
         GeneralPartnerDao generalPartnerDao = repository.findById(generalPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
 
-        String kind = generalPartnerDao.getData().getKind() != null ? generalPartnerDao.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+        String kind = requireNonNullElse(generalPartnerDao.getData().getKind(), FILING_KIND_GENERAL_PARTNER);
 
         checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 

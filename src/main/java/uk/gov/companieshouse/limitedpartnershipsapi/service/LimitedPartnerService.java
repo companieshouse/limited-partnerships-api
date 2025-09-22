@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -51,7 +52,7 @@ public class LimitedPartnerService {
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
 
-        String kind = insertedSubmission.getData().getKind() != null ? insertedSubmission.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         transactionService.updateTransactionWithLinksForLimitedPartner(requestId, transaction, submissionUri, kind);
 
@@ -84,7 +85,7 @@ public class LimitedPartnerService {
     public void updateLimitedPartner(Transaction transaction, String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var limitedPartnerDaoBeforePatch = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", limitedPartnerId)));
 
-        String kind = limitedPartnerDaoBeforePatch.getData().getKind() != null ? limitedPartnerDaoBeforePatch.getData().getKind() : FILING_KIND_LIMITED_PARTNER;
+        String kind = requireNonNullElse(limitedPartnerDaoBeforePatch.getData().getKind(), FILING_KIND_LIMITED_PARTNER);
 
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId, kind);
 
@@ -111,7 +112,7 @@ public class LimitedPartnerService {
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         var limitedPartnerDao = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner submission with id %s not found", limitedPartnerId)));
 
-        String kind = limitedPartnerDao.getData().getKind() != null ? limitedPartnerDao.getData().getKind() : FILING_KIND_LIMITED_PARTNER;
+        String kind = requireNonNullElse(limitedPartnerDao.getData().getKind(), FILING_KIND_LIMITED_PARTNER);
 
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId, kind);
 
@@ -142,7 +143,7 @@ public class LimitedPartnerService {
         LimitedPartnerDao limitedPartnerDao = repository.findById(limitedPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId)));
 
-        String kind = limitedPartnerDao.getData().getKind() != null ? limitedPartnerDao.getData().getKind() : FILING_KIND_LIMITED_PARTNER;
+        String kind = requireNonNullElse(limitedPartnerDao.getData().getKind(), FILING_KIND_LIMITED_PARTNER);
 
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId, kind);
 
