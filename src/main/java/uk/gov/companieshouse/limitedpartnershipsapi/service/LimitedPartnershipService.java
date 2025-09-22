@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
@@ -77,7 +78,7 @@ public class LimitedPartnershipService {
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedLimitedPartnership.getId());
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
-        String kind = insertedLimitedPartnership.getData().getKind() != null ? insertedLimitedPartnership.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = firstNonNull(insertedLimitedPartnership.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, kind);
@@ -162,7 +163,7 @@ public class LimitedPartnershipService {
         var limitedPartnershipDao = repository.findById(submissionId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
 
-        String kind = limitedPartnershipDao.getData().getKind() != null ? limitedPartnershipDao.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = firstNonNull(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         if (!transactionService.isTransactionLinkedToLimitedPartnership(transaction, submissionUri, kind)) {
             throw new ResourceNotFoundException(String.format(
@@ -183,7 +184,7 @@ public class LimitedPartnershipService {
 
         var limitedPartnershipDao = limitedPartnerships.getFirst();
 
-        String kind = limitedPartnershipDao.getData().getKind() != null ? limitedPartnershipDao.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = firstNonNull(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         if (!transactionService.doesTransactionHaveALimitedPartnership(transaction, kind)) {
             throw new ResourceNotFoundException(String.format(

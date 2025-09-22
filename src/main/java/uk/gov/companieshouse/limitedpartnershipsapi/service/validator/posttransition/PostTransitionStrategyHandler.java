@@ -75,7 +75,7 @@ public class PostTransitionStrategyHandler {
     }
 
     public Cost getCost(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
-        String limitedPartnershipKind = limitedPartnershipDto.getData().getKind() != null ? limitedPartnershipDto.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String limitedPartnershipKind = firstNonNull(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
 
