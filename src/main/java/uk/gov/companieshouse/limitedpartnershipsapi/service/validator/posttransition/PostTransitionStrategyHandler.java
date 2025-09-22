@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @Component
@@ -63,7 +63,7 @@ public class PostTransitionStrategyHandler {
                     "data.dateOfUpdate"));
         }
 
-        String limitedPartnershipKind = firstNonNull(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+        String limitedPartnershipKind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
 
@@ -75,7 +75,7 @@ public class PostTransitionStrategyHandler {
     }
 
     public Cost getCost(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
-        String limitedPartnershipKind = firstNonNull(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+        String limitedPartnershipKind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
 
