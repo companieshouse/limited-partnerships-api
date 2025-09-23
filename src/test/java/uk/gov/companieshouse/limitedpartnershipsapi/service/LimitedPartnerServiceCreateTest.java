@@ -119,7 +119,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
             createLimitedPartner(incoporationKind);
 
-            verify(transactionService).updateTransactionWithLinksForLimitedPartner(
+            verify(transactionService).updateTransactionWithLinksForPartner(
                     eq(REQUEST_ID), eq(transaction), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();

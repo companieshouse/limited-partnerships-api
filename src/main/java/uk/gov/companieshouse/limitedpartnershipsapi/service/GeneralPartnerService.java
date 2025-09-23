@@ -54,7 +54,7 @@ public class GeneralPartnerService {
 
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri, kind);
+        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind);
 
         return insertedSubmission.getId();
     }

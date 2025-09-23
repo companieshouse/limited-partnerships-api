@@ -107,7 +107,7 @@ class GeneralPartnerServiceCreateTest {
         void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
             createGeneralPartner(incoporationKind);
 
-            verify(transactionService).updateTransactionWithLinksForGeneralPartner(
+            verify(transactionService).updateTransactionWithLinksForPartner(
                     eq(REQUEST_ID), eq(transaction), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();

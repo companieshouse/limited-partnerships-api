@@ -92,19 +92,7 @@ public class TransactionService {
     }
 
     public Resource createLimitedPartnershipTransactionResource(Transaction transaction, String submissionUri, String kind) {
-        var limitedPartnershipResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        if (transaction.getFilingMode().equals(DEFAULT)) {
-            linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        }
-
-        limitedPartnershipResource.setLinks(linksMap);
-        limitedPartnershipResource.setKind(kind);
-
-        return limitedPartnershipResource;
+        return createResourceAndAddLinks(transaction, submissionUri, kind);
     }
 
     public void updateTransactionWithPartnershipName(Transaction transaction,
@@ -114,30 +102,16 @@ public class TransactionService {
         updateTransaction(transaction, requestId);
     }
 
-    public void updateTransactionWithLinksForGeneralPartner(
+    public void updateTransactionWithLinksForPartner(
             String requestId, Transaction transaction, String submissionUri, String kind) throws ServiceException {
-        var generalPartnerResource = new Resource();
+        final var resource = createResourceAndAddLinks(transaction, submissionUri, kind);
 
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        if (transaction.getFilingMode().equals(DEFAULT)) {
-            linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        }
-
-        generalPartnerResource.setLinks(linksMap);
-        generalPartnerResource.setKind(kind);
-
-        transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
-
+        transaction.setResources(Collections.singletonMap(submissionUri, resource));
         updateTransaction(transaction, requestId);
     }
 
-    public void updateTransactionWithLinksForLimitedPartner(String requestID,
-                                                            Transaction transaction,
-                                                            String submissionUri, String kind)
-            throws ServiceException {
-        var limitedPartnerResource = new Resource();
+    private static Resource createResourceAndAddLinks(Transaction transaction, String submissionUri, String kind) {
+        var resource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
@@ -146,12 +120,10 @@ public class TransactionService {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
-        limitedPartnerResource.setLinks(linksMap);
-        limitedPartnerResource.setKind(kind);
+        resource.setLinks(linksMap);
+        resource.setKind(kind);
 
-        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
-
-        updateTransaction(transaction, requestID);
+        return resource;
     }
 
     public void deleteTransactionResource(String transactionId, String resourceId, String loggingContext) throws ServiceException {
@@ -228,4 +200,5 @@ public class TransactionService {
                 .filter(resource -> kind.equals(resource.getValue().getKind()))
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
     }
+
 }
