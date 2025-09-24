@@ -204,6 +204,16 @@ class PostTransitionTest {
 
             assertNull(result);
         }
+
+        @Test
+        void shouldReturn200AndNoFeeForKindPPOBA() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
+
+            var result = costsService.getPostTransitionCost(transaction);
+
+            assertNull(result);
+        }
     }
 
     @Nested
