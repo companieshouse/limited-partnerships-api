@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
@@ -66,6 +67,20 @@ public class PostTransitionStrategyHandler {
         return errorsList;
     }
 
+    public List<ValidationStatusError> validatePartner(PartnerDto partnerDto) throws ServiceException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+
+        validateDto(partnerDto, errorsList);
+
+        String kind = partnerDto.getData().getKind();
+
+        PostTransitionStrategy strategy = getStrategy(kind);
+
+        strategy.validate(partnerDto, errorsList, validationStatus);
+
+        return errorsList;
+    }
+
     private <T> void validateDto(T dto, List<ValidationStatusError> errorsList) {
         Set<ConstraintViolation<T>> violations = validator.validate(dto);
 
@@ -81,6 +96,8 @@ public class PostTransitionStrategyHandler {
 
         if (dto instanceof LimitedPartnershipDto limitedPartnershipDto) {
             kind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+        } else if (dto instanceof PartnerDto partnerDto) {
+            kind = partnerDto.getData().getKind();
         }
 
         PostTransitionStrategy strategy = getStrategy(kind);

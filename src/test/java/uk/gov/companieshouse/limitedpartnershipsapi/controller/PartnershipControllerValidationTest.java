@@ -103,6 +103,9 @@ class PartnershipControllerValidationTest {
     @MockitoBean
     private CompanyService companyService;
 
+    @MockitoBean
+    private CostsService costsService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();

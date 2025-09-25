@@ -5,10 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -22,7 +25,9 @@ import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
@@ -103,8 +108,16 @@ public class TransactionService {
     }
 
     public void updateTransactionWithLinksForPartner(
-            String requestId, Transaction transaction, String submissionUri, String kind) throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri, String kind, Cost cost) throws ServiceException {
         final var resource = createResourceAndAddLinks(transaction, submissionUri, kind);
+
+        if (PartnerKind.fromDescription(kind) != PartnerKind.UNKNOWN) {
+            resource.getLinks().put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+        }
+
+        if (cost != null) {
+            resource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
+        }
 
         transaction.setResources(Collections.singletonMap(submissionUri, resource));
         updateTransaction(transaction, requestId);
@@ -116,7 +129,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals(DEFAULT)) {
+        if (PartnershipKind.fromDescription(kind) != PartnershipKind.UNKNOWN) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
