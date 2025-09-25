@@ -204,6 +204,16 @@ class PostTransitionTest {
 
             assertNull(result);
         }
+
+        @Test
+        void shouldReturn200AndNoFeeForKindPPOBA() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
+
+            var result = costsService.getPostTransitionCost(transaction);
+
+            assertNull(result);
+        }
     }
 
     @Nested
@@ -248,6 +258,69 @@ class PostTransitionTest {
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
                             Map.entry("data.term", "Term must be valid")
+                    );
+        }
+    }
+
+    @Nested
+    class ValidatePartnershipPrincipalPlaceOfBusinessAddress {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoRegisteredOfficeAddress() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
+
+            limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(null);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.principalPlaceOfBusinessAddress", "Principal place of business address is required")
+                    );
+
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfRegisteredOfficeAddressNotCorrect() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
+
+            limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress().setPostalCode(null);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.principalPlaceOfBusinessAddress.postalCode", "Postcode must not be null")
+                    );
+
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfRegisteredOfficeAddressPresentButNoDateOfUpdate() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
+
+            limitedPartnershipDao.getData().setDateOfUpdate(null);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Date of update is required")
                     );
         }
     }
