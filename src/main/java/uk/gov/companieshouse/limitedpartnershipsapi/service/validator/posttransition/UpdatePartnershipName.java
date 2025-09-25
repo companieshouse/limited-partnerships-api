@@ -11,7 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.Validation
 import java.util.List;
 
 @Component
-public class UpdatePartnershipName implements PostTransitionStrategy {
+public class UpdatePartnershipName implements PostTransitionStrategy<LimitedPartnershipDto> {
 
     @Value("${UPDATE_PARTNERSHIP_NAME_COST}")
     private String updatePartnershipNameCost;

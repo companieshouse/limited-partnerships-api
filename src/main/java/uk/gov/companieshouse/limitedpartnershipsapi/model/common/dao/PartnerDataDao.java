@@ -17,6 +17,7 @@ public abstract class PartnerDataDao {
     @Field("cease_date")
     private LocalDate ceaseDate;
 
+    // remove confirmation checked
     @Field("removeConfirmation")
     private Boolean removeConfirmation;
 

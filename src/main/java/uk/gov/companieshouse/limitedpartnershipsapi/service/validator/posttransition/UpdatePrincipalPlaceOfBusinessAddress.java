@@ -10,7 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.Validation
 import java.util.List;
 
 @Component
-public class UpdatePrincipalPlaceOfBusinessAddress implements PostTransitionStrategy {
+public class UpdatePrincipalPlaceOfBusinessAddress implements PostTransitionStrategy<LimitedPartnershipDto> {
 
     @Override
     public String getKind() {

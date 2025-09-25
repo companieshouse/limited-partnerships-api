@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 
 @SpringBootTest
-class PostTransitionTest {
+class PostTransitionPartnershipTest {
 
     @Autowired
     private CostsService costsService;
@@ -54,7 +54,7 @@ class PostTransitionTest {
             .buildDao();
 
     @Test
-    void shouldReturn200IfNoErrors() {
+    void shouldReturn200IfNoKindMatching() {
 
         mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 

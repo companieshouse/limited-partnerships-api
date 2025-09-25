@@ -199,7 +199,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
         if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
-            return postTransitionStrategyHandler.validate(limitedPartnershipDto);
+            return postTransitionStrategyHandler.validateLimitedPartnership(limitedPartnershipDto);
         }
 
         return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));

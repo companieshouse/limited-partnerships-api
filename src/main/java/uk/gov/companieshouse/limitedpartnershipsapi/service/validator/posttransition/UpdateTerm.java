@@ -10,7 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.Validation
 import java.util.List;
 
 @Component
-public class UpdateTerm implements PostTransitionStrategy {
+public class UpdateTerm implements PostTransitionStrategy<LimitedPartnershipDto> {
     @Override
     public String getKind() {
         return PartnershipKind.UPDATE_PARTNERSHIP_TERM.getDescription();

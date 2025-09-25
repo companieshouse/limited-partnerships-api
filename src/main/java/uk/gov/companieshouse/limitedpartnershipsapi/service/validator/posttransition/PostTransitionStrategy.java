@@ -2,15 +2,14 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttrans
 
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
 import java.util.List;
 
-public interface PostTransitionStrategy {
+public interface PostTransitionStrategy<T> {
     String getKind();
 
-    void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus);
+    void validate(T object, List<ValidationStatusError> errorsList, ValidationStatus validationStatus);
 
     Cost getCost(Cost cost);
 }
