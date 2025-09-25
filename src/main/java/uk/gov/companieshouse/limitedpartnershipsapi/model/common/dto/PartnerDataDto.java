@@ -25,12 +25,36 @@ public abstract class PartnerDataDto {
     @JsonProperty("kind")
     private String kind;
 
+    @JsonProperty("cease_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "Cease date must be in the past")
+    private LocalDate ceaseDate;
+
+    @JsonProperty("removeConfirmation")
+    private Boolean removeConfirmation;
+
     public String getKind() {
         return kind;
     }
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public LocalDate getCeaseDate() {
+        return ceaseDate;
+    }
+
+    public void setCeaseDate(LocalDate ceaseDate) {
+        this.ceaseDate = ceaseDate;
+    }
+
+    public Boolean getRemoveConfirmation() {
+        return removeConfirmation;
+    }
+
+    public void setRemoveConfirmation(Boolean removeConfirmation) {
+        this.removeConfirmation = removeConfirmation;
     }
 
     // Person

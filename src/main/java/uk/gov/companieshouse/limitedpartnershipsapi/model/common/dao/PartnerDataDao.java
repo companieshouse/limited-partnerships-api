@@ -14,6 +14,12 @@ public abstract class PartnerDataDao {
     @Field("appointment_id")
     private String appointmentId;
 
+    @Field("cease_date")
+    private LocalDate ceaseDate;
+
+    @Field("removeConfirmation")
+    private Boolean removeConfirmation;
+
     public String getKind() {
         return kind;
     }
@@ -36,6 +42,22 @@ public abstract class PartnerDataDao {
 
     public void setAppointmentId(String appointmentId) {
         this.appointmentId = appointmentId;
+    }
+
+    public LocalDate getCeaseDate() {
+        return ceaseDate;
+    }
+
+    public void setCeaseDate(LocalDate ceaseDate) {
+        this.ceaseDate = ceaseDate;
+    }
+
+    public Boolean getRemoveConfirmation() {
+        return removeConfirmation;
+    }
+
+    public void setRemoveConfirmation(Boolean removeConfirmation) {
+        this.removeConfirmation = removeConfirmation;
     }
 
     // Person
