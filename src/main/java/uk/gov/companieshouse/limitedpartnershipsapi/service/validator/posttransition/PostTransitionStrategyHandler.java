@@ -6,6 +6,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
@@ -48,7 +49,7 @@ public class PostTransitionStrategyHandler {
         this.strategyMap = setStrategyMap(strategies);
     }
 
-    public List<ValidationStatusError> validateLimitedPartnership(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
+    public List<ValidationStatusError> validateLimitedPartnership(LimitedPartnershipDto limitedPartnershipDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
         validateDto(limitedPartnershipDto, errorsList);
@@ -62,12 +63,12 @@ public class PostTransitionStrategyHandler {
 
         PostTransitionStrategy<LimitedPartnershipDto> strategy = (PostTransitionStrategy<LimitedPartnershipDto>) getStrategy(kind);
 
-        strategy.validate(limitedPartnershipDto, errorsList, validationStatus);
+        strategy.validate(limitedPartnershipDto, errorsList, validationStatus, transaction);
 
         return errorsList;
     }
 
-    public List<ValidationStatusError> validatePartner(PartnerDto partnerDto) throws ServiceException {
+    public List<ValidationStatusError> validatePartner(PartnerDto partnerDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
         validateDto(partnerDto, errorsList);
@@ -76,7 +77,7 @@ public class PostTransitionStrategyHandler {
 
         PostTransitionStrategy<PartnerDto> strategy = (PostTransitionStrategy<PartnerDto>) getStrategy(kind);
 
-        strategy.validate(partnerDto, errorsList, validationStatus);
+        strategy.validate(partnerDto, errorsList, validationStatus, transaction);
 
         return errorsList;
     }

@@ -135,7 +135,7 @@ public class GeneralPartnerService {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
         if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
-            return postTransitionStrategyHandler.validatePartner(dto);
+            return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 
         return generalPartnerValidator.validateFull(dto, transaction);

@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttrans
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
@@ -25,7 +26,7 @@ public class UpdatePartnershipName implements PostTransitionStrategy<LimitedPart
     }
 
     @Override
-    public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
+    public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) {
         if (limitedPartnershipDto.getData().getNameEnding() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Name ending is required",
                     "data.nameEnding"));
