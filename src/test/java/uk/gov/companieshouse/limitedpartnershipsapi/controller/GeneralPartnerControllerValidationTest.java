@@ -21,10 +21,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapperI
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.GeneralPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -42,7 +44,15 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
-@ContextConfiguration(classes = {GeneralPartnerController.class, GeneralPartnerService.class, GeneralPartnerValidator.class, ValidationStatus.class, GeneralPartnerMapperImpl.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {
+        GeneralPartnerController.class,
+        GeneralPartnerService.class,
+        GeneralPartnerValidator.class,
+        PostTransitionStrategyHandler.class,
+        ValidationStatus.class,
+        GeneralPartnerMapperImpl.class,
+        GlobalExceptionHandler.class}
+)
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerValidationTest {
 
@@ -133,6 +143,9 @@ class GeneralPartnerControllerValidationTest {
 
     @MockitoBean
     private CompanyService companyService;
+
+    @MockitoBean
+    private CostsService costsService;
 
     @BeforeEach
     void setUp() {

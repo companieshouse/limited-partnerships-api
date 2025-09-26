@@ -169,7 +169,7 @@ public class PartnershipController {
         logMap.put(TRANSACTION_KEY, transaction.getId());
         ApiLogger.infoContext(requestId, String.format("Calling CostsService to retrieve costs for limitedPartnership: %s", limitedPartnershipId), logMap);
 
-        Cost cost = costsService.getPostTransitionCost(transaction);
+        Cost cost = costsService.getPostTransitionLimitedPartnershipCost(transaction);
 
         return ResponseEntity.ok(Collections.singletonList(cost));
     }

@@ -120,7 +120,7 @@ class LimitedPartnerServiceCreateTest {
             createLimitedPartner(incoporationKind);
 
             verify(transactionService).updateTransactionWithLinksForPartner(
-                    eq(REQUEST_ID), eq(transaction), any(), any());
+                    eq(REQUEST_ID), eq(transaction), any(), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();
             assertEquals(1, transactionResources.size());

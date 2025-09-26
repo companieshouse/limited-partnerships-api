@@ -15,6 +15,7 @@ public class TransactionBuilder {
 
     private IncorporationKind incorporationKind = IncorporationKind.REGISTRATION;
     private String kind = FILING_KIND_LIMITED_PARTNERSHIP;
+    private String filingMode;
     String uri = String.format("/transactions/%s/limited-partnership/partnership/%s",
             TRANSACTION_ID,
             SUBMISSION_ID
@@ -32,12 +33,17 @@ public class TransactionBuilder {
         return this;
     }
 
+    public TransactionBuilder withFilingMode(String filingMode) {
+        this.filingMode = filingMode;
+        return this;
+    }
+
     public Transaction build() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         transaction.setCompanyName("Test Partnership");
         transaction.setCompanyNumber("LP123456");
-        transaction.setFilingMode(incorporationKind.getDescription());
+        transaction.setFilingMode(filingMode != null ? filingMode : incorporationKind.getDescription());
 
         Resource resource = new Resource();
         resource.setKind(kind);

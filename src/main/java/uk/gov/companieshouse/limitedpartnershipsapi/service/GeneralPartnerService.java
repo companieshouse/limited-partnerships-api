@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -13,6 +14,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.GeneralPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.ArrayList;
@@ -32,16 +34,19 @@ public class GeneralPartnerService {
     private final GeneralPartnerMapper mapper;
     private final GeneralPartnerValidator generalPartnerValidator;
     private final TransactionService transactionService;
+    private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
                                  GeneralPartnerValidator generalPartnerValidator,
-                                 TransactionService transactionService
+                                 TransactionService transactionService,
+                                 PostTransitionStrategyHandler postTransitionStrategyHandler
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.generalPartnerValidator = generalPartnerValidator;
         this.transactionService = transactionService;
+        this.postTransitionStrategyHandler = postTransitionStrategyHandler;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -54,7 +59,12 @@ public class GeneralPartnerService {
 
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind);
+        Cost cost = null;
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
+        }
+
+        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind, cost);
 
         return insertedSubmission.getId();
     }
@@ -123,6 +133,10 @@ public class GeneralPartnerService {
     public List<ValidationStatusError> validateGeneralPartner(Transaction transaction, String generalPartnerId)
             throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
+
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            return postTransitionStrategyHandler.validatePartner(dto, transaction);
+        }
 
         return generalPartnerValidator.validateFull(dto, transaction);
     }
