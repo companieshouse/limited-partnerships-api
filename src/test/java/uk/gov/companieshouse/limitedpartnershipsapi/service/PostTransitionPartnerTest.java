@@ -30,7 +30,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
 @SpringBootTest
-public class PostTransitionPartnerTest {
+class PostTransitionPartnerTest {
 
     @Autowired
     private CostsService costsService;
@@ -86,6 +86,7 @@ public class PostTransitionPartnerTest {
         void shouldReturn200IfNoErrors() throws Exception {
 
             generalPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
+            generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao);
 
@@ -100,13 +101,15 @@ public class PostTransitionPartnerTest {
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao);
 
             generalPartnerPersonDao.getData().setCeaseDate(null);
+            generalPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
-            assertThat(result).hasSize(1)
+            assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
-                            Map.entry("data.ceaseDate", "Cease date is required")
+                            Map.entry("data.ceaseDate", "Cease date is required"),
+                            Map.entry("data.removeConfirmationChecked", "Remove confirmation checked is required")
                     );
         }
 

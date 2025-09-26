@@ -17,9 +17,8 @@ public abstract class PartnerDataDao {
     @Field("cease_date")
     private LocalDate ceaseDate;
 
-    // remove confirmation checked
-    @Field("removeConfirmation")
-    private Boolean removeConfirmation;
+    @Field("removeConfirmationChecked")
+    private boolean removeConfirmationChecked;
 
     public String getKind() {
         return kind;
@@ -53,12 +52,12 @@ public abstract class PartnerDataDao {
         this.ceaseDate = ceaseDate;
     }
 
-    public Boolean getRemoveConfirmation() {
-        return removeConfirmation;
+    public boolean getRemoveConfirmationChecked() {
+        return removeConfirmationChecked;
     }
 
-    public void setRemoveConfirmation(Boolean removeConfirmation) {
-        this.removeConfirmation = removeConfirmation;
+    public void setRemoveConfirmationChecked(boolean removeConfirmationChecked) {
+        this.removeConfirmationChecked = removeConfirmationChecked;
     }
 
     // Person

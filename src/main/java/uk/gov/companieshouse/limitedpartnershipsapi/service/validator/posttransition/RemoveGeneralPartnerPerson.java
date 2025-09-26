@@ -22,6 +22,11 @@ public class RemoveGeneralPartnerPerson implements PostTransitionStrategy<Partne
             errorsList.add(validationStatus.createValidationStatusError("Cease date is required",
                     "data.ceaseDate"));
         }
+
+        if (!partnerDto.getData().getRemoveConfirmationChecked()) {
+            errorsList.add(validationStatus.createValidationStatusError("Remove confirmation checked is required",
+                    "data.removeConfirmationChecked"));
+        }
     }
 
     @Override

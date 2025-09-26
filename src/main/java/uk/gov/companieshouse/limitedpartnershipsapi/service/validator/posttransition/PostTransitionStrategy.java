@@ -9,7 +9,7 @@ import java.util.List;
 public interface PostTransitionStrategy<T> {
     String getKind();
 
-    void validate(T object, List<ValidationStatusError> errorsList, ValidationStatus validationStatus);
+    void validate(T dto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus);
 
     Cost getCost(Cost cost);
 }
