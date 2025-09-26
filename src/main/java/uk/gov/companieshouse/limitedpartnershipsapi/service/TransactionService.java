@@ -65,7 +65,7 @@ public class TransactionService {
     }
 
     private String buildPartnershipResumeJourneyUri(Transaction transaction, String submissionId) {
-        if (DEFAULT.equals(transaction.getFilingMode())) {
+        if (IncorporationKind.POST_TRANSITION.getDescription().equals(transaction.getFilingMode())) {
             return String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP,
                     transaction.getCompanyNumber(),
                     transaction.getId(),

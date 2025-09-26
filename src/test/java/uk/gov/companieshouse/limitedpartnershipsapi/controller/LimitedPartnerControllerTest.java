@@ -111,13 +111,13 @@ class LimitedPartnerControllerTest {
 
         if (incorporationKind == IncorporationKind.POST_TRANSITION) {
             verify(transactionService).updateTransactionWithResumeJourneyUri(
-                    eq(txn),
-                    eq(String.format(
+                    txn,
+                    String.format(
                             URL_RESUME_POST_TRANSITION_LIMITED_PARTNER,
                             txn.getCompanyNumber(),
                             TRANSACTION_ID,
-                            SUBMISSION_ID)),
-                    eq(REQUEST_ID)
+                            SUBMISSION_ID),
+                    REQUEST_ID
             );
         } else {
             assertTrue(StringUtils.isBlank(txn.getResumeJourneyUri()));
