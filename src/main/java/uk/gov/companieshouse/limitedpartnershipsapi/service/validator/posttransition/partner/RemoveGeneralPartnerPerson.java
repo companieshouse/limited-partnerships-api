@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition;
+package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.partner;
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.payment.Cost;
@@ -6,6 +6,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategy;
 
 import java.util.List;
 

@@ -10,8 +10,6 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -111,10 +109,6 @@ public class TransactionService {
             String requestId, Transaction transaction, String submissionUri, String kind, Cost cost) throws ServiceException {
         final var resource = createResourceAndAddLinks(transaction, submissionUri, kind);
 
-        if (PartnerKind.fromDescription(kind) != PartnerKind.UNKNOWN) {
-            resource.getLinks().put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        }
-
         if (cost != null) {
             resource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
         }
@@ -129,7 +123,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (PartnershipKind.fromDescription(kind) != PartnershipKind.UNKNOWN) {
+        if (transaction.getFilingMode().equals(DEFAULT)) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
