@@ -29,7 +29,7 @@ public class PostTransitionStrategyHandler {
     private final Validator validator;
     private final ValidationStatus validationStatus;
 
-    Map<String, PostTransitionStrategy> strategyMap;
+    Map<String, PostTransitionStrategy<?>> strategyMap;
 
     private static final String PAYMENT_ACCOUNT = "data-maintenance";
     private static final String CREDIT_CARD = "credit-card";
@@ -40,7 +40,7 @@ public class PostTransitionStrategyHandler {
     private static final String VALUE = "Value";
 
     @Autowired
-    public PostTransitionStrategyHandler(Validator validator, ValidationStatus validationStatus, ObjectProvider<PostTransitionStrategy> strategies) {
+    public PostTransitionStrategyHandler(Validator validator, ValidationStatus validationStatus, ObjectProvider<PostTransitionStrategy<?>> strategies) {
 
         this.validator = validator;
         this.validationStatus = validationStatus;
@@ -60,7 +60,7 @@ public class PostTransitionStrategyHandler {
 
         String kind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        PostTransitionStrategy strategy = getStrategy(kind);
+        PostTransitionStrategy<LimitedPartnershipDto> strategy = (PostTransitionStrategy<LimitedPartnershipDto>) getStrategy(kind);
 
         strategy.validate(limitedPartnershipDto, errorsList, validationStatus);
 
@@ -74,7 +74,7 @@ public class PostTransitionStrategyHandler {
 
         String kind = partnerDto.getData().getKind();
 
-        PostTransitionStrategy strategy = getStrategy(kind);
+        PostTransitionStrategy<PartnerDto> strategy = (PostTransitionStrategy<PartnerDto>) getStrategy(kind);
 
         strategy.validate(partnerDto, errorsList, validationStatus);
 
@@ -100,7 +100,7 @@ public class PostTransitionStrategyHandler {
             kind = partnerDto.getData().getKind();
         }
 
-        PostTransitionStrategy strategy = getStrategy(kind);
+        PostTransitionStrategy<?> strategy = getStrategy(kind);
 
         Cost cost = getCostObject();
 
@@ -122,7 +122,7 @@ public class PostTransitionStrategyHandler {
         return cost;
     }
 
-    private Map<String, PostTransitionStrategy> setStrategyMap(ObjectProvider<PostTransitionStrategy> strategies) {
+    private Map<String, PostTransitionStrategy<?>> setStrategyMap(ObjectProvider<PostTransitionStrategy<?>> strategies) {
 
         return strategies.stream()
                 .filter(Objects::nonNull)
@@ -132,14 +132,14 @@ public class PostTransitionStrategyHandler {
                 ));
     }
 
-    private static void throwErrorIfNoStrategyFound(String kind, PostTransitionStrategy strategy) throws ServiceException {
+    private static void throwErrorIfNoStrategyFound(String kind, PostTransitionStrategy<?> strategy) throws ServiceException {
         if (strategy == null) {
             throw new ServiceException("No strategy found for kind: " + kind);
         }
     }
 
-    private PostTransitionStrategy getStrategy(String kind) throws ServiceException {
-        PostTransitionStrategy strategy = strategyMap.get(kind);
+    private PostTransitionStrategy<?> getStrategy(String kind) throws ServiceException {
+        PostTransitionStrategy<?> strategy = strategyMap.get(kind);
 
         throwErrorIfNoStrategyFound(kind, strategy);
 
