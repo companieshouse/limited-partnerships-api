@@ -1,8 +1,11 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,7 +21,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,13 +31,16 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_GENERAL_PARTNER;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralPartnerControllerTest {
@@ -48,6 +56,9 @@ class GeneralPartnerControllerTest {
 
     @Mock
     private GeneralPartnerService generalPartnerService;
+
+    @Mock
+    private TransactionService transactionService;
 
     private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_GENERAL_PARTNER,
@@ -82,17 +93,30 @@ class GeneralPartnerControllerTest {
                 transaction, SUBMISSION_ID, REQUEST_ID));
     }
 
-    @Test
-    void testCreatePartnerReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    @ParameterizedTest
+    @EnumSource(value = IncorporationKind.class, names = {
+            "REGISTRATION",
+            "TRANSITION",
+            "POST_TRANSITION"
+    })
+    void testCreatePartnerReturnsSuccess(IncorporationKind incorporationKind) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        Transaction txn = new TransactionBuilder()
+                .forPartner(
+                    FILING_KIND_GENERAL_PARTNER,
+                    URL_GET_GENERAL_PARTNER,
+                    GENERAL_PARTNER_ID)
+                .withIncorporationKind(incorporationKind)
+                .build();
+
         when(generalPartnerService.createGeneralPartner(
-                any(Transaction.class),
+                eq(txn),
                 any(GeneralPartnerDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
 
         var response = generalPartnerController.createGeneralPartner(
-                transaction,
+                txn,
                 generalPartnerDto,
                 REQUEST_ID,
                 USER_ID);
@@ -104,6 +128,20 @@ class GeneralPartnerControllerTest {
         GeneralPartnerSubmissionCreatedResponseDto responseBody = response.getBody();
         assert responseBody != null;
         assertEquals(SUBMISSION_ID, responseBody.id());
+
+        if (incorporationKind == IncorporationKind.POST_TRANSITION) {
+            verify(transactionService).updateTransactionWithResumeJourneyUri(
+                    eq(txn),
+                    eq(String.format(
+                                    URL_RESUME_POST_TRANSITION_GENERAL_PARTNER,
+                                    txn.getCompanyNumber(),
+                                    TRANSACTION_ID,
+                                    SUBMISSION_ID)),
+                    eq(REQUEST_ID)
+            );
+        } else {
+            assertTrue(StringUtils.isBlank(txn.getResumeJourneyUri()));
+        }
     }
 
     @Test
