@@ -244,7 +244,7 @@ class GeneralPartnerControllerUpdateTest {
         private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2030-10-01\" } }";
 
         private static final String TRANSITION_KIND = "limited-partnership-transition";
-        private static final String POST_TRANSITION_KIND = "limited-partnership-post-transition";
+        private static final String POST_TRANSITION_KIND = "default";
 
         @ParameterizedTest
         @CsvSource(value = {

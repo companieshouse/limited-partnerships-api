@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
@@ -17,12 +16,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.controller.FilingsController;
-import uk.gov.companieshouse.limitedpartnershipsapi.controller.GeneralPartnerController;
-import uk.gov.companieshouse.limitedpartnershipsapi.controller.IncorporationController;
-import uk.gov.companieshouse.limitedpartnershipsapi.controller.LimitedPartnerController;
-import uk.gov.companieshouse.limitedpartnershipsapi.controller.PartnershipController;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.AllowedTransactionStatusInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
@@ -32,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.nio.charset.StandardCharsets;
 
@@ -44,11 +38,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ContextConfiguration(classes = {IncorporationController.class, PartnershipController.class, FilingsController.class,
-        GeneralPartnerController.class, LimitedPartnerController.class, CostsService.class,
-        GlobalExceptionHandler.class, InterceptorConfig.class, LoggingInterceptor.class})
-@WebMvcTest({IncorporationController.class, PartnershipController.class, FilingsController.class,
-        GeneralPartnerController.class, LimitedPartnerController.class})
+
+@WebMvcTest
 class ControllerEndpointInterceptorTest {
 
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
@@ -82,6 +73,9 @@ class ControllerEndpointInterceptorTest {
 
     @MockitoBean
     private LimitedPartnerService limitedPartnerService;
+
+    @MockitoBean
+    private TransactionService transactionService;
 
     @MockitoBean
     private FilingsService filingsService;

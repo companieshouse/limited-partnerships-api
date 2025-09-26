@@ -23,7 +23,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
@@ -36,15 +38,20 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANS
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_GENERAL_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_GENERAL_PARTNER;
 
 @RestController
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership")
 public class GeneralPartnerController {
 
     private final GeneralPartnerService generalPartnerService;
+    private final TransactionService transactionService;
 
     @Autowired
-    public GeneralPartnerController(GeneralPartnerService generalPartnerService) {
+    public GeneralPartnerController(
+            TransactionService transactionService,
+            GeneralPartnerService generalPartnerService) {
+        this.transactionService = transactionService;
         this.generalPartnerService = generalPartnerService;
     }
 
@@ -75,14 +82,33 @@ public class GeneralPartnerController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         ApiLogger.infoContext(requestId, "Create a general partner", logMap);
         try {
-            String submissionId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
-            var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, submissionId));
-            var response = new GeneralPartnerSubmissionCreatedResponseDto(submissionId);
+            String generalPartnerId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
+
+            if (IncorporationKind.POST_TRANSITION.getDescription().equals(transaction.getFilingMode())) {
+                // Post Transition journey - general partner created, update the transaction resume url
+                addResumeLinkToTransaction(transaction, requestId, transactionId, generalPartnerId);
+            }
+
+            var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId));
+            var response = new GeneralPartnerSubmissionCreatedResponseDto(generalPartnerId);
             return ResponseEntity.created(location).body(response);
         } catch (NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating the general partner", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void addResumeLinkToTransaction(Transaction transaction, String requestId, String transactionId, String generalPartnerId) throws ServiceException {
+        transactionService.updateTransactionWithResumeJourneyUri(
+                transaction,
+                String.format(
+                        URL_RESUME_POST_TRANSITION_GENERAL_PARTNER,
+                        transaction.getCompanyNumber(),
+                        transactionId,
+                        generalPartnerId
+                ),
+                requestId
+        );
     }
 
     @PatchMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
