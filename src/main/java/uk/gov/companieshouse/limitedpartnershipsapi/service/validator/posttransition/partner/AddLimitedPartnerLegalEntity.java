@@ -10,13 +10,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategy;
 
 import java.util.List;
 
 @Component
-public class AddLimitedPartnerLegalEntity
-//        implements PostTransitionStrategy<PartnerDto>
-{
+public class AddLimitedPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
 
     private final LimitedPartnerValidator limitedPartnerValidator;
 
@@ -24,17 +23,17 @@ public class AddLimitedPartnerLegalEntity
         this.limitedPartnerValidator = limitedPartnerValidator;
     }
 
-    //    @Override
+    @Override
     public String getKind() {
         return PartnerKind.ADD_LIMITED_PARTNER_LEGAL_ENTITY.getDescription();
     }
 
-    //    @Override
+    @Override
     public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
         limitedPartnerValidator.validateFull((LimitedPartnerDto) partnerDto, transaction);
     }
 
-    //    @Override
+    @Override
     public Cost getCost(Cost cost) {
         return null;
     }

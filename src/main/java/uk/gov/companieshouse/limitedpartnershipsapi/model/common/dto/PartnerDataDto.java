@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
@@ -33,6 +34,8 @@ public abstract class PartnerDataDto {
     @JsonProperty("remove_confirmation_checked")
     private boolean removeConfirmationChecked;
 
+    private PartnershipType partnershipType;
+
     public String getKind() {
         return kind;
     }
@@ -55,6 +58,14 @@ public abstract class PartnerDataDto {
 
     public void setRemoveConfirmationChecked(boolean removeConfirmationChecked) {
         this.removeConfirmationChecked = removeConfirmationChecked;
+    }
+
+    public PartnershipType getPartnershipType() {
+        return partnershipType;
+    }
+
+    public void setPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
     }
 
     // Person

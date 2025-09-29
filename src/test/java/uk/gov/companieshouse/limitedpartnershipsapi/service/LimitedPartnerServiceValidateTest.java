@@ -164,6 +164,7 @@ class LimitedPartnerServiceValidateTest {
         var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
         // given
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
+        limitedPartnerDao.getData().setPartnershipType(partnershipType);
         limitedPartnerDao.getData().setGoverningLaw(null);
         limitedPartnerDao.getData().setRegisteredCompanyNumber(null);
         limitedPartnerDao.getData().setPrincipalOfficeAddress(null);
@@ -199,12 +200,11 @@ class LimitedPartnerServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
     void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException {
         var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
-
         // given
-
         mocks();
 
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
+        limitedPartnerDao.getData().setPartnershipType(partnershipType);
         limitedPartnerDao.getData().setRegisteredCompanyNumber("");
         limitedPartnerDao.getData().setLegalEntityName(null);
 
@@ -261,6 +261,8 @@ class LimitedPartnerServiceValidateTest {
     @MethodSource("shouldNotAddContributionTestCases")
     void shouldReturnErrorsWhenTryingToAddContributionForPrivateFundTypes(PartnershipType partnershipType, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         // given
+
+        limitedPartnerDao.getData().setPartnershipType(partnershipType);
 
         limitedPartnerDao.getData().setContributionSubTypes(List.of(ContributionSubTypes.MONEY));
         limitedPartnerDao.getData().setContributionCurrencyValue("1000.00");

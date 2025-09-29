@@ -331,7 +331,9 @@ class LimitedPartnerServiceCreateTest {
     }
 
     @Test
-    void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() {
+    void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() throws ServiceException {
+        mockLimitedPartnershipService();
+
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDao = new LimitedPartnerDataDto();
         dto.setData(dataDao);

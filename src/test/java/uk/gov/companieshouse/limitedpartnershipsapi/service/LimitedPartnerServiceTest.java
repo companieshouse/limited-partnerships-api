@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -17,6 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 
@@ -58,6 +60,9 @@ class LimitedPartnerServiceTest {
     private TransactionService transactionService;
 
     @Mock
+    private LimitedPartnershipService limitedPartnershipService;
+
+    @Mock
     private LimitedPartnerValidator limitedPartnerValidator;
 
     @Captor
@@ -97,7 +102,9 @@ class LimitedPartnerServiceTest {
     void testCreateLinksForLimitedPartnerIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDto limitedPartnerDto = new LimitedPartnerBuilder().personDto();
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
 
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
         when(mapper.dtoToDao(limitedPartnerDto)).thenReturn(limitedPartnerDao);
         when(repository.insert(limitedPartnerDao)).thenReturn(limitedPartnerDao);
 

@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 
 import java.time.LocalDate;
 
@@ -19,6 +20,9 @@ public abstract class PartnerDataDao {
 
     @Field("removeConfirmationChecked")
     private boolean removeConfirmationChecked;
+
+    @Field("partnership_type")
+    private PartnershipType partnershipType;
 
     public String getKind() {
         return kind;
@@ -58,6 +62,14 @@ public abstract class PartnerDataDao {
 
     public void setRemoveConfirmationChecked(boolean removeConfirmationChecked) {
         this.removeConfirmationChecked = removeConfirmationChecked;
+    }
+
+    public PartnershipType getPartnershipType() {
+        return partnershipType;
+    }
+
+    public void setPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
     }
 
     // Person
