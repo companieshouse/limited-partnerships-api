@@ -8,10 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -27,7 +29,9 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @SpringBootTest
 class PostTransitionPartnerTest {
@@ -37,6 +41,9 @@ class PostTransitionPartnerTest {
 
     @Autowired
     private GeneralPartnerService generalPartnerService;
+
+    @Autowired
+    private LimitedPartnershipService limitedPartnershipService;
 
     @Autowired
     private LimitedPartnerService limitedPartnerService;
@@ -59,7 +66,23 @@ class PostTransitionPartnerTest {
             GeneralPartnerBuilder.GENERAL_PARTNER_ID
     ).withFilingMode(TransactionService.DEFAULT).build();
 
-    private final GeneralPartnerDao generalPartnerPersonDao = new GeneralPartnerBuilder().personDao();
+    private final GeneralPartnerDao generalPartnerPersonDao = new GeneralPartnerBuilder()
+            .personDao();
+
+    private final GeneralPartnerDao generalPartnerLegalEntityDao = new GeneralPartnerBuilder()
+            .legalEntityDao();
+
+    private final Transaction transactionLimitedPartner = new TransactionBuilder().forPartner(
+            FILING_KIND_LIMITED_PARTNER,
+            URL_GET_LIMITED_PARTNER,
+            LimitedPartnerBuilder.LIMITED_PARTNER_ID
+    ).withFilingMode(TransactionService.DEFAULT).build();
+
+    private final LimitedPartnerDao limitedPartnerPersonDao = new LimitedPartnerBuilder()
+            .personDao();
+
+    private final LimitedPartnerDao limitedPartnerLegalEntityDao = new LimitedPartnerBuilder()
+            .legalEntityDao();
 
     @BeforeEach
     void setup() {
@@ -69,7 +92,7 @@ class PostTransitionPartnerTest {
     @Test
     void shouldReturn200IfNoKindMatching() {
 
-        mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao);
+        mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
         generalPartnerPersonDao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
 
@@ -88,7 +111,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
 
-            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao);
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
@@ -98,7 +121,7 @@ class PostTransitionPartnerTest {
         @Test
         void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
 
-            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao);
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
             generalPartnerPersonDao.getData().setCeaseDate(null);
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
@@ -116,7 +139,7 @@ class PostTransitionPartnerTest {
         @Test
         void shouldReturn200AndNoFeeForKindROA() throws Exception {
 
-            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao);
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
             var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
@@ -124,10 +147,119 @@ class PostTransitionPartnerTest {
         }
     }
 
-    void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao) {
-        generalPartnerPersonDao.getData().setKind(partnerKind.getDescription());
+    @Nested
+    class AddPartner {
 
-        when(generalPartnerRepository.findById(any())).thenReturn(Optional.of(generalPartnerDao));
+        @Test
+        void shouldReturn200IfNoErrors_AddGeneralPartnerPerson() throws Exception {
+
+            mocks(PartnerKind.ADD_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfPartnerDetailsMissing_AddGeneralPartnerPerson() throws Exception {
+
+            mocks(PartnerKind.ADD_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            generalPartnerPersonDao.getData().setUsualResidentialAddress(null);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("usual_residential_address", "Usual residential address is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200IfNoErrors_AddGeneralPartnerLegalEntity() throws Exception {
+
+            mocks(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfPartnerDetailsMissing_AddGeneralPartnerLegalEntity() throws Exception {
+
+            mocks(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            generalPartnerLegalEntityDao.getData().setLegalEntityName(null);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("legal_entity_name", "Legal Entity Name is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200IfNoErrors_AddLimitedPartnerPerson() throws Exception {
+
+            mocks(PartnerKind.ADD_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, LimitedPartnerBuilder.LIMITED_PARTNER_ID);
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfPartnerDetailsMissing_AddLimitedPartnerPerson() throws Exception {
+
+            mocks(PartnerKind.ADD_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            limitedPartnerPersonDao.getData().setDateOfBirth(null);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, LimitedPartnerBuilder.LIMITED_PARTNER_ID);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("date_of_birth", "Date of birth is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200IfNoErrors_AddLimitedPartnerLegalEntity() throws Exception {
+
+            mocks(PartnerKind.ADD_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, LimitedPartnerBuilder.LIMITED_PARTNER_ID);
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfPartnerDetailsMissing_AddLimitedPartnerLegalEntity() throws Exception {
+
+            mocks(PartnerKind.ADD_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            limitedPartnerLegalEntityDao.getData().setGoverningLaw(null);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, LimitedPartnerBuilder.LIMITED_PARTNER_ID);
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("governing_law", "Governing Law is required")
+                    );
+        }
+    }
+
+    void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao, LimitedPartnerDao limitedPartnerDao) {
+        generalPartnerDao.getData().setKind(partnerKind.getDescription());
+
+        when(generalPartnerRepository.findById(GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+        when(limitedPartnerRepository.findById(LimitedPartnerBuilder.LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
     }
