@@ -6,8 +6,10 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
@@ -28,7 +30,7 @@ public class PostTransitionStrategyHandler {
     private final Validator validator;
     private final ValidationStatus validationStatus;
 
-    Map<String, PostTransitionStrategy> strategyMap;
+    Map<String, PostTransitionStrategy<?>> strategyMap;
 
     private static final String PAYMENT_ACCOUNT = "data-maintenance";
     private static final String CREDIT_CARD = "credit-card";
@@ -39,7 +41,7 @@ public class PostTransitionStrategyHandler {
     private static final String VALUE = "Value";
 
     @Autowired
-    public PostTransitionStrategyHandler(Validator validator, ValidationStatus validationStatus, ObjectProvider<PostTransitionStrategy> strategies) {
+    public PostTransitionStrategyHandler(Validator validator, ValidationStatus validationStatus, ObjectProvider<PostTransitionStrategy<?>> strategies) {
 
         this.validator = validator;
         this.validationStatus = validationStatus;
@@ -47,43 +49,63 @@ public class PostTransitionStrategyHandler {
         this.strategyMap = setStrategyMap(strategies);
     }
 
-    public List<ValidationStatusError> validate(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
+    public List<ValidationStatusError> validateLimitedPartnership(LimitedPartnershipDto limitedPartnershipDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
-
-        if (!violations.isEmpty()) {
-            violations.forEach(violation ->
-                    errorsList.add(validationStatus.createValidationStatusError(violation.getMessage(), violation.getPropertyPath().toString()))
-            );
-        }
+        validateDto(limitedPartnershipDto, errorsList);
 
         if (limitedPartnershipDto.getData().getDateOfUpdate() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
                     "data.dateOfUpdate"));
         }
 
-        String limitedPartnershipKind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+        String kind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
+        PostTransitionStrategy<LimitedPartnershipDto> strategy = (PostTransitionStrategy<LimitedPartnershipDto>) getStrategy(kind);
 
-        throwErrorIfNoStrategyFound(limitedPartnershipDto, strategy);
-
-        strategy.validate(limitedPartnershipDto, errorsList, validationStatus);
+        strategy.validate(limitedPartnershipDto, errorsList, validationStatus, transaction);
 
         return errorsList;
     }
 
-    public Cost getCost(LimitedPartnershipDto limitedPartnershipDto) throws ServiceException {
-        String limitedPartnershipKind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+    public List<ValidationStatusError> validatePartner(PartnerDto partnerDto, Transaction transaction) throws ServiceException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        PostTransitionStrategy strategy = strategyMap.get(limitedPartnershipKind);
+        validateDto(partnerDto, errorsList);
 
-        throwErrorIfNoStrategyFound(limitedPartnershipDto, strategy);
+        String kind = partnerDto.getData().getKind();
+
+        PostTransitionStrategy<PartnerDto> strategy = (PostTransitionStrategy<PartnerDto>) getStrategy(kind);
+
+        strategy.validate(partnerDto, errorsList, validationStatus, transaction);
+
+        return errorsList;
+    }
+
+    private <T> void validateDto(T dto, List<ValidationStatusError> errorsList) {
+        Set<ConstraintViolation<T>> violations = validator.validate(dto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    errorsList.add(validationStatus.createValidationStatusError(violation.getMessage(), violation.getPropertyPath().toString()))
+            );
+        }
+    }
+
+    public <T> Cost getCost(T dto) throws ServiceException {
+        String kind = null;
+
+        if (dto instanceof LimitedPartnershipDto limitedPartnershipDto) {
+            kind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+        } else if (dto instanceof PartnerDto partnerDto) {
+            kind = partnerDto.getData().getKind();
+        }
+
+        PostTransitionStrategy<?> strategy = getStrategy(kind);
 
         Cost cost = getCostObject();
 
-        cost.setResourceKind(limitedPartnershipKind);
+        cost.setResourceKind(kind);
 
         return strategy.getCost(cost);
     }
@@ -101,7 +123,7 @@ public class PostTransitionStrategyHandler {
         return cost;
     }
 
-    private Map<String, PostTransitionStrategy> setStrategyMap(ObjectProvider<PostTransitionStrategy> strategies) {
+    private Map<String, PostTransitionStrategy<?>> setStrategyMap(ObjectProvider<PostTransitionStrategy<?>> strategies) {
 
         return strategies.stream()
                 .filter(Objects::nonNull)
@@ -111,9 +133,17 @@ public class PostTransitionStrategyHandler {
                 ));
     }
 
-    private static void throwErrorIfNoStrategyFound(LimitedPartnershipDto limitedPartnershipDto, PostTransitionStrategy strategy) throws ServiceException {
+    private static void throwErrorIfNoStrategyFound(String kind, PostTransitionStrategy<?> strategy) throws ServiceException {
         if (strategy == null) {
-            throw new ServiceException("No strategy found for kind: " + limitedPartnershipDto.getData().getKind());
+            throw new ServiceException("No strategy found for kind: " + kind);
         }
+    }
+
+    private PostTransitionStrategy<?> getStrategy(String kind) throws ServiceException {
+        PostTransitionStrategy<?> strategy = strategyMap.get(kind);
+
+        throwErrorIfNoStrategyFound(kind, strategy);
+
+        return strategy;
     }
 }

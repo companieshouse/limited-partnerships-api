@@ -17,9 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currenc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.math.BigDecimal;
@@ -29,14 +27,13 @@ import java.util.List;
 @Component
 public class LimitedPartnerValidator extends PartnerValidator {
 
-    private final LimitedPartnershipService limitedPartnershipService;
-
     private static final String CLASS_NAME = LimitedPartnerDataDto.class.getName();
 
     @Autowired
-    public LimitedPartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService, LimitedPartnershipService limitedPartnershipService) {
+    public LimitedPartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService
+    ) {
+
         super(validator, validationStatus, companyService);
-        this.limitedPartnershipService = limitedPartnershipService;
     }
 
     public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws ServiceException {
@@ -88,9 +85,8 @@ public class LimitedPartnerValidator extends PartnerValidator {
         if (!IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
             return;
         }
-
-        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-        PartnershipType partnershipType = limitedPartnershipDto.getData().getPartnershipType();
+        
+        PartnershipType partnershipType = limitedPartnerDataDto.getPartnershipType();
 
         String contributionCurrencyValue = limitedPartnerDataDto.getContributionCurrencyValue();
         Currency contributionCurrencyType = limitedPartnerDataDto.getContributionCurrencyType();

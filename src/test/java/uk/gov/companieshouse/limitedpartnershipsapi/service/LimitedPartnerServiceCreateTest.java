@@ -120,7 +120,7 @@ class LimitedPartnerServiceCreateTest {
             createLimitedPartner(incoporationKind);
 
             verify(transactionService).updateTransactionWithLinksForPartner(
-                    eq(REQUEST_ID), eq(transaction), any(), any());
+                    eq(REQUEST_ID), eq(transaction), any(), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();
             assertEquals(1, transactionResources.size());
@@ -331,7 +331,9 @@ class LimitedPartnerServiceCreateTest {
     }
 
     @Test
-    void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() {
+    void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() throws ServiceException {
+        mockLimitedPartnershipService();
+
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDao = new LimitedPartnerDataDto();
         dto.setData(dataDao);

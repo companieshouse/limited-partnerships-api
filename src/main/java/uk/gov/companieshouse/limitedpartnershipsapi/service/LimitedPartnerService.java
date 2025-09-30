@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -32,29 +33,36 @@ public class LimitedPartnerService {
     private final LimitedPartnerMapper mapper;
     private final LimitedPartnerValidator limitedPartnerValidator;
     private final TransactionService transactionService;
+    private final LimitedPartnershipService limitedPartnershipService;
 
     public LimitedPartnerService(LimitedPartnerRepository repository,
                                  LimitedPartnerMapper mapper,
                                  LimitedPartnerValidator limitedPartnerValidator,
-                                 TransactionService transactionService
+                                 TransactionService transactionService,
+                                 LimitedPartnershipService limitedPartnershipService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.limitedPartnerValidator = limitedPartnerValidator;
         this.transactionService = transactionService;
+        this.limitedPartnershipService = limitedPartnershipService;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+        limitedPartnerDto.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
 
         limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
+        dao.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
+
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
 
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind);
+        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind, null);
 
         return insertedSubmission.getId();
     }
