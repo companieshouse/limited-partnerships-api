@@ -24,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -90,7 +89,7 @@ public class GeneralPartnerController {
         try {
             String generalPartnerId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
 
-            if (IncorporationKind.POST_TRANSITION.getDescription().equals(transaction.getFilingMode())) {
+            if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
                 // Post Transition journey - general partner created, update the transaction resume url
                 addResumeLinkToTransaction(transaction, requestId, transactionId, generalPartnerId);
             }

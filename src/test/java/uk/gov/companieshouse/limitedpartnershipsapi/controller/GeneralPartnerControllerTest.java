@@ -93,21 +93,7 @@ class GeneralPartnerControllerTest {
                 transaction, SUBMISSION_ID, REQUEST_ID));
     }
 
-    @ParameterizedTest
-    @EnumSource(value = IncorporationKind.class, names = {
-            "REGISTRATION",
-            "TRANSITION",
-            "POST_TRANSITION"
-    })
-    void testCreatePartnerReturnsSuccess(IncorporationKind incorporationKind) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        Transaction txn = new TransactionBuilder()
-                .forPartner(
-                    FILING_KIND_GENERAL_PARTNER,
-                    URL_GET_GENERAL_PARTNER,
-                    GENERAL_PARTNER_ID)
-                .withIncorporationKind(incorporationKind)
-                .build();
-
+    private void assertCreatePartnerReturnsSuccess(Transaction txn, boolean verifyResumeJourneyUri) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(generalPartnerService.createGeneralPartner(
                 eq(txn),
                 any(GeneralPartnerDto.class),
@@ -123,25 +109,39 @@ class GeneralPartnerControllerTest {
 
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
-        assertEquals(String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
-                responseHeaderLocation);
+        assertEquals(String.format(URL_GET_GENERAL_PARTNER, TRANSACTION_ID, SUBMISSION_ID), responseHeaderLocation);
         GeneralPartnerSubmissionCreatedResponseDto responseBody = response.getBody();
         assert responseBody != null;
         assertEquals(SUBMISSION_ID, responseBody.id());
 
-        if (incorporationKind == IncorporationKind.POST_TRANSITION) {
+        if (verifyResumeJourneyUri) {
             verify(transactionService).updateTransactionWithResumeJourneyUri(
                     txn,
-                    String.format(
-                                    URL_RESUME_POST_TRANSITION_GENERAL_PARTNER,
-                                    txn.getCompanyNumber(),
-                                    TRANSACTION_ID,
-                                    SUBMISSION_ID),
+                    String.format(URL_RESUME_POST_TRANSITION_GENERAL_PARTNER, txn.getCompanyNumber(), TRANSACTION_ID, SUBMISSION_ID),
                     REQUEST_ID
             );
         } else {
             assertTrue(StringUtils.isBlank(txn.getResumeJourneyUri()));
         }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = IncorporationKind.class, names = {"REGISTRATION", "TRANSITION"})
+    void testCreatePartnerReturnsSuccess(IncorporationKind incorporationKind) throws Exception {
+        Transaction txn = new TransactionBuilder()
+                .forPartner(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
+                .withIncorporationKind(incorporationKind)
+                .build();
+        assertCreatePartnerReturnsSuccess(txn, false);
+    }
+
+    @Test
+    void testPostTransitionCreatePartnerReturnsSuccess() throws Exception {
+        Transaction txn = new TransactionBuilder()
+                .forPartner(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
+                .build();
+        txn.setFilingMode(TransactionService.DEFAULT);
+        assertCreatePartnerReturnsSuccess(txn, true);
     }
 
     @Test

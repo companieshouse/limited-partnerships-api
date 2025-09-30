@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 public enum IncorporationKind {
     REGISTRATION("limited-partnership-registration"),
     TRANSITION("limited-partnership-transition"),
-    POST_TRANSITION("default"),
+    POST_TRANSITION("limited-partnership-post-transition"),
 
     @JsonEnumDefaultValue
     UNKNOWN("UNKNOWN");

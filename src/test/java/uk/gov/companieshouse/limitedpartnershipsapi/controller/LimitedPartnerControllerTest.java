@@ -72,21 +72,7 @@ class LimitedPartnerControllerTest {
         limitedPartnerDto = new LimitedPartnerBuilder().personDto();
     }
 
-    @ParameterizedTest
-    @EnumSource(value = IncorporationKind.class, names = {
-            "REGISTRATION",
-            "TRANSITION",
-            "POST_TRANSITION"
-    })
-    void testCreatePartnerIsSuccessful(IncorporationKind incorporationKind) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        Transaction txn = new TransactionBuilder()
-                .forPartner(
-                        FILING_KIND_GENERAL_PARTNER,
-                        URL_GET_GENERAL_PARTNER,
-                        LIMITED_PARTNER_ID)
-                .withIncorporationKind(incorporationKind)
-                .build();
-
+    private void assertCreatePartnerIsSuccessful(Transaction txn, boolean verifyResumeJourneyUri) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(limitedPartnerService.createLimitedPartner(
                 eq(txn),
                 any(LimitedPartnerDto.class),
@@ -106,10 +92,10 @@ class LimitedPartnerControllerTest {
                 String.format(URL_GET_LIMITED_PARTNER, TRANSACTION_ID, SUBMISSION_ID),
                 responseHeaderLocation);
         LimitedPartnerSubmissionCreatedResponseDto responseBody = response.getBody();
-        assert responseBody != null;
+        assertNotNull(responseBody);
         assertEquals(SUBMISSION_ID, responseBody.id());
 
-        if (incorporationKind == IncorporationKind.POST_TRANSITION) {
+        if (verifyResumeJourneyUri) {
             verify(transactionService).updateTransactionWithResumeJourneyUri(
                     txn,
                     String.format(
@@ -123,6 +109,35 @@ class LimitedPartnerControllerTest {
             assertTrue(StringUtils.isBlank(txn.getResumeJourneyUri()));
         }
     }
+
+    @ParameterizedTest
+    @EnumSource(value = IncorporationKind.class, names = {
+            "REGISTRATION",
+            "TRANSITION"
+    })
+    void testCreatePartnerIsSuccessful(IncorporationKind incorporationKind) throws Exception {
+        Transaction txn = new TransactionBuilder()
+                .forPartner(
+                        FILING_KIND_GENERAL_PARTNER,
+                        URL_GET_GENERAL_PARTNER,
+                        LIMITED_PARTNER_ID)
+                .withIncorporationKind(incorporationKind)
+                .build();
+        assertCreatePartnerIsSuccessful(txn, incorporationKind == IncorporationKind.POST_TRANSITION);
+    }
+
+    @Test
+    void testPostTransitionCreatePartnerReturnsSuccess() throws Exception {
+        Transaction txn = new TransactionBuilder()
+                .forPartner(
+                        FILING_KIND_GENERAL_PARTNER,
+                        URL_GET_GENERAL_PARTNER,
+                        LIMITED_PARTNER_ID)
+                .build();
+        txn.setFilingMode(TransactionService.DEFAULT);
+        assertCreatePartnerIsSuccessful(txn, true);
+    }
+
 
     @Test
     void givenServiceException_whenCreateLimitedPartner_thenInternalServerError() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
