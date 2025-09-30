@@ -29,7 +29,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION_OR_TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
@@ -55,15 +56,25 @@ public class TransactionService {
                                                              String loggingContext,
                                                              String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
-        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+
+        if (IncorporationKind.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
             transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
         }
-        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
-        final var resumeJourneyUri = String.format(URL_RESUME, transaction.getId(), submissionId);
-        transaction.setResumeJourneyUri(resumeJourneyUri);
+        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
+        transaction.setResumeJourneyUri(buildPartnershipResumeJourneyUri(transaction, submissionId));
 
         updateTransaction(transaction, loggingContext);
+    }
+
+    private String buildPartnershipResumeJourneyUri(Transaction transaction, String submissionId) {
+        if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
+            return String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP,
+                    transaction.getCompanyNumber(),
+                    transaction.getId(),
+                    submissionId);
+        }
+        return String.format(URL_RESUME_REGISTRATION_OR_TRANSITION, transaction.getId(), submissionId);
     }
 
     public void updateTransaction(Transaction transaction, String loggingContext) throws ServiceException {
@@ -208,4 +219,8 @@ public class TransactionService {
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
     }
 
+    public void updateTransactionWithResumeJourneyUri(Transaction transaction, String resumeJourneyUri, String loggingContext) throws ServiceException {
+        transaction.setResumeJourneyUri(resumeJourneyUri);
+        updateTransaction(transaction, loggingContext);
+    }
 }

@@ -32,8 +32,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +45,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION_OR_TRANSITION;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -85,7 +86,7 @@ class TransactionServiceTest {
     @InjectMocks
     private TransactionService transactionService;
 
-    Transaction transaction = new TransactionBuilder().build();
+    private final Transaction transaction = new TransactionBuilder().build();
 
     @Test
     void testServiceExceptionThrownWhenApiClientSdkThrowsURIValidationException() throws IOException, URIValidationException {
@@ -207,16 +208,29 @@ class TransactionServiceTest {
             "REGISTRATION",
             "TRANSITION"
     })
-    void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
+    void testCorrectLinksAddedForIncorporationPartnership(IncorporationKind incorporationKind) throws Exception {
+        String expectedResumeUri = String.format(URL_RESUME_REGISTRATION_OR_TRANSITION, TRANSACTION_ID, SUBMISSION_ID);
+        assertTransactionLinksAndResumeUri(incorporationKind.getDescription(), expectedResumeUri);
+    }
+
+    @Test
+    void testCorrectLinksAddedForPostTransitionPartnership() throws Exception {
+        String expectedResumeUri = String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP, transaction.getCompanyNumber(), TRANSACTION_ID, SUBMISSION_ID);
+        assertTransactionLinksAndResumeUri(TransactionService.DEFAULT, expectedResumeUri);
+    }
+
+    private void assertTransactionLinksAndResumeUri(String filingMode, String expectedResumeUri) throws Exception {
+        Transaction txn = new TransactionBuilder().build();
+        txn.setFilingMode(filingMode);
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
         when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
-        when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + TRANSACTION_ID, transaction)).thenReturn(privateTransactionPatch);
+        when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + txn.getId(), txn)).thenReturn(privateTransactionPatch);
         when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
         when(apiPatchResponse.getStatusCode()).thenReturn(204);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
-
-        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, txn.getId(), SUBMISSION_ID);
         var limitedPartnershipResource = new Resource();
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
@@ -224,7 +238,7 @@ class TransactionServiceTest {
         limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
 
         transactionService.updateTransactionWithLinksAndPartnershipName(
-                transaction,
+                txn,
                 limitedPartnershipDto,
                 submissionUri,
                 limitedPartnershipResource,
@@ -232,23 +246,30 @@ class TransactionServiceTest {
                 SUBMISSION_ID
         );
 
-        // assert transaction resources are updated appropriately
-        assertEquals(limitedPartnershipDto.getData().getPartnershipName(), transaction.getCompanyName());
-
-        // assert transaction resources are updated appropriately
-        assertEquals(submissionUri, transaction.getResources().get(submissionUri).getLinks().get("resource"));
-
-        Map<String, Resource> transactionResources = transaction.getResources();
+        assertEquals(limitedPartnershipDto.getData().getPartnershipName(), txn.getCompanyName());
+        assertEquals(submissionUri, txn.getResources().get(submissionUri).getLinks().get("resource"));
+        Map<String, Resource> transactionResources = txn.getResources();
         assertEquals(1, transactionResources.size());
         assertThat(transactionResources.values())
                 .allSatisfy(resource -> assertThat(resource.getLinks())
                         .hasSize(1)
                         .isNotNull()
                         .containsKeys(LINK_RESOURCE));
+        assertEquals(expectedResumeUri, txn.getResumeJourneyUri());
+    }
 
-        // assert resume link is correct
-        String resumeUri = String.format(URL_RESUME, transaction.getId(), SUBMISSION_ID);
-        assertEquals(resumeUri, transaction.getResumeJourneyUri());
+    @Test
+    void testSetResumeLinkOnTransaction() throws ServiceException, ApiErrorResponseException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
+        when(privateTransactionResourceHandler.patch(PRIVATE_TRANSACTIONS_URL + transaction.getId(), transaction)).thenReturn(privateTransactionPatch);
+        when(privateTransactionPatch.execute()).thenReturn(apiPatchResponse);
+        when(apiPatchResponse.getStatusCode()).thenReturn(204);
+
+        String expectedResumeUri = "my/resume/uri";
+
+        transactionService.updateTransactionWithResumeJourneyUri(transaction, expectedResumeUri, SUBMISSION_ID);
+        assertEquals(expectedResumeUri, transaction.getResumeJourneyUri());
     }
 
     @Test
@@ -292,9 +313,9 @@ class TransactionServiceTest {
             "REGISTRATION",
             "TRANSITION"
     })
-    void givenTransactionIsLinkedToLimitedPartnershipRegistrationIncorporation_thenReturnTrue(IncorporationKind incoporationKind) {
+    void givenTransactionIsLinkedToLimitedPartnershipRegistrationIncorporation_thenReturnTrue(IncorporationKind incorporationKind) {
         // given + when
-        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(incoporationKind.getDescription());
+        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(incorporationKind.getDescription());
         // then
         assertTrue(result);
     }
