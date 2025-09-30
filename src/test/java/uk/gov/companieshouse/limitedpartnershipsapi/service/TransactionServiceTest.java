@@ -210,17 +210,18 @@ class TransactionServiceTest {
     })
     void testCorrectLinksAddedForIncorporationPartnership(IncorporationKind incorporationKind) throws Exception {
         String expectedResumeUri = String.format(URL_RESUME_REGISTRATION_OR_TRANSITION, TRANSACTION_ID, SUBMISSION_ID);
-        assertTransactionLinksAndResumeUri(incorporationKind, expectedResumeUri);
+        assertTransactionLinksAndResumeUri(incorporationKind.getDescription(), expectedResumeUri);
     }
 
     @Test
     void testCorrectLinksAddedForPostTransitionPartnership() throws Exception {
         String expectedResumeUri = String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP, transaction.getCompanyNumber(), TRANSACTION_ID, SUBMISSION_ID);
-        assertTransactionLinksAndResumeUri(IncorporationKind.POST_TRANSITION, expectedResumeUri);
+        assertTransactionLinksAndResumeUri(TransactionService.DEFAULT, expectedResumeUri);
     }
 
-    private void assertTransactionLinksAndResumeUri(IncorporationKind kind, String expectedResumeUri) throws Exception {
-        Transaction txn = new TransactionBuilder().withIncorporationKind(kind).build();
+    private void assertTransactionLinksAndResumeUri(String filingMode, String expectedResumeUri) throws Exception {
+        Transaction txn = new TransactionBuilder().build();
+        txn.setFilingMode(filingMode);
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
 
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
