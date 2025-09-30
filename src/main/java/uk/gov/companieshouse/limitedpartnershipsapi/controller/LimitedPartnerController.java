@@ -71,7 +71,7 @@ public class LimitedPartnerController {
 
             if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
                 // Post Transition journey - limited partner created, update the transaction resume url
-                addResumeLinkToTransaction(transaction, requestId, transactionId, limitedPartnerId);
+                addResumeLinkToTransaction(transaction, requestId, limitedPartnerId);
             }
 
             var location = URI.create(String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId));
@@ -83,13 +83,13 @@ public class LimitedPartnerController {
         }
     }
 
-    private void addResumeLinkToTransaction(Transaction transaction, String requestId, String transactionId, String limitedPartnerId) throws ServiceException {
+    private void addResumeLinkToTransaction(Transaction transaction, String requestId, String limitedPartnerId) throws ServiceException {
         transactionService.updateTransactionWithResumeJourneyUri(
                 transaction,
                 String.format(
                         URL_RESUME_POST_TRANSITION_LIMITED_PARTNER,
                         transaction.getCompanyNumber(),
-                        transactionId,
+                        transaction.getId(),
                         limitedPartnerId
                 ),
                 requestId

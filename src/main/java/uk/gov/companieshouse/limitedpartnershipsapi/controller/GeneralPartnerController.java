@@ -91,7 +91,7 @@ public class GeneralPartnerController {
 
             if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
                 // Post Transition journey - general partner created, update the transaction resume url
-                addResumeLinkToTransaction(transaction, requestId, transactionId, generalPartnerId);
+                addResumeLinkToTransaction(transaction, requestId, generalPartnerId);
             }
 
             var location = URI.create(String.format(URL_GET_GENERAL_PARTNER, transactionId, generalPartnerId));
@@ -103,13 +103,13 @@ public class GeneralPartnerController {
         }
     }
 
-    private void addResumeLinkToTransaction(Transaction transaction, String requestId, String transactionId, String generalPartnerId) throws ServiceException {
+    private void addResumeLinkToTransaction(Transaction transaction, String requestId, String generalPartnerId) throws ServiceException {
         transactionService.updateTransactionWithResumeJourneyUri(
                 transaction,
                 String.format(
                         URL_RESUME_POST_TRANSITION_GENERAL_PARTNER,
                         transaction.getCompanyNumber(),
-                        transactionId,
+                        transaction.getId(),
                         generalPartnerId
                 ),
                 requestId
