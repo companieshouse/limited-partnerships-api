@@ -15,7 +15,7 @@ public enum PartnershipType {
     @JsonCreator
     public static PartnershipType fromValue(String value) {
         try {
-            return PartnershipType.valueOf(value);
+            return PartnershipType.valueOf(value.toUpperCase());
         } catch (Exception e) {
             return UNKNOWN;
         }
