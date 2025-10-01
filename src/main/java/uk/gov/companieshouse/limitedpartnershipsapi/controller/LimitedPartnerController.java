@@ -24,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
@@ -36,15 +37,20 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANS
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_LIMITED_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_LIMITED_PARTNER;
 
 @RestController
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership")
 public class LimitedPartnerController {
 
     private final LimitedPartnerService limitedPartnerService;
+    private final TransactionService transactionService;
 
     @Autowired
-    public LimitedPartnerController(LimitedPartnerService limitedPartnerService) {
+    public LimitedPartnerController(
+            LimitedPartnerService limitedPartnerService,
+            TransactionService transactionService) {
+        this.transactionService = transactionService;
         this.limitedPartnerService = limitedPartnerService;
     }
 
@@ -61,14 +67,33 @@ public class LimitedPartnerController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         ApiLogger.infoContext(requestId, "Create a Limited Partner submission", logMap);
         try {
-            String submissionId = limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, requestId, userId);
-            var location = URI.create(String.format(URL_GET_LIMITED_PARTNER, transactionId, submissionId));
-            var response = new LimitedPartnerSubmissionCreatedResponseDto(submissionId);
+            String limitedPartnerId = limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, requestId, userId);
+
+            if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
+                // Post Transition journey - limited partner created, update the transaction resume url
+                addResumeLinkToTransaction(transaction, requestId, limitedPartnerId);
+            }
+
+            var location = URI.create(String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId));
+            var response = new LimitedPartnerSubmissionCreatedResponseDto(limitedPartnerId);
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, "Error creating Limited Partner", e, logMap);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    private void addResumeLinkToTransaction(Transaction transaction, String requestId, String limitedPartnerId) throws ServiceException {
+        transactionService.updateTransactionWithResumeJourneyUri(
+                transaction,
+                String.format(
+                        URL_RESUME_POST_TRANSITION_LIMITED_PARTNER,
+                        transaction.getCompanyNumber(),
+                        transaction.getId(),
+                        limitedPartnerId
+                ),
+                requestId
+        );
     }
 
     @PatchMapping("/limited-partner/{" + URL_PARAM_LIMITED_PARTNER_ID + "}")

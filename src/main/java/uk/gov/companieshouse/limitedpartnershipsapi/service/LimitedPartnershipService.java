@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -14,12 +16,17 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.requireNonNullElse;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
@@ -31,18 +38,21 @@ public class LimitedPartnershipService {
     private final LimitedPartnershipRepository repository;
     private final TransactionService transactionService;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
+    private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     @Autowired
     public LimitedPartnershipService(LimitedPartnershipMapper mapper,
                                      LimitedPartnershipPatchMapper patchMapper,
                                      LimitedPartnershipRepository repository,
                                      TransactionService transactionService,
-                                     LimitedPartnershipValidator limitedPartnershipValidator) {
+                                     LimitedPartnershipValidator limitedPartnershipValidator,
+                                     PostTransitionStrategyHandler postTransitionStrategyHandler) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
         this.limitedPartnershipValidator = limitedPartnershipValidator;
+        this.postTransitionStrategyHandler = postTransitionStrategyHandler;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -68,10 +78,14 @@ public class LimitedPartnershipService {
         final String submissionUri = getSubmissionUri(transaction.getId(), insertedLimitedPartnership.getId());
         updateLimitedPartnershipWithSelfLink(insertedLimitedPartnership, submissionUri);
 
-        String kind = insertedLimitedPartnership.getData().getKind() != null ? insertedLimitedPartnership.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = requireNonNullElse(insertedLimitedPartnership.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, kind);
+
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            addCostLink(limitedPartnershipDto, limitedPartnershipResource, submissionUri);
+        }
 
         transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
@@ -81,11 +95,18 @@ public class LimitedPartnershipService {
         return insertedLimitedPartnership.getId();
     }
 
+    private void addCostLink(LimitedPartnershipDto limitedPartnershipDto, Resource limitedPartnershipResource, String submissionUri) throws ServiceException {
+        Cost cost = postTransitionStrategyHandler.getCost(limitedPartnershipDto);
+        if (cost != null) {
+            limitedPartnershipResource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
+        }
+    }
+
     public void updateLimitedPartnership(Transaction transaction,
                                          String submissionId,
                                          LimitedPartnershipPatchDto limitedPartnershipPatchDto,
                                          String requestId,
-                                         String userId) throws ServiceException {
+                                         String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var optionalLpSubmissionDaoBeforePatch = repository.findById(submissionId);
 
         if (optionalLpSubmissionDaoBeforePatch.isEmpty()) {
@@ -96,6 +117,8 @@ public class LimitedPartnershipService {
         var lpSubmissionDto = mapper.daoToDto(lpSubmissionDaoBeforePatch);
 
         patchMapper.update(limitedPartnershipPatchDto, lpSubmissionDto.getData());
+
+        limitedPartnershipValidator.validateUpdate(lpSubmissionDto, transaction);
 
         var lpSubmissionDaoAfterPatch = mapper.dtoToDao(lpSubmissionDto);
 
@@ -137,13 +160,16 @@ public class LimitedPartnershipService {
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException {
         String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
-        if (!transactionService.isTransactionLinkedToLimitedPartnership(transaction, submissionUri)) {
+        var limitedPartnershipDao = repository.findById(submissionId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
+
+        String kind = requireNonNullElse(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+
+        if (!transactionService.isTransactionLinkedToLimitedPartnership(transaction, submissionUri, kind)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
         }
 
-        var submission = repository.findById(submissionId);
-        var limitedPartnershipDao = submission.orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
         return mapper.daoToDto(limitedPartnershipDao);
     }
 
@@ -158,7 +184,7 @@ public class LimitedPartnershipService {
 
         var limitedPartnershipDao = limitedPartnerships.getFirst();
 
-        String kind = limitedPartnershipDao.getData().getKind() != null ? limitedPartnershipDao.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = requireNonNullElse(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         if (!transactionService.doesTransactionHaveALimitedPartnership(transaction, kind)) {
             throw new ResourceNotFoundException(String.format(
@@ -173,7 +199,7 @@ public class LimitedPartnershipService {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
         if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
-            return limitedPartnershipValidator.validatePostTransition(limitedPartnershipDto);
+            return postTransitionStrategyHandler.validateLimitedPartnership(limitedPartnershipDto, transaction);
         }
 
         return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));

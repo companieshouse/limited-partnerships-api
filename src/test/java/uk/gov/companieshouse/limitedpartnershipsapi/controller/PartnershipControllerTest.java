@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -110,7 +111,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testUpdatePartnershipIsSuccessful() throws ServiceException {
+    void testUpdatePartnershipIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
 
@@ -134,7 +135,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testInternalServerErrorReturnedWhenUpdatePartnershipFails() throws ServiceException {
+    void testInternalServerErrorReturnedWhenUpdatePartnershipFails() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
 
@@ -159,7 +160,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testNotFoundReturnedWhenUpdatePartnershipFailsToFindResource() throws ServiceException {
+    void testNotFoundReturnedWhenUpdatePartnershipFailsToFindResource() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
         doThrow(new ResourceNotFoundException("error"))

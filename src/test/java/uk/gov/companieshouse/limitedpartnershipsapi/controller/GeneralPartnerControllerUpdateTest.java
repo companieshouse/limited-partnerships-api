@@ -26,9 +26,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.GeneralPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -47,7 +50,14 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 
-@ContextConfiguration(classes = {GeneralPartnerController.class, GeneralPartnerService.class, GeneralPartnerValidator.class, GeneralPartnerMapperImpl.class, GlobalExceptionHandler.class})
+@ContextConfiguration(classes = {
+        GeneralPartnerController.class,
+        GeneralPartnerService.class,
+        GeneralPartnerValidator.class,
+        PostTransitionStrategyHandler.class,
+        ValidationStatus.class,
+        GeneralPartnerMapperImpl.class,
+        GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerUpdateTest {
 
@@ -106,6 +116,9 @@ class GeneralPartnerControllerUpdateTest {
 
     @MockitoBean
     private CompanyService companyService;
+
+    @MockitoBean
+    private CostsService costsService;
 
     @BeforeEach
     void setUp() {
@@ -247,11 +260,6 @@ class GeneralPartnerControllerUpdateTest {
 
         @ParameterizedTest
         @CsvSource(value = {
-                JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + TRANSITION_KIND,
-                JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + TRANSITION_KIND,
-                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date $" + TRANSITION_KIND,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date $" + TRANSITION_KIND,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must be in the past $" + TRANSITION_KIND,
                 JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + POST_TRANSITION_KIND,
                 JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + POST_TRANSITION_KIND,
                 JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date $" + POST_TRANSITION_KIND,

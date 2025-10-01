@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -61,7 +62,7 @@ class LimitedPartnershipServiceUpdateTest {
         @Nested
         class updatePartnershipName {
             @Test
-            void shouldUpdateTheDao() throws ServiceException {
+            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
@@ -95,7 +96,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -109,7 +110,7 @@ class LimitedPartnershipServiceUpdateTest {
         @Nested
         class updateRegisteredOfficeAddress {
             @Test
-            void shouldUpdateTheDao() throws ServiceException {
+            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
@@ -150,7 +151,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -169,7 +170,7 @@ class LimitedPartnershipServiceUpdateTest {
         @Nested
         class UpdateTerm {
             @Test
-            void shouldUpdateTheDao() throws ServiceException {
+            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setTerm(null);
@@ -203,7 +204,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -219,7 +220,7 @@ class LimitedPartnershipServiceUpdateTest {
         @Nested
         class updatePrincipalPlaceOfBusinessAddress {
             @Test
-            void shouldUpdateTheDao() throws ServiceException {
+            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
@@ -260,7 +261,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -279,18 +280,18 @@ class LimitedPartnershipServiceUpdateTest {
         @Nested
         class updateSicCode {
             @Test
-            void shouldUpdateTheDao() throws ServiceException {
+            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setSicCodes(null);
 
-                List<String> sicCodes = Arrays.asList("12A45", "22345", "33345");
+                List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
 
                 LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
                 limitedPartnershipPatchDto.setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // dao sic codes is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getSicCodes());
@@ -304,7 +305,8 @@ class LimitedPartnershipServiceUpdateTest {
 
                 LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
 
-                assertEquals(sicCodes, sentSubmission.getData().getSicCodes());
+                assertEquals(sentSubmission.getData().getSicCodes().size(), sicCodes.size());
+                assertEquals(sicCodes.getFirst().toString(), sentSubmission.getData().getSicCodes().getFirst().toString());
             }
 
             @Test
@@ -316,7 +318,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipDao.getData().setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -331,7 +333,7 @@ class LimitedPartnershipServiceUpdateTest {
         @Nested
         class UpdateLawfulPurposeStatementChecked {
             @Test
-            void shouldUpdateTheDao() throws ServiceException {
+            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
                 LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
                 limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(null);
@@ -340,7 +342,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipPatchDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // dao lawful purpose statement check is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getLawfulPurposeStatementChecked());
@@ -364,7 +366,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(true);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);

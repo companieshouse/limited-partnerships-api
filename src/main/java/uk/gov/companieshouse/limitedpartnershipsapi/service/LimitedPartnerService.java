@@ -11,13 +11,16 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -30,29 +33,36 @@ public class LimitedPartnerService {
     private final LimitedPartnerMapper mapper;
     private final LimitedPartnerValidator limitedPartnerValidator;
     private final TransactionService transactionService;
+    private final LimitedPartnershipService limitedPartnershipService;
 
     public LimitedPartnerService(LimitedPartnerRepository repository,
                                  LimitedPartnerMapper mapper,
                                  LimitedPartnerValidator limitedPartnerValidator,
-                                 TransactionService transactionService
+                                 TransactionService transactionService,
+                                 LimitedPartnershipService limitedPartnershipService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.limitedPartnerValidator = limitedPartnerValidator;
         this.transactionService = transactionService;
+        this.limitedPartnershipService = limitedPartnershipService;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+        limitedPartnerDto.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
 
         limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
+        dao.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
+
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
 
-        String kind = insertedSubmission.getData().getKind() != null ? insertedSubmission.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        transactionService.updateTransactionWithLinksForLimitedPartner(requestId, transaction, submissionUri, kind);
+        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind, null);
 
         return insertedSubmission.getId();
     }
@@ -83,7 +93,7 @@ public class LimitedPartnerService {
     public void updateLimitedPartner(Transaction transaction, String limitedPartnerId, LimitedPartnerDataDto limitedPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var limitedPartnerDaoBeforePatch = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", limitedPartnerId)));
 
-        String kind = limitedPartnerDaoBeforePatch.getData().getKind() != null ? limitedPartnerDaoBeforePatch.getData().getKind() : FILING_KIND_LIMITED_PARTNER;
+        String kind = requireNonNullElse(limitedPartnerDaoBeforePatch.getData().getKind(), FILING_KIND_LIMITED_PARTNER);
 
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId, kind);
 
@@ -110,7 +120,7 @@ public class LimitedPartnerService {
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         var limitedPartnerDao = repository.findById(limitedPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner submission with id %s not found", limitedPartnerId)));
 
-        String kind = limitedPartnerDao.getData().getKind() != null ? limitedPartnerDao.getData().getKind() : FILING_KIND_LIMITED_PARTNER;
+        String kind = requireNonNullElse(limitedPartnerDao.getData().getKind(), FILING_KIND_LIMITED_PARTNER);
 
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId, kind);
 
@@ -141,7 +151,7 @@ public class LimitedPartnerService {
         LimitedPartnerDao limitedPartnerDao = repository.findById(limitedPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited partner with id %s not found", limitedPartnerId)));
 
-        String kind = limitedPartnerDao.getData().getKind() != null ? limitedPartnerDao.getData().getKind() : FILING_KIND_LIMITED_PARTNER;
+        String kind = requireNonNullElse(limitedPartnerDao.getData().getKind(), FILING_KIND_LIMITED_PARTNER);
 
         checkLimitedPartnerIsLinkedToTransaction(transaction, limitedPartnerId, kind);
 

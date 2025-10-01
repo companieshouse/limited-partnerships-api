@@ -7,6 +7,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -22,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,7 +136,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException {
+    void givenData_whenUpdateLP_thenLPSubmissionUpdated() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
         var dataDao = new DataDao();
@@ -187,9 +189,9 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
         LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
 
-        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                 limitedPartnershipDao));
+        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class), eq(FILING_KIND_LIMITED_PARTNERSHIP))).thenReturn(true);
         when(mapper.daoToDto(limitedPartnershipDao)).thenReturn(limitedPartnershipDto);
 
         // when
@@ -204,7 +206,6 @@ class LimitedPartnershipServiceTest {
     @Test
     void giveInvalidSubmissionId_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById("wrong-id")).thenReturn(Optional.empty());
 
         // when + then
@@ -214,7 +215,10 @@ class LimitedPartnershipServiceTest {
     @Test
     void giveSubmissionIdAndTransactionIdDoNotMatch_whenGetLp_ThenResourceNotFoundExceptionThrown() {
         // given
-        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class))).thenReturn(false);
+        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+        when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
+                limitedPartnershipDao));
+        when(transactionService.isTransactionLinkedToLimitedPartnership(eq(transaction), any(String.class), any(String.class))).thenReturn(false);
 
         // when + then
         assertThrows(ResourceNotFoundException.class, () -> service.getLimitedPartnership(transaction, SUBMISSION_ID));

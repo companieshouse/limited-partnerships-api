@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -12,12 +13,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.GeneralPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -30,16 +34,19 @@ public class GeneralPartnerService {
     private final GeneralPartnerMapper mapper;
     private final GeneralPartnerValidator generalPartnerValidator;
     private final TransactionService transactionService;
+    private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
                                  GeneralPartnerValidator generalPartnerValidator,
-                                 TransactionService transactionService
+                                 TransactionService transactionService,
+                                 PostTransitionStrategyHandler postTransitionStrategyHandler
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.generalPartnerValidator = generalPartnerValidator;
         this.transactionService = transactionService;
+        this.postTransitionStrategyHandler = postTransitionStrategyHandler;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -50,9 +57,14 @@ public class GeneralPartnerService {
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
 
-        String kind = insertedSubmission.getData().getKind() != null ? insertedSubmission.getData().getKind() : FILING_KIND_LIMITED_PARTNERSHIP;
+        String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        transactionService.updateTransactionWithLinksForGeneralPartner(requestId, transaction, submissionUri, kind);
+        Cost cost = null;
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
+        }
+
+        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind, cost);
 
         return insertedSubmission.getId();
     }
@@ -83,7 +95,7 @@ public class GeneralPartnerService {
     public void updateGeneralPartner(Transaction transaction, String generalPartnerId, GeneralPartnerDataDto generalPartnerChangesDataDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var generalPartnerDaoBeforePatch = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", generalPartnerId)));
 
-        String kind = generalPartnerDaoBeforePatch.getData().getKind() != null ? generalPartnerDaoBeforePatch.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+        String kind = requireNonNullElse(generalPartnerDaoBeforePatch.getData().getKind(), FILING_KIND_GENERAL_PARTNER);
 
         checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 
@@ -111,7 +123,7 @@ public class GeneralPartnerService {
 
         var generalPartnerDao = repository.findById(generalPartnerId).orElseThrow(() -> new ResourceNotFoundException(String.format("General partner submission with id %s not found", generalPartnerId)));
 
-        String kind = generalPartnerDao.getData().getKind() != null ? generalPartnerDao.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+        String kind = requireNonNullElse(generalPartnerDao.getData().getKind(), FILING_KIND_GENERAL_PARTNER);
 
         checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 
@@ -121,6 +133,10 @@ public class GeneralPartnerService {
     public List<ValidationStatusError> validateGeneralPartner(Transaction transaction, String generalPartnerId)
             throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
+
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            return postTransitionStrategyHandler.validatePartner(dto, transaction);
+        }
 
         return generalPartnerValidator.validateFull(dto, transaction);
     }
@@ -167,7 +183,7 @@ public class GeneralPartnerService {
         GeneralPartnerDao generalPartnerDao = repository.findById(generalPartnerId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("General partner with id %s not found", generalPartnerId)));
 
-        String kind = generalPartnerDao.getData().getKind() != null ? generalPartnerDao.getData().getKind() : FILING_KIND_GENERAL_PARTNER;
+        String kind = requireNonNullElse(generalPartnerDao.getData().getKind(), FILING_KIND_GENERAL_PARTNER);
 
         checkGeneralPartnerIsLinkedToTransaction(transaction, generalPartnerId, kind);
 

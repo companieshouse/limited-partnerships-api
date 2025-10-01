@@ -119,8 +119,8 @@ class LimitedPartnerServiceCreateTest {
         void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
             createLimitedPartner(incoporationKind);
 
-            verify(transactionService).updateTransactionWithLinksForLimitedPartner(
-                    eq(REQUEST_ID), eq(transaction), any(), any());
+            verify(transactionService).updateTransactionWithLinksForPartner(
+                    eq(REQUEST_ID), eq(transaction), any(), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();
             assertEquals(1, transactionResources.size());
@@ -198,7 +198,6 @@ class LimitedPartnerServiceCreateTest {
             if (TRANSITION.equals(incorporationKind)) {
                 dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
                 CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
-                when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.now().minusDays(2));
                 when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
             }
 
@@ -332,7 +331,9 @@ class LimitedPartnerServiceCreateTest {
     }
 
     @Test
-    void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() {
+    void shouldFailCreateALimitedPartnerPersonIfAllFieldsAreNull() throws ServiceException {
+        mockLimitedPartnershipService();
+
         LimitedPartnerDto dto = new LimitedPartnerDto();
         LimitedPartnerDataDto dataDao = new LimitedPartnerDataDto();
         dto.setData(dataDao);

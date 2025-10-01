@@ -107,8 +107,8 @@ class GeneralPartnerServiceCreateTest {
         void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
             createGeneralPartner(incoporationKind);
 
-            verify(transactionService).updateTransactionWithLinksForGeneralPartner(
-                    eq(REQUEST_ID), eq(transaction), any(), any());
+            verify(transactionService).updateTransactionWithLinksForPartner(
+                    eq(REQUEST_ID), eq(transaction), any(), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();
             assertEquals(1, transactionResources.size());
@@ -177,7 +177,6 @@ class GeneralPartnerServiceCreateTest {
                 dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
 
                 CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
-                when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.now().minusDays(2));
                 when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
             }
 

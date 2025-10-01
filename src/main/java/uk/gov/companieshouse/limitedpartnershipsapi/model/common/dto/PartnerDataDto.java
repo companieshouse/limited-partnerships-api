@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
@@ -25,12 +26,46 @@ public abstract class PartnerDataDto {
     @JsonProperty("kind")
     private String kind;
 
+    @JsonProperty("cease_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "Cease date must be in the past")
+    private LocalDate ceaseDate;
+
+    @JsonProperty("remove_confirmation_checked")
+    private boolean removeConfirmationChecked;
+
+    private PartnershipType partnershipType;
+
     public String getKind() {
         return kind;
     }
 
     public void setKind(String kind) {
         this.kind = kind;
+    }
+
+    public LocalDate getCeaseDate() {
+        return ceaseDate;
+    }
+
+    public void setCeaseDate(LocalDate ceaseDate) {
+        this.ceaseDate = ceaseDate;
+    }
+
+    public boolean getRemoveConfirmationChecked() {
+        return removeConfirmationChecked;
+    }
+
+    public void setRemoveConfirmationChecked(boolean removeConfirmationChecked) {
+        this.removeConfirmationChecked = removeConfirmationChecked;
+    }
+
+    public PartnershipType getPartnershipType() {
+        return partnershipType;
+    }
+
+    public void setPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
     }
 
     // Person

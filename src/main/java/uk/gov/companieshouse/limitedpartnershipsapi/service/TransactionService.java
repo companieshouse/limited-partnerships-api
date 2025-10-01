@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
@@ -22,11 +23,14 @@ import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION_OR_TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
@@ -52,15 +56,25 @@ public class TransactionService {
                                                              String loggingContext,
                                                              String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
-        if (transaction.getFilingMode().equals(IncorporationKind.TRANSITION.getDescription())) {
+
+        if (IncorporationKind.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
             transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
         }
-        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
 
-        final var resumeJourneyUri = String.format(URL_RESUME, transaction.getId(), submissionId);
-        transaction.setResumeJourneyUri(resumeJourneyUri);
+        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));
+        transaction.setResumeJourneyUri(buildPartnershipResumeJourneyUri(transaction, submissionId));
 
         updateTransaction(transaction, loggingContext);
+    }
+
+    private String buildPartnershipResumeJourneyUri(Transaction transaction, String submissionId) {
+        if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
+            return String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP,
+                    transaction.getCompanyNumber(),
+                    transaction.getId(),
+                    submissionId);
+        }
+        return String.format(URL_RESUME_REGISTRATION_OR_TRANSITION, transaction.getId(), submissionId);
     }
 
     public void updateTransaction(Transaction transaction, String loggingContext) throws ServiceException {
@@ -92,19 +106,7 @@ public class TransactionService {
     }
 
     public Resource createLimitedPartnershipTransactionResource(Transaction transaction, String submissionUri, String kind) {
-        var limitedPartnershipResource = new Resource();
-
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        if (transaction.getFilingMode().equals(DEFAULT)) {
-            linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
-        }
-
-        limitedPartnershipResource.setLinks(linksMap);
-        limitedPartnershipResource.setKind(kind);
-
-        return limitedPartnershipResource;
+        return createResourceAndAddLinks(transaction, submissionUri, kind);
     }
 
     public void updateTransactionWithPartnershipName(Transaction transaction,
@@ -114,30 +116,20 @@ public class TransactionService {
         updateTransaction(transaction, requestId);
     }
 
-    public void updateTransactionWithLinksForGeneralPartner(
-            String requestId, Transaction transaction, String submissionUri, String kind) throws ServiceException {
-        var generalPartnerResource = new Resource();
+    public void updateTransactionWithLinksForPartner(
+            String requestId, Transaction transaction, String submissionUri, String kind, Cost cost) throws ServiceException {
+        final var resource = createResourceAndAddLinks(transaction, submissionUri, kind);
 
-        Map<String, String> linksMap = new HashMap<>();
-        linksMap.put(LINK_RESOURCE, submissionUri);
-
-        if (transaction.getFilingMode().equals(DEFAULT)) {
-            linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
+        if (cost != null) {
+            resource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
         }
 
-        generalPartnerResource.setLinks(linksMap);
-        generalPartnerResource.setKind(kind);
-
-        transaction.setResources(Collections.singletonMap(submissionUri, generalPartnerResource));
-
+        transaction.setResources(Collections.singletonMap(submissionUri, resource));
         updateTransaction(transaction, requestId);
     }
 
-    public void updateTransactionWithLinksForLimitedPartner(String requestID,
-                                                            Transaction transaction,
-                                                            String submissionUri, String kind)
-            throws ServiceException {
-        var limitedPartnerResource = new Resource();
+    private static Resource createResourceAndAddLinks(Transaction transaction, String submissionUri, String kind) {
+        var resource = new Resource();
 
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
@@ -146,12 +138,10 @@ public class TransactionService {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
-        limitedPartnerResource.setLinks(linksMap);
-        limitedPartnerResource.setKind(kind);
+        resource.setLinks(linksMap);
+        resource.setKind(kind);
 
-        transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnerResource));
-
-        updateTransaction(transaction, requestID);
+        return resource;
     }
 
     public void deleteTransactionResource(String transactionId, String resourceId, String loggingContext) throws ServiceException {
@@ -191,8 +181,8 @@ public class TransactionService {
         return IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode());
     }
 
-    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink) {
-        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, FILING_KIND_LIMITED_PARTNERSHIP);
+    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink, String kind) {
+        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, kind);
     }
 
     public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
@@ -227,5 +217,10 @@ public class TransactionService {
         return transaction.getResources().entrySet().stream()
                 .filter(resource -> kind.equals(resource.getValue().getKind()))
                 .anyMatch(resource -> selfLink.equals(resource.getValue().getLinks().get(LINK_RESOURCE)));
+    }
+
+    public void updateTransactionWithResumeJourneyUri(Transaction transaction, String resumeJourneyUri, String loggingContext) throws ServiceException {
+        transaction.setResumeJourneyUri(resumeJourneyUri);
+        updateTransaction(transaction, loggingContext);
     }
 }

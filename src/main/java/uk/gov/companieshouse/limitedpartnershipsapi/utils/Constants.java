@@ -19,7 +19,12 @@ public class Constants {
     public static final String VALIDATION_STATUS_URI_SUFFIX = "/validation-status";
     public static final String COSTS_URI_SUFFIX = "/costs";
     public static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
-    public static final String URL_RESUME = "/limited-partnerships/transaction/%s/submission/%s/resume";
+    public static final String URL_RESUME_REGISTRATION_OR_TRANSITION = "/limited-partnerships/transaction/%s/submission/%s/resume";
+    public static final String URL_RESUME_POST_TRANSITION_PARTNERSHIP = "/limited-partnerships/update/company/%s/transaction/%s/submission/%s/resume";
+    public static final String URL_RESUME_POST_TRANSITION_GENERAL_PARTNER = "/limited-partnerships/update/company/%s/transaction/%s/general-partner/%s/resume";
+    public static final String URL_RESUME_POST_TRANSITION_LIMITED_PARTNER = "/limited-partnerships/update/company/%s/transaction/%s/limited-partner/%s/resume";
+
+
     public static final String URL_GET_INCORPORATION = "/transactions/%s/incorporation/limited-partnership/%s";
     public static final String URL_GET_LIMITED_PARTNER = "/transactions/%s/limited-partnership/limited-partner/%s";
     public static final String URL_GET_GENERAL_PARTNER = "/transactions/%s/limited-partnership/general-partner/%s";
@@ -50,7 +55,6 @@ public class Constants {
     public static final String LIMITED_PARTNERSHIP_FIELD = "limited_partnership";
     public static final String GENERAL_PARTNER_FIELD = "general_partners";
     public static final String LIMITED_PARTNER_FIELD = "limited_partners";
-
 
     private Constants() {
     }
