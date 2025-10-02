@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -67,10 +68,12 @@ public class Constants {
             Country.SCOTLAND.getDescription(),
             Country.NORTHERN_IRELAND.getDescription());
 
-    public static final List<String> ALL_DOMESTIC_COUNTRIES = Stream.concat(
-            Stream.of(Country.UNITED_KINGDOM.getDescription()),
-            UK_COUNTRIES.stream()
-    ).toList();
+    public static final List<String> ALL_DOMESTIC_COUNTRIES = Collections.unmodifiableList(
+            Stream.concat(
+                    Stream.of(Country.UNITED_KINGDOM.getDescription()),
+                    UK_COUNTRIES.stream()
+            ).toList()
+    );
 
     public static final List<String> UK_POSTCODE_LETTERS_NOT_MAINLAND = List.of("JE", "GY", "IM");
 
