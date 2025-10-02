@@ -67,7 +67,7 @@ public class Constants {
             Country.SCOTLAND.getDescription(),
             Country.NORTHERN_IRELAND.getDescription());
 
-    public static final List<String> ALL_DOMESTIC_COUNTRIES = Stream.concat(
+    protected static final List<String> ALL_DOMESTIC_COUNTRIES = Stream.concat(
             Stream.of(Country.UNITED_KINGDOM.getDescription()),
             UK_COUNTRIES.stream()
     ).toList();
