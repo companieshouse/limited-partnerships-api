@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.UkPostcode;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ALL_DOMESTIC_COUNTRIES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
@@ -82,6 +83,7 @@ public class AddressDto {
 
     public void setCountry(String country) {
         this.country = country;
+        this.overseas = country != null && !ALL_DOMESTIC_COUNTRIES.contains(country);
     }
 
     public String getLocality() {
@@ -118,10 +120,6 @@ public class AddressDto {
 
     public Boolean getOverseas() {
         return overseas;
-    }
-
-    public void setOverseas(Boolean overseas) {
-        this.overseas = overseas;
     }
 
 }

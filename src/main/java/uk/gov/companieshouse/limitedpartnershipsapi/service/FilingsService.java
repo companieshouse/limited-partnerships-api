@@ -12,7 +12,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.AddressUtils;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
@@ -78,13 +77,13 @@ public class FilingsService {
         List<GeneralPartnerDataDto> generalPartnerDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
 
-        AddressUtils.setOverseasAddressIndicators(limitedPartnershipDto.getData());
-        for (GeneralPartnerDataDto generalPartnerData : generalPartnerDataList) {
-            AddressUtils.setOverseasAddressIndicators(generalPartnerData);
-        }
-        for (LimitedPartnerDataDto limitedPartnerData : limitedPartnerDataList) {
-            AddressUtils.setOverseasAddressIndicators(limitedPartnerData);
-        }
+//        AddressUtils.setOverseasAddressIndicators(limitedPartnershipDto.getData());
+//        for (GeneralPartnerDataDto generalPartnerData : generalPartnerDataList) {
+//            AddressUtils.setOverseasAddressIndicators(generalPartnerData);
+//        }
+//        for (LimitedPartnerDataDto limitedPartnerData : limitedPartnerDataList) {
+//            AddressUtils.setOverseasAddressIndicators(limitedPartnerData);
+//        }
 
         setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
@@ -119,7 +118,7 @@ public class FilingsService {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
-        AddressUtils.setOverseasAddressIndicators(generalPartnerDataDto);
+        // AddressUtils.setOverseasAddressIndicators(generalPartnerDataDto);
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, generalPartnerDataDto.getKind())) {
@@ -146,7 +145,7 @@ public class FilingsService {
         LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
         LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
 
-        AddressUtils.setOverseasAddressIndicators(limitedPartnerDataDto);
+        // AddressUtils.setOverseasAddressIndicators(limitedPartnerDataDto);
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
@@ -179,7 +178,7 @@ public class FilingsService {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
         DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
 
-        AddressUtils.setOverseasAddressIndicators(limitedPartnershipDataDto);
+        // AddressUtils.setOverseasAddressIndicators(limitedPartnershipDataDto);
 
         var filing = new FilingApi();
 
