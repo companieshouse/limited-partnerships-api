@@ -77,14 +77,6 @@ public class FilingsService {
         List<GeneralPartnerDataDto> generalPartnerDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
 
-//        AddressUtils.setOverseasAddressIndicators(limitedPartnershipDto.getData());
-//        for (GeneralPartnerDataDto generalPartnerData : generalPartnerDataList) {
-//            AddressUtils.setOverseasAddressIndicators(generalPartnerData);
-//        }
-//        for (LimitedPartnerDataDto limitedPartnerData : limitedPartnerDataList) {
-//            AddressUtils.setOverseasAddressIndicators(limitedPartnerData);
-//        }
-
         setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
@@ -118,8 +110,6 @@ public class FilingsService {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
-        // AddressUtils.setOverseasAddressIndicators(generalPartnerDataDto);
-
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, generalPartnerDataDto.getKind())) {
             throw new ResourceNotFoundException(String.format(
@@ -144,8 +134,6 @@ public class FilingsService {
     public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
         LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
-
-        // AddressUtils.setOverseasAddressIndicators(limitedPartnerDataDto);
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
@@ -177,8 +165,6 @@ public class FilingsService {
     public FilingApi generateLimitedPartnershipFiling(Transaction transaction) throws ServiceException {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
         DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
-
-        // AddressUtils.setOverseasAddressIndicators(limitedPartnershipDataDto);
 
         var filing = new FilingApi();
 
