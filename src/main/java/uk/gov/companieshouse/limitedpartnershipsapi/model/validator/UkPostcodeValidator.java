@@ -2,21 +2,14 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 
-import java.util.List;
-
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.POSTAL_CODE_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.UK_COUNTRIES;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.UK_POSTCODE_LETTERS_NOT_MAINLAND;
 
 public class UkPostcodeValidator implements ConstraintValidator<UkPostcode, AddressDto> {
-    private static final List<String> UK_COUNTRIES = List.of(
-            Country.ENGLAND.getDescription(),
-            Country.WALES.getDescription(),
-            Country.SCOTLAND.getDescription(),
-            Country.NORTHERN_IRELAND.getDescription());
 
-    private static final List<String> UK_POSTCODE_LETTERS_NOT_MAINLAND = List.of("JE", "GY", "IM");
 
     public boolean isValid(AddressDto addressDto, ConstraintValidatorContext context) {
         if (addressDto.getCountry() != null && UK_COUNTRIES.contains(addressDto.getCountry())) {

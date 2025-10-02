@@ -57,6 +57,9 @@ public class AddressDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "County " + INVALID_CHARACTERS_MESSAGE)
     private String region;
 
+    @JsonProperty("overseas")
+    private Boolean overseas;
+
     public String getAddressLine1() {
         return addressLine1;
     }
@@ -112,4 +115,13 @@ public class AddressDto {
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
     }
+
+    public Boolean getOverseas() {
+        return overseas;
+    }
+
+    public void setOverseas(Boolean overseas) {
+        this.overseas = overseas;
+    }
+
 }

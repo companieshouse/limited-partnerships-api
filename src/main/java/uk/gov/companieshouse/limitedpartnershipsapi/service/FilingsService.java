@@ -12,6 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.AddressUtils;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
@@ -74,9 +75,18 @@ public class FilingsService {
         Map<String, Object> data = new HashMap<>();
 
         var limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-        List<GeneralPartnerDataDto> generalPartnersDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
+        List<GeneralPartnerDataDto> generalPartnerDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
-        setSubmissionData(data, limitedPartnershipDto, generalPartnersDataList, limitedPartnerDataList, logMap);
+
+        AddressUtils.setOverseasAddressIndicators(limitedPartnershipDto.getData());
+        for (GeneralPartnerDataDto generalPartnerData : generalPartnerDataList) {
+            AddressUtils.setOverseasAddressIndicators(generalPartnerData);
+        }
+        for (LimitedPartnerDataDto limitedPartnerData : limitedPartnerDataList) {
+            AddressUtils.setOverseasAddressIndicators(limitedPartnerData);
+        }
+
+        setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
         setDescriptionFields(filing, transaction.getFilingMode());
@@ -107,8 +117,9 @@ public class FilingsService {
 
     public FilingApi generateGeneralPartnerFiling(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
-
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
+
+        AddressUtils.setOverseasAddressIndicators(generalPartnerDataDto);
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, generalPartnerDataDto.getKind())) {
@@ -133,8 +144,9 @@ public class FilingsService {
 
     public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
-
         LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
+
+        AddressUtils.setOverseasAddressIndicators(limitedPartnerDataDto);
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
@@ -165,8 +177,9 @@ public class FilingsService {
 
     public FilingApi generateLimitedPartnershipFiling(Transaction transaction) throws ServiceException {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-
         DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
+
+        AddressUtils.setOverseasAddressIndicators(limitedPartnershipDataDto);
 
         var filing = new FilingApi();
 
