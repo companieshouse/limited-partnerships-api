@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
@@ -34,28 +36,38 @@ public class LimitedPartnerService {
     private final LimitedPartnerValidator limitedPartnerValidator;
     private final TransactionService transactionService;
     private final LimitedPartnershipService limitedPartnershipService;
+    private final CompanyService companyService;
 
     public LimitedPartnerService(LimitedPartnerRepository repository,
                                  LimitedPartnerMapper mapper,
                                  LimitedPartnerValidator limitedPartnerValidator,
                                  TransactionService transactionService,
-                                 LimitedPartnershipService limitedPartnershipService
+                                 LimitedPartnershipService limitedPartnershipService,
+                                 CompanyService companyService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.limitedPartnerValidator = limitedPartnerValidator;
         this.transactionService = transactionService;
         this.limitedPartnershipService = limitedPartnershipService;
+        this.companyService = companyService;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-        limitedPartnerDto.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
+        PartnershipType partnershipType;
+        if (!transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+            LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+            limitedPartnerDto.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
+            partnershipType = limitedPartnershipDto.getData().getPartnershipType();
+        } else {
+            CompanyProfileApi companyProfile = companyService.getCompanyProfile(transaction.getCompanyNumber());
+            partnershipType = PartnershipType.fromValue(companyProfile.getSubtype());
+        }
 
         limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
-        dao.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
+        dao.getData().setPartnershipType(partnershipType);
 
         LimitedPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);

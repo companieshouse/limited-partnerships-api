@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.CompanyBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
@@ -28,7 +31,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
@@ -87,16 +89,25 @@ class LimitedPartnerServiceCreateTest {
 
     @Nested
     class CreateLimitedPartnerLegalEntity {
-        @Test
-        void shouldCreateALimitedPartnerLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        @ParameterizedTest
+        @CsvSource(value = {
+                "registration",
+                "transition",
+                TransactionService.DEFAULT
+        })
+        void shouldCreateALimitedPartnerLegalEntityPostTransition(String value) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
             LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
-            dto.getData().setContributionCurrencyValue("10.00");
 
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
 
-            mockLimitedPartnershipService();
+            if (value.equals(TransactionService.DEFAULT)) {
+                transaction.setFilingMode(TransactionService.DEFAULT);
+                when(companyService.getCompanyProfile(any())).thenReturn(new CompanyBuilder().withSubtype(PartnershipType.SLP.toString()).build());
+            } else {
+                mockLimitedPartnershipService();
+            }
 
             String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
 
@@ -109,6 +120,8 @@ class LimitedPartnerServiceCreateTest {
 
             String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+
+            assertEquals(PartnershipType.SLP, sentSubmission.getData().getPartnershipType());
         }
 
         @ParameterizedTest
@@ -365,10 +378,8 @@ class LimitedPartnerServiceCreateTest {
     }
 
     private void mockLimitedPartnershipService() throws ServiceException {
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        DataDto dataDto = new DataDto();
-        dataDto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipDto.setData(dataDto);
+        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.SLP);
 
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
     }
