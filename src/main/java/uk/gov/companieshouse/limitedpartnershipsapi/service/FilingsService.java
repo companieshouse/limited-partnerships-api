@@ -74,9 +74,10 @@ public class FilingsService {
         Map<String, Object> data = new HashMap<>();
 
         var limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-        List<GeneralPartnerDataDto> generalPartnersDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
+        List<GeneralPartnerDataDto> generalPartnerDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
-        setSubmissionData(data, limitedPartnershipDto, generalPartnersDataList, limitedPartnerDataList, logMap);
+
+        setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
         setDescriptionFields(filing, transaction.getFilingMode());
@@ -107,7 +108,6 @@ public class FilingsService {
 
     public FilingApi generateGeneralPartnerFiling(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
-
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
@@ -133,7 +133,6 @@ public class FilingsService {
 
     public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
         LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
-
         LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
@@ -165,7 +164,6 @@ public class FilingsService {
 
     public FilingApi generateLimitedPartnershipFiling(Transaction transaction) throws ServiceException {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-
         DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
 
         var filing = new FilingApi();
