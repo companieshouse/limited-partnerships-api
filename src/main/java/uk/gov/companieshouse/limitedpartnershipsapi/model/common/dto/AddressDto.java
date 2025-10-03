@@ -58,6 +58,11 @@ public class AddressDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "County " + INVALID_CHARACTERS_MESSAGE)
     private String region;
 
+    /**
+     * Indicates if the address is overseas.
+     * Calculated based on the country field.
+     * Needed by chips-filing-consumer
+     */
     @JsonProperty("overseas")
     private Boolean overseas;
 
@@ -81,6 +86,12 @@ public class AddressDto {
         return country;
     }
 
+    /**
+     * Sets the country and updates the overseas flag.
+     * The overseas flag is set to true if the country is not in ALL_DOMESTIC_COUNTRIES.
+     *
+     * @param country the country to set
+     */
     public void setCountry(String country) {
         this.country = country;
         this.overseas = country != null && !ALL_DOMESTIC_COUNTRIES.contains(country);
