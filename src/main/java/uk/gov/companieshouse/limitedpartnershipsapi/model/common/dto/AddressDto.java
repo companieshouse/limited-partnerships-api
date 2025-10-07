@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.UkPostcode;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ALL_DOMESTIC_COUNTRIES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
@@ -57,6 +58,14 @@ public class AddressDto {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "County " + INVALID_CHARACTERS_MESSAGE)
     private String region;
 
+    /**
+     * Indicates if the address is overseas.
+     * Calculated based on the country field.
+     * Needed by chips-filing-consumer
+     */
+    @JsonProperty("overseas")
+    private Boolean overseas;
+
     public String getAddressLine1() {
         return addressLine1;
     }
@@ -77,8 +86,15 @@ public class AddressDto {
         return country;
     }
 
+    /**
+     * Sets the country and updates the overseas flag.
+     * The overseas flag is set to true if the country is not in ALL_DOMESTIC_COUNTRIES.
+     *
+     * @param country the country to set
+     */
     public void setCountry(String country) {
         this.country = country;
+        this.overseas = country != null && !ALL_DOMESTIC_COUNTRIES.contains(country);
     }
 
     public String getLocality() {
@@ -112,4 +128,9 @@ public class AddressDto {
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
     }
+
+    public Boolean getOverseas() {
+        return overseas;
+    }
+
 }

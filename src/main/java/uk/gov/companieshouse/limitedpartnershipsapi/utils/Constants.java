@@ -1,5 +1,11 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
+
 public class Constants {
     // Request header names
     public static final String ERIC_REQUEST_ID_KEY = "X-Request-Id";
@@ -55,6 +61,21 @@ public class Constants {
     public static final String LIMITED_PARTNERSHIP_FIELD = "limited_partnership";
     public static final String GENERAL_PARTNER_FIELD = "general_partners";
     public static final String LIMITED_PARTNER_FIELD = "limited_partners";
+
+    public static final List<String> UK_COUNTRIES = List.of(
+            Country.ENGLAND.getDescription(),
+            Country.WALES.getDescription(),
+            Country.SCOTLAND.getDescription(),
+            Country.NORTHERN_IRELAND.getDescription());
+
+    public static final List<String> ALL_DOMESTIC_COUNTRIES = Collections.unmodifiableList(
+            Stream.concat(
+                    Stream.of(Country.UNITED_KINGDOM.getDescription()),
+                    UK_COUNTRIES.stream()
+            ).toList()
+    );
+
+    public static final List<String> UK_POSTCODE_LETTERS_NOT_MAINLAND = List.of("JE", "GY", "IM");
 
     private Constants() {
     }
