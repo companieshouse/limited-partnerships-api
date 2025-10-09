@@ -23,7 +23,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT
 
 public abstract class PartnerDataDto {
 
-    @JsonProperty("appointmentId")
+    @JsonProperty("appointment_id")
     private String appointmentId;
 
     @JsonProperty("kind")
