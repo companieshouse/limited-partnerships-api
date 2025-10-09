@@ -23,6 +23,9 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SHORT
 
 public abstract class PartnerDataDto {
 
+    @JsonProperty("appointment_id")
+    private String appointmentId;
+
     @JsonProperty("kind")
     private String kind;
 
@@ -35,6 +38,14 @@ public abstract class PartnerDataDto {
     private boolean removeConfirmationChecked;
 
     private PartnershipType partnershipType;
+
+    public String getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(String appointmentId) {
+        this.appointmentId = appointmentId;
+    }
 
     public String getKind() {
         return kind;
