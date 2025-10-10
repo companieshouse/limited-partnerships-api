@@ -82,6 +82,17 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
+    public void validateRemove(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
+        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
+
+        dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
     public void validateUpdate(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
