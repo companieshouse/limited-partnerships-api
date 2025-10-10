@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.partner;
 
+import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -11,7 +12,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransi
 
 import java.util.List;
 
-public class RemoveGeneralPartnerLegalEntity  implements PostTransitionStrategy<PartnerDto> {
+@Component
+public class RemoveGeneralPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
     @Override
     public String getKind() {
         return PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription();
