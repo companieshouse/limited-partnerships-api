@@ -148,6 +148,50 @@ class PostTransitionPartnerTest {
     }
 
     @Nested
+    class RemoveGeneralPartnerLegalEntity {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+
+            generalPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
+            generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
+
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            generalPartnerLegalEntityDao.getData().setCeaseDate(null);
+            generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(false);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(2)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.ceaseDate", "Cease date is required"),
+                            Map.entry("data.removeConfirmationChecked", "Remove confirmation checked is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKindROA() throws Exception {
+
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+
+            assertNull(result);
+        }
+    }
+
+    @Nested
     class AddPartner {
 
         @Test
