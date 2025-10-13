@@ -53,7 +53,7 @@ public class GeneralPartnerService {
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         if (PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription().equals(generalPartnerDto.getData().getKind()) ||
                 PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription().equals(generalPartnerDto.getData().getKind())) {
-            generalPartnerValidator.validateRemove(generalPartnerDto, transaction);
+            generalPartnerValidator.validateRemove(generalPartnerDto);
         } else {
             generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
         }
