@@ -9,6 +9,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
@@ -50,8 +51,12 @@ public class GeneralPartnerService {
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-
-        generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
+        if (PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription().equals(generalPartnerDto.getData().getKind()) ||
+                PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription().equals(generalPartnerDto.getData().getKind())) {
+            generalPartnerValidator.validateRemove(generalPartnerDto);
+        } else {
+            generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
+        }
 
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
