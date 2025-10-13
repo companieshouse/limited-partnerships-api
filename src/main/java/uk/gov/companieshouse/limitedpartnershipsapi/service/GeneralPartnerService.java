@@ -51,11 +51,8 @@ public class GeneralPartnerService {
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-
-        System.out.println("\n\n\n\nCreating general partner with kind: " + generalPartnerDto.getData().getKind() + "\n\n\n\n");
-
-        if (generalPartnerDto.getData().getKind().equals(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription()) ||
-                generalPartnerDto.getData().getKind().equals(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription())) {
+        if (PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription().equals(generalPartnerDto.getData().getKind()) ||
+                PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription().equals(generalPartnerDto.getData().getKind())) {
             generalPartnerValidator.validateRemove(generalPartnerDto, transaction);
         } else {
             generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
