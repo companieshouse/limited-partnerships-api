@@ -7,15 +7,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,14 +85,33 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
-    public void validateRemove(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validateRemove(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException, NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
+        validateCeaseDate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    protected void validateCeaseDate(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
+        if (partnerDto.getData().getCeaseDate() != null) {
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate ceaseDate = partnerDto.getData().getCeaseDate();
+
+            if (ceaseDate.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError(className, "data.ceaseDate", "Partner cease date cannot be before the incorporation date", bindingResult);
+            }
+
+            LocalDate dateOfBirth = partnerDto.getData().getDateOfBirth();
+            if (dateOfBirth != null && ceaseDate.isBefore(dateOfBirth)) {
+                addError(className, "data.ceaseDate", "Partner cease date cannot be before the date of birth", bindingResult);
+            }
+
         }
     }
 
