@@ -5,6 +5,7 @@ import jakarta.validation.Validator;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -49,7 +50,7 @@ public class PostTransitionStrategyHandler {
         this.strategyMap = setStrategyMap(strategies);
     }
 
-    public List<ValidationStatusError> validateLimitedPartnership(LimitedPartnershipDto limitedPartnershipDto, Transaction transaction) throws ServiceException {
+    public List<ValidationStatusError> validateLimitedPartnership(LimitedPartnershipDto limitedPartnershipDto, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
         validateDto(limitedPartnershipDto, errorsList);
@@ -68,7 +69,7 @@ public class PostTransitionStrategyHandler {
         return errorsList;
     }
 
-    public List<ValidationStatusError> validatePartner(PartnerDto partnerDto, Transaction transaction) throws ServiceException {
+    public List<ValidationStatusError> validatePartner(PartnerDto partnerDto, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
         validateDto(partnerDto, errorsList);

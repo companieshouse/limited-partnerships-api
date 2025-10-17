@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -20,12 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
 @Service
@@ -131,7 +132,7 @@ public class LimitedPartnershipIncorporationService {
     }
 
     public List<ValidationStatusError> validateIncorporation(Transaction transaction)
-            throws ServiceException {
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         List<ValidationStatusError> errors = new ArrayList<>();
 
         errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction));

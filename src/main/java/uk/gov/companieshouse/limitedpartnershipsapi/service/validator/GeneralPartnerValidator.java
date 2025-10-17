@@ -6,19 +6,17 @@ import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,22 +95,32 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
-    protected void validateCeaseDate(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
-        if (partnerDto.getData().getCeaseDate() != null) {
-            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+    /**
+     * Validate removal data for a general partner and return any validation errors as
+     * a list of {@link ValidationStatusError}.
+     * <p>
+     * call by validation-status endpoint for remove general partner after closing transaction
+     *
+     * @param generalPartnerDto the general partner DTO to validate
+     * @param transaction       the transaction context used for validation rules
+     * @return a list of {@link ValidationStatusError} representing field validation errors;
+     * an empty list if no errors are found
+     */
+    public List<ValidationStatusError> validateRemoveStatus(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException, NoSuchMethodException, MethodArgumentNotValidException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
 
-            LocalDate ceaseDate = partnerDto.getData().getCeaseDate();
+        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
-            if (ceaseDate.isBefore(companyProfileApi.getDateOfCreation())) {
-                addError(className, "data.ceaseDate", "Partner cease date cannot be before the incorporation date", bindingResult);
-            }
+        dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
+        validateCeaseDate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 
-            LocalDate dateOfBirth = partnerDto.getData().getDateOfBirth();
-            if (dateOfBirth != null && ceaseDate.isBefore(dateOfBirth)) {
-                addError(className, "data.ceaseDate", "Partner cease date cannot be before the date of birth", bindingResult);
-            }
+        List<FieldError> errors = bindingResult.getFieldErrors();
 
+        for (FieldError error : errors) {
+            errorsList.add(validationStatus.createValidationStatusError(error.getDefaultMessage(), error.getField()));
         }
+
+        return errorsList;
     }
 
     public void validateUpdate(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {

@@ -278,7 +278,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ServiceException {
+    void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDto limitedPartnershipSubmissionDto = new LimitedPartnershipBuilder().buildDto();
         LimitedPartnershipDao limitedPartnershipSubmissionDao = new LimitedPartnershipBuilder().buildDao();
@@ -296,7 +296,7 @@ class LimitedPartnershipServiceTest {
     }
 
     @Test
-    void givenErrorsWithPartnershipData_whenValidateStatus_thenErrorsReturned() throws ServiceException {
+    void givenErrorsWithPartnershipData_whenValidateStatus_thenErrorsReturned() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDto limitedPartnershipSubmissionDto = new LimitedPartnershipBuilder().buildDto();
         LimitedPartnershipDao limitedPartnershipSubmissionDao = new LimitedPartnershipBuilder().buildDao();

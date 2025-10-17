@@ -7,6 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -45,7 +46,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ServiceException {
+    void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
@@ -64,7 +65,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ServiceException {
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
@@ -95,7 +96,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndCustomChecksFail(PartnershipType type) throws ServiceException {
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setEmail(null);
@@ -132,7 +133,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException {
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
@@ -155,7 +156,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException {
+    void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
@@ -176,7 +177,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException {
+    void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
@@ -199,7 +200,7 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException {
+    void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {

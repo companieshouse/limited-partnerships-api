@@ -153,7 +153,7 @@ public class PartnershipController {
             }
 
             return ResponseEntity.ok().body(validationStatus);
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException | MethodArgumentNotValidException | NoSuchMethodException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
         }

@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.CompanyBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -60,6 +62,9 @@ class PostTransitionPartnerTest {
     @MockitoBean
     private TransactionService transactionService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
     private final Transaction transactionGeneralPartner = new TransactionBuilder().forPartner(
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
@@ -107,6 +112,8 @@ class PostTransitionPartnerTest {
     class RemoveGeneralPartnerPerson {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             generalPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
@@ -120,6 +127,8 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
@@ -133,6 +142,27 @@ class PostTransitionPartnerTest {
                     .containsExactlyInAnyOrder(
                             Map.entry("data.ceaseDate", "Cease date is required"),
                             Map.entry("data.removeConfirmationChecked", "Remove confirmation checked is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
+
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            generalPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
+            generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(2)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.ceaseDate", "Partner cease date cannot be before the incorporation date"),
+                            Map.entry("data.ceaseDate", "Partner cease date cannot be before the date of birth")
                     );
         }
 
@@ -151,6 +181,8 @@ class PostTransitionPartnerTest {
     class RemoveGeneralPartnerLegalEntity {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             generalPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
             generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
@@ -164,6 +196,8 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
@@ -177,6 +211,26 @@ class PostTransitionPartnerTest {
                     .containsExactlyInAnyOrder(
                             Map.entry("data.ceaseDate", "Cease date is required"),
                             Map.entry("data.removeConfirmationChecked", "Remove confirmation checked is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
+
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            generalPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
+            generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerLegalEntityDao, limitedPartnerPersonDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.ceaseDate", "Partner cease date cannot be before the incorporation date")
                     );
         }
 
