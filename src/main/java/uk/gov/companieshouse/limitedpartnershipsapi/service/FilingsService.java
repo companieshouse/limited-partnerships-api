@@ -1,10 +1,18 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.delta.officers.AddressAPI;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
@@ -15,10 +23,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
@@ -38,12 +48,14 @@ public class FilingsService {
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
     private final TransactionService transactionService;
+    private final ApiClientService apiClientService;
     private final FilingKind filingKind;
 
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
                           TransactionService transactionService,
+                          ApiClientService apiClientService,
                           FilingKind filingKind
     ) {
 
@@ -51,6 +63,7 @@ public class FilingsService {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.transactionService = transactionService;
+        this.apiClientService = apiClientService;
         this.filingKind = filingKind;
     }
 
@@ -106,9 +119,11 @@ public class FilingsService {
         filing.setDescriptionValues(new HashMap<>());
     }
 
-    public FilingApi generateGeneralPartnerFiling(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
+    public FilingApi generateGeneralPartnerFiling(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
+
+        updateDataIfKindIsRemove(transaction, generalPartnerDto, generalPartnerDataDto);
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, generalPartnerDataDto.getKind())) {
@@ -129,6 +144,53 @@ public class FilingsService {
         filing.setData(data);
 
         return filing;
+    }
+
+    private void updateDataIfKindIsRemove(Transaction transaction, GeneralPartnerDto generalPartnerDto, GeneralPartnerDataDto generalPartnerDataDto) throws URIValidationException, ApiErrorResponseException {
+        if (generalPartnerDto.getData().getKind().equals(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription()) ||
+                generalPartnerDto.getData().getKind().equals(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription())) {
+            String uri = String.format("/company/%s/appointments/%s/full_record", transaction.getCompanyNumber(), generalPartnerDataDto.getAppointmentId());
+
+            var response = apiClientService.getInternalApiClient()
+                    .privateDeltaCompanyAppointmentResourceHandler()
+                    .getAppointment(uri).execute();
+
+            AppointmentFullRecordAPI appointmentFullRecordAPI = response.getData();
+
+            generalPartnerDataDto.setAppointmentId(appointmentFullRecordAPI.getAppointmentId());
+
+            if (appointmentFullRecordAPI.getDateOfBirth() != null) {
+                generalPartnerDataDto.setDateOfBirth(LocalDate.of(
+                        appointmentFullRecordAPI.getDateOfBirth().getYear(),
+                        appointmentFullRecordAPI.getDateOfBirth().getMonth(),
+                        appointmentFullRecordAPI.getDateOfBirth().getDay())
+                );
+            }
+
+            if (!appointmentFullRecordAPI.getNationality().isEmpty()) {
+                String[] nationalities = appointmentFullRecordAPI.getNationality().split(", ");
+                generalPartnerDataDto.setNationality1(Nationality.fromDescription(nationalities[0]));
+                if (nationalities.length == 2) {
+                    generalPartnerDataDto.setNationality2(Nationality.fromDescription(nationalities[1]));
+                }
+            }
+
+            AddressAPI sa = appointmentFullRecordAPI.getServiceAddress();
+
+            if (sa != null) {
+                AddressDto serviceAddress = new AddressDto();
+
+                serviceAddress.setPremises(requireNonNullElse(sa.getPremises(), ""));
+                serviceAddress.setAddressLine1(requireNonNullElse(sa.getAddressLine1(), ""));
+                serviceAddress.setAddressLine2(requireNonNullElse(sa.getAddressLine2(), ""));
+                serviceAddress.setLocality(requireNonNullElse(sa.getLocality(), ""));
+                serviceAddress.setRegion(requireNonNullElse(sa.getRegion(), ""));
+                serviceAddress.setCountry(requireNonNullElse(sa.getCountry(), ""));
+                serviceAddress.setPostalCode(requireNonNullElse(sa.getPostcode(), ""));
+
+                generalPartnerDataDto.setServiceAddress(serviceAddress);
+            }
+        }
     }
 
     public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {

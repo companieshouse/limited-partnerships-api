@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -54,7 +56,7 @@ public class FilingsController {
     public ResponseEntity<FilingApi[]> getGeneralPartnerFiling(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String generalPartnerId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException, ApiErrorResponseException, URIValidationException {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());
