@@ -10,7 +10,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.handler.delta.PrivateDeltaResourceHandler;
+import uk.gov.companieshouse.api.handler.delta.company.appointment.request.PrivateOfficerGet;
+import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -32,6 +38,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -65,6 +72,18 @@ class FilingsControllerTest {
 
     @MockitoBean
     private TransactionService transactionService;
+
+    @MockitoBean
+    private ApiClientService apiClientService;
+
+    @MockitoBean
+    private InternalApiClient internalApiClient;
+
+    @MockitoBean
+    private PrivateDeltaResourceHandler privateDeltaCompanyAppointmentResourceHandler;
+
+    @MockitoBean
+    private PrivateOfficerGet privateOfficerGet;
 
     @BeforeEach
     void setUp() {
@@ -169,6 +188,39 @@ class FilingsControllerTest {
         }
 
         @Test
+        void shouldReturn200AndIncludesAppointmentIdForRemoveFiling() throws Exception {
+
+            FilingKind filingKind = new FilingKind();
+            String subKind = filingKind.getSubKind(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription());
+
+            mockPartner(transaction, PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription());
+
+            AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
+            appointmentFullRecordAPI.setAppointmentId("AP123456");
+            appointmentFullRecordAPI.setNationality("British");
+
+            ApiResponse<AppointmentFullRecordAPI> apiResponse = new ApiResponse(200, new HashMap<>(), appointmentFullRecordAPI);
+
+            when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+            when(internalApiClient.privateDeltaCompanyAppointmentResourceHandler()).thenReturn(privateDeltaCompanyAppointmentResourceHandler);
+            when(privateDeltaCompanyAppointmentResourceHandler.getAppointment("/company/LP123456/appointments/AP123456/full_record")).thenReturn(privateOfficerGet);
+            when(privateOfficerGet.execute()).thenReturn(apiResponse);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].appointment_id").value("AP123456"))
+                    .andExpect(jsonPath("[0].data.general_partners[0].cease_date").value(generalPartner.getData().getCeaseDate()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(IncorporationKind.POST_TRANSITION.getDescription() + "#" + subKind));
+        }
+
+        @Test
         void shouldReturn404() throws Exception {
             mockPartner(transaction, PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
 
@@ -234,8 +286,10 @@ class FilingsControllerTest {
 
     private void mockPartner(Transaction transaction, String kind) throws ResourceNotFoundException {
 
-        generalPartner.getData().setKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
-        limitedPartner.getData().setKind(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
+        generalPartner.getData().setKind(kind);
+        generalPartner.getData().setAppointmentId("AP123456");
+        limitedPartner.getData().setKind(kind);
+        limitedPartner.getData().setAppointmentId("AP123456");
 
         when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(kind))).thenReturn(true);
         when(generalPartnerService.getGeneralPartner(transaction, generalPartner.getId())).thenReturn(generalPartner);
