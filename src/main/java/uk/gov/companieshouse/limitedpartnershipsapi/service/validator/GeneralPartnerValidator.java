@@ -106,7 +106,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
      * @return a list of {@link ValidationStatusError} representing field validation errors;
      * an empty list if no errors are found
      */
-    public List<ValidationStatusError> validateRemoveStatus(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException, NoSuchMethodException, MethodArgumentNotValidException {
+    public List<ValidationStatusError> validateRemoveStatus(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
