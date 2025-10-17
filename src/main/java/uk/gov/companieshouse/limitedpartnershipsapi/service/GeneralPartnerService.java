@@ -53,7 +53,7 @@ public class GeneralPartnerService {
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         if (PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription().equals(generalPartnerDto.getData().getKind()) ||
                 PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription().equals(generalPartnerDto.getData().getKind())) {
-            generalPartnerValidator.validateRemove(generalPartnerDto);
+            generalPartnerValidator.validateRemove(generalPartnerDto, transaction);
         } else {
             generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
         }
@@ -108,7 +108,12 @@ public class GeneralPartnerService {
 
         mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
-        generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
+        if (PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription().equals(generalPartnerDto.getData().getKind()) ||
+                PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription().equals(generalPartnerDto.getData().getKind())) {
+            generalPartnerValidator.validateRemove(generalPartnerDto, transaction);
+        } else {
+            generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
+        }
 
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
@@ -136,7 +141,7 @@ public class GeneralPartnerService {
     }
 
     public List<ValidationStatusError> validateGeneralPartner(Transaction transaction, String generalPartnerId)
-            throws ServiceException {
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
         if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {

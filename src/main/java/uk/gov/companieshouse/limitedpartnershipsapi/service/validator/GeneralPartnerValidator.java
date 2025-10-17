@@ -6,6 +6,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -82,15 +83,44 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
-    public void validateRemove(GeneralPartnerDto generalPartnerDto) throws NoSuchMethodException, MethodArgumentNotValidException {
+    public void validateRemove(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException, NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
+        validateCeaseDate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
+    }
+
+    /**
+     * Validate removal data for a general partner and return any validation errors as
+     * a list of {@link ValidationStatusError}.
+     * <p>
+     * call by validation-status endpoint for remove general partner after closing transaction
+     *
+     * @param generalPartnerDto the general partner DTO to validate
+     * @param transaction       the transaction context used for validation rules
+     * @return a list of {@link ValidationStatusError} representing field validation errors;
+     * an empty list if no errors are found
+     */
+    public List<ValidationStatusError> validateRemoveStatus(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+
+        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
+
+        dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
+        validateCeaseDate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
+
+        List<FieldError> errors = bindingResult.getFieldErrors();
+
+        for (FieldError error : errors) {
+            errorsList.add(validationStatus.createValidationStatusError(error.getDefaultMessage(), error.getField()));
+        }
+
+        return errorsList;
     }
 
     public void validateUpdate(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {

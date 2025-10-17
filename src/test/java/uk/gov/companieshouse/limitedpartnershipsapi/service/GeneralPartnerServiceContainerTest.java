@@ -72,6 +72,7 @@ class GeneralPartnerServiceContainerTest {
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
         dto.setId(null);
         dto.getData().setKind(partnerKind.getDescription());
+        dto.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
 
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
         when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);

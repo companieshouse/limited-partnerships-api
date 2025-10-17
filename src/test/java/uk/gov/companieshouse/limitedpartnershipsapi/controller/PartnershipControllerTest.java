@@ -226,7 +226,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testValidationStatusWhenPartnershipDataIsValid() throws ServiceException {
+    void testValidationStatusWhenPartnershipDataIsValid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         when(limitedPartnershipService.validateLimitedPartnership(transaction)).thenReturn(new ArrayList<>());
 
@@ -246,7 +246,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testValidationStatusWhenPartnershipDataIsNotValid() throws ServiceException {
+    void testValidationStatusWhenPartnershipDataIsNotValid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         List<ValidationStatusError> errors = new ArrayList<>();
         errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));
@@ -273,7 +273,7 @@ class PartnershipControllerTest {
     }
 
     @Test
-    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ServiceException {
+    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         when(limitedPartnershipService.validateLimitedPartnership(transaction)).thenThrow(new ResourceNotFoundException("error"));
 

@@ -139,7 +139,7 @@ public class GeneralPartnerController {
     public ResponseEntity<ValidationStatusResponse> getValidationStatus(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                         @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
                                                                         @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
-            throws ServiceException {
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());

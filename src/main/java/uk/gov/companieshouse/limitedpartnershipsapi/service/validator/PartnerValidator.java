@@ -100,4 +100,22 @@ public abstract class PartnerValidator {
             }
         }
     }
+
+    protected void validateCeaseDate(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
+        CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+        LocalDate ceaseDate = partnerDto.getData().getCeaseDate();
+
+        if (ceaseDate != null) {
+            if (ceaseDate.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError(className, "data.ceaseDate", "Partner cease date cannot be before the incorporation date", bindingResult);
+            }
+
+            LocalDate dateOfBirth = partnerDto.getData().getDateOfBirth();
+            if (dateOfBirth != null && ceaseDate.isBefore(dateOfBirth)) {
+                addError(className, "data.ceaseDate", "Partner cease date cannot be before the date of birth", bindingResult);
+            }
+        }
+
+    }
 }
