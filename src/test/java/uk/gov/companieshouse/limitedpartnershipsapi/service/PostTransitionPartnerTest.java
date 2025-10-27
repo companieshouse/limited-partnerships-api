@@ -291,9 +291,9 @@ class PostTransitionPartnerTest {
             limitedPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
             limitedPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
 
-            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerLegalEntityDao, limitedPartnerPersonDao);
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
-            var result = limitedPartnerService.validateLimitedPartner(transactionGeneralPartner, limitedPartnerPersonDao.getId());
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -413,6 +413,7 @@ class PostTransitionPartnerTest {
 
     void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao, LimitedPartnerDao limitedPartnerDao) {
         generalPartnerDao.getData().setKind(partnerKind.getDescription());
+        limitedPartnerDao.getData().setKind(partnerKind.getDescription());
 
         when(generalPartnerRepository.findById(GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
         when(limitedPartnerRepository.findById(LimitedPartnerBuilder.LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
