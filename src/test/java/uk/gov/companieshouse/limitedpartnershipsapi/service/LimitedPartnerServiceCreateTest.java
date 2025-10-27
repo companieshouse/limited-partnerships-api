@@ -254,9 +254,14 @@ class LimitedPartnerServiceCreateTest {
             mocks();
 
             LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            dto.getData().setCeaseDate(LocalDate.now());
+            dto.getData().setRemoveConfirmationChecked(true);
             dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription());
             LimitedPartnerDao dao = createLimitedPartnerPersonDao();
 
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
 
@@ -271,6 +276,26 @@ class LimitedPartnerServiceCreateTest {
 
             String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+        }
+
+        @Test
+        void shouldFailToCreateALimitedPartnerPersonForRemovalIfFutureCeaseDate() throws ServiceException {
+            mocks();
+
+            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            dto.getData().setCeaseDate(LocalDate.now().plusMonths(1));
+            dto.getData().setRemoveConfirmationChecked(true);
+            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription());
+
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            assertEquals("Cease date must not be in the future", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.ceaseDate")).getDefaultMessage());
         }
 
         @Test
