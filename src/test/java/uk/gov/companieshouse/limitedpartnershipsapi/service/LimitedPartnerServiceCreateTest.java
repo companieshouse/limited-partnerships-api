@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
@@ -242,6 +243,30 @@ class LimitedPartnerServiceCreateTest {
             LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
             assertEquals(USER_ID, sentSubmission.getCreatedBy());
             assertEquals(FILING_KIND_LIMITED_PARTNER, sentSubmission.getData().getKind());
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
+            assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+        }
+
+        @Test
+        void shouldCreateALimitedPartnerPersonForRemoval() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            mocks();
+
+            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription());
+            LimitedPartnerDao dao = createLimitedPartnerPersonDao();
+
+            when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            verify(repository).insert(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(USER_ID, sentSubmission.getCreatedBy());
+            assertEquals(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription(), sentSubmission.getData().getKind());
             assertEquals(LIMITED_PARTNER_ID, submissionId);
 
             String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
