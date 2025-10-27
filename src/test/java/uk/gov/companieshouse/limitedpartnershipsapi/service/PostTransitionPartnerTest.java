@@ -178,6 +178,75 @@ class PostTransitionPartnerTest {
     }
 
     @Nested
+    class RemoveLimitedPartnerPerson {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            limitedPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
+            limitedPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionGeneralPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            limitedPartnerPersonDao.getData().setCeaseDate(null);
+            limitedPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionGeneralPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(2)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.ceaseDate", "Cease date is required"),
+                            Map.entry("data.removeConfirmationChecked", "Remove confirmation checked is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
+
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            limitedPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
+            limitedPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionGeneralPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(2)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.ceaseDate", "Partner cease date cannot be before the incorporation date"),
+                            Map.entry("data.ceaseDate", "Partner cease date cannot be before the date of birth")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKind() throws Exception {
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = costsService.getPostTransitionLimitedPartnerCost(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertNull(result);
+        }
+    }
+
+    @Nested
     class RemoveGeneralPartnerLegalEntity {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
@@ -355,6 +424,7 @@ class PostTransitionPartnerTest {
 
     void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao, LimitedPartnerDao limitedPartnerDao) {
         generalPartnerDao.getData().setKind(partnerKind.getDescription());
+        limitedPartnerDao.getData().setKind(partnerKind.getDescription());
 
         when(generalPartnerRepository.findById(GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
         when(limitedPartnerRepository.findById(LimitedPartnerBuilder.LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));

@@ -9,6 +9,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
@@ -16,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.ArrayList;
@@ -37,13 +39,15 @@ public class LimitedPartnerService {
     private final TransactionService transactionService;
     private final LimitedPartnershipService limitedPartnershipService;
     private final CompanyService companyService;
+    private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     public LimitedPartnerService(LimitedPartnerRepository repository,
                                  LimitedPartnerMapper mapper,
                                  LimitedPartnerValidator limitedPartnerValidator,
                                  TransactionService transactionService,
                                  LimitedPartnershipService limitedPartnershipService,
-                                 CompanyService companyService
+                                 CompanyService companyService,
+                                 PostTransitionStrategyHandler postTransitionStrategyHandler
     ) {
         this.repository = repository;
         this.mapper = mapper;
@@ -51,6 +55,7 @@ public class LimitedPartnerService {
         this.transactionService = transactionService;
         this.limitedPartnershipService = limitedPartnershipService;
         this.companyService = companyService;
+        this.postTransitionStrategyHandler = postTransitionStrategyHandler;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -64,7 +69,11 @@ public class LimitedPartnerService {
             partnershipType = PartnershipType.fromValue(companyProfile.getSubtype());
         }
 
-        limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
+        if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
+            limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
+        } else {
+            limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
+        }
 
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         dao.getData().setPartnershipType(partnershipType);
@@ -113,7 +122,11 @@ public class LimitedPartnerService {
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
-        limitedPartnerValidator.validateUpdate(limitedPartnerDto, limitedPartnerChangesDataDto, transaction);
+        if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
+            limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
+        } else {
+            limitedPartnerValidator.validateUpdate(limitedPartnerDto, limitedPartnerChangesDataDto, transaction);
+        }
 
         handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
@@ -176,8 +189,12 @@ public class LimitedPartnerService {
     }
 
     public List<ValidationStatusError> validateLimitedPartner(Transaction transaction, String limitedPartnerId)
-            throws ServiceException {
+            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
+
+        if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
+            return postTransitionStrategyHandler.validatePartner(dto, transaction);
+        }
 
         return limitedPartnerValidator.validateFull(dto, transaction);
     }

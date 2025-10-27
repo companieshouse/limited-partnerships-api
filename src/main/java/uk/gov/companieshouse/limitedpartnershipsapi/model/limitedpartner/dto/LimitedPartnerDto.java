@@ -22,4 +22,5 @@ public class LimitedPartnerDto extends PartnerDto {
         this.data = data;
     }
 
+
 }
