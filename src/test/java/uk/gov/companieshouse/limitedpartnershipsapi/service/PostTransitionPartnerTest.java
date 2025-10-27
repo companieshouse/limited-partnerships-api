@@ -189,7 +189,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = limitedPartnerService.validateLimitedPartner(transactionGeneralPartner, limitedPartnerPersonDao.getId());
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
 
             assertThat(result).isEmpty();
         }
@@ -204,7 +204,7 @@ class PostTransitionPartnerTest {
             limitedPartnerPersonDao.getData().setCeaseDate(null);
             limitedPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
 
-            var result = limitedPartnerService.validateLimitedPartner(transactionGeneralPartner, limitedPartnerPersonDao.getId());
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -225,7 +225,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = limitedPartnerService.validateLimitedPartner(transactionGeneralPartner, limitedPartnerPersonDao.getId());
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -240,7 +240,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = costsService.getPostTransitionLimitedPartnerCost(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerPersonDao.getId());
 
             assertNull(result);
         }
