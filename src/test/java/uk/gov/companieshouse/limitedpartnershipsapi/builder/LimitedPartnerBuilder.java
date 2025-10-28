@@ -22,7 +22,7 @@ public class LimitedPartnerBuilder {
 
     private String limitedPartnerKind = null;
     private LocalDate ceaseDate = null;
-    private Boolean removeConfirmationChecked = null;
+    private boolean removeConfirmationChecked;
 
 
     public LimitedPartnerBuilder withLimitedPartnerKind(String kind) {
@@ -35,7 +35,7 @@ public class LimitedPartnerBuilder {
         return this;
     }
 
-    public LimitedPartnerBuilder withRemoveConfirmationChecked(Boolean removeConfirmationChecked) {
+    public LimitedPartnerBuilder withRemoveConfirmationChecked(boolean removeConfirmationChecked) {
         this.removeConfirmationChecked = removeConfirmationChecked;
         return this;
     }
@@ -58,9 +58,7 @@ public class LimitedPartnerBuilder {
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setKind(limitedPartnerKind);
         dataDto.setCeaseDate(ceaseDate);
-        if (removeConfirmationChecked != null) {
-            dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
-        }
+        dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
 
         dto.setData(dataDto);
 
