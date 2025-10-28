@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilde
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
@@ -201,6 +202,55 @@ class LimitedPartnerServiceCreateTest {
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
         }
 
+        @Test
+        void shouldCreateALimitedPartnerLegalEntityForRemoval() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            mocks();
+
+            LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
+            dto.getData().setCeaseDate(LocalDate.now());
+            dto.getData().setRemoveConfirmationChecked(true);
+            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription());
+            LimitedPartnerDao dao = createLimitedPartnerLegalEntityDao();
+
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
+            when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            verify(repository).insert(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(USER_ID, sentSubmission.getCreatedBy());
+            assertEquals(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription(), sentSubmission.getData().getKind());
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
+            assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+        }
+
+        @Test
+        void shouldFailToCreateALimitedPartnerLegalEntityForRemovalIfFutureCeaseDate() throws ServiceException {
+            mocks();
+
+            LimitedPartnerDto dto = createLimitedPartnerLegalEntityDto();
+            dto.getData().setCeaseDate(LocalDate.now().plusMonths(1));
+            dto.getData().setRemoveConfirmationChecked(true);
+            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription());
+
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            assertEquals("Cease date must not be in the future", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.ceaseDate")).getDefaultMessage());
+        }
+
         private void createLimitedPartner(IncorporationKind incorporationKind) throws Exception {
             transaction.setFilingMode(incorporationKind.getDescription());
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
@@ -218,6 +268,47 @@ class LimitedPartnerServiceCreateTest {
             mockLimitedPartnershipService();
 
             service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+        }
+
+        private LimitedPartnerDto createLimitedPartnerLegalEntityDto() {
+            LimitedPartnerDto dto = new LimitedPartnerDto();
+
+            LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
+            dataDto.setLegalEntityName("Test Legal Entity");
+            dataDto.setLegalEntityRegisterName("LegReg123");
+            dataDto.setLegalEntityRegistrationLocation(Country.CANADA);
+            dataDto.setLegalForm("FRM");
+            dataDto.setContributionCurrencyType(Currency.GBP);
+            dataDto.setContributionCurrencyValue("15.00");
+            List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
+            contributionSubtypes.add(ContributionSubTypes.MONEY);
+            contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
+            dataDto.setContributionSubTypes(contributionSubtypes);
+
+            dto.setData(dataDto);
+
+            return dto;
+        }
+
+        private LimitedPartnerDao createLimitedPartnerLegalEntityDao() {
+            LimitedPartnerDao dao = new LimitedPartnerDao();
+
+            LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
+            dataDao.setLegalEntityName("Test Legal Entity");
+            dataDao.setLegalEntityRegisterName("LegReg123");
+            dataDao.setLegalEntityRegistrationLocation("Canada");
+            dataDao.setLegalForm("FRM");
+            dataDao.setContributionCurrencyType(Currency.GBP);
+            dataDao.setContributionCurrencyValue("15.00");
+            List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
+            contributionSubtypes.add(ContributionSubTypes.MONEY);
+            contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
+            dataDao.setContributionSubTypes(contributionSubtypes);
+
+            dao.setData(dataDao);
+            dao.setId(LIMITED_PARTNER_ID);
+
+            return dao;
         }
     }
 
