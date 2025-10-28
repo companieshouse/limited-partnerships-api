@@ -21,9 +21,21 @@ public class LimitedPartnerBuilder {
     public static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
 
     private String limitedPartnerKind = null;
+    private LocalDate ceaseDate;
+    private boolean removeConfirmationChecked;
 
     public LimitedPartnerBuilder withLimitedPartnerKind(String kind) {
         this.limitedPartnerKind = kind;
+        return this;
+    }
+
+    public LimitedPartnerBuilder withCeaseDate(LocalDate ceaseDate) {
+        this.ceaseDate = ceaseDate;
+        return this;
+    }
+
+    public LimitedPartnerBuilder withRemoveConfirmationChecked(boolean removeConfirmationChecked) {
+        this.removeConfirmationChecked = removeConfirmationChecked;
         return this;
     }
 
@@ -44,6 +56,8 @@ public class LimitedPartnerBuilder {
         dataDto.setContributionCurrencyType(Currency.GBP);
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setKind(limitedPartnerKind);
+        dataDto.setCeaseDate(ceaseDate);
+        dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
 
         dto.setData(dataDto);
 
@@ -69,6 +83,8 @@ public class LimitedPartnerBuilder {
         dataDto.setContributionSubTypes(contributionSubTypes);
         dataDto.setPrincipalOfficeAddress(createAddressDto());
         dataDto.setKind(limitedPartnerKind);
+        dataDto.setCeaseDate(ceaseDate);
+        dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
 
         dto.setData(dataDto);
 

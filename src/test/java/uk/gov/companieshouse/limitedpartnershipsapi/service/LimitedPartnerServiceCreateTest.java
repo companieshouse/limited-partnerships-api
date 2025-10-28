@@ -208,9 +208,9 @@ class LimitedPartnerServiceCreateTest {
 
             LimitedPartnerDto dto = new LimitedPartnerBuilder()
                     .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription())
+                    .withCeaseDate(LocalDate.now())
+                    .withRemoveConfirmationChecked(true)
                     .legalEntityDto();
-            dto.getData().setCeaseDate(LocalDate.now());
-            dto.getData().setRemoveConfirmationChecked(true);
 
             LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
 
@@ -239,9 +239,9 @@ class LimitedPartnerServiceCreateTest {
 
             LimitedPartnerDto dto = new LimitedPartnerBuilder()
                     .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription())
+                    .withCeaseDate(LocalDate.now().plusMonths(1))
+                    .withRemoveConfirmationChecked(true)
                     .legalEntityDto();
-            dto.getData().setCeaseDate(LocalDate.now().plusMonths(1));
-            dto.getData().setRemoveConfirmationChecked(true);
 
             CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
             when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
