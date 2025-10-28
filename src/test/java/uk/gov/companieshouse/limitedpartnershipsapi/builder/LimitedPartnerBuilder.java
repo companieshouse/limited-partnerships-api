@@ -21,8 +21,9 @@ public class LimitedPartnerBuilder {
     public static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
 
     private String limitedPartnerKind = null;
-    private LocalDate ceaseDate;
+    private LocalDate ceaseDate = null;
     private boolean removeConfirmationChecked;
+
 
     public LimitedPartnerBuilder withLimitedPartnerKind(String kind) {
         this.limitedPartnerKind = kind;

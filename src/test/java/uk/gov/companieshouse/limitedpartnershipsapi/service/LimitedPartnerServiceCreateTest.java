@@ -131,8 +131,8 @@ class LimitedPartnerServiceCreateTest {
                 "REGISTRATION",
                 "TRANSITION"
         })
-        void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
-            createLimitedPartner(incoporationKind);
+        void shouldAddCorrectLinksToTransactionResource(IncorporationKind incorporationKind) throws Exception {
+            createLimitedPartner(incorporationKind);
 
             verify(transactionService).updateTransactionWithLinksForPartner(
                     eq(REQUEST_ID), eq(transaction), any(), any(), any());
@@ -281,7 +281,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldCreateALimitedPartnerPerson() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
             dto.getData().setNationality2(Nationality.BRITISH);
             LimitedPartnerDao dao = createLimitedPartnerPersonDao();
             dao.getData().setNationality2("British");
@@ -306,10 +306,11 @@ class LimitedPartnerServiceCreateTest {
         void shouldCreateALimitedPartnerPersonForRemoval() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
-            dto.getData().setCeaseDate(LocalDate.now());
-            dto.getData().setRemoveConfirmationChecked(true);
-            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription());
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription())
+                    .withCeaseDate(LocalDate.now())
+                    .withRemoveConfirmationChecked(true)
+                    .personDto();
             LimitedPartnerDao dao = createLimitedPartnerPersonDao();
 
             CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
@@ -335,10 +336,11 @@ class LimitedPartnerServiceCreateTest {
         void shouldFailToCreateALimitedPartnerPersonForRemovalIfFutureCeaseDate() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
-            dto.getData().setCeaseDate(LocalDate.now().plusMonths(1));
-            dto.getData().setRemoveConfirmationChecked(true);
-            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription());
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription())
+                    .withCeaseDate(LocalDate.now().plusMonths(1))
+                    .withRemoveConfirmationChecked(true)
+                    .personDto();
 
             CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
             when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
@@ -355,7 +357,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldFailCreateALimitedPartnerPersonIfForenameIsCorrectAndOthersAreNull() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
             dto.getData().setSurname(null);
             dto.getData().setDateOfBirth(null);
             dto.getData().setNationality1(null);
@@ -374,7 +376,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldFailCreateALimitedPartnerPersonIfSurnameIsCorrectAndOthersAreNull() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
             dto.getData().setForename(null);
             dto.getData().setDateOfBirth(null);
             dto.getData().setNationality1(null);
@@ -393,7 +395,8 @@ class LimitedPartnerServiceCreateTest {
         void shouldFailCreateALimitedPartnerPersonIfNationality1AndNationality2AreSame() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
+            dto.getData().setNationality1(Nationality.AMERICAN);
             dto.getData().setNationality2(Nationality.AMERICAN);
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
@@ -402,26 +405,6 @@ class LimitedPartnerServiceCreateTest {
 
             assertNull(exception.getBindingResult().getFieldError("nationality1"));
             assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
-        }
-
-        private LimitedPartnerDto createLimitedPartnerPersonDto() {
-            LimitedPartnerDto dto = new LimitedPartnerDto();
-
-            LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
-            dataDto.setForename("John");
-            dataDto.setSurname("Doe");
-            dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
-            dataDto.setNationality1(Nationality.AMERICAN);
-            dataDto.setContributionCurrencyType(Currency.GBP);
-            dataDto.setContributionCurrencyValue("15.00");
-            List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
-            contributionSubtypes.add(ContributionSubTypes.MONEY);
-            contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
-            dataDto.setContributionSubTypes(contributionSubtypes);
-
-            dto.setData(dataDto);
-
-            return dto;
         }
 
         private LimitedPartnerDao createLimitedPartnerPersonDao() {
