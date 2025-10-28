@@ -194,7 +194,7 @@ public class LimitedPartnerService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
-        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+        if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 

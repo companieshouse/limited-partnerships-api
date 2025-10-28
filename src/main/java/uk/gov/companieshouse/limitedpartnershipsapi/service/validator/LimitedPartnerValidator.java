@@ -169,12 +169,12 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     /**
-     * Validate removal data for a general partner and return any validation errors as
+     * Validate removal data for a limited partner and return any validation errors as
      * a list of {@link ValidationStatusError}.
      * <p>
-     * call by validation-status endpoint for remove general partner after closing transaction
+     * call by validation-status endpoint for remove limited partner after closing transaction
      *
-     * @param limitedPartnerDto the general partner DTO to validate
+     * @param limitedPartnerDto the limited partner DTO to validate
      * @param transaction       the transaction context used for validation rules
      * @return a list of {@link ValidationStatusError} representing field validation errors;
      * an empty list if no errors are found
