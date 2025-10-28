@@ -206,10 +206,12 @@ class LimitedPartnerServiceCreateTest {
         void shouldCreateALimitedPartnerLegalEntityForRemoval() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             mocks();
 
-            LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription())
+                    .legalEntityDto();
             dto.getData().setCeaseDate(LocalDate.now());
             dto.getData().setRemoveConfirmationChecked(true);
-            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription());
+
             LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
 
             CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
@@ -235,10 +237,11 @@ class LimitedPartnerServiceCreateTest {
         void shouldFailToCreateALimitedPartnerLegalEntityForRemovalIfFutureCeaseDate() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription())
+                    .legalEntityDto();
             dto.getData().setCeaseDate(LocalDate.now().plusMonths(1));
             dto.getData().setRemoveConfirmationChecked(true);
-            dto.getData().setKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription());
 
             CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
             when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
