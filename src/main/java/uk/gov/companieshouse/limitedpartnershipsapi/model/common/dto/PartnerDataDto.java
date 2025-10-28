@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
@@ -31,7 +32,7 @@ public abstract class PartnerDataDto {
 
     @JsonProperty("cease_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Past(message = "Cease date must be in the past")
+    @PastOrPresent(message = "Cease date must not be in the future")
     private LocalDate ceaseDate;
 
     @JsonProperty("remove_confirmation_checked")

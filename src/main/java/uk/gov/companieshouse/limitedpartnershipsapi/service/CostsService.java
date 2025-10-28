@@ -8,6 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
@@ -21,17 +22,20 @@ public class CostsService {
     private final LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
+    private final LimitedPartnerService limitedPartnerService;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     public CostsService(
             LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository,
             LimitedPartnershipService limitedPartnershipService,
             GeneralPartnerService generalPartnerService,
+            LimitedPartnerService limitedPartnerService,
             PostTransitionStrategyHandler postTransitionStrategyHandler) {
         this.limitedPartnershipIncorporationRepository = limitedPartnershipIncorporationRepository;
         this.limitedPartnershipService = limitedPartnershipService;
         this.generalPartnerService = generalPartnerService;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
+        this.limitedPartnerService = limitedPartnerService;
     }
 
     @Value("${LP_REGISTRATION_COST}")
@@ -82,5 +86,11 @@ public class CostsService {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
 
         return postTransitionStrategyHandler.getCost(generalPartnerDto);
+    }
+
+    public Cost getPostTransitionLimitedPartnerCost(Transaction transaction, String limitedPartnerId) throws ServiceException {
+        LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
+
+        return postTransitionStrategyHandler.getCost(limitedPartnerDto);
     }
 }

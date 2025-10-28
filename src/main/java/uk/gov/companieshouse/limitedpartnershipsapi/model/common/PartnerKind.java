@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.common;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
+import java.util.Set;
+
 public enum PartnerKind {
     ADD_GENERAL_PARTNER_PERSON("limited-partnership#add-general-partner-person"),
     ADD_GENERAL_PARTNER_LEGAL_ENTITY("limited-partnership#add-general-partner-legal-entity"),
@@ -17,6 +19,16 @@ public enum PartnerKind {
     UNKNOWN("UNKNOWN");
 
     private final String description;
+
+    private static final Set<String> REMOVE_GENERAL_PARTNER_KINDS = Set.of(
+            REMOVE_GENERAL_PARTNER_PERSON.getDescription(),
+            REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription()
+    );
+
+    private static final Set<String> REMOVE_LIMITED_PARTNER_KINDS = Set.of(
+            REMOVE_LIMITED_PARTNER_PERSON.getDescription(),
+            REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription()
+    );
 
     PartnerKind(String description) {
         this.description = description;
@@ -35,5 +47,13 @@ public enum PartnerKind {
         }
 
         return PartnerKind.UNKNOWN;
+    }
+
+    public static boolean isRemoveGeneralPartnerKind(String kind) {
+        return  kind != null && REMOVE_GENERAL_PARTNER_KINDS.contains(kind);
+    }
+
+    public static boolean isRemoveLimitedPartnerKind(String kind) {
+        return  kind != null && REMOVE_LIMITED_PARTNER_KINDS.contains(kind);
     }
 }

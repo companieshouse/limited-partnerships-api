@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
@@ -129,8 +130,8 @@ class LimitedPartnerServiceCreateTest {
                 "REGISTRATION",
                 "TRANSITION"
         })
-        void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
-            createLimitedPartner(incoporationKind);
+        void shouldAddCorrectLinksToTransactionResource(IncorporationKind incorporationKind) throws Exception {
+            createLimitedPartner(incorporationKind);
 
             verify(transactionService).updateTransactionWithLinksForPartner(
                     eq(REQUEST_ID), eq(transaction), any(), any(), any());
@@ -227,7 +228,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldCreateALimitedPartnerPerson() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
             dto.getData().setNationality2(Nationality.BRITISH);
             LimitedPartnerDao dao = createLimitedPartnerPersonDao();
             dao.getData().setNationality2("British");
@@ -249,10 +250,61 @@ class LimitedPartnerServiceCreateTest {
         }
 
         @Test
+        void shouldCreateALimitedPartnerPersonForRemoval() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            mocks();
+
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription())
+                    .withCeaseDate(LocalDate.now())
+                    .withRemoveConfirmationChecked(true)
+                    .personDto();
+            LimitedPartnerDao dao = createLimitedPartnerPersonDao();
+
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
+            when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            verify(repository).insert(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(USER_ID, sentSubmission.getCreatedBy());
+            assertEquals(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription(), sentSubmission.getData().getKind());
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
+            assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+        }
+
+        @Test
+        void shouldFailToCreateALimitedPartnerPersonForRemovalIfFutureCeaseDate() throws ServiceException {
+            mocks();
+
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON.getDescription())
+                    .withCeaseDate(LocalDate.now().plusMonths(1))
+                    .withRemoveConfirmationChecked(true)
+                    .personDto();
+
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            assertEquals("Cease date must not be in the future", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.ceaseDate")).getDefaultMessage());
+        }
+
+        @Test
         void shouldFailCreateALimitedPartnerPersonIfForenameIsCorrectAndOthersAreNull() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
             dto.getData().setSurname(null);
             dto.getData().setDateOfBirth(null);
             dto.getData().setNationality1(null);
@@ -271,7 +323,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldFailCreateALimitedPartnerPersonIfSurnameIsCorrectAndOthersAreNull() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
             dto.getData().setForename(null);
             dto.getData().setDateOfBirth(null);
             dto.getData().setNationality1(null);
@@ -290,7 +342,8 @@ class LimitedPartnerServiceCreateTest {
         void shouldFailCreateALimitedPartnerPersonIfNationality1AndNationality2AreSame() throws ServiceException {
             mocks();
 
-            LimitedPartnerDto dto = createLimitedPartnerPersonDto();
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().personDto();
+            dto.getData().setNationality1(Nationality.AMERICAN);
             dto.getData().setNationality2(Nationality.AMERICAN);
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
@@ -299,26 +352,6 @@ class LimitedPartnerServiceCreateTest {
 
             assertNull(exception.getBindingResult().getFieldError("nationality1"));
             assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
-        }
-
-        private LimitedPartnerDto createLimitedPartnerPersonDto() {
-            LimitedPartnerDto dto = new LimitedPartnerDto();
-
-            LimitedPartnerDataDto dataDto = new LimitedPartnerDataDto();
-            dataDto.setForename("John");
-            dataDto.setSurname("Doe");
-            dataDto.setDateOfBirth(LocalDate.of(1980, 1, 1));
-            dataDto.setNationality1(Nationality.AMERICAN);
-            dataDto.setContributionCurrencyType(Currency.GBP);
-            dataDto.setContributionCurrencyValue("15.00");
-            List<ContributionSubTypes> contributionSubtypes = new ArrayList<>();
-            contributionSubtypes.add(ContributionSubTypes.MONEY);
-            contributionSubtypes.add(ContributionSubTypes.SERVICES_OR_GOODS);
-            dataDto.setContributionSubTypes(contributionSubtypes);
-
-            dto.setData(dataDto);
-
-            return dto;
         }
 
         private LimitedPartnerDao createLimitedPartnerPersonDao() {

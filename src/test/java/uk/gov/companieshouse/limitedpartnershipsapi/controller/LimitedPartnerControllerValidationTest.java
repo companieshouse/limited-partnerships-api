@@ -30,6 +30,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -144,6 +145,9 @@ class LimitedPartnerControllerValidationTest {
     @MockitoBean
     private CompanyService companyService;
 
+    @MockitoBean
+    private PostTransitionStrategyHandler postTransitionStrategyHandler;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
@@ -197,6 +201,8 @@ class LimitedPartnerControllerValidationTest {
         mocks();
 
         mockLimitedPartnershipService(PartnershipType.PFLP);
+
+
 
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
