@@ -44,6 +44,7 @@ public class AddressDto {
     private String locality;
 
     @JsonProperty("postal_code")
+    @Size(max = SHORT_MAX_SIZE, message = "Postal code " + MAX_SIZE_MESSAGE)
     private String postalCode;
 
     @JsonProperty("premises")

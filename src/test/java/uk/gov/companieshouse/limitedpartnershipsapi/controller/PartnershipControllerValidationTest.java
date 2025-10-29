@@ -472,6 +472,20 @@ class PartnershipControllerValidationTest {
                         .andExpect(status().isBadRequest());
             }
 
+            @Test
+            void shouldReturn400IfPostalCodeIsTooLongForOverseas() throws Exception {
+                String postalCode = StringUtils.repeat("A", 51);
+                String body = "{\"registered_office_address\":{\"postal_code\":\"" + postalCode + "\",\"premises\":\"2\",\"address_line_1\":\"line 1\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"France\"}}";
+
+                mockMvc.perform(patch(PartnershipControllerValidationTest.PATCH_URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .characterEncoding(StandardCharsets.UTF_8)
+                                .headers(httpHeaders)
+                                .requestAttr("transaction", transaction)
+                                .content(body))
+                        .andExpect(status().isBadRequest());
+            }
+
             @ParameterizedTest
             @ValueSource(strings = {
                     JSON_ROA_POSTCODE_EMPTY,
