@@ -302,6 +302,16 @@ class PostTransitionPartnerTest {
                             Map.entry("data.ceaseDate", "Partner cease date cannot be before the incorporation date")
                     );
         }
+
+        @Test
+        void shouldReturn200AndNoFeeForKind() throws Exception {
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertNull(result);
+        }
     }
 
     @Nested
