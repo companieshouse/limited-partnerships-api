@@ -84,6 +84,8 @@ public class LimitedPartnerBuilder {
         dataDto.setContributionSubTypes(contributionSubTypes);
         dataDto.setPrincipalOfficeAddress(createAddressDto());
         dataDto.setKind(limitedPartnerKind);
+        dataDto.setCeaseDate(ceaseDate);
+        dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
 
         dto.setData(dataDto);
 

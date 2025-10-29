@@ -201,6 +201,58 @@ class LimitedPartnerServiceCreateTest {
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
         }
 
+        @Test
+        void shouldCreateALimitedPartnerLegalEntityForRemoval() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            mocks();
+
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription())
+                    .withCeaseDate(LocalDate.now())
+                    .withRemoveConfirmationChecked(true)
+                    .legalEntityDto();
+
+            LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
+
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
+            when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            verify(repository).insert(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(USER_ID, sentSubmission.getCreatedBy());
+            assertEquals(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription(), sentSubmission.getData().getKind());
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
+            assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+        }
+
+        @Test
+        void shouldFailToCreateALimitedPartnerLegalEntityForRemovalIfFutureCeaseDate() throws ServiceException {
+            mocks();
+
+            LimitedPartnerDto dto = new LimitedPartnerBuilder()
+                    .withLimitedPartnerKind(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription())
+                    .withCeaseDate(LocalDate.now().plusMonths(1))
+                    .withRemoveConfirmationChecked(true)
+                    .legalEntityDto();
+
+            CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
+            when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2020, 1, 1));
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            assertEquals("Cease date must not be in the future", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.ceaseDate")).getDefaultMessage());
+        }
+
         private void createLimitedPartner(IncorporationKind incorporationKind) throws Exception {
             transaction.setFilingMode(incorporationKind.getDescription());
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();

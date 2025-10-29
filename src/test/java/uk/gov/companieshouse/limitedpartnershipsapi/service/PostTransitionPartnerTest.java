@@ -247,6 +247,74 @@ class PostTransitionPartnerTest {
     }
 
     @Nested
+    class RemoveLimitedPartnerLegalEntity {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            limitedPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
+            limitedPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            limitedPartnerLegalEntityDao.getData().setCeaseDate(null);
+            limitedPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(false);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(2)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.ceaseDate", "Cease date is required"),
+                            Map.entry("data.removeConfirmationChecked", "Remove confirmation checked is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
+
+            CompanyProfileApi companyProfile = new CompanyBuilder().build();
+            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
+
+            limitedPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
+            limitedPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.ceaseDate", "Partner cease date cannot be before the incorporation date")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKind() throws Exception {
+
+            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertNull(result);
+        }
+    }
+
+    @Nested
     class RemoveGeneralPartnerLegalEntity {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
