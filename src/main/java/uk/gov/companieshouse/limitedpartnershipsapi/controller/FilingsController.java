@@ -97,6 +97,8 @@ public class FilingsController {
         logMap.put(TRANSACTION_KEY, transaction.getId());
         logMap.put(URL_PARAM_FILING_RESOURCE_ID, limitedPartnerId);
 
+        // Use the pass-through token header from the incoming request (from transactions API) as it will have the correct
+        // internal privileges to call payment API if needed.
         String passThroughTokenHeader = request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
 
         ApiLogger.infoContext(requestId, "Calling service to retrieve limited partnership filing", logMap);
