@@ -30,10 +30,6 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     @EnumValid(message = "Capital contribution type must be valid")
     private List<ContributionSubTypes> contributionSubTypes;
 
-    public boolean isLegalEntity() {
-        return getLegalEntityRegisterName() != null || getLegalForm() != null;
-    }
-
     public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
     }

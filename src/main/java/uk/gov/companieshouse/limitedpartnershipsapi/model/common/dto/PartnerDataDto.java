@@ -318,4 +318,8 @@ public abstract class PartnerDataDto {
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
+
+    public boolean isLegalEntity() {
+        return getLegalEntityRegisterName() != null || getLegalForm() != null;
+    }
 }
