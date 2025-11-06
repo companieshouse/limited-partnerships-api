@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,16 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.companieshouse.api.ApiClient;
-import uk.gov.companieshouse.api.handler.payment.PaymentResourceHandler;
-import uk.gov.companieshouse.api.handler.payment.request.PaymentGet;
-import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
-import uk.gov.companieshouse.api.handler.transaction.request.TransactionsPaymentGet;
-import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.payment.PaymentApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.transaction.TransactionPayment;
-import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -38,10 +29,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.PaymentService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -82,31 +73,7 @@ class FilingsControllerTest {
     private TransactionService transactionService;
 
     @MockitoBean
-    private HttpServletRequest request;
-
-    @MockitoBean
-    private ApiClientService apiClientService;
-
-    @MockitoBean
-    private ApiClient apiClient;
-
-    @MockitoBean
-    private TransactionsResourceHandler transactionsResourceHandler;
-
-    @MockitoBean
-    private TransactionsPaymentGet transactionsPaymentGet;
-
-    @MockitoBean
-    private ApiResponse<TransactionPayment> transactionPaymentApiResponse;
-
-    @MockitoBean
-    private PaymentResourceHandler paymentResourceHandler;
-
-    @MockitoBean
-    private PaymentGet paymentGet;
-
-    @MockitoBean
-    private ApiResponse<PaymentApi> paymentApiApiResponse;
+    private PaymentService paymentService;
 
     @BeforeEach
     void setUp() {
@@ -311,24 +278,12 @@ class FilingsControllerTest {
         void shouldReturn200WithPayment() throws Exception {
             Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
 
-            TransactionPayment transactionPayment = new TransactionPayment();
-            transactionPayment.setPaymentReference(PAYMENT_REF);
-
             PaymentApi paymentApi = new PaymentApi();
             paymentApi.setPaymentMethod(PAYMENT_METHOD);
 
             mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
-            // get payment reference from transaction
-            when(apiClientService.getApiClient(PASS_THROUGH_HEADER)).thenReturn(apiClient);
-            when(apiClient.transactions()).thenReturn(transactionsResourceHandler);
-            when(transactionsResourceHandler.getPayment(transactionWithPayment.getLinks().getPayment())).thenReturn(transactionsPaymentGet);
-            when(transactionsPaymentGet.execute()).thenReturn(transactionPaymentApiResponse);
-            when(transactionPaymentApiResponse.getData()).thenReturn(transactionPayment);
-
-            when(apiClient.payment()).thenReturn(paymentResourceHandler);
-            when(paymentResourceHandler.get("/payments/" + PAYMENT_REF)).thenReturn(paymentGet);
-            when(paymentGet.execute()).thenReturn(paymentApiApiResponse);
-            when(paymentApiApiResponse.getData()).thenReturn(paymentApi);
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
 
             mockMvc.perform(get(URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -342,45 +297,6 @@ class FilingsControllerTest {
                     .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
                     .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
-        }
-
-        @Test
-        void shouldReturnServerErrorWhenExceptionGettingPaymentReference() throws Exception {
-            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
-
-            mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
-            when(apiClientService.getApiClient(PASS_THROUGH_HEADER)).thenThrow(new IOException());
-
-            mockMvc.perform(get(URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transactionWithPayment)
-                    )
-                    .andExpect(status().isInternalServerError());
-        }
-
-        @Test
-        void shouldReturnServerErrorPaymentReferenceNull() throws Exception {
-            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
-
-            TransactionPayment transactionPayment = new TransactionPayment();
-            transactionPayment.setPaymentReference(null);
-
-            mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
-            when(apiClientService.getApiClient(PASS_THROUGH_HEADER)).thenReturn(apiClient);
-            when(apiClient.transactions()).thenReturn(transactionsResourceHandler);
-            when(transactionsResourceHandler.getPayment(transactionWithPayment.getLinks().getPayment())).thenReturn(transactionsPaymentGet);
-            when(transactionsPaymentGet.execute()).thenReturn(transactionPaymentApiResponse);
-            when(transactionPaymentApiResponse.getData()).thenReturn(transactionPayment);
-
-            mockMvc.perform(get(URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding("utf-8")
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transactionWithPayment)
-                    )
-                    .andExpect(status().isInternalServerError());
         }
 
         @Test

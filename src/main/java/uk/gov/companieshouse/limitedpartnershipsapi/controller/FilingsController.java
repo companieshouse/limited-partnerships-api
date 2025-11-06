@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +13,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 import java.util.HashMap;
 
@@ -89,21 +87,16 @@ public class FilingsController {
     @GetMapping("/limited-partnership/partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}" + FILINGS)
     public ResponseEntity<FilingApi[]> getLimitedPartnershipFiling(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String limitedPartnerId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            HttpServletRequest request) throws ServiceException {
+            @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String limitedPartnershipId,
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());
-        logMap.put(URL_PARAM_FILING_RESOURCE_ID, limitedPartnerId);
-
-        // Use the pass-through token header from the incoming request (from transactions API) as it will have the correct
-        // internal privileges to call payment API if needed.
-        String passThroughTokenHeader = request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+        logMap.put(URL_PARAM_FILING_RESOURCE_ID, limitedPartnershipId);
 
         ApiLogger.infoContext(requestId, "Calling service to retrieve limited partnership filing", logMap);
 
-        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, passThroughTokenHeader);
+        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction);
 
         return ResponseEntity.ok(new FilingApi[]{filing});
     }
