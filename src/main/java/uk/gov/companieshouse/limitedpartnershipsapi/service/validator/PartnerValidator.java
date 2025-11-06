@@ -95,8 +95,10 @@ public abstract class PartnerValidator {
 
             LocalDate dateEffectiveFrom = partnerDto.getData().getDateEffectiveFrom();
 
+            System.out.println("Date Effective From: " + className);
+
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
-                addError(className, "data.dateEffectiveFrom", "Partner date effective from cannot be before the incorporation date", bindingResult);
+                addError(className, "data.dateEffectiveFrom", "Date it became a partner must be the same as or after limited partnership's registration date", bindingResult);
             }
         }
     }
