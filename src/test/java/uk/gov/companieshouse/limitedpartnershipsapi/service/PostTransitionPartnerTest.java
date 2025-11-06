@@ -388,6 +388,9 @@ class PostTransitionPartnerTest {
         @Test
         void shouldReturn200IfNoErrors_AddGeneralPartnerPerson() throws Exception {
 
+            // date could be in the past or present
+            generalPartnerPersonDao.getData().setDateEffectiveFrom((LocalDate.now()));
+
             mocks(PartnerKind.ADD_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
@@ -413,6 +416,9 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200IfNoErrors_AddGeneralPartnerLegalEntity() throws Exception {
+
+            // date could be in the past or present
+            generalPartnerLegalEntityDao.getData().setDateEffectiveFrom((LocalDate.now()));
 
             mocks(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
@@ -440,6 +446,9 @@ class PostTransitionPartnerTest {
         @Test
         void shouldReturn200IfNoErrors_AddLimitedPartnerPerson() throws Exception {
 
+            // date could be in the past or present
+            limitedPartnerPersonDao.getData().setDateEffectiveFrom((LocalDate.now()));
+
             mocks(PartnerKind.ADD_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
             var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, LimitedPartnerBuilder.LIMITED_PARTNER_ID);
@@ -465,6 +474,9 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200IfNoErrors_AddLimitedPartnerLegalEntity() throws Exception {
+
+            // date could be in the past or present
+            limitedPartnerLegalEntityDao.getData().setDateEffectiveFrom((LocalDate.now()));
 
             mocks(PartnerKind.ADD_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 

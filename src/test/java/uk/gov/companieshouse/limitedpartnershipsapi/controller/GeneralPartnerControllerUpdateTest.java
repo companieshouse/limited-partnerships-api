@@ -262,9 +262,9 @@ class GeneralPartnerControllerUpdateTest {
         @CsvSource(value = {
                 JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + POST_TRANSITION_KIND,
                 JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + POST_TRANSITION_KIND,
-                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date $" + POST_TRANSITION_KIND,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Partner date effective from cannot be before the incorporation date $" + POST_TRANSITION_KIND,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must be in the past $" + POST_TRANSITION_KIND
+                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date it became a limited partner must be the same as or after limited partnership's registration date $" + POST_TRANSITION_KIND,
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date it became a limited partner must be the same as or after limited partnership's registration date $" + POST_TRANSITION_KIND,
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must not be in the future $" + POST_TRANSITION_KIND
         }, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage, String filingMode) throws Exception {
             mocks();

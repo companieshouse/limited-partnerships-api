@@ -230,7 +230,7 @@ public abstract class PartnerDataDto {
 
     @JsonProperty(DATE_EFFECTIVE_FROM_FIELD)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Past(message = "Partner date effective from must be in the past")
+    @PastOrPresent(message = "Partner date effective from must not be in the future")
     private LocalDate dateEffectiveFrom;
 
     @JsonProperty(PRINCIPAL_OFFICE_ADDRESS_FIELD)
@@ -317,5 +317,9 @@ public abstract class PartnerDataDto {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public boolean isLegalEntity() {
+        return getLegalEntityRegisterName() != null || getLegalForm() != null;
     }
 }

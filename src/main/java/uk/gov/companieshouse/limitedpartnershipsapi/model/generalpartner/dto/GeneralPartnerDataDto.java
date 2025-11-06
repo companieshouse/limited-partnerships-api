@@ -32,10 +32,6 @@ public class GeneralPartnerDataDto extends PartnerDataDto {
     @JsonProperty(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)
     private Boolean notDisqualifiedStatementChecked;
 
-    public boolean isLegalEntity() {
-        return getLegalEntityRegisterName() != null || getLegalForm() != null;
-    }
-
     public Boolean getNotDisqualifiedStatementChecked() {
         return notDisqualifiedStatementChecked;
     }

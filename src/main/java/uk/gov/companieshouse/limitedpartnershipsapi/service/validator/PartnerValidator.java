@@ -10,10 +10,12 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class PartnerValidator {
@@ -95,8 +97,10 @@ public abstract class PartnerValidator {
 
             LocalDate dateEffectiveFrom = partnerDto.getData().getDateEffectiveFrom();
 
+            String partner = Objects.equals(className, GeneralPartnerDto.class.getName()) ? "general partner" : "limited partner";
+
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
-                addError(className, "data.dateEffectiveFrom", "Partner date effective from cannot be before the incorporation date", bindingResult);
+                addError(className, "data.dateEffectiveFrom", String.format("Date it became a %s must be the same as or after limited partnership's registration date", partner), bindingResult);
             }
         }
     }
