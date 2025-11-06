@@ -205,31 +205,26 @@ public class FilingsService {
         var paymentLink = transaction.getLinks().getPayment();
 
         if (!StringUtils.hasText(paymentLink)) {
+            // Transaction has no payment link so no payment data to set
             return;
         }
 
         var paymentReference = getPaymentReferenceFromTransaction(paymentLink, passThroughTokenHeader);
-
-        if (paymentReference != null) {
-            var payment = getPayment(paymentReference, passThroughTokenHeader);
-            data.put("payment_reference", paymentReference);
-            data.put("payment_method", payment.getPaymentMethod());
-        }
+        var payment = getPayment(paymentReference, passThroughTokenHeader);
+        data.put("payment_reference", paymentReference);
+        data.put("payment_method", payment.getPaymentMethod());
     }
 
-    private String getPaymentReferenceFromTransaction(String uri, String passThroughTokenHeader) throws ServiceException {
+    private String getPaymentReferenceFromTransaction(String paymentUri, String passThroughTokenHeader) throws ServiceException {
         try {
-            var paymentRequest = apiClientService
+            return apiClientService
                     .getApiClient(passThroughTokenHeader)
                     .transactions()
-                    .getPayment(uri);
+                    .getPayment(paymentUri)
+                    .execute()
+                    .getData()
+                    .getPaymentReference();
 
-            if (paymentRequest == null) {
-                return null;
-            }
-
-            var transactionPaymentInfo = paymentRequest.execute();
-            return transactionPaymentInfo.getData().getPaymentReference();
         } catch (URIValidationException | IOException e) {
             throw new ServiceException(e.getMessage(), e);
         }

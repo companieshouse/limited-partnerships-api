@@ -41,6 +41,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipSe
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -317,11 +318,13 @@ class FilingsControllerTest {
             paymentApi.setPaymentMethod(PAYMENT_METHOD);
 
             mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+            // get payment reference from transaction
             when(apiClientService.getApiClient(PASS_THROUGH_HEADER)).thenReturn(apiClient);
             when(apiClient.transactions()).thenReturn(transactionsResourceHandler);
             when(transactionsResourceHandler.getPayment(transactionWithPayment.getLinks().getPayment())).thenReturn(transactionsPaymentGet);
             when(transactionsPaymentGet.execute()).thenReturn(transactionPaymentApiResponse);
             when(transactionPaymentApiResponse.getData()).thenReturn(transactionPayment);
+
             when(apiClient.payment()).thenReturn(paymentResourceHandler);
             when(paymentResourceHandler.get("/payments/" + PAYMENT_REF)).thenReturn(paymentGet);
             when(paymentGet.execute()).thenReturn(paymentApiApiResponse);
@@ -339,6 +342,45 @@ class FilingsControllerTest {
                     .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
                     .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
+        }
+
+        @Test
+        void shouldReturnServerErrorWhenExceptionGettingPaymentReference() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
+
+            mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+            when(apiClientService.getApiClient(PASS_THROUGH_HEADER)).thenThrow(new IOException());
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isInternalServerError());
+        }
+
+        @Test
+        void shouldReturnServerErrorPaymentReferenceNull() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
+
+            TransactionPayment transactionPayment = new TransactionPayment();
+            transactionPayment.setPaymentReference(null);
+
+            mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+            when(apiClientService.getApiClient(PASS_THROUGH_HEADER)).thenReturn(apiClient);
+            when(apiClient.transactions()).thenReturn(transactionsResourceHandler);
+            when(transactionsResourceHandler.getPayment(transactionWithPayment.getLinks().getPayment())).thenReturn(transactionsPaymentGet);
+            when(transactionsPaymentGet.execute()).thenReturn(transactionPaymentApiResponse);
+            when(transactionPaymentApiResponse.getData()).thenReturn(transactionPayment);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isInternalServerError());
         }
 
         @Test
