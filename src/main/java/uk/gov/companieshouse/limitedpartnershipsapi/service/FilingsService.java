@@ -189,6 +189,18 @@ public class FilingsService {
         return filing;
     }
 
+    /**
+     * Populates the provided data map with payment information for the given transaction.
+     * <p>
+     * If a payment link exists in the transaction, retrieves the payment reference and payment method,
+     * and adds them to the data map. If no payment link is present or payment cannot be retrieved,
+     * the method returns without modifying the map.
+     *
+     * @param data the map to populate with payment data
+     * @param transaction the transaction containing payment link information
+     * @param passThroughTokenHeader the authentication token for API requests
+     * @throws ServiceException if an error occurs while retrieving payment information
+     */
     private void setPaymentData(Map<String, Object> data, Transaction transaction, String passThroughTokenHeader) throws ServiceException {
         var paymentLink = transaction.getLinks().getPayment();
 
