@@ -7,17 +7,18 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.handler.privatetransaction.PrivateTransactionResourceHandler;
 import uk.gov.companieshouse.api.handler.privatetransaction.request.PrivateTransactionDeleteResource;
 import uk.gov.companieshouse.api.handler.privatetransaction.request.PrivateTransactionPatch;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsPaymentGet;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.transaction.TransactionPayment;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -49,7 +50,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_R
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION_OR_TRANSITION;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class TransactionServiceTest {
 
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
@@ -72,6 +72,9 @@ class TransactionServiceTest {
     private PrivateTransactionResourceHandler privateTransactionResourceHandler;
 
     @Mock
+    private TransactionsResourceHandler transactionsResourceHandler;
+
+    @Mock
     private PrivateTransactionPatch privateTransactionPatch;
 
     @Mock
@@ -82,6 +85,12 @@ class TransactionServiceTest {
 
     @Mock
     private ApiResponse<Void> apiDeleteResponse;
+
+    @Mock
+    private ApiResponse<TransactionPayment> getPaymentResponse;
+
+    @Mock
+    private TransactionsPaymentGet transactionsPaymentGet;
 
     @InjectMocks
     private TransactionService transactionService;
@@ -553,6 +562,25 @@ class TransactionServiceTest {
                         .hasSize(1)
                         .isNotNull()
                         .containsKeys(LINK_RESOURCE));
+    }
+
+    @Test
+    void testGetPaymentReferenceReturnsExpectedValue() throws Exception {
+        String paymentLink = "/payments/123";
+        String expectedReference = "PAYREF123";
+
+        TransactionPayment transactionPayment = new TransactionPayment();
+        transactionPayment.setPaymentReference(expectedReference);
+
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.transactions()).thenReturn(transactionsResourceHandler);
+        when(transactionsResourceHandler.getPayment(paymentLink)).thenReturn(transactionsPaymentGet);
+        when(transactionsPaymentGet.execute()).thenReturn(getPaymentResponse);
+        when(getPaymentResponse.getData()).thenReturn(transactionPayment);
+
+        String result = transactionService.getPaymentReference(paymentLink);
+
+        assertEquals(expectedReference, result);
     }
 
     private boolean testIfTransactionIsLinkedToLimitedPartnershipIncorporation(String kind) {
