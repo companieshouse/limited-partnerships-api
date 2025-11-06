@@ -1,8 +1,12 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+import uk.gov.companieshouse.api.model.payment.PaymentApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -15,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +43,14 @@ public class FilingsService {
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
     private final TransactionService transactionService;
+    private final ApiClientService apiClientService;
     private final FilingKind filingKind;
 
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
                           TransactionService transactionService,
+                          ApiClientService apiClientService,
                           FilingKind filingKind
     ) {
 
@@ -51,6 +58,7 @@ public class FilingsService {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.transactionService = transactionService;
+        this.apiClientService = apiClientService;
         this.filingKind = filingKind;
     }
 
@@ -162,7 +170,7 @@ public class FilingsService {
         return dataDto;
     }
 
-    public FilingApi generateLimitedPartnershipFiling(Transaction transaction) throws ServiceException {
+    public FilingApi generateLimitedPartnershipFiling(Transaction transaction, String passThroughTokenHeader) throws ServiceException {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
         DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
 
@@ -175,8 +183,60 @@ public class FilingsService {
         String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), limitedPartnershipDataDto.getKind());
         filing.setKind(kind);
         setDescriptionFields(filing, transaction.getFilingMode());
+        setPaymentData(data, transaction, passThroughTokenHeader);
         filing.setData(data);
 
         return filing;
+    }
+
+    private void setPaymentData(Map<String, Object> data, Transaction transaction, String passThroughTokenHeader) throws ServiceException {
+        var paymentLink = transaction.getLinks().getPayment();
+
+        if (!StringUtils.hasText(paymentLink)) {
+            return;
+        }
+
+        var paymentReference = getPaymentReferenceFromTransaction(paymentLink, passThroughTokenHeader);
+
+        if (paymentReference != null) {
+            var payment = getPayment(paymentReference, passThroughTokenHeader);
+            data.put("payment_reference", paymentReference);
+            data.put("payment_method", payment.getPaymentMethod());
+        }
+    }
+
+    private String getPaymentReferenceFromTransaction(String uri, String passThroughTokenHeader) throws ServiceException {
+        try {
+            var paymentRequest = apiClientService
+                    .getApiClient(passThroughTokenHeader)
+                    .transactions()
+                    .getPayment(uri);
+
+            if (paymentRequest == null) {
+                return null;
+            }
+
+            var transactionPaymentInfo = paymentRequest.execute();
+            return transactionPaymentInfo.getData().getPaymentReference();
+        } catch (URIValidationException | IOException e) {
+            throw new ServiceException(e.getMessage(), e);
+        }
+    }
+
+    private PaymentApi getPayment(String paymentReference, String passThroughTokenHeader) throws ServiceException {
+        if (!StringUtils.hasText(paymentReference)) {
+            throw new ServiceException("paymentReference cannot be null or empty");
+        }
+
+        try {
+            return apiClientService
+                    .getApiClient(passThroughTokenHeader)
+                    .payment()
+                    .get("/payments/" + paymentReference)
+                    .execute()
+                    .getData();
+        } catch (URIValidationException | IOException e) {
+            throw new ServiceException(e.getMessage(), e);
+        }
     }
 }

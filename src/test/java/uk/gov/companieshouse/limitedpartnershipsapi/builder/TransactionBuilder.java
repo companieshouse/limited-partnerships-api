@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.transaction.TransactionLinks;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
 import java.util.HashMap;
@@ -16,6 +17,10 @@ public class TransactionBuilder {
     private IncorporationKind incorporationKind = IncorporationKind.REGISTRATION;
     private String kind = FILING_KIND_LIMITED_PARTNERSHIP;
     private String filingMode;
+
+
+    String transactionUri = String.format("/transactions/%s", TRANSACTION_ID);
+    String transactionPaymentUri = null;
     String uri = String.format("/transactions/%s/limited-partnership/partnership/%s",
             TRANSACTION_ID,
             SUBMISSION_ID
@@ -38,6 +43,11 @@ public class TransactionBuilder {
         return this;
     }
 
+    public TransactionBuilder withPayment() {
+        this.transactionPaymentUri = String.format("%s/payment", transactionUri);
+        return this;
+    }
+
     public Transaction build() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
@@ -45,12 +55,19 @@ public class TransactionBuilder {
         transaction.setCompanyNumber("LP123456");
         transaction.setFilingMode(filingMode != null ? filingMode : incorporationKind.getDescription());
 
+        TransactionLinks transactionLinks = new TransactionLinks();
+        transactionLinks.setSelf(transactionUri);
+        if (transactionPaymentUri != null) {
+            transactionLinks.setPayment(transactionPaymentUri);
+        }
+        transaction.setLinks(transactionLinks);
+
         Resource resource = new Resource();
         resource.setKind(kind);
 
-        Map<String, String> links = new HashMap<>();
-        links.put("resource", uri);
-        resource.setLinks(links);
+        Map<String, String> resourceLinks = new HashMap<>();
+        resourceLinks.put("resource", uri);
+        resource.setLinks(resourceLinks);
 
         Map<String, Resource> resourceMap = new HashMap<>();
         resourceMap.put(uri, resource);

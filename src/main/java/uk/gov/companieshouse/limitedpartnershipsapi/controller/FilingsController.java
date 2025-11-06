@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 import java.util.HashMap;
 
@@ -88,15 +90,18 @@ public class FilingsController {
     public ResponseEntity<FilingApi[]> getLimitedPartnershipFiling(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String limitedPartnerId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
+            HttpServletRequest request) throws ServiceException {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());
         logMap.put(URL_PARAM_FILING_RESOURCE_ID, limitedPartnerId);
 
+        String passThroughTokenHeader = request.getHeader(ApiSdkManager.getEricPassthroughTokenHeader());
+
         ApiLogger.infoContext(requestId, "Calling service to retrieve limited partnership filing", logMap);
 
-        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction);
+        FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction, passThroughTokenHeader);
 
         return ResponseEntity.ok(new FilingApi[]{filing});
     }

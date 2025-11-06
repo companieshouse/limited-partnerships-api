@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.ApiClient;
+import uk.gov.companieshouse.api.handler.payment.PaymentResourceHandler;
+import uk.gov.companieshouse.api.handler.payment.request.PaymentGet;
+import uk.gov.companieshouse.api.handler.transaction.TransactionsResourceHandler;
+import uk.gov.companieshouse.api.handler.transaction.request.TransactionsPaymentGet;
+import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.payment.PaymentApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.transaction.TransactionPayment;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -46,6 +56,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @WebMvcTest(controllers = {FilingsController.class})
 class FilingsControllerTest {
 
+    private static final String PASS_THROUGH_HEADER = "passthrough";
+    private static final String PAYMENT_REF = "334jhg324";
+    private static final String PAYMENT_METHOD = "CREDIT_CARD";
+
     private HttpHeaders httpHeaders;
 
     @Autowired
@@ -66,10 +80,37 @@ class FilingsControllerTest {
     @MockitoBean
     private TransactionService transactionService;
 
+    @MockitoBean
+    private HttpServletRequest request;
+
+    @MockitoBean
+    private ApiClientService apiClientService;
+
+    @MockitoBean
+    private ApiClient apiClient;
+
+    @MockitoBean
+    private TransactionsResourceHandler transactionsResourceHandler;
+
+    @MockitoBean
+    private TransactionsPaymentGet transactionsPaymentGet;
+
+    @MockitoBean
+    private ApiResponse<TransactionPayment> transactionPaymentApiResponse;
+
+    @MockitoBean
+    private PaymentResourceHandler paymentResourceHandler;
+
+    @MockitoBean
+    private PaymentGet paymentGet;
+
+    @MockitoBean
+    private ApiResponse<PaymentApi> paymentApiApiResponse;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
-        httpHeaders.add("ERIC-Access-Token", "passthrough");
+        httpHeaders.add("ERIC-Access-Token", PASS_THROUGH_HEADER);
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
     }
@@ -79,7 +120,7 @@ class FilingsControllerTest {
     LimitedPartnerDto limitedPartner = new LimitedPartnerBuilder().personDto();
 
     @Nested
-    class IncorporationFilling {
+    class IncorporationFiling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/incorporation/limited-partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().build();
 
@@ -138,7 +179,7 @@ class FilingsControllerTest {
     }
 
     @Nested
-    class GeneralPartnerFilling {
+    class GeneralPartnerFiling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/general-partner/" + GeneralPartnerBuilder.GENERAL_PARTNER_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().forPartner(
                 PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription(),
@@ -243,7 +284,7 @@ class FilingsControllerTest {
     }
 
     @Nested
-    class LimitedPartnershipFilling {
+    class LimitedPartnershipFiling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().build();
 
@@ -260,7 +301,44 @@ class FilingsControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
                     .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()));
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.payment_method").doesNotExist())
+                    .andExpect(jsonPath("[0].data.payment_reference").doesNotExist());
+        }
+
+        @Test
+        void shouldReturn200WithPayment() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
+
+            TransactionPayment transactionPayment = new TransactionPayment();
+            transactionPayment.setPaymentReference(PAYMENT_REF);
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+            when(apiClientService.getApiClient(PASS_THROUGH_HEADER)).thenReturn(apiClient);
+            when(apiClient.transactions()).thenReturn(transactionsResourceHandler);
+            when(transactionsResourceHandler.getPayment(transactionWithPayment.getLinks().getPayment())).thenReturn(transactionsPaymentGet);
+            when(transactionsPaymentGet.execute()).thenReturn(transactionPaymentApiResponse);
+            when(transactionPaymentApiResponse.getData()).thenReturn(transactionPayment);
+            when(apiClient.payment()).thenReturn(paymentResourceHandler);
+            when(paymentResourceHandler.get("/payments/" + PAYMENT_REF)).thenReturn(paymentGet);
+            when(paymentGet.execute()).thenReturn(paymentApiApiResponse);
+            when(paymentApiApiResponse.getData()).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
+                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
         }
 
         @Test
