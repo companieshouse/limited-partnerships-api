@@ -197,14 +197,12 @@ public class FilingsService {
      * @throws ServiceException if an error occurs while retrieving payment information
      */
     private void setPaymentData(Map<String, Object> data, Transaction transaction) throws ServiceException {
-        var paymentLink = transaction.getLinks().getPayment();
-
-        if (!StringUtils.hasText(paymentLink)) {
+        if (transaction.getLinks() == null || !StringUtils.hasText(transaction.getLinks().getPayment())) {
             // Transaction has no payment link so no payment data to set
             return;
         }
 
-        var paymentReference = transactionService.getPaymentReference(paymentLink);
+        var paymentReference = transactionService.getPaymentReference(transaction.getLinks().getPayment());
         var payment = paymentService.getPayment(paymentReference);
         data.put("payment_reference", paymentReference);
         data.put("payment_method", payment.getPaymentMethod());
