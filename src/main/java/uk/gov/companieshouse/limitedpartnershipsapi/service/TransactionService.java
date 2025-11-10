@@ -223,4 +223,20 @@ public class TransactionService {
         transaction.setResumeJourneyUri(resumeJourneyUri);
         updateTransaction(transaction, loggingContext);
     }
+
+    public String getPaymentReference(String paymentLink) throws ServiceException {
+        try {
+            // Need to use the internal API client as the payment link is not accessible with a user OAuth token
+            return apiClientService
+                    .getInternalApiClient()
+                    .transactions()
+                    .getPayment(paymentLink)
+                    .execute()
+                    .getData()
+                    .getPaymentReference();
+
+        } catch (URIValidationException | IOException e) {
+            throw new ServiceException(e.getMessage(), e);
+        }
+    }
 }

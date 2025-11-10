@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -38,12 +39,14 @@ public class FilingsService {
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
     private final TransactionService transactionService;
+    private final PaymentService paymentService;
     private final FilingKind filingKind;
 
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
                           TransactionService transactionService,
+                          PaymentService paymentService,
                           FilingKind filingKind
     ) {
 
@@ -51,6 +54,7 @@ public class FilingsService {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.transactionService = transactionService;
+        this.paymentService = paymentService;
         this.filingKind = filingKind;
     }
 
@@ -175,8 +179,32 @@ public class FilingsService {
         String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), limitedPartnershipDataDto.getKind());
         filing.setKind(kind);
         setDescriptionFields(filing, transaction.getFilingMode());
+        setPaymentData(data, transaction);
         filing.setData(data);
 
         return filing;
+    }
+
+    /**
+     * Populates the provided data map with payment information for the given transaction.
+     * <p>
+     * If a payment link exists in the transaction, retrieves the payment reference and payment method,
+     * and adds them to the data map. If no payment link is present or payment cannot be retrieved,
+     * the method returns without modifying the map.
+     *
+     * @param data the map to populate with payment data
+     * @param transaction the transaction containing payment link information
+     * @throws ServiceException if an error occurs while retrieving payment information
+     */
+    private void setPaymentData(Map<String, Object> data, Transaction transaction) throws ServiceException {
+        if (transaction.getLinks() == null || !StringUtils.hasText(transaction.getLinks().getPayment())) {
+            // Transaction has no payment link so no payment data to set
+            return;
+        }
+
+        var paymentReference = transactionService.getPaymentReference(transaction.getLinks().getPayment());
+        var payment = paymentService.getPayment(paymentReference);
+        data.put("payment_reference", paymentReference);
+        data.put("payment_method", payment.getPaymentMethod());
     }
 }

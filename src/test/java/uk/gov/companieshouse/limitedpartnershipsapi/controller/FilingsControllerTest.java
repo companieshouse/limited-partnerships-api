@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.model.payment.PaymentApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
@@ -28,6 +29,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.PaymentService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
@@ -45,6 +47,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @ContextConfiguration(classes = {FilingsController.class, FilingsService.class, FilingKind.class, GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {FilingsController.class})
 class FilingsControllerTest {
+
+    private static final String PASS_THROUGH_HEADER = "passthrough";
+    private static final String PAYMENT_REF = "334jhg324";
+    private static final String PAYMENT_METHOD = "CREDIT_CARD";
 
     private HttpHeaders httpHeaders;
 
@@ -66,10 +72,13 @@ class FilingsControllerTest {
     @MockitoBean
     private TransactionService transactionService;
 
+    @MockitoBean
+    private PaymentService paymentService;
+
     @BeforeEach
     void setUp() {
         httpHeaders = new HttpHeaders();
-        httpHeaders.add("ERIC-Access-Token", "passthrough");
+        httpHeaders.add("ERIC-Access-Token", PASS_THROUGH_HEADER);
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
     }
@@ -79,7 +88,7 @@ class FilingsControllerTest {
     LimitedPartnerDto limitedPartner = new LimitedPartnerBuilder().personDto();
 
     @Nested
-    class IncorporationFilling {
+    class IncorporationFiling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/incorporation/limited-partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().build();
 
@@ -138,7 +147,7 @@ class FilingsControllerTest {
     }
 
     @Nested
-    class GeneralPartnerFilling {
+    class GeneralPartnerFiling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/general-partner/" + GeneralPartnerBuilder.GENERAL_PARTNER_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().forPartner(
                 PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription(),
@@ -243,7 +252,7 @@ class FilingsControllerTest {
     }
 
     @Nested
-    class LimitedPartnershipFilling {
+    class LimitedPartnershipFiling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().build();
 
@@ -260,7 +269,34 @@ class FilingsControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
                     .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()));
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.payment_method").doesNotExist())
+                    .andExpect(jsonPath("[0].data.payment_reference").doesNotExist());
+        }
+
+        @Test
+        void shouldReturn200WithPayment() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
+                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
         }
 
         @Test
