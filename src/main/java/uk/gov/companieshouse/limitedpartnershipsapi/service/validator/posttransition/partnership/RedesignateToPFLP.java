@@ -31,11 +31,25 @@ public class RedesignateToPFLP implements PostTransitionStrategy<LimitedPartners
     @Override
     public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
 
-        if((limitedPartnershipDto.getData().getPartnershipType() == PartnershipType.PFLP ||
-           limitedPartnershipDto.getData().getPartnershipType() == PartnershipType.SPFLP) &&
-           limitedPartnershipDto.getData().getRedesignateToPFLP() != null) {
-           errorsList.add(validationStatus.createValidationStatusError("Redesignate to pflp is not required",
-                   "data.redesignateToPFLP"));
+        if (limitedPartnershipDto.getData().getPartnershipType() == PartnershipType.LP ||
+           limitedPartnershipDto.getData().getPartnershipType() == PartnershipType.SLP) {
+           if (limitedPartnershipDto.getData().getRedesignateToPFLPApply() == Boolean.TRUE) {
+               if (limitedPartnershipDto.getData().getRedesignateToPFLPConfirm() != Boolean.TRUE) {
+                   errorsList.add(validationStatus.createValidationStatusError("Confirm redesignate to pflp is required",
+                           "data.redesignateToPFLPConfirm"));
+               }
+           } else {
+               if (limitedPartnershipDto.getData().getRedesignateToPFLPConfirm() == Boolean.TRUE) {
+                   errorsList.add(validationStatus.createValidationStatusError("Confirm redesignate to pflp is not required",
+                           "data.redesignateToPFLPConfirm"));
+               }
+           }
+        } else {
+            if (limitedPartnershipDto.getData().getRedesignateToPFLPApply() == Boolean.TRUE ||
+                    limitedPartnershipDto.getData().getRedesignateToPFLPConfirm() == Boolean.TRUE) {
+                errorsList.add(validationStatus.createValidationStatusError("Apply to redesignate to pflp is not required",
+                        "data.redesignateToPFLPApply"));
+            }
         }
     }
 

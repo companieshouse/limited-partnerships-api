@@ -73,8 +73,11 @@ public class DataDto {
     @EnumValid(message = "Term must be valid")
     private Term term;
 
-    @JsonProperty("redesignate_to_pflp")
-    private Boolean redesignateToPFLP;
+    @JsonProperty("redesignate_to_pflp_apply")
+    private Boolean redesignateToPFLPApply;
+
+    @JsonProperty("redesignate_to_pflp_confirm")
+    private Boolean redesignateToPFLPConfirm;
 
     @JsonProperty("principal_place_of_business_address")
     @Valid
@@ -159,12 +162,20 @@ public class DataDto {
         this.term = term;
     }
 
-    public Boolean getRedesignateToPFLP() {
-        return redesignateToPFLP;
+    public Boolean getRedesignateToPFLPConfirm() {
+        return redesignateToPFLPConfirm;
     }
 
-    public void setRedesignateToPFLP(Boolean redesignateToPFLP) {
-        this.redesignateToPFLP = redesignateToPFLP;
+    public Boolean getRedesignateToPFLPApply() {
+        return redesignateToPFLPApply;
+    }
+
+    public void setRedesignateToPFLPApply(Boolean redesignateToPFLPApply) {
+        this.redesignateToPFLPApply = redesignateToPFLPApply;
+    }
+
+    public void setRedesignateToPFLPConfirm(Boolean redesignateToPFLPConfirm) {
+        this.redesignateToPFLPConfirm = redesignateToPFLPConfirm;
     }
 
     public AddressDto getPrincipalPlaceOfBusinessAddress() {

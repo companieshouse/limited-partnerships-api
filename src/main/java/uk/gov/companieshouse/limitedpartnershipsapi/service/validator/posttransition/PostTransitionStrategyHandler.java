@@ -55,7 +55,7 @@ public class PostTransitionStrategyHandler {
 
         validateDto(limitedPartnershipDto, errorsList);
 
-        if (limitedPartnershipDto.getData().getRedesignateToPFLP() != Boolean.TRUE &&
+        if (limitedPartnershipDto.getData().getRedesignateToPFLPConfirm() != Boolean.TRUE &&
                 limitedPartnershipDto.getData().getDateOfUpdate() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
                     "data.dateOfUpdate"));
