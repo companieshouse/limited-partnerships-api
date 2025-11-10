@@ -34,6 +34,9 @@ public class DataDao {
     @Field("term")
     private Term term;
 
+    @Field("redesignate_to_pflp")
+    private Boolean redesignateToPFLP;
+
     @Field("principal_place_of_business_address")
     private AddressDao principalPlaceOfBusinessAddress;
 
@@ -111,6 +114,14 @@ public class DataDao {
 
     public void setTerm(Term term) {
         this.term = term;
+    }
+
+    public Boolean getRedesignateToPFLP() {
+        return redesignateToPFLP;
+    }
+
+    public void setRedesignateToPFLP(Boolean redesignateToPFLP) {
+        this.redesignateToPFLP = redesignateToPFLP;
     }
 
     public AddressDao getPrincipalPlaceOfBusinessAddress() {
