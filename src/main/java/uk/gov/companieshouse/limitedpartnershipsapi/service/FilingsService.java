@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_METHOD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_REFERENCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
@@ -82,6 +84,7 @@ public class FilingsService {
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
 
         setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
+        setPaymentData(data, transaction);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
         setDescriptionFields(filing, transaction.getFilingMode());
@@ -204,7 +207,7 @@ public class FilingsService {
 
         var paymentReference = transactionService.getPaymentReference(transaction.getLinks().getPayment());
         var payment = paymentService.getPayment(paymentReference);
-        data.put("payment_reference", paymentReference);
-        data.put("payment_method", payment.getPaymentMethod());
+        data.put(FILING_PAYMENT_REFERENCE, paymentReference);
+        data.put(FILING_PAYMENT_METHOD, payment.getPaymentMethod());
     }
 }

@@ -64,7 +64,7 @@ class PaymentServiceTest {
     }
 
     @Test
-    void getPayment_throwsServiceException() throws Exception {
+    void getPayment_throwsServiceException_whenURIValidationExceptionIsThrownInTryBlock() throws Exception {
         String paymentReference = "ABC123";
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
         when(internalApiClient.payment()).thenReturn(paymentResourceHandler);

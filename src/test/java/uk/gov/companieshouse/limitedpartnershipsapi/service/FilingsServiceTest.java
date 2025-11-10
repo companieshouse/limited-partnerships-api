@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+import uk.gov.companieshouse.api.model.payment.PaymentApi;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -25,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_METHOD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_REFERENCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
@@ -33,8 +36,9 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMIT
 @SpringBootTest
 class FilingsServiceTest {
 
-    private static final String TRANSACTION_ID = "trns123";
     private static final String INCORPORATION_ID = "inc456";
+    private static final String PAYMENT_METHOD = "credit-card";
+    private static final String PAYMENT_REFERENCE = "21311sfg23";
 
     @Autowired
     private FilingsService filingsService;
@@ -46,21 +50,31 @@ class FilingsServiceTest {
     private LimitedPartnerService limitedPartnerService;
     @MockitoBean
     private TransactionService transactionService;
+    @MockitoBean
+    private PaymentService paymentService;
 
     @Test
     void testFilingGenerationSuccess() throws ServiceException {
-        var transaction = new TransactionBuilder().build();
+        var transaction = new TransactionBuilder().withPayment().build();
+        PaymentApi payment = new PaymentApi();
+        payment.setPaymentMethod(PAYMENT_METHOD);
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
+        when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
+
         FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
+
         assertNotNull(filing);
         assertNotNull(filing.getData());
         assertTrue(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
         assertTrue(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
         assertTrue(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
+        assertTrue(filing.getData().containsKey(FILING_PAYMENT_METHOD));
+        assertTrue(filing.getData().containsKey(FILING_PAYMENT_REFERENCE));
         assertEquals("Register a Limited Partnership", filing.getDescription());
     }
 
