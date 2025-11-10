@@ -94,17 +94,26 @@ class FilingsControllerTest {
 
         @Test
         void shouldReturn200() throws Exception {
-            mock(transaction);
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mock(transactionWithPayment);
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
 
             mockMvc.perform(get(URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding("utf-8")
                             .headers(httpHeaders)
-                            .requestAttr("transaction", transaction)
+                            .requestAttr("transaction", transactionWithPayment)
                     )
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()));
+                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
         }
 
         @Test
