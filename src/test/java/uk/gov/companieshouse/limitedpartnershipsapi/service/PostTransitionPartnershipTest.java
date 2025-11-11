@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -11,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
@@ -289,6 +292,201 @@ class PostTransitionPartnershipTest {
     }
 
     @Nested
+    class ValidateRedesignateToPFLP {
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
+        void shouldReturn200IfNoErrorsResignateToPFLPFieldsAreBothTrueUnlessPrivate(PartnershipType partnershipType) throws Exception {
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
+            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
+            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).isEmpty();
+            } else {
+                assertThat(result).hasSize(1)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied")
+                        );
+            }
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
+        void shouldReturn200IfNoErrorsResignateToConfirmPFLPIsFalse(PartnershipType partnershipType) throws Exception {
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
+            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
+            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.FALSE);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(1)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+
+                        );
+            }
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
+        void shouldReturn200IfNoErrorsResignateToApplyPFLPIsFalse(PartnershipType partnershipType) throws Exception {
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
+            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.FALSE);
+            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(1)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
+
+                        );
+            }
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
+        void shouldReturn200AndNoErrorDetailsIfRedisgnateFlagsAreBothFalse(PartnershipType partnershipType) throws Exception {
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
+            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.FALSE);
+            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.FALSE);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(3)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            }
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
+        void shouldReturn200AndNoErrorDetailsIfResignateToConfirmPFLPIsNull(PartnershipType partnershipType) throws Exception {
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
+            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
+            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(null);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(1)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            }
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
+        void shouldReturn200AndNoErrorDetailsIfResignateToApplyPFLPIsNull(PartnershipType partnershipType) throws Exception {
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
+            limitedPartnershipDao.getData().setRedesignateToPFLPApply(null);
+            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(1)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
+                        );
+            }
+        }
+
+        @ParameterizedTest
+        @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
+        void shouldReturn200AndNoErrorDetailsIfRedisgnateFlagsAreBothNull(PartnershipType partnershipType) throws Exception {
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
+            limitedPartnershipDao.getData().setRedesignateToPFLPApply(null);
+            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(null);
+
+            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(3)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            }
+        }
+    }
+
+    @Nested
     class Costs {
         @Test
         void shouldReturn200AndFeeForKindName() throws Exception {
@@ -322,6 +520,20 @@ class PostTransitionPartnershipTest {
             var result = costsService.getPostTransitionLimitedPartnershipCost(transaction);
 
             assertNull(result);
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKindRedesignateToPFLP() throws Exception {
+
+            mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
+
+            var result = costsService.getPostTransitionLimitedPartnershipCost(transaction);
+
+            assertAll("Cost validation",
+                    () -> assertEquals("1.00", result.getAmount()),
+                    () -> assertEquals("lp-update-partnership-redesignate-to-pflp", result.getProductType()),
+                    () -> assertEquals("Redesignate to pflp fee", result.getDescription())
+            );
         }
     }
 
