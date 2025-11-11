@@ -311,7 +311,7 @@ class PostTransitionPartnershipTest {
                 assertThat(result).hasSize(1)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp is not required")
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied")
                         );
             }
         }
@@ -331,13 +331,15 @@ class PostTransitionPartnershipTest {
                 assertThat(result).hasSize(1)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp is required")
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
                         );
             } else {
-                assertThat(result).hasSize(1)
+                assertThat(result).hasSize(2)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp is not required")
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+
                         );
             }
         }
@@ -357,13 +359,15 @@ class PostTransitionPartnershipTest {
                 assertThat(result).hasSize(1)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp is not required")
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
                         );
             } else {
-                assertThat(result).hasSize(1)
+                assertThat(result).hasSize(2)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp is not required")
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
+
                         );
             }
         }
@@ -378,7 +382,23 @@ class PostTransitionPartnershipTest {
             limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.FALSE);
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
-            assertThat(result).isEmpty();
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(3)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            }
         }
 
 
@@ -397,13 +417,14 @@ class PostTransitionPartnershipTest {
                 assertThat(result).hasSize(1)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp is required")
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
                         );
             } else {
-                assertThat(result).hasSize(1)
+                assertThat(result).hasSize(2)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp is not required")
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
                         );
             }
         }
@@ -423,13 +444,14 @@ class PostTransitionPartnershipTest {
                 assertThat(result).hasSize(1)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp is not required")
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
                         );
             } else {
-                assertThat(result).hasSize(1)
+                assertThat(result).hasSize(2)
                         .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                         .containsExactlyInAnyOrder(
-                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp is not required")
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required")
                         );
             }
         }
@@ -444,7 +466,23 @@ class PostTransitionPartnershipTest {
             limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(null);
 
             var result = limitedPartnershipService.validateLimitedPartnership(transaction);
-            assertThat(result).isEmpty();
+
+            if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
+                assertThat(result).hasSize(2)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            } else {
+                assertThat(result).hasSize(3)
+                        .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                        .containsExactlyInAnyOrder(
+                                Map.entry("data.partnershipType", "Incorrect partnership type supplied"),
+                                Map.entry("data.redesignateToPFLPApply", "Apply to redesignate to pflp check is required"),
+                                Map.entry("data.redesignateToPFLPConfirm", "Confirm redesignate to pflp check is required")
+                        );
+            }
         }
     }
 
