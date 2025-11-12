@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDa
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -78,6 +79,7 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().getPrincipalPlaceOfBusinessAddress().setPostalCode("invalid-postal-code-format-and-too-long");
         limitedPartnershipSubmissionDao.getData().getPrincipalPlaceOfBusinessAddress().setAddressLine1(null);
         limitedPartnershipSubmissionDao.getData().setLawfulPurposeStatementChecked(false);
+        limitedPartnershipSubmissionDao.getData().setDateOfUpdate(LocalDate.now().plusDays(1));
 
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
@@ -85,13 +87,14 @@ class LimitedPartnershipServiceValidateTest {
         List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
 
         // then
-        assertEquals(6, results.size());
+        assertEquals(7, results.size());
         checkForError(results, "Limited partnership name must not be null", "data.partnershipName");
         checkForError(results, "must be a well-formed email address", "data.email");
         checkForError(results, "Address line 1 must not be null", "data.registeredOfficeAddress.addressLine1");
         checkForError(results, "Postcode must be less than 15", "data.principalPlaceOfBusinessAddress.postalCode");
         checkForError(results, "Address line 1 must not be null", "data.principalPlaceOfBusinessAddress.addressLine1");
         checkForError(results, "Lawful purpose statement checked is required", "data.lawfulPurposeStatementChecked");
+        checkForError(results, "Date of update must not be in the future", "data.dateOfUpdate");
     }
 
     @ParameterizedTest
