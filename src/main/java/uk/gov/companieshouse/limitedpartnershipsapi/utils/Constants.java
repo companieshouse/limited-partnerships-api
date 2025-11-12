@@ -40,6 +40,10 @@ public class Constants {
     public static final String FILING_KIND_LIMITED_PARTNER = "limited-partnership#limited-partner";
     public static final String FILING_KIND_GENERAL_PARTNER = "limited-partnership#general-partner";
 
+    // Payment
+    public static final String FILING_PAYMENT_REFERENCE = "payment_reference";
+    public static final String FILING_PAYMENT_METHOD = "payment_method";
+
     // Transaction links
     public static final String LINK_SELF = "self";
     public static final String LINK_RESOURCE = "resource";
