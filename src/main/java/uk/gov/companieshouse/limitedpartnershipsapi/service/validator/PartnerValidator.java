@@ -98,9 +98,10 @@ public abstract class PartnerValidator {
             LocalDate dateEffectiveFrom = partnerDto.getData().getDateEffectiveFrom();
 
             String partner = Objects.equals(className, GeneralPartnerDto.class.getName()) ? "general partner" : "limited partner";
+            String pronoun = partnerDto.getData().isLegalEntity() ? "it" : "they";
 
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
-                addError(className, "data.dateEffectiveFrom", String.format("Date it became a %s must be the same as or after limited partnership's registration date", partner), bindingResult);
+                addError(className, "data.dateEffectiveFrom", String.format("Date %s became a %s must be the same as or after limited partnership's registration date", pronoun, partner), bindingResult);
             }
         }
     }
