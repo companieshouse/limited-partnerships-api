@@ -101,9 +101,9 @@ public abstract class PartnerDataDto {
     private String formerNames;
 
     @JsonProperty(SURNAME_FIELD)
-    @Size(min = MIN_SIZE, message = "Surname " + MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = "Surname " + MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Surname " + INVALID_CHARACTERS_MESSAGE)
+    @Size(min = MIN_SIZE, message = "Last name " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Last name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Last name " + INVALID_CHARACTERS_MESSAGE)
     private String surname;
 
     @JsonProperty(DATE_OF_BIRTH_FIELD)
