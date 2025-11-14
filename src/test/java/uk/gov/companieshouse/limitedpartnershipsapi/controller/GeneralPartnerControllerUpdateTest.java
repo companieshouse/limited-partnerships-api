@@ -148,7 +148,7 @@ class GeneralPartnerControllerUpdateTest {
     @ParameterizedTest
     @CsvSource(value = {
             JSON_WITH_BELOW_MIN_FORENAME + "$ data.forename $ Forename must be greater than 1",
-            JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Surname must be less than 160",
+            JSON_WITH_ABOVE_MAX_SURNAME + "$ data.surname $ Last name must be less than 160",
             JSON_INVALID_FORMER_NAMES + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
             JSON_INVALID_NATIONALITY + "$ data.nationality1 $ First nationality must be valid"
     }, delimiter = '$')
