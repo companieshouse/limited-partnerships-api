@@ -70,7 +70,7 @@ public class LimitedPartnerController {
         try {
             String limitedPartnerId = limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, requestId, userId);
 
-            if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+            if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
                 // Post Transition journey - limited partner created, update the transaction resume url
                 addResumeLinkToTransaction(transaction, requestId, limitedPartnerId);
             }

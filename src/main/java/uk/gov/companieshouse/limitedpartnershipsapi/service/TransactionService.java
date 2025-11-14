@@ -67,7 +67,7 @@ public class TransactionService {
     }
 
     private String buildPartnershipResumeJourneyUri(Transaction transaction, String submissionId) {
-        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP,
                     transaction.getCompanyNumber(),
                     transaction.getId(),
@@ -133,7 +133,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 

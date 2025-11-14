@@ -61,7 +61,7 @@ public class LimitedPartnerService {
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PartnershipType partnershipType;
-        if (!transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (!FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
             limitedPartnerDto.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
             partnershipType = limitedPartnershipDto.getData().getPartnershipType();
@@ -193,7 +193,7 @@ public class LimitedPartnerService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
-        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 

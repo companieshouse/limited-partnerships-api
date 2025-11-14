@@ -90,7 +90,7 @@ public class GeneralPartnerController {
         try {
             String generalPartnerId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
 
-            if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+            if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
                 // Post Transition journey - general partner created, update the transaction resume url
                 addResumeLinkToTransaction(transaction, requestId, generalPartnerId);
             }

@@ -83,7 +83,7 @@ public class LimitedPartnershipService {
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, kind);
 
-        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             addCostLink(limitedPartnershipDto, limitedPartnershipResource, submissionUri);
         }
 
@@ -198,7 +198,7 @@ public class LimitedPartnershipService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
-        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validateLimitedPartnership(limitedPartnershipDto, transaction);
         }
 

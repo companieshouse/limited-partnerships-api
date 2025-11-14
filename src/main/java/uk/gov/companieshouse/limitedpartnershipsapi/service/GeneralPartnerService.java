@@ -65,7 +65,7 @@ public class GeneralPartnerService {
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         Cost cost = null;
-        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
         }
 
@@ -143,7 +143,7 @@ public class GeneralPartnerService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
-        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 
