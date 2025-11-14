@@ -13,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilde
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
@@ -69,7 +70,7 @@ class PostTransitionPartnerTest {
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
             GeneralPartnerBuilder.GENERAL_PARTNER_ID
-    ).withFilingMode(TransactionService.DEFAULT).build();
+    ).withFilingMode(FilingMode.DEFAULT.getDescription()).build();
 
     private final GeneralPartnerDao generalPartnerPersonDao = new GeneralPartnerBuilder()
             .personDao();
@@ -81,7 +82,7 @@ class PostTransitionPartnerTest {
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LimitedPartnerBuilder.LIMITED_PARTNER_ID
-    ).withFilingMode(TransactionService.DEFAULT).build();
+    ).withFilingMode(FilingMode.DEFAULT.getDescription()).build();
 
     private final LimitedPartnerDao limitedPartnerPersonDao = new LimitedPartnerBuilder()
             .personDao();
@@ -91,7 +92,7 @@ class PostTransitionPartnerTest {
 
     @BeforeEach
     void setup() {
-        transactionGeneralPartner.setFilingMode(TransactionService.DEFAULT);
+        transactionGeneralPartner.setFilingMode(FilingMode.DEFAULT.getDescription());
     }
 
     @Test

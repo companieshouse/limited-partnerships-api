@@ -18,9 +18,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 
 import java.time.LocalDate;
 
@@ -67,7 +67,7 @@ class GeneralPartnerServiceContainerTest {
     @ParameterizedTest
     @EnumSource(PartnerKind.class)
     void createGeneralPartnerLegalEntityPostTransition(PartnerKind partnerKind) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        transaction.setFilingMode(IncorporationKind.POST_TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.POST_TRANSITION.getDescription());
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
         dto.setId(null);
@@ -87,7 +87,7 @@ class GeneralPartnerServiceContainerTest {
 
     @Test
     void createGeneralPartnerLegalEntityTransition() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
         dto.setId(null);

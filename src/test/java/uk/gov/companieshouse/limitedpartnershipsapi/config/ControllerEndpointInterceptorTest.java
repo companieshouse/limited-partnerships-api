@@ -38,7 +38,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @WebMvcTest
 class ControllerEndpointInterceptorTest {
 
@@ -125,9 +124,11 @@ class ControllerEndpointInterceptorTest {
 
     @Test
     void testInterceptorCallsForCreateGeneralPartner() throws Exception {
+        Transaction transaction = new TransactionBuilder().build();
+
         mockMvc.perform(post(CREATE_GENERAL_PARTNER_URL)
                         .headers(httpHeaders)
-                        .requestAttr("transaction", new Transaction())
+                        .requestAttr("transaction", transaction)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content("{}")  // Payload content not important, as controller code is not entered

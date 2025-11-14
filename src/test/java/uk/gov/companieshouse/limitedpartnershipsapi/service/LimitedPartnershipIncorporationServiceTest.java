@@ -14,8 +14,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.IncorporationDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDataDto;
@@ -41,8 +41,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
@@ -230,15 +230,15 @@ class LimitedPartnershipIncorporationServiceTest {
         return dto;
     }
 
-    private void createIncorporation(IncorporationKind incorporationKind) throws ServiceException {
+    private void createIncorporation(FilingMode filingMode) throws ServiceException {
         // given
         LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
         when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
-        when(transactionService.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(incorporationKind));
+        when(transactionService.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(filingMode));
 
         IncorporationDto incorporationDto = new IncorporationDto();
         IncorporationDataDto dataDto = new IncorporationDataDto();
-        dataDto.setKind(incorporationKind);
+        dataDto.setKind(filingMode);
         incorporationDto.setData(dataDto);
 
         // when

@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
@@ -401,7 +402,6 @@ class PostTransitionPartnershipTest {
             }
         }
 
-
         @ParameterizedTest
         @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
         void shouldReturn200AndNoErrorDetailsIfResignateToConfirmPFLPIsNull(PartnershipType partnershipType) throws Exception {
@@ -538,7 +538,7 @@ class PostTransitionPartnershipTest {
     }
 
     void mocks(PartnershipKind partnershipKind) {
-        transaction.setFilingMode(TransactionService.DEFAULT);
+        transaction.setFilingMode(FilingMode.DEFAULT.getDescription());
 
         limitedPartnershipDao.getData().setKind(partnershipKind.getDescription());
 

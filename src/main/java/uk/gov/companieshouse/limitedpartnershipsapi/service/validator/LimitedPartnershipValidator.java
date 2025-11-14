@@ -13,7 +13,7 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -41,28 +41,28 @@ public class LimitedPartnershipValidator {
     }
 
     public List<ValidationStatusError> validateFull(LimitedPartnershipDto limitedPartnershipDto,
-                                                    IncorporationKind incorporationKind) throws ServiceException {
+                                                    FilingMode filingMode) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        checkFieldConstraints(limitedPartnershipDto, incorporationKind, errorsList);
+        checkFieldConstraints(limitedPartnershipDto, filingMode, errorsList);
 
         final var dataDto = limitedPartnershipDto.getData();
 
-        checkCommonFields(dataDto, incorporationKind, errorsList);
-        checkPartnershipTypeSpecificFields(dataDto, incorporationKind, errorsList);
+        checkCommonFields(dataDto, filingMode, errorsList);
+        checkPartnershipTypeSpecificFields(dataDto, filingMode, errorsList);
 
         return errorsList;
     }
 
     public void validatePartial(LimitedPartnershipDto limitedPartnershipDto,
-                                IncorporationKind incorporationKind)
+                                FilingMode filingMode)
             throws NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnershipDto, DataDto.class.getName());
 
         dtoValidation(limitedPartnershipDto, bindingResult);
 
-        if (incorporationKind != null) {
-            checkJourneySpecificFields(limitedPartnershipDto.getData(), incorporationKind, bindingResult);
+        if (filingMode != null) {
+            checkJourneySpecificFields(limitedPartnershipDto.getData(), filingMode, bindingResult);
         }
 
         if (bindingResult.hasErrors()) {
@@ -96,7 +96,7 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    private void checkCommonFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
+    private void checkCommonFields(DataDto dataDto, FilingMode filingMode, List<ValidationStatusError> errorsList) {
         if (dataDto.getEmail() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Email is required", "data.email"));
         }
@@ -110,18 +110,18 @@ public class LimitedPartnershipValidator {
                     "data.registeredOfficeAddress"));
         }
 
-        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
+        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && filingMode.equals(FilingMode.REGISTRATION)) {
             errorsList.add(validationStatus.createValidationStatusError("Principal place of business address is required",
                     "data.principalPlaceOfBusinessAddress"));
         }
 
-        if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
+        if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && filingMode.equals(FilingMode.REGISTRATION)) {
             errorsList.add(validationStatus.createValidationStatusError("Lawful purpose statement checked is required",
                     "data.lawfulPurposeStatementChecked"));
         }
     }
 
-    private void checkPartnershipTypeSpecificFields(DataDto dataDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList) {
+    private void checkPartnershipTypeSpecificFields(DataDto dataDto, FilingMode filingMode, List<ValidationStatusError> errorsList) {
         if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
                 || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
             if (dataDto.getTerm() != null) {
@@ -132,18 +132,18 @@ public class LimitedPartnershipValidator {
                 errorsList.add(validationStatus.createValidationStatusError("SIC codes are not required", "data.sicCodes"));
             }
         } else {
-            if (dataDto.getTerm() == null && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
+            if (dataDto.getTerm() == null && filingMode.equals(FilingMode.REGISTRATION)) {
                 errorsList.add(validationStatus.createValidationStatusError("Term is required", "data.term"));
             }
 
-            if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && incorporationKind.equals(IncorporationKind.REGISTRATION)) {
+            if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && filingMode.equals(FilingMode.REGISTRATION)) {
                 errorsList.add(validationStatus.createValidationStatusError("SIC codes are required", "data.sicCodes"));
             }
         }
     }
 
-    private void checkJourneySpecificFields(DataDto dataDto, IncorporationKind incorporationKind, BindingResult bindingResult) {
-        if (IncorporationKind.REGISTRATION.equals(incorporationKind)) {
+    private void checkJourneySpecificFields(DataDto dataDto, FilingMode filingMode, BindingResult bindingResult) {
+        if (FilingMode.REGISTRATION.equals(filingMode)) {
             if (dataDto.getNameEnding() == null) {
                 addError("data.nameEnding", "Name ending is required", bindingResult);
             }
@@ -168,10 +168,10 @@ public class LimitedPartnershipValidator {
         bindingResult.addError(new FieldError(CLASS_NAME, fieldName, defaultMessage));
     }
 
-    private void checkFieldConstraints(LimitedPartnershipDto limitedPartnershipDto, IncorporationKind incorporationKind, List<ValidationStatusError> errorsList)
+    private void checkFieldConstraints(LimitedPartnershipDto limitedPartnershipDto, FilingMode filingMode, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            validatePartial(limitedPartnershipDto, incorporationKind);
+            validatePartial(limitedPartnershipDto, filingMode);
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

@@ -1,19 +1,20 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation;
+package uk.gov.companieshouse.limitedpartnershipsapi.model.common;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
-public enum IncorporationKind {
+public enum FilingMode {
     REGISTRATION("limited-partnership-registration"),
     TRANSITION("limited-partnership-transition"),
     POST_TRANSITION("limited-partnership-post-transition"),
+    DEFAULT("default"),
 
     @JsonEnumDefaultValue
     UNKNOWN("UNKNOWN");
 
     private final String description;
 
-    IncorporationKind(String description) {
+    FilingMode(String description) {
         this.description = description;
     }
 
@@ -22,13 +23,13 @@ public enum IncorporationKind {
     }
 
     @JsonCreator
-    public static IncorporationKind fromDescription(String description) {
-        for (IncorporationKind kind : IncorporationKind.values()) {
+    public static FilingMode fromDescription(String description) {
+        for (FilingMode kind : FilingMode.values()) {
             if (kind.getDescription().equalsIgnoreCase(description)) {
                 return kind;
             }
         }
 
-        return IncorporationKind.UNKNOWN;
+        return FilingMode.UNKNOWN;
     }
 }

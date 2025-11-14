@@ -3,8 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
@@ -45,7 +45,7 @@ public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
             case Nationality nationality -> !Nationality.UNKNOWN.equals(nationality);
             case Country country -> !Country.UNKNOWN.equals(country);
             case Currency currency -> !Currency.UNKNOWN.equals(currency);
-            case IncorporationKind incorporationKind -> !IncorporationKind.UNKNOWN.equals(incorporationKind);
+            case FilingMode filingMode -> !FilingMode.UNKNOWN.equals(filingMode);
             case PartnershipType partnershipType -> !PartnershipType.UNKNOWN.equals(partnershipType);
             case PartnershipNameEnding partnershipNameEnding ->
                     !PartnershipNameEnding.UNKNOWN.equals(partnershipNameEnding);

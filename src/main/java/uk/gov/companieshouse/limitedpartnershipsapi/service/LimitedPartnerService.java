@@ -9,6 +9,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -60,7 +61,7 @@ public class LimitedPartnerService {
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PartnershipType partnershipType;
-        if (!transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+        if (!transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
             LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
             limitedPartnerDto.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
             partnershipType = limitedPartnershipDto.getData().getPartnershipType();
@@ -192,7 +193,7 @@ public class LimitedPartnerService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
-        if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
+        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 

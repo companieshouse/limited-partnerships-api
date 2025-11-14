@@ -17,9 +17,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
@@ -84,7 +84,7 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().legalEntityDto().getData();
         limitedPartnerDataDto.setDateEffectiveFrom(null);
 
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -147,7 +147,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(Nationality.AMERICAN);
 
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -168,7 +168,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
 
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -192,7 +192,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(null);
 
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -215,7 +215,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);

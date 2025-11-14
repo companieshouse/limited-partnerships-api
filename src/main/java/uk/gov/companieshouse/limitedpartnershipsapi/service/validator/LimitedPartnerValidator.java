@@ -11,9 +11,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -124,10 +124,10 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     private void validateCapitalContributions(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
-        if (!IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
+        if (!FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
             return;
         }
-        
+
         PartnershipType partnershipType = limitedPartnerDataDto.getPartnershipType();
 
         String contributionCurrencyValue = limitedPartnerDataDto.getContributionCurrencyValue();

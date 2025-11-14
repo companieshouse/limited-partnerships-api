@@ -10,7 +10,7 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
@@ -36,7 +36,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALID
 @Service
 public class TransactionService {
 
-    public static final String DEFAULT = "default";
     private final ApiClientService apiClientService;
 
     @Autowired
@@ -57,7 +56,7 @@ public class TransactionService {
                                                              String submissionId) throws ServiceException {
         transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
 
-        if (IncorporationKind.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
+        if (FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
             transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
         }
 
@@ -68,7 +67,7 @@ public class TransactionService {
     }
 
     private String buildPartnershipResumeJourneyUri(Transaction transaction, String submissionId) {
-        if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
+        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
             return String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP,
                     transaction.getCompanyNumber(),
                     transaction.getId(),
@@ -134,7 +133,7 @@ public class TransactionService {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
 
-        if (transaction.getFilingMode().equals(DEFAULT)) {
+        if (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription())) {
             linksMap.put(LINK_VALIDATION_STATUS, submissionUri + VALIDATION_STATUS_URI_SUFFIX);
         }
 
@@ -178,7 +177,7 @@ public class TransactionService {
     }
 
     public boolean isForRegistration(Transaction transaction) {
-        return IncorporationKind.REGISTRATION.getDescription().equals(transaction.getFilingMode());
+        return FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode());
     }
 
     public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink, String kind) {

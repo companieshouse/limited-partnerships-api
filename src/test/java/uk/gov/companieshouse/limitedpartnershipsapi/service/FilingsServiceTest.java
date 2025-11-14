@@ -14,7 +14,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +80,7 @@ class FilingsServiceTest {
 
     @Test
     void testFilingDescriptionSetCorrectlyForTransition() throws ServiceException {
-        var transaction = new TransactionBuilder().withIncorporationKind(IncorporationKind.TRANSITION).build();
+        var transaction = new TransactionBuilder().withIncorporationKind(FilingMode.TRANSITION).build();
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());

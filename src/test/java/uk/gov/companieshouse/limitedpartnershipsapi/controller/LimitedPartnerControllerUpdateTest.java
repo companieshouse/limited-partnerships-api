@@ -24,7 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -152,7 +152,7 @@ class LimitedPartnerControllerUpdateTest {
             CompanyProfileApi companyProfile = new CompanyBuilder().build();
             when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -174,7 +174,7 @@ class LimitedPartnerControllerUpdateTest {
             CompanyProfileApi companyProfile = new CompanyBuilder().build();
             when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(patch(LIMITED_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)

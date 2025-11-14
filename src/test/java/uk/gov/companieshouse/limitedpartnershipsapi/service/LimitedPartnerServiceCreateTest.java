@@ -22,9 +22,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilde
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
@@ -51,7 +51,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
@@ -94,7 +94,7 @@ class LimitedPartnerServiceCreateTest {
         @CsvSource(value = {
                 "registration",
                 "transition",
-                TransactionService.DEFAULT
+                "default"
         })
         void shouldCreateALimitedPartnerLegalEntityPostTransition(String value) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
@@ -103,9 +103,9 @@ class LimitedPartnerServiceCreateTest {
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
 
-            if (value.equals(TransactionService.DEFAULT)) {
+            if (value.equals(FilingMode.DEFAULT.getDescription())) {
                 dto.getData().setDateEffectiveFrom(LocalDate.now());
-                transaction.setFilingMode(TransactionService.DEFAULT);
+                transaction.setFilingMode(FilingMode.DEFAULT.getDescription());
                 when(companyService.getCompanyProfile(any())).thenReturn(new CompanyBuilder().withSubtype(PartnershipType.SLP.toString()).build());
             } else {
                 mockLimitedPartnershipService();
@@ -127,12 +127,12 @@ class LimitedPartnerServiceCreateTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = IncorporationKind.class, names = {
+        @EnumSource(value = FilingMode.class, names = {
                 "REGISTRATION",
                 "TRANSITION"
         })
-        void shouldAddCorrectLinksToTransactionResource(IncorporationKind incorporationKind) throws Exception {
-            createLimitedPartner(incorporationKind);
+        void shouldAddCorrectLinksToTransactionResource(FilingMode filingMode) throws Exception {
+            createLimitedPartner(filingMode);
 
             verify(transactionService).updateTransactionWithLinksForPartner(
                     eq(REQUEST_ID), eq(transaction), any(), any(), any());
@@ -254,15 +254,15 @@ class LimitedPartnerServiceCreateTest {
             assertEquals("Cease date must not be in the future", Objects.requireNonNull(exception.getBindingResult().getFieldError("data.ceaseDate")).getDefaultMessage());
         }
 
-        private void createLimitedPartner(IncorporationKind incorporationKind) throws Exception {
-            transaction.setFilingMode(incorporationKind.getDescription());
+        private void createLimitedPartner(FilingMode filingMode) throws Exception {
+            transaction.setFilingMode(filingMode.getDescription());
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
             LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
 
             when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
 
-            if (TRANSITION.equals(incorporationKind)) {
+            if (TRANSITION.equals(filingMode)) {
                 dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
                 CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);
                 when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
