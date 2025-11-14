@@ -9,6 +9,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.GeneralPartnerMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -64,7 +65,7 @@ public class GeneralPartnerService {
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         Cost cost = null;
-        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
         }
 
@@ -142,7 +143,7 @@ public class GeneralPartnerService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
-        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 

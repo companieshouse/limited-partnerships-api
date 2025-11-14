@@ -24,7 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -152,7 +152,7 @@ class LimitedPartnerControllerUpdateTest {
             CompanyProfileApi companyProfile = new CompanyBuilder().build();
             when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -174,7 +174,7 @@ class LimitedPartnerControllerUpdateTest {
             CompanyProfileApi companyProfile = new CompanyBuilder().build();
             when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(patch(LIMITED_PARTNER_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -191,15 +191,14 @@ class LimitedPartnerControllerUpdateTest {
         private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2020-10-01\" } }";
         private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2030-10-01\" } }";
 
-        private static final String TRANSITION_KIND = "limited-partnership-transition";
-        private static final String POST_TRANSITION_KIND = "limited-partnership-post-transition";
+        private static final String DEFAULT = "default";
 
         @ParameterizedTest
         @CsvSource(value = {
-                JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + POST_TRANSITION_KIND,
-                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date they became a limited partner must be the same as or after limited partnership's registration date $" + POST_TRANSITION_KIND,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date it became a limited partner must be the same as or after limited partnership's registration date $" + POST_TRANSITION_KIND,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must not be in the future $" + POST_TRANSITION_KIND
+                JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + DEFAULT,
+                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date they became a limited partner must be the same as or after limited partnership's registration date $" + DEFAULT,
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date it became a limited partner must be the same as or after limited partnership's registration date $" + DEFAULT,
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must not be in the future $" + DEFAULT
         }, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage, String filingMode) throws Exception {
             mocks();

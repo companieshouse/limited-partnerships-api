@@ -13,7 +13,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
@@ -190,7 +190,7 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
         limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LP123456");
 
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
@@ -213,7 +213,7 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
         limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LX123456");
 
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 

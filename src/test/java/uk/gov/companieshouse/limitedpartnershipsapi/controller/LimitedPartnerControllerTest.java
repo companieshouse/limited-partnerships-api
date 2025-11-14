@@ -18,7 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
@@ -111,19 +111,19 @@ class LimitedPartnerControllerTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = IncorporationKind.class, names = {
+    @EnumSource(value = FilingMode.class, names = {
             "REGISTRATION",
             "TRANSITION"
     })
-    void testCreatePartnerIsSuccessful(IncorporationKind incorporationKind) throws Exception {
+    void testCreatePartnerIsSuccessful(FilingMode filingMode) throws Exception {
         Transaction txn = new TransactionBuilder()
                 .forPartner(
                         FILING_KIND_GENERAL_PARTNER,
                         URL_GET_GENERAL_PARTNER,
                         LIMITED_PARTNER_ID)
-                .withIncorporationKind(incorporationKind)
+                .withIncorporationKind(filingMode)
                 .build();
-        assertCreatePartnerIsSuccessful(txn, incorporationKind == IncorporationKind.POST_TRANSITION);
+        assertCreatePartnerIsSuccessful(txn, filingMode == FilingMode.POST_TRANSITION);
     }
 
     @Test
@@ -134,10 +134,9 @@ class LimitedPartnerControllerTest {
                         URL_GET_GENERAL_PARTNER,
                         LIMITED_PARTNER_ID)
                 .build();
-        txn.setFilingMode(TransactionService.DEFAULT);
+        txn.setFilingMode(FilingMode.DEFAULT.getDescription());
         assertCreatePartnerIsSuccessful(txn, true);
     }
-
 
     @Test
     void givenServiceException_whenCreateLimitedPartner_thenInternalServerError() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {

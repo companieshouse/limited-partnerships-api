@@ -3,7 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionLinks;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +14,8 @@ public class TransactionBuilder {
     public static final String TRANSACTION_ID = "863851-951242-143528";
     public static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
 
-    private IncorporationKind incorporationKind = IncorporationKind.REGISTRATION;
+    private FilingMode filingMode = FilingMode.REGISTRATION;
     private String kind = FILING_KIND_LIMITED_PARTNERSHIP;
-    private String filingMode;
-
 
     String transactionUri = String.format("/transactions/%s", TRANSACTION_ID);
     String transactionPaymentUri = null;
@@ -33,13 +31,13 @@ public class TransactionBuilder {
         return this;
     }
 
-    public TransactionBuilder withIncorporationKind(IncorporationKind incorporationKind) {
-        this.incorporationKind = incorporationKind;
+    public TransactionBuilder withIncorporationKind(FilingMode filingMode) {
+        this.filingMode = filingMode;
         return this;
     }
 
     public TransactionBuilder withFilingMode(String filingMode) {
-        this.filingMode = filingMode;
+        this.filingMode = FilingMode.fromDescription(filingMode);
         return this;
     }
 
@@ -53,7 +51,7 @@ public class TransactionBuilder {
         transaction.setId(TRANSACTION_ID);
         transaction.setCompanyName("Test Partnership");
         transaction.setCompanyNumber("LP123456");
-        transaction.setFilingMode(filingMode != null ? filingMode : incorporationKind.getDescription());
+        transaction.setFilingMode(filingMode.getDescription());
 
         TransactionLinks transactionLinks = new TransactionLinks();
         transactionLinks.setSelf(transactionUri);

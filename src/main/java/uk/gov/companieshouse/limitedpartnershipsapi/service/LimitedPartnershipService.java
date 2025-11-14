@@ -11,7 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
@@ -62,7 +62,7 @@ public class LimitedPartnershipService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         ApiLogger.debug("Called createLimitedPartnership(...)");
 
-        limitedPartnershipValidator.validatePartial(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
+        limitedPartnershipValidator.validatePartial(limitedPartnershipDto, FilingMode.fromDescription(transaction.getFilingMode()));
 
         if (transactionService.hasExistingLimitedPartnership(transaction)) {
             throw new ServiceException(String.format(
@@ -83,7 +83,7 @@ public class LimitedPartnershipService {
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, kind);
 
-        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             addCostLink(limitedPartnershipDto, limitedPartnershipResource, submissionUri);
         }
 
@@ -198,11 +198,11 @@ public class LimitedPartnershipService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnershipDto limitedPartnershipDto = getLimitedPartnership(transaction);
 
-        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validateLimitedPartnership(limitedPartnershipDto, transaction);
         }
 
-        return limitedPartnershipValidator.validateFull(limitedPartnershipDto, IncorporationKind.fromDescription(transaction.getFilingMode()));
+        return limitedPartnershipValidator.validateFull(limitedPartnershipDto, FilingMode.fromDescription(transaction.getFilingMode()));
     }
 
 }

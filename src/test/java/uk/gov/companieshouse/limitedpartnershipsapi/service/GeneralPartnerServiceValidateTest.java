@@ -16,12 +16,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
@@ -216,7 +216,7 @@ class GeneralPartnerServiceValidateTest {
         // given
         GeneralPartnerDao generalPartnerDao = createPersonDao();
         generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
-        transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
         when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2022, 1, 3));

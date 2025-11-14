@@ -19,12 +19,12 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 
 import java.time.LocalDate;
@@ -41,8 +41,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
@@ -100,11 +100,11 @@ class GeneralPartnerServiceCreateTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = IncorporationKind.class, names = {
+        @EnumSource(value = FilingMode.class, names = {
                 "REGISTRATION",
                 "TRANSITION"
         })
-        void shouldAddCorrectLinksToTransactionResource(IncorporationKind incoporationKind) throws Exception {
+        void shouldAddCorrectLinksToTransactionResource(FilingMode incoporationKind) throws Exception {
             createGeneralPartner(incoporationKind);
 
             verify(transactionService).updateTransactionWithLinksForPartner(
@@ -165,15 +165,15 @@ class GeneralPartnerServiceCreateTest {
             assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
         }
 
-        private void createGeneralPartner(IncorporationKind incorporationKind) throws Exception {
-            transaction.setFilingMode(incorporationKind.getDescription());
+        private void createGeneralPartner(FilingMode filingMode) throws Exception {
+            transaction.setFilingMode(filingMode.getDescription());
             GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
             GeneralPartnerDao dao = new GeneralPartnerBuilder().legalEntityDao();
 
             when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
             when(repository.save(dao)).thenReturn(dao);
 
-            if (TRANSITION.equals(incorporationKind)) {
+            if (TRANSITION.equals(filingMode)) {
                 dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
 
                 CompanyProfileApi companyProfileApi = Mockito.mock(CompanyProfileApi.class);

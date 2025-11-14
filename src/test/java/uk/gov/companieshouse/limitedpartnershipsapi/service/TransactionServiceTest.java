@@ -23,7 +23,7 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
@@ -213,19 +213,19 @@ class TransactionServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = IncorporationKind.class, names = {
+    @EnumSource(value = FilingMode.class, names = {
             "REGISTRATION",
             "TRANSITION"
     })
-    void testCorrectLinksAddedForIncorporationPartnership(IncorporationKind incorporationKind) throws Exception {
+    void testCorrectLinksAddedForIncorporationPartnership(FilingMode filingMode) throws Exception {
         String expectedResumeUri = String.format(URL_RESUME_REGISTRATION_OR_TRANSITION, TRANSACTION_ID, SUBMISSION_ID);
-        assertTransactionLinksAndResumeUri(incorporationKind.getDescription(), expectedResumeUri);
+        assertTransactionLinksAndResumeUri(filingMode.getDescription(), expectedResumeUri);
     }
 
     @Test
     void testCorrectLinksAddedForPostTransitionPartnership() throws Exception {
         String expectedResumeUri = String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP, transaction.getCompanyNumber(), TRANSACTION_ID, SUBMISSION_ID);
-        assertTransactionLinksAndResumeUri(TransactionService.DEFAULT, expectedResumeUri);
+        assertTransactionLinksAndResumeUri(FilingMode.DEFAULT.getDescription(), expectedResumeUri);
     }
 
     private void assertTransactionLinksAndResumeUri(String filingMode, String expectedResumeUri) throws Exception {
@@ -318,13 +318,13 @@ class TransactionServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = IncorporationKind.class, names = {
+    @EnumSource(value = FilingMode.class, names = {
             "REGISTRATION",
             "TRANSITION"
     })
-    void givenTransactionIsLinkedToLimitedPartnershipRegistrationIncorporation_thenReturnTrue(IncorporationKind incorporationKind) {
+    void givenTransactionIsLinkedToLimitedPartnershipRegistrationIncorporation_thenReturnTrue(FilingMode filingMode) {
         // given + when
-        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(incorporationKind.getDescription());
+        var result = testIfTransactionIsLinkedToLimitedPartnershipIncorporation(filingMode.getDescription());
         // then
         assertTrue(result);
     }

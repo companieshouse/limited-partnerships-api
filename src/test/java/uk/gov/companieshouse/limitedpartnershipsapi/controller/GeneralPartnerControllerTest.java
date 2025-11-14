@@ -18,10 +18,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
@@ -126,11 +126,11 @@ class GeneralPartnerControllerTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = IncorporationKind.class, names = {"REGISTRATION", "TRANSITION"})
-    void testCreatePartnerReturnsSuccess(IncorporationKind incorporationKind) throws Exception {
+    @EnumSource(value = FilingMode.class, names = {"REGISTRATION", "TRANSITION"})
+    void testCreatePartnerReturnsSuccess(FilingMode filingMode) throws Exception {
         Transaction txn = new TransactionBuilder()
                 .forPartner(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
-                .withIncorporationKind(incorporationKind)
+                .withIncorporationKind(filingMode)
                 .build();
         assertCreatePartnerReturnsSuccess(txn, false);
     }
@@ -140,7 +140,7 @@ class GeneralPartnerControllerTest {
         Transaction txn = new TransactionBuilder()
                 .forPartner(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
                 .build();
-        txn.setFilingMode(TransactionService.DEFAULT);
+        txn.setFilingMode(FilingMode.DEFAULT.getDescription());
         assertCreatePartnerReturnsSuccess(txn, true);
     }
 

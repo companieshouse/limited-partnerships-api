@@ -6,9 +6,9 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
@@ -103,9 +103,9 @@ public class FilingsService {
     }
 
     private void setDescriptionFields(FilingApi filing, String transactionFilingMode) {
-        if (transactionFilingMode.equals(IncorporationKind.REGISTRATION.getDescription())) {
+        if (transactionFilingMode.equals(FilingMode.REGISTRATION.getDescription())) {
             filing.setDescription(LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION);
-        } else if (transactionFilingMode.equals(IncorporationKind.TRANSITION.getDescription())) {
+        } else if (transactionFilingMode.equals(FilingMode.TRANSITION.getDescription())) {
             filing.setDescription(LIMITED_PARTNERSHIP_TRANSITION_FILING_DESCRIPTION);
         } else {
             filing.setDescription(LIMITED_PARTNERSHIP_POST_TRANSITION_FILING_DESCRIPTION);
@@ -130,7 +130,7 @@ public class FilingsService {
         data.put(LIMITED_PARTNERSHIP_FIELD, buildLimitedPartnershipDataWithPartnershipNumber(transaction));
         data.put(GENERAL_PARTNER_FIELD, List.of(generalPartnerDataDto));
 
-        String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), generalPartnerDataDto.getKind());
+        String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), generalPartnerDataDto.getKind());
         filing.setKind(kind);
         setDescriptionFields(filing, transaction.getFilingMode());
         filing.setData(data);
@@ -155,7 +155,7 @@ public class FilingsService {
         data.put(LIMITED_PARTNERSHIP_FIELD, buildLimitedPartnershipDataWithPartnershipNumber(transaction));
         data.put(LIMITED_PARTNER_FIELD, List.of(limitedPartnerDataDto));
 
-        String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), limitedPartnerDataDto.getKind());
+        String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), limitedPartnerDataDto.getKind());
         filing.setKind(kind);
         setDescriptionFields(filing, transaction.getFilingMode());
         filing.setData(data);
@@ -179,7 +179,7 @@ public class FilingsService {
 
         data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDataDto);
 
-        String kind = filingKind.addSubKind(IncorporationKind.POST_TRANSITION.getDescription(), limitedPartnershipDataDto.getKind());
+        String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), limitedPartnershipDataDto.getKind());
         filing.setKind(kind);
         setDescriptionFields(filing, transaction.getFilingMode());
         setPaymentData(data, transaction);
@@ -195,7 +195,7 @@ public class FilingsService {
      * and adds them to the data map. If no payment link is present or payment cannot be retrieved,
      * the method returns without modifying the map.
      *
-     * @param data the map to populate with payment data
+     * @param data        the map to populate with payment data
      * @param transaction the transaction containing payment link information
      * @throws ServiceException if an error occurs while retrieving payment information
      */

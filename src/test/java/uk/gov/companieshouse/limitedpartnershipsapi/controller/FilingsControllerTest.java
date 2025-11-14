@@ -19,10 +19,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
@@ -183,7 +183,7 @@ class FilingsControllerTest {
                     .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
                     .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
                     .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
-                    .andExpect(jsonPath("[0].kind").value(IncorporationKind.POST_TRANSITION.getDescription() + "#" + subKind));
+                    .andExpect(jsonPath("[0].kind").value(FilingMode.POST_TRANSITION.getDescription() + "#" + subKind));
         }
 
         @Test
@@ -230,7 +230,7 @@ class FilingsControllerTest {
                     .andExpect(jsonPath("[0].data.limited_partners[0].forename").value(limitedPartner.getData().getForename()))
                     .andExpect(jsonPath("[0].data.limited_partners[0].surname").value(limitedPartner.getData().getSurname()))
                     .andExpect(jsonPath("[0].data.limited_partners[0].kind").value(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription()))
-                    .andExpect(jsonPath("[0].kind").value(IncorporationKind.POST_TRANSITION.getDescription() + "#" + subKind));
+                    .andExpect(jsonPath("[0].kind").value(FilingMode.POST_TRANSITION.getDescription() + "#" + subKind));
         }
 
         @Test

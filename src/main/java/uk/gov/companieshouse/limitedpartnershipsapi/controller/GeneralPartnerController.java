@@ -21,6 +21,7 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
@@ -89,7 +90,7 @@ public class GeneralPartnerController {
         try {
             String generalPartnerId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
 
-            if (TransactionService.DEFAULT.equals(transaction.getFilingMode())) {
+            if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
                 // Post Transition journey - general partner created, update the transaction resume url
                 addResumeLinkToTransaction(transaction, requestId, generalPartnerId);
             }

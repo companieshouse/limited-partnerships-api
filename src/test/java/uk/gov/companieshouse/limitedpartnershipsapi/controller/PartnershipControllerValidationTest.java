@@ -24,7 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
@@ -750,7 +750,7 @@ class PartnershipControllerValidationTest {
 
             mocks(limitedPartnershipDao);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -771,7 +771,7 @@ class PartnershipControllerValidationTest {
 
             mocks(limitedPartnershipDao);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -792,7 +792,7 @@ class PartnershipControllerValidationTest {
 
             mocks(limitedPartnershipDao);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -813,7 +813,7 @@ class PartnershipControllerValidationTest {
 
             mocks(limitedPartnershipDao);
 
-            transaction.setFilingMode(IncorporationKind.TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
             mockMvc.perform(get(PartnershipControllerValidationTest.VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
