@@ -95,7 +95,7 @@ class PostTransitionPartnerTest {
     }
 
     @Test
-    void shouldReturn200IfNoKindMatching() {
+    void shouldReturn200IfNoKindMatching() throws ServiceException {
 
         mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
@@ -112,9 +112,6 @@ class PostTransitionPartnerTest {
     class RemoveGeneralPartnerPerson {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             generalPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
 
@@ -127,8 +124,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
@@ -147,10 +142,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
-
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             generalPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
 
@@ -181,9 +172,6 @@ class PostTransitionPartnerTest {
     class RemoveLimitedPartnerPerson {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             limitedPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
             limitedPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
 
@@ -196,8 +184,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
@@ -216,10 +202,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
-
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             limitedPartnerPersonDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
             limitedPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
 
@@ -250,9 +232,6 @@ class PostTransitionPartnerTest {
     class RemoveLimitedPartnerLegalEntity {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             limitedPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
             limitedPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
 
@@ -265,8 +244,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
@@ -285,10 +262,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
-
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             limitedPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
             limitedPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
 
@@ -318,9 +291,6 @@ class PostTransitionPartnerTest {
     class RemoveGeneralPartnerLegalEntity {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             generalPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
             generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
 
@@ -333,8 +303,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfNoCeaseDate() throws Exception {
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
@@ -353,10 +321,6 @@ class PostTransitionPartnerTest {
 
         @Test
         void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
-
-            CompanyProfileApi companyProfile = new CompanyBuilder().build();
-            when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
-
             generalPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
             generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
 
@@ -502,9 +466,14 @@ class PostTransitionPartnerTest {
         }
     }
 
-    void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao, LimitedPartnerDao limitedPartnerDao) {
+    void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         generalPartnerDao.getData().setKind(partnerKind.getDescription());
+        generalPartnerDao.getData().setDateEffectiveFrom(LocalDate.now());
         limitedPartnerDao.getData().setKind(partnerKind.getDescription());
+        limitedPartnerDao.getData().setDateEffectiveFrom(LocalDate.now());
+
+        CompanyProfileApi companyProfile = new CompanyBuilder().build();
+        when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
 
         when(generalPartnerRepository.findById(GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
         when(limitedPartnerRepository.findById(LimitedPartnerBuilder.LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));

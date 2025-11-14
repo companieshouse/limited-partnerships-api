@@ -104,6 +104,7 @@ class LimitedPartnerServiceCreateTest {
             when(repository.save(dao)).thenReturn(dao);
 
             if (value.equals(TransactionService.DEFAULT)) {
+                dto.getData().setDateEffectiveFrom(LocalDate.now());
                 transaction.setFilingMode(TransactionService.DEFAULT);
                 when(companyService.getCompanyProfile(any())).thenReturn(new CompanyBuilder().withSubtype(PartnershipType.SLP.toString()).build());
             } else {

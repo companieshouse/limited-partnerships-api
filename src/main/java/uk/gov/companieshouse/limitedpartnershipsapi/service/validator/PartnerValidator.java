@@ -11,8 +11,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.IncorporationKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -82,7 +82,7 @@ public abstract class PartnerValidator {
     }
 
     protected void checkNotNullDateEffectiveFrom(String className, PartnerDto partnerDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
-        if (transaction.getFilingMode().equals(IncorporationKind.POST_TRANSITION.getDescription())) {
+        if (transaction.getFilingMode().equals(TransactionService.DEFAULT)) {
             if (partnerDto.getData().getDateEffectiveFrom() == null) {
                 addError(className, "data.dateEffectiveFrom", "Partner date effective from is required", bindingResult);
             }
