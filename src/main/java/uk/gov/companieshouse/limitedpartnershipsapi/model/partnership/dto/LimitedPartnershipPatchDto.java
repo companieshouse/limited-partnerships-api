@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
@@ -70,7 +70,7 @@ public class LimitedPartnershipPatchDto {
 
     @JsonProperty("date_of_update")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Past(message = "Date of update must be in the past")
+    @PastOrPresent(message = "Date of update must not be in the future")
     private LocalDate dateOfUpdate;
 
     public String getPartnershipName() {
