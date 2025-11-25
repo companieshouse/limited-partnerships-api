@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -127,7 +128,7 @@ public class FilingsService {
 
         Map<String, Object> data = new HashMap<>();
 
-        data.put(LIMITED_PARTNERSHIP_FIELD, buildLimitedPartnershipDataWithPartnershipNumber(transaction));
+        data.put(LIMITED_PARTNERSHIP_FIELD, buildLimitedPartnershipData(transaction, generalPartnerDataDto));
         data.put(GENERAL_PARTNER_FIELD, List.of(generalPartnerDataDto));
 
         String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), generalPartnerDataDto.getKind());
@@ -152,7 +153,7 @@ public class FilingsService {
 
         Map<String, Object> data = new HashMap<>();
 
-        data.put(LIMITED_PARTNERSHIP_FIELD, buildLimitedPartnershipDataWithPartnershipNumber(transaction));
+        data.put(LIMITED_PARTNERSHIP_FIELD, buildLimitedPartnershipData(transaction, limitedPartnerDataDto));
         data.put(LIMITED_PARTNER_FIELD, List.of(limitedPartnerDataDto));
 
         String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), limitedPartnerDataDto.getKind());
@@ -163,9 +164,10 @@ public class FilingsService {
         return filing;
     }
 
-    private DataDto buildLimitedPartnershipDataWithPartnershipNumber(Transaction transaction) {
+    private DataDto buildLimitedPartnershipData(Transaction transaction, PartnerDataDto partnerDataDto) {
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipNumber(transaction.getCompanyNumber());
+        dataDto.setPartnershipType(partnerDataDto.getPartnershipType());
         return dataDto;
     }
 

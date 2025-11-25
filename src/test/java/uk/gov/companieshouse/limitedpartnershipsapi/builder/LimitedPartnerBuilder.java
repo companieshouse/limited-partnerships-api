@@ -10,6 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class LimitedPartnerBuilder {
     private String limitedPartnerKind = null;
     private LocalDate ceaseDate = null;
     private boolean removeConfirmationChecked;
+    private PartnershipType partnershipType;
 
 
     public LimitedPartnerBuilder withLimitedPartnerKind(String kind) {
@@ -37,6 +39,11 @@ public class LimitedPartnerBuilder {
 
     public LimitedPartnerBuilder withRemoveConfirmationChecked(boolean removeConfirmationChecked) {
         this.removeConfirmationChecked = removeConfirmationChecked;
+        return this;
+    }
+
+    public LimitedPartnerBuilder withPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
         return this;
     }
 
@@ -59,6 +66,7 @@ public class LimitedPartnerBuilder {
         dataDto.setKind(limitedPartnerKind);
         dataDto.setCeaseDate(ceaseDate);
         dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
+        dataDto.setPartnershipType(partnershipType);
 
         dto.setData(dataDto);
 
@@ -86,6 +94,7 @@ public class LimitedPartnerBuilder {
         dataDto.setKind(limitedPartnerKind);
         dataDto.setCeaseDate(ceaseDate);
         dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
+        dataDto.setPartnershipType(partnershipType);
 
         dto.setData(dataDto);
 
