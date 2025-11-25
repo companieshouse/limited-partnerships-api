@@ -34,6 +34,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.Validation
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -126,6 +127,22 @@ class PartnershipControllerUpdateTest {
     }
 
     @Test
+    void UpdateDateShouldReturn200IfItIsToday() throws Exception {
+        mocks();
+
+        LocalDate today = LocalDate.now();
+        String body = "{ \"date_of_update\" : \"" + today.toString() + "\" }";
+
+        mockMvc.perform(patch(PARTNERSHIP_PATCH_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void UpdateDateShouldReturn400IfDateInFuture() throws Exception {
         mocks();
 
@@ -138,7 +155,7 @@ class PartnershipControllerUpdateTest {
                         .requestAttr("transaction", transaction)
                         .content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.['errors'].['dateOfUpdate']").value("Date of update must be in the past"));
+                .andExpect(jsonPath("$.['errors'].['dateOfUpdate']").value("Date of update must not be in the future"));
     }
 
     @Test
