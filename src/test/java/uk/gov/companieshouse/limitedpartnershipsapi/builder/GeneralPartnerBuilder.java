@@ -8,15 +8,22 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 
 import java.time.LocalDate;
 
 public class GeneralPartnerBuilder {
     public static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private String generalPartnerKind = null;
+    private PartnershipType partnershipType;
 
     public GeneralPartnerBuilder withGeneralPartnerKind(String kind) {
         this.generalPartnerKind = kind;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
         return this;
     }
 
@@ -34,6 +41,7 @@ public class GeneralPartnerBuilder {
         dataDto.setServiceAddress(createAddressDto());
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
         dataDto.setKind(generalPartnerKind);
+        dataDto.setPartnershipType(partnershipType);
 
         dto.setData(dataDto);
 
@@ -54,6 +62,7 @@ public class GeneralPartnerBuilder {
         dataDto.setPrincipalOfficeAddress(createAddressDto());
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
         dataDto.setKind(generalPartnerKind);
+        dataDto.setPartnershipType(partnershipType);
 
         dto.setData(dataDto);
 

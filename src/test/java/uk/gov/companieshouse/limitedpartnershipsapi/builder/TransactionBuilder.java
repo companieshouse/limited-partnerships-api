@@ -13,6 +13,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 public class TransactionBuilder {
     public static final String TRANSACTION_ID = "863851-951242-143528";
     public static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    public static final String COMPANY_NUMBER = "LP123456";
 
     private FilingMode filingMode = FilingMode.REGISTRATION;
     private String kind = FILING_KIND_LIMITED_PARTNERSHIP;
@@ -50,7 +51,7 @@ public class TransactionBuilder {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
         transaction.setCompanyName("Test Partnership");
-        transaction.setCompanyNumber("LP123456");
+        transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setFilingMode(filingMode.getDescription());
 
         TransactionLinks transactionLinks = new TransactionLinks();
