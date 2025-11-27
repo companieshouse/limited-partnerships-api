@@ -6,7 +6,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -95,34 +94,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    /**
-     * Validate removal data for a limited partner and return any validation errors as
-     * a list of {@link ValidationStatusError}.
-     * <p>
-     * call by validation-status endpoint for remove limited partner after closing transaction
-     *
-     * @param limitedPartnerDto the limited partner DTO to validate
-     * @param transaction       the transaction context used for validation rules
-     * @return a list of {@link ValidationStatusError} representing field validation errors;
-     * an empty list if no errors are found
-     */
-    public List<ValidationStatusError> validateRemoveStatus(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsList = new ArrayList<>();
-
-        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
-
-        dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
-        validateCeaseDate(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
-
-        List<FieldError> errors = bindingResult.getFieldErrors();
-
-        for (FieldError error : errors) {
-            errorsList.add(validationStatus.createValidationStatusError(error.getDefaultMessage(), error.getField()));
-        }
-
-        return errorsList;
-    }
-
     private void validateCapitalContributions(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
         if (!FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
             return;
@@ -201,6 +172,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
             throws ServiceException {
         try {
             validatePartial(limitedPartnerDto, transaction);
+            validateRemove(limitedPartnerDto, transaction);
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
