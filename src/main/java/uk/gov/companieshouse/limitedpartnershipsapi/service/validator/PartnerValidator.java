@@ -124,11 +124,11 @@ public abstract class PartnerValidator {
         }
     }
 
-    protected void validateDateOfUpdate(String className, Transaction transaction, PartnerDto PartnerDto, BindingResult bindingResult) throws ServiceException {
-        if (PartnerDto.getData().getDateOfUpdate() != null) {
+    protected void validateDateOfUpdate(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
+        if (partnerDto.getData().getDateOfUpdate() != null) {
             CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
 
-            LocalDate dateOfUpdate = PartnerDto.getData().getDateOfUpdate();
+            LocalDate dateOfUpdate = partnerDto.getData().getDateOfUpdate();
 
             if (dateOfUpdate.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError(className, "data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
