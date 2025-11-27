@@ -14,6 +14,10 @@ public enum PartnerKind {
     REMOVE_GENERAL_PARTNER_LEGAL_ENTITY("limited-partnership#remove-general-partner-legal-entity"),
     REMOVE_LIMITED_PARTNER_PERSON("limited-partnership#remove-limited-partner-person"),
     REMOVE_LIMITED_PARTNER_LEGAL_ENTITY("limited-partnership#remove-limited-partner-legal-entity"),
+    UPDATE_GENERAL_PARTNER_PERSON("limited-partnership#update-general-partner-person"),
+    UPDATE_GENERAL_PARTNER_LEGAL_ENTITY("limited-partnership#update-general-partner-legal-entity"),
+    UPDATE_LIMITED_PARTNER_PERSON("limited-partnership#update-limited-partner-person"),
+    UPDATE_LIMITED_PARTNER_LEGAL_ENTITY("limited-partnership#update-limited-partner-legal-entity"),
 
     @JsonEnumDefaultValue
     UNKNOWN("UNKNOWN");

@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
@@ -64,7 +65,9 @@ public class GeneralPartnerValidator extends PartnerValidator {
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, generalPartnerDataDto, bindingResult);
-            if (!transaction.getFilingMode().equals(FilingMode.TRANSITION.getDescription())) {
+            if (transaction.getFilingMode().equals(FilingMode.REGISTRATION.getDescription()) ||
+                    (transaction.getFilingMode().equals(FilingMode.POST_TRANSITION.getDescription()) && PartnerKind.isAddPartnerKind(generalPartnerDataDto.getKind()))
+            ) {
                 var notDisqualifiedStatementChecked = generalPartnerDataDto.getNotDisqualifiedStatementChecked();
                 if (notDisqualifiedStatementChecked == null || Boolean.FALSE.equals(notDisqualifiedStatementChecked)) {
                     addError(CLASS_NAME, GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
@@ -132,6 +135,8 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 
+        validateDateOfUpdate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
+
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
@@ -142,6 +147,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
             throws ServiceException {
         try {
             validatePartial(generalPartnerDto, transaction);
+            validateUpdate(generalPartnerDto, transaction);
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

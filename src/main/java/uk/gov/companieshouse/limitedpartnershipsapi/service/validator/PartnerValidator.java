@@ -122,6 +122,17 @@ public abstract class PartnerValidator {
                 addError(className, "data.ceaseDate", "Partner cease date cannot be before the date of birth", bindingResult);
             }
         }
+    }
 
+    protected void validateDateOfUpdate(String className, Transaction transaction, PartnerDto PartnerDto, BindingResult bindingResult) throws ServiceException {
+        if (PartnerDto.getData().getDateOfUpdate() != null) {
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate dateOfUpdate = PartnerDto.getData().getDateOfUpdate();
+
+            if (dateOfUpdate.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError(className, "data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
+            }
+        }
     }
 }

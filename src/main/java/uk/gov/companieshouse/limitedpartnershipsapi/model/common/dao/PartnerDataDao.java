@@ -24,6 +24,9 @@ public abstract class PartnerDataDao {
     @Field("partnership_type")
     private PartnershipType partnershipType;
 
+    @Field("date_of_update")
+    private LocalDate dateOfUpdate;
+
     public String getKind() {
         return kind;
     }
@@ -70,6 +73,14 @@ public abstract class PartnerDataDao {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public LocalDate getDateOfUpdate() {
+        return dateOfUpdate;
+    }
+
+    public void setDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
     }
 
     // Person
