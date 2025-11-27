@@ -118,8 +118,14 @@ public class GeneralPartnerValidator extends PartnerValidator {
             throws ServiceException {
         try {
             validatePartial(generalPartnerDto, transaction);
-            validateUpdate(generalPartnerDto, transaction);
-            validateRemove(generalPartnerDto, transaction);
+
+            if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
+                validateUpdate(generalPartnerDto, transaction);
+            }
+
+            if (PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
+                validateRemove(generalPartnerDto, transaction);
+            }
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
