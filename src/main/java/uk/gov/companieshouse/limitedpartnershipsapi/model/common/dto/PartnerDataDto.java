@@ -35,6 +35,11 @@ public abstract class PartnerDataDto {
     @PastOrPresent(message = "Cease date must not be in the future")
     private LocalDate ceaseDate;
 
+    @JsonProperty("date_of_update")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @PastOrPresent(message = "Date of update must not be in the future")
+    private LocalDate dateOfUpdate;
+
     @JsonProperty("remove_confirmation_checked")
     private boolean removeConfirmationChecked;
 
@@ -62,6 +67,14 @@ public abstract class PartnerDataDto {
 
     public void setCeaseDate(LocalDate ceaseDate) {
         this.ceaseDate = ceaseDate;
+    }
+
+    public LocalDate getDateOfUpdate() {
+        return dateOfUpdate;
+    }
+
+    public void setDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
     }
 
     public boolean getRemoveConfirmationChecked() {

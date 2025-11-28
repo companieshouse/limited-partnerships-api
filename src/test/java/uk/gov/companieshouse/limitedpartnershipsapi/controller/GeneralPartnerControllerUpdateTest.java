@@ -249,24 +249,27 @@ class GeneralPartnerControllerUpdateTest {
                     .andExpect(status().isOk());
         }
 
-        private static final String JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null } }";
-        private static final String JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true } }";
-        private static final String JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"date_effective_from\": \"2020-10-01\" } }";
-        private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2020-10-01\" } }";
-        private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2030-10-01\" } }";
+        private static final String ADD_GENERAL_PARTNER_LEGAL_ENTITY = "limited-partnership#add-general-partner-legal-entity";
+        private static final String ADD_GENERAL_PARTNER_PERSON = "limited-partnership#add-general-partner-person";
+
+        private static final String JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"kind\": \"" + ADD_GENERAL_PARTNER_PERSON + "\" } }";
+        private static final String JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"kind\": \"" + ADD_GENERAL_PARTNER_LEGAL_ENTITY + "\" } }";
+        private static final String JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"forename\": \"Joe\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"date_effective_from\": \"2020-10-01\", \"kind\": \"" + ADD_GENERAL_PARTNER_PERSON + "\" } }";
+        private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2020-10-01\", \"kind\": \"" + ADD_GENERAL_PARTNER_LEGAL_ENTITY + "\" } }";
+        private static final String JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE = "{\"data\": { \"legal_entity_name\": \"My Company ltd\", \"legal_form\": \"Limited Company\", \"governing_law\": \"Act of law\", \"legal_entity_register_name\": \"US Register\", \"legal_entity_registration_location\": \"United States\", \"registered_company_number\": \"12345678\", \"not_disqualified_statement_checked\": true, \"date_effective_from\": \"2030-10-01\", \"kind\": \"" + ADD_GENERAL_PARTNER_LEGAL_ENTITY + "\" } }";
 
         private static final String DEFAULT = "default";
 
         @ParameterizedTest
         @CsvSource(value = {
-                JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + DEFAULT,
-                JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + DEFAULT,
-                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date they became a limited partner must be the same as or after limited partnership's registration date $" + DEFAULT,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date it became a limited partner must be the same as or after limited partnership's registration date $" + DEFAULT,
-                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must not be in the future $" + DEFAULT
+                JSON_PERSON_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + DEFAULT + "$" + ADD_GENERAL_PARTNER_PERSON,
+                JSON_LEGAL_ENTITY_WITHOUT_DATE_EFFECTIVE_FROM + "$ data.dateEffectiveFrom $ Partner date effective from is required $" + DEFAULT + "$" + ADD_GENERAL_PARTNER_LEGAL_ENTITY,
+                JSON_PERSON_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date they became a limited partner must be the same as or after limited partnership's registration date $" + DEFAULT + "$" + ADD_GENERAL_PARTNER_PERSON,
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_BEFORE_CREATION + "$ data.dateEffectiveFrom $ Date it became a limited partner must be the same as or after limited partnership's registration date $" + DEFAULT + "$" + ADD_GENERAL_PARTNER_LEGAL_ENTITY,
+                JSON_LEGAL_ENTITY_DATE_EFFECTIVE_FROM_IN_FUTURE + "$ data.dateEffectiveFrom $ Partner date effective from must not be in the future $" + DEFAULT + "$" + ADD_GENERAL_PARTNER_LEGAL_ENTITY
         }, delimiter = '$')
-        void shouldReturn400(String body, String field, String errorMessage, String filingMode) throws Exception {
-            mocks();
+        void shouldReturn400(String body, String field, String errorMessage, String filingMode, String kind) throws Exception {
+            mocks(kind);
 
             CompanyProfileApi companyProfile = new CompanyBuilder().build();
             when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);
@@ -461,6 +464,13 @@ class GeneralPartnerControllerUpdateTest {
 
     private void mocks() {
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
+
+        mocks(generalPartnerDao);
+    }
+
+    private void mocks(String kind) {
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
+        generalPartnerDao.getData().setKind(kind);
 
         mocks(generalPartnerDao);
     }

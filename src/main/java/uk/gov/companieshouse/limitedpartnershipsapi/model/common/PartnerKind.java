@@ -14,6 +14,10 @@ public enum PartnerKind {
     REMOVE_GENERAL_PARTNER_LEGAL_ENTITY("limited-partnership#remove-general-partner-legal-entity"),
     REMOVE_LIMITED_PARTNER_PERSON("limited-partnership#remove-limited-partner-person"),
     REMOVE_LIMITED_PARTNER_LEGAL_ENTITY("limited-partnership#remove-limited-partner-legal-entity"),
+    UPDATE_GENERAL_PARTNER_PERSON("limited-partnership#update-general-partner-person"),
+    UPDATE_GENERAL_PARTNER_LEGAL_ENTITY("limited-partnership#update-general-partner-legal-entity"),
+    UPDATE_LIMITED_PARTNER_PERSON("limited-partnership#update-limited-partner-person"),
+    UPDATE_LIMITED_PARTNER_LEGAL_ENTITY("limited-partnership#update-limited-partner-legal-entity"),
 
     @JsonEnumDefaultValue
     UNKNOWN("UNKNOWN");
@@ -28,6 +32,26 @@ public enum PartnerKind {
     private static final Set<String> REMOVE_LIMITED_PARTNER_KINDS = Set.of(
             REMOVE_LIMITED_PARTNER_PERSON.getDescription(),
             REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription()
+    );
+
+    private static final Set<String> ADD_GENERAL_PARTNER_KINDS = Set.of(
+            ADD_GENERAL_PARTNER_PERSON.getDescription(),
+            ADD_GENERAL_PARTNER_LEGAL_ENTITY.getDescription()
+    );
+
+    private static final Set<String> ADD_LIMITED_PARTNER_KINDS = Set.of(
+            ADD_LIMITED_PARTNER_PERSON.getDescription(),
+            ADD_LIMITED_PARTNER_LEGAL_ENTITY.getDescription()
+    );
+
+    private static final Set<String> UPDATE_GENERAL_PARTNER_KINDS = Set.of(
+            UPDATE_GENERAL_PARTNER_PERSON.getDescription(),
+            UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription()
+    );
+
+    private static final Set<String> UPDATE_LIMITED_PARTNER_KINDS = Set.of(
+            UPDATE_LIMITED_PARTNER_PERSON.getDescription(),
+            UPDATE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription()
     );
 
     PartnerKind(String description) {
@@ -50,10 +74,22 @@ public enum PartnerKind {
     }
 
     public static boolean isRemoveGeneralPartnerKind(String kind) {
-        return  kind != null && REMOVE_GENERAL_PARTNER_KINDS.contains(kind);
+        return kind != null && REMOVE_GENERAL_PARTNER_KINDS.contains(kind);
     }
 
     public static boolean isRemoveLimitedPartnerKind(String kind) {
-        return  kind != null && REMOVE_LIMITED_PARTNER_KINDS.contains(kind);
+        return kind != null && REMOVE_LIMITED_PARTNER_KINDS.contains(kind);
+    }
+
+    public static boolean isAddPartnerKind(String kind) {
+        return kind != null && (ADD_GENERAL_PARTNER_KINDS.contains(kind) || ADD_LIMITED_PARTNER_KINDS.contains(kind));
+    }
+
+    public static boolean isUpdateGeneralPartnerKind(String kind) {
+        return kind != null && UPDATE_GENERAL_PARTNER_KINDS.contains(kind);
+    }
+
+    public static boolean isUpdateLimitedPartnerKind(String kind) {
+        return kind != null && UPDATE_LIMITED_PARTNER_KINDS.contains(kind);
     }
 }

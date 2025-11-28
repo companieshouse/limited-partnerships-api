@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.partner;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -16,33 +15,28 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransi
 import java.util.List;
 
 @Component
-public class RemoveGeneralPartnerPerson implements PostTransitionStrategy<PartnerDto> {
+public class UpdateGeneralPartnerPerson implements PostTransitionStrategy<PartnerDto> {
 
-    private GeneralPartnerValidator generalPartnerValidator;
+    private final GeneralPartnerValidator generalPartnerValidator;
 
-    RemoveGeneralPartnerPerson(GeneralPartnerValidator generalPartnerValidator) {
+    public UpdateGeneralPartnerPerson(GeneralPartnerValidator generalPartnerValidator) {
         this.generalPartnerValidator = generalPartnerValidator;
     }
 
     @Override
     public String getKind() {
-        return PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription();
+        return PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription();
     }
 
     @Override
-    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction);
 
         errorsList.addAll(errorsListValidator);
 
-        if (partnerDto.getData().getCeaseDate() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Cease date is required",
-                    "data.ceaseDate"));
-        }
-
-        if (!partnerDto.getData().getRemoveConfirmationChecked()) {
-            errorsList.add(validationStatus.createValidationStatusError("Remove confirmation checked is required",
-                    "data.removeConfirmationChecked"));
+        if (partnerDto.getData().getDateOfUpdate() == null) {
+            errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
+                    "data.dateOfUpdate"));
         }
     }
 

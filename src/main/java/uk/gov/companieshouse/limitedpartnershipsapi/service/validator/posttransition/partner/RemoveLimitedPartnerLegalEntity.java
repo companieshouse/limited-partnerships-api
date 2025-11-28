@@ -19,6 +19,7 @@ import java.util.List;
 public class RemoveLimitedPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
 
     private LimitedPartnerValidator limitedPartnerValidator;
+
     RemoveLimitedPartnerLegalEntity(LimitedPartnerValidator limitedPartnerValidator) {
         this.limitedPartnerValidator = limitedPartnerValidator;
     }
@@ -30,7 +31,7 @@ public class RemoveLimitedPartnerLegalEntity implements PostTransitionStrategy<P
 
     @Override
     public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        List<ValidationStatusError> errorsListValidator = limitedPartnerValidator.validateRemoveStatus((LimitedPartnerDto) partnerDto, transaction);
+        List<ValidationStatusError> errorsListValidator = limitedPartnerValidator.validateFull((LimitedPartnerDto) partnerDto, transaction);
 
         errorsList.addAll(errorsListValidator);
 

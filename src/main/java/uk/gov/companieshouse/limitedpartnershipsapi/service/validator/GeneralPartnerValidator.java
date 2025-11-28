@@ -6,12 +6,12 @@ import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
@@ -64,7 +64,9 @@ public class GeneralPartnerValidator extends PartnerValidator {
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, generalPartnerDataDto, bindingResult);
-            if (!transaction.getFilingMode().equals(FilingMode.TRANSITION.getDescription())) {
+            if (transaction.getFilingMode().equals(FilingMode.REGISTRATION.getDescription()) ||
+                    (transaction.getFilingMode().equals(FilingMode.POST_TRANSITION.getDescription()) && PartnerKind.isAddPartnerKind(generalPartnerDataDto.getKind()))
+            ) {
                 var notDisqualifiedStatementChecked = generalPartnerDataDto.getNotDisqualifiedStatementChecked();
                 if (notDisqualifiedStatementChecked == null || Boolean.FALSE.equals(notDisqualifiedStatementChecked)) {
                     addError(CLASS_NAME, GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
@@ -95,34 +97,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
-    /**
-     * Validate removal data for a general partner and return any validation errors as
-     * a list of {@link ValidationStatusError}.
-     * <p>
-     * call by validation-status endpoint for remove general partner after closing transaction
-     *
-     * @param generalPartnerDto the general partner DTO to validate
-     * @param transaction       the transaction context used for validation rules
-     * @return a list of {@link ValidationStatusError} representing field validation errors;
-     * an empty list if no errors are found
-     */
-    public List<ValidationStatusError> validateRemoveStatus(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsList = new ArrayList<>();
-
-        BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
-
-        dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
-        validateCeaseDate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
-
-        List<FieldError> errors = bindingResult.getFieldErrors();
-
-        for (FieldError error : errors) {
-            errorsList.add(validationStatus.createValidationStatusError(error.getDefaultMessage(), error.getField()));
-        }
-
-        return errorsList;
-    }
-
     public void validateUpdate(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
@@ -131,6 +105,8 @@ public class GeneralPartnerValidator extends PartnerValidator {
         isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
         validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
+
+        validateDateOfUpdate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(GeneralPartnerDataDto.class.getConstructor(), -1);
@@ -142,6 +118,14 @@ public class GeneralPartnerValidator extends PartnerValidator {
             throws ServiceException {
         try {
             validatePartial(generalPartnerDto, transaction);
+
+            if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
+                validateUpdate(generalPartnerDto, transaction);
+            }
+
+            if (PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
+                validateRemove(generalPartnerDto, transaction);
+            }
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

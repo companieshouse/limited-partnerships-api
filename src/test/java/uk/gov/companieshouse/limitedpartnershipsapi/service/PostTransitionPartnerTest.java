@@ -467,6 +467,83 @@ class PostTransitionPartnerTest {
         }
     }
 
+    // -- Update Partner --
+    @Nested
+    class UpdateGeneralPartnerPerson {
+        @Test
+        void shouldReturn200IfNoErrors() throws Exception {
+            generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoDateOfUpdate() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            generalPartnerPersonDao.getData().setDateOfUpdate(null);
+            generalPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Date of update is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
+            generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.of(2000, 1, 1));
+            generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoData() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerPersonDao.getData().setSurname(null);
+            generalPartnerPersonDao.getData().setNationality1(null);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(2)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("surname", "Surname is required"),
+                            Map.entry("nationality1", "Nationality1 is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKindROA() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertNull(result);
+        }
+    }
+
     void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         generalPartnerDao.getData().setKind(partnerKind.getDescription());
         generalPartnerDao.getData().setDateEffectiveFrom(LocalDate.now());

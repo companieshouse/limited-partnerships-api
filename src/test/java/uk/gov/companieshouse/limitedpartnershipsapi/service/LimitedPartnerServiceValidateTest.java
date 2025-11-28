@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
@@ -69,14 +70,19 @@ class LimitedPartnerServiceValidateTest {
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;
 
+    @MockitoBean
+    private CompanyService companyService;
+
+    @MockitoBean
+    private CompanyProfileApi companyProfileApi;
+
     @Test
     void shouldReturnNoErrorsWhenLimitedPartnerDataIsValid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+        limitedPartnerDao.setTransactionId(transaction.getId());
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-
-        mocks();
 
         // when
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
