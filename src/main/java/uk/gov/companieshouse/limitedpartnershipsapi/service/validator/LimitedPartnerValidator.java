@@ -95,7 +95,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    private void validateCapitalContributions(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
+    private void validateCapitalContributions(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, BindingResult bindingResult) {
         if (!FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
             return;
         }

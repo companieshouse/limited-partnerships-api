@@ -14,6 +14,7 @@ public class GeneralPartnerDto extends PartnerDto {
     @Valid
     private GeneralPartnerDataDto data;
 
+    @Override
     public GeneralPartnerDataDto getData() {
         return data;
     }
