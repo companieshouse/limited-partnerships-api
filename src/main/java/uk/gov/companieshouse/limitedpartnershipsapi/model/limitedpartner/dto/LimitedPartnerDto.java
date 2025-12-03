@@ -13,7 +13,8 @@ public class LimitedPartnerDto extends PartnerDto {
     @JsonProperty("data")
     @Valid
     private LimitedPartnerDataDto data;
-    
+
+    @Override
     public LimitedPartnerDataDto getData() {
         return data;
     }

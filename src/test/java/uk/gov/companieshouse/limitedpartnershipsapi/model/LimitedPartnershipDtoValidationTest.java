@@ -43,7 +43,8 @@ class LimitedPartnershipDtoValidationTest {
     @Test
     void testValidatingPartnershipDtoWithoutNameEndingShouldNotReturnError() {
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+        LimitedPartnershipDto limitedPartnershipDto =
+                new LimitedPartnershipBuilder().withNameEnding(null).buildDto();
 
         Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(
                 limitedPartnershipDto);

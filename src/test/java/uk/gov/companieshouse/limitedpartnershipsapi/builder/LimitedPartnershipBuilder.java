@@ -20,28 +20,28 @@ public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
     private static final String PARTNERSHIP_NAME = "Test Partnership";
-    private static final PartnershipNameEnding PARTNERSHIP_NAME_ENDING = PartnershipNameEnding.LIMITED_PARTNERSHIP;
     private static final PartnershipType PARTNERSHIP_TYPE = PartnershipType.LP;
     private static final String PARTNERSHIP_NUMBER = "LP123456";
-    private Term term = Term.BY_AGREEMENT;
-    private List<String> sicCodes = List.of("62012");
     private static final String EMAIL = "test@test.com";
     private static final Jurisdiction JURISDICTION = Jurisdiction.ENGLAND_AND_WALES;
-    private boolean lawfulPurposeStatementChecked = true;
-    private LocalDate dateOfUpdate = null;
-
-    private String partnershipKind = null;
-
-    private AddressDto registeredOfficeAddressDto = null;
-    private AddressDto principalPalceOfBusinessAddressDto = null;
-    private AddressDao registeredOfficeAddressDao = null;
-    private AddressDao principalPalceOfBusinessAddressDao = null;
-
     private static final String PREMISES = "33";
     private static final String ADDRESS_LINE_1 = "Acacia Avenue";
     private static final String LOCALITY = "Birmingham";
     private static final Country COUNTRY = Country.ENGLAND;
     private static final String POSTAL_CODE = "BM1 2EH";
+
+    private PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
+    private boolean lawfulPurposeStatementChecked = true;
+    private LocalDate dateOfUpdate = null;
+
+    private String partnershipKind = null;
+    private Term term = Term.BY_AGREEMENT;
+    private List<String> sicCodes = List.of("62012");
+
+    private AddressDto registeredOfficeAddressDto = null;
+    private AddressDto principalPalceOfBusinessAddressDto = null;
+    private AddressDao registeredOfficeAddressDao = null;
+    private AddressDao principalPalceOfBusinessAddressDao = null;
 
     private void createAddressDto() {
         AddressDto roaDto = new AddressDto();
@@ -160,13 +160,18 @@ public class LimitedPartnershipBuilder {
         return this;
     }
 
+    public LimitedPartnershipBuilder withNameEnding(PartnershipNameEnding partnershipNameEnding) {
+        this.partnershipNameEnding = partnershipNameEnding;
+        return this;
+    }
+
     public LimitedPartnershipDto buildDto() {
         LimitedPartnershipDto dto = new LimitedPartnershipDto();
         DataDto dataDto = new DataDto();
 
         dataDto.setKind(partnershipKind);
         dataDto.setPartnershipName(PARTNERSHIP_NAME);
-        dataDto.setNameEnding(PARTNERSHIP_NAME_ENDING);
+        dataDto.setNameEnding(this.partnershipNameEnding);
         dataDto.setPartnershipType(PARTNERSHIP_TYPE);
         dataDto.setPartnershipNumber(PARTNERSHIP_NUMBER);
         dataDto.setEmail(EMAIL);
@@ -191,7 +196,7 @@ public class LimitedPartnershipBuilder {
 
         dataDao.setKind(partnershipKind);
         dataDao.setPartnershipName(PARTNERSHIP_NAME);
-        dataDao.setNameEnding(PARTNERSHIP_NAME_ENDING.getDescription());
+        dataDao.setNameEnding(this.partnershipNameEnding.getDescription());
         dataDao.setPartnershipType(PARTNERSHIP_TYPE);
         dataDao.setPartnershipNumber(PARTNERSHIP_NUMBER);
         dataDao.setEmail(EMAIL);

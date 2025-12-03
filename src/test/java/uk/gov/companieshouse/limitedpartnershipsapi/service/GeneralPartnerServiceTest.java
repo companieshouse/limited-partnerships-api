@@ -175,8 +175,7 @@ class GeneralPartnerServiceTest {
     void testGetGeneralPartnerDataList() {
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(new GeneralPartnerBuilder().personDao()));
         when(mapper.daoToDto(any(GeneralPartnerDao.class))).thenReturn(new GeneralPartnerBuilder().personDto());
-        Transaction transaction = new Transaction();
-        transaction.setId(TRANSACTION_ID);
+
         List<GeneralPartnerDataDto> generalPartnerDataDtoList = generalPartnerService.getGeneralPartnerDataList(transaction);
         assertEquals(1, generalPartnerDataDtoList.size());
     }
