@@ -21,6 +21,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -276,6 +277,32 @@ class GeneralPartnerServiceCreateTest {
             );
 
             assertEquals("Not Disqualified Statement must be checked", Objects.requireNonNull(exception.getBindingResult().getFieldError(NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD)).getDefaultMessage());
+        }
+
+        @Test
+        void shouldCreateAGeneralPartnerPersonWithUpdateKind() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            mocks();
+
+            GeneralPartnerDto dto = createGeneralPartnerPersonDto();
+            dto.getData().setKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
+            dto.getData().setNationality2(Nationality.BRITISH);
+            GeneralPartnerDao dao = createGeneralPartnerPersonDao();
+            dao.getData().setNationality2("British");
+
+            when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+
+            String submissionId = service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            verify(repository).insert(submissionCaptor.capture());
+
+            GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(USER_ID, sentSubmission.getCreatedBy());
+            assertEquals(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription(), sentSubmission.getData().getKind());
+            assertEquals(GENERAL_PARTNER_ID, submissionId);
+
+            String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), GENERAL_PARTNER_ID);
+            assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
         private GeneralPartnerDto createGeneralPartnerPersonDto() {

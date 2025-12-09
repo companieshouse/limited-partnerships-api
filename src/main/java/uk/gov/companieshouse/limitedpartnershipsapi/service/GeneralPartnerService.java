@@ -52,8 +52,11 @@ public class GeneralPartnerService {
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        if (PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
+        var partnerKind = generalPartnerDto.getData().getKind();
+        if (PartnerKind.isRemoveGeneralPartnerKind(partnerKind)) {
             generalPartnerValidator.validateRemove(generalPartnerDto, transaction);
+        } else if (PartnerKind.isUpdateGeneralPartnerKind(partnerKind)) {
+            generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
         } else {
             generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
         }
