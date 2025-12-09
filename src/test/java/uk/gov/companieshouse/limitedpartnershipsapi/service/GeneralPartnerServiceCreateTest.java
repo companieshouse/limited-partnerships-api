@@ -286,6 +286,7 @@ class GeneralPartnerServiceCreateTest {
             GeneralPartnerDto dto = createGeneralPartnerPersonDto();
             dto.getData().setKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
             dto.getData().setNationality2(Nationality.BRITISH);
+            dto.getData().setDateOfBirth(null);
             GeneralPartnerDao dao = createGeneralPartnerPersonDao();
             dao.getData().setNationality2("British");
 
