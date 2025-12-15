@@ -21,7 +21,7 @@ public abstract class PartnerDataDao {
     @Field("removeConfirmationChecked")
     private boolean removeConfirmationChecked;
 
-    @Field("isUpdateUsualResidentialAddressRequired")
+    @Field("is_update_usual_residential_address_required")
     private Boolean isUpdateUsualResidentialAddressRequired;
 
     @Field("partnership_type")
