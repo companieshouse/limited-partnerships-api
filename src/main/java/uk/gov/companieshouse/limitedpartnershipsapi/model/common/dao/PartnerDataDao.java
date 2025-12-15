@@ -21,6 +21,9 @@ public abstract class PartnerDataDao {
     @Field("removeConfirmationChecked")
     private boolean removeConfirmationChecked;
 
+    @Field("isUpdateUsualResidentialAddressRequired")
+    private Boolean isUpdateUsualResidentialAddressRequired;
+
     @Field("partnership_type")
     private PartnershipType partnershipType;
 
@@ -65,6 +68,14 @@ public abstract class PartnerDataDao {
 
     public void setRemoveConfirmationChecked(boolean removeConfirmationChecked) {
         this.removeConfirmationChecked = removeConfirmationChecked;
+    }
+
+    public Boolean getUpdateUsualResidentialAddressRequired() {
+        return isUpdateUsualResidentialAddressRequired;
+    }
+
+    public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
+        isUpdateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
     }
 
     public PartnershipType getPartnershipType() {

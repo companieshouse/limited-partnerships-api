@@ -38,6 +38,11 @@ public class UpdateGeneralPartnerPerson implements PostTransitionStrategy<Partne
             errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
                     "data.dateOfUpdate"));
         }
+
+        if(partnerDto.getData().getUpdateUsualResidentialAddressRequired() == null) {
+            errorsList.add(validationStatus.createValidationStatusError("Update usual residential address choice is required",
+                    "data.isUpdateUsualResidentialAddressRequired"));
+        }
     }
 
     @Override
