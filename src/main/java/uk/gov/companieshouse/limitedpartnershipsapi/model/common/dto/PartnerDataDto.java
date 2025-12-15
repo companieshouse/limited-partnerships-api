@@ -43,8 +43,8 @@ public abstract class PartnerDataDto {
     @JsonProperty("remove_confirmation_checked")
     private boolean removeConfirmationChecked;
 
-    @JsonProperty("is_update_usual_residential_address_required")
-    private Boolean isUpdateUsualResidentialAddressRequired;
+    @JsonProperty("update_usual_residential_address_required")
+    private Boolean updateUsualResidentialAddressRequired;
 
     private PartnershipType partnershipType;
 
@@ -88,20 +88,20 @@ public abstract class PartnerDataDto {
         this.removeConfirmationChecked = removeConfirmationChecked;
     }
 
-    public Boolean getUpdateUsualResidentialAddressRequired() {
-        return isUpdateUsualResidentialAddressRequired;
-    }
-
-    public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
-        isUpdateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
-    }
-
     public PartnershipType getPartnershipType() {
         return partnershipType;
     }
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public Boolean getUpdateUsualResidentialAddressRequired() {
+        return updateUsualResidentialAddressRequired;
+    }
+
+    public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
+        this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
     }
 
     // Person
