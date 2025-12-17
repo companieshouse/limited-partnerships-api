@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -31,8 +32,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -166,6 +170,34 @@ class GeneralPartnerServiceUpdateTest {
 
         assertEquals(Nationality.AMERICAN.getDescription(), sentSubmission.getData().getNationality1());
         assertNull(sentSubmission.getData().getNationality2());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void shouldHandleUsualResidentialAddressForUpdateUraRequiredFlag(Boolean uraRequired) throws Exception {
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().withGeneralPartnerKind(
+                PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()).personDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().personDto().getData();
+        generalPartnerDataDto.setDateEffectiveFrom(null);
+        generalPartnerDataDto.setUpdateUsualResidentialAddressRequired(uraRequired);
+
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        if (uraRequired) {
+            assertTrue(sentSubmission.getData().getUpdateUsualResidentialAddressRequired());
+            assertNotNull(sentSubmission.getData().getUsualResidentialAddress());
+        } else {
+            assertFalse(sentSubmission.getData().getUpdateUsualResidentialAddressRequired());
+            assertNull(sentSubmission.getData().getUsualResidentialAddress());
+        }
     }
 
     @Test

@@ -119,6 +119,8 @@ public class GeneralPartnerService {
 
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
+        handleUpdateUsualResidentialAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
+
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
@@ -129,6 +131,21 @@ public class GeneralPartnerService {
         ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
 
         repository.save(generalPartnerDaoAfterPatch);
+    }
+
+    private void handleUpdateUsualResidentialAddressRequiredOptionality(String kind, GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto data) {
+        if (!PartnerKind.isUpdateGeneralPartnerKind(kind)) {
+            return;
+        }
+
+        /*
+         * If the patch specifically contains a false for the UpdateUsualResidentialAddressRequired field
+         * and a usual residential address is present then we need to erase this from the mongo data.         *
+         */
+        if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdateUsualResidentialAddressRequired())  &&
+               data.getUsualResidentialAddress() != null) {
+            data.setUsualResidentialAddress(null);
+        }
     }
 
     public GeneralPartnerDto getGeneralPartner(Transaction transaction, String generalPartnerId) throws ResourceNotFoundException {
