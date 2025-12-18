@@ -29,29 +29,6 @@ public class GeneralPartnerValidator extends PartnerValidator {
         super(validator, validationStatus, companyService);
     }
 
-    public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsList = new ArrayList<>();
-
-        checkFieldConstraints(generalPartnerDto, transaction, errorsList);
-
-        var dataDto = generalPartnerDto.getData();
-        if (dataDto.isLegalEntity()) {
-            if (dataDto.getPrincipalOfficeAddress() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
-            }
-        } else {
-            if (dataDto.getUsualResidentialAddress() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
-            }
-
-            if (dataDto.getServiceAddress() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
-            }
-        }
-
-        return errorsList;
-    }
-
     public void validatePartial(GeneralPartnerDto generalPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
@@ -89,6 +66,11 @@ public class GeneralPartnerValidator extends PartnerValidator {
         BindingResult bindingResult = new BeanPropertyBindingResult(generalPartnerDto, GeneralPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
+
+        if (!generalPartnerDto.getData().isLegalEntity()) {
+            checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
+        }
+
         validateCeaseDate(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
@@ -102,6 +84,11 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
+        if (!generalPartnerDto.getData().isLegalEntity()) {
+            checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
+            checkFieldNotNull(CLASS_NAME, generalPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
+        }
+
         isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
         validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
@@ -114,18 +101,45 @@ public class GeneralPartnerValidator extends PartnerValidator {
         }
     }
 
+    // Validation before close transaction
+    public List<ValidationStatusError> validateFull(GeneralPartnerDto generalPartnerDto, Transaction transaction, boolean isRemoveOrUpdate) throws ServiceException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+
+        checkFieldConstraints(generalPartnerDto, transaction, errorsList);
+
+        if (isRemoveOrUpdate) {
+            return errorsList;
+        }
+
+        var dataDto = generalPartnerDto.getData();
+        if (dataDto.isLegalEntity()) {
+            if (dataDto.getPrincipalOfficeAddress() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+            }
+        } else {
+            if (dataDto.getUsualResidentialAddress() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
+            }
+
+            if (dataDto.getServiceAddress() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Service address is required", GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD));
+            }
+        }
+
+        return errorsList;
+    }
+
     private void checkFieldConstraints(GeneralPartnerDto generalPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            validatePartial(generalPartnerDto, transaction);
-
             if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
                 validateUpdate(generalPartnerDto, transaction);
+            } else if (PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
+                validateRemove(generalPartnerDto, transaction);
+            } else {
+                validatePartial(generalPartnerDto, transaction);
             }
 
-            if (PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
-                validateRemove(generalPartnerDto, transaction);
-            }
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

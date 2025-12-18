@@ -25,6 +25,8 @@ public abstract class PartnerValidator {
     protected final ValidationStatus validationStatus;
     protected CompanyService companyService;
 
+    public static final String NATIONALITY_1_IS_REQUIRED = "Nationality1 is required";
+
     @Autowired
     protected PartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService) {
         this.validator = validator;
@@ -50,13 +52,17 @@ public abstract class PartnerValidator {
     protected void checkNotNullPerson(String className,
                                       PartnerDataDto partnerDataDto,
                                       BindingResult bindingResult) {
-        checkFieldNotNull(className, partnerDataDto.getForename(), PartnerDataDto.FORENAME_FIELD, "Forename is required", bindingResult);
-        checkFieldNotNull(className, partnerDataDto.getSurname(), PartnerDataDto.SURNAME_FIELD, "Surname is required", bindingResult);
+        checkNotNullName(className, partnerDataDto, bindingResult);
         checkFieldNotNull(className, partnerDataDto.getDateOfBirth(), PartnerDataDto.DATE_OF_BIRTH_FIELD, "Date of birth is required", bindingResult);
-        checkFieldNotNull(className, partnerDataDto.getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, "Nationality1 is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
     }
 
-    private void checkFieldNotNull(String className, Object value, String fieldName, String errorMessage, BindingResult bindingResult) {
+    protected void checkNotNullName(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
+        checkFieldNotNull(className, partnerDataDto.getForename(), PartnerDataDto.FORENAME_FIELD, "Forename is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getSurname(), PartnerDataDto.SURNAME_FIELD, "Surname is required", bindingResult);
+    }
+
+    protected void checkFieldNotNull(String className, Object value, String fieldName, String errorMessage, BindingResult bindingResult) {
         if (value == null) {
             addError(className, fieldName, errorMessage, bindingResult);
         }

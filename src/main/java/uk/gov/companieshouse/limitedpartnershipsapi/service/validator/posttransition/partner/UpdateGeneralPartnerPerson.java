@@ -30,7 +30,7 @@ public class UpdateGeneralPartnerPerson implements PostTransitionStrategy<Partne
 
     @Override
     public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction);
+        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction, true);
 
         errorsList.addAll(errorsListValidator);
 
