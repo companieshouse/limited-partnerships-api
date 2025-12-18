@@ -18,9 +18,11 @@ import java.util.List;
 public class UpdateGeneralPartnerPerson implements PostTransitionStrategy<PartnerDto> {
 
     private final GeneralPartnerValidator generalPartnerValidator;
+    private final RemoveUpdatePartner removeUpdatePartner;
 
-    public UpdateGeneralPartnerPerson(GeneralPartnerValidator generalPartnerValidator) {
+    public UpdateGeneralPartnerPerson(GeneralPartnerValidator generalPartnerValidator, RemoveUpdatePartner removeUpdatePartner) {
         this.generalPartnerValidator = generalPartnerValidator;
+        this.removeUpdatePartner = removeUpdatePartner;
     }
 
     @Override
@@ -30,19 +32,11 @@ public class UpdateGeneralPartnerPerson implements PostTransitionStrategy<Partne
 
     @Override
     public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction);
+        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction, true);
 
         errorsList.addAll(errorsListValidator);
 
-        if (partnerDto.getData().getDateOfUpdate() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
-                    "data.dateOfUpdate"));
-        }
-
-        if (partnerDto.getData().getUpdateUsualResidentialAddressRequired() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Update usual residential address choice is required",
-                    "data.isUpdateUsualResidentialAddressRequired"));
-        }
+        removeUpdatePartner.validateUpdate(partnerDto, errorsList, validationStatus);
     }
 
     @Override
