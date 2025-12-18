@@ -18,10 +18,12 @@ import java.util.List;
 @Component
 public class RemoveGeneralPartnerPerson implements PostTransitionStrategy<PartnerDto> {
 
-    private GeneralPartnerValidator generalPartnerValidator;
+    private final GeneralPartnerValidator generalPartnerValidator;
+    private final RemoveUpdatePartner removeUpdatePartner;
 
-    RemoveGeneralPartnerPerson(GeneralPartnerValidator generalPartnerValidator) {
+    RemoveGeneralPartnerPerson(GeneralPartnerValidator generalPartnerValidator, RemoveUpdatePartner removeUpdatePartner) {
         this.generalPartnerValidator = generalPartnerValidator;
+        this.removeUpdatePartner = removeUpdatePartner;
     }
 
     @Override
@@ -35,15 +37,7 @@ public class RemoveGeneralPartnerPerson implements PostTransitionStrategy<Partne
 
         errorsList.addAll(errorsListValidator);
 
-        if (partnerDto.getData().getCeaseDate() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Cease date is required",
-                    "data.ceaseDate"));
-        }
-
-        if (!partnerDto.getData().getRemoveConfirmationChecked()) {
-            errorsList.add(validationStatus.createValidationStatusError("Remove confirmation checked is required",
-                    "data.removeConfirmationChecked"));
-        }
+        removeUpdatePartner.validateRemove(partnerDto, errorsList, validationStatus);
     }
 
     @Override
