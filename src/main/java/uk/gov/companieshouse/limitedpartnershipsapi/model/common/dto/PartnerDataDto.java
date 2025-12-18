@@ -46,6 +46,9 @@ public abstract class PartnerDataDto {
     @JsonProperty("update_usual_residential_address_required")
     private Boolean updateUsualResidentialAddressRequired;
 
+    @JsonProperty("update_service_address_required")
+    private Boolean updateServiceAddressRequired;
+
     private PartnershipType partnershipType;
 
     public String getAppointmentId() {
@@ -102,6 +105,14 @@ public abstract class PartnerDataDto {
 
     public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
         this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
+    }
+
+    public Boolean getUpdateServiceAddressRequired() {
+        return updateServiceAddressRequired;
+    }
+
+    public void setUpdateServiceAddressRequired(Boolean updateServiceAddressRequired) {
+        this.updateServiceAddressRequired = updateServiceAddressRequired;
     }
 
     // Person
