@@ -474,6 +474,7 @@ class PostTransitionPartnerTest {
         void shouldReturn200IfNoErrorsUsualResidentialAddressChoiceFalse() throws Exception {
             generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
@@ -483,9 +484,10 @@ class PostTransitionPartnerTest {
         }
 
         @Test
-        void shouldReturn200IfNoErrorsUsualResidentialAddressChoiceTrue() throws Exception {
+        void shouldReturn200IfNoErrorsUsualAddressChoicesAreTrue() throws Exception {
             generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(true);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(true);
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
@@ -502,6 +504,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setDateOfUpdate(null);
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
@@ -520,13 +523,33 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(null);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
-                            Map.entry("data.isUpdateUsualResidentialAddressRequired", "Update usual residential address choice is required")
+                            Map.entry("data.updateUsualResidentialAddressRequired", "Update usual residential address choice is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoServiceAddressChoice() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
+            generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(null);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.updateServiceAddressRequired", "Update service address choice is required")
                     );
         }
 
@@ -535,6 +558,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.of(2000, 1, 1));
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(true);
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
@@ -556,6 +580,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setSurname(null);
             generalPartnerPersonDao.getData().setNationality1(null);
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
