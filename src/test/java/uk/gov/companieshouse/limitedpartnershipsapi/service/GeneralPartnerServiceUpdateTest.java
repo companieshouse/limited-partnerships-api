@@ -202,7 +202,7 @@ class GeneralPartnerServiceUpdateTest {
 
     @ParameterizedTest
     @ValueSource(booleans = { false, true })
-    void shouldHandleUsualServiceAddressForUpdateServiceAddressRequiredFlag(Boolean serviceAddressRequired) throws Exception {
+    void shouldHandleServiceAddressForUpdateServiceAddressRequiredFlag(Boolean serviceAddressRequired) throws Exception {
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().withGeneralPartnerKind(
                 PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()).personDao();
 
