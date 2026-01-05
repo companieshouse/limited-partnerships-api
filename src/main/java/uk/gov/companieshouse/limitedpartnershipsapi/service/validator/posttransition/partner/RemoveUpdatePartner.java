@@ -29,7 +29,7 @@ public class RemoveUpdatePartner {
 
         if (partnerDto.getData().getUpdateUsualResidentialAddressRequired() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Update usual residential address choice is required",
-                    "data.isUpdateUsualResidentialAddressRequired"));
+                    "data.updateUsualResidentialAddressRequired"));
         }
 
         if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
