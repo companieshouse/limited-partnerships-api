@@ -144,8 +144,8 @@ public class GeneralPartnerService {
          * If the patch specifically contains a false for the UpdateUsualResidentialAddressRequired field
          * and a usual residential address is present then we need to erase this from the mongo data.         *
          */
-        if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdateUsualResidentialAddressRequired())  &&
-               data.getUsualResidentialAddress() != null) {
+        if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdateUsualResidentialAddressRequired()) &&
+                data.getUsualResidentialAddress() != null) {
             data.setUsualResidentialAddress(null);
         }
     }
@@ -184,7 +184,7 @@ public class GeneralPartnerService {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 
-        return generalPartnerValidator.validateFull(dto, transaction);
+        return generalPartnerValidator.validateFull(dto, transaction, false);
     }
 
     public List<ValidationStatusError> validateGeneralPartners(Transaction transaction) throws ServiceException {
@@ -200,7 +200,7 @@ public class GeneralPartnerService {
         }
 
         for (GeneralPartnerDto partner : generalPartners) {
-            errors.addAll(generalPartnerValidator.validateFull(partner, transaction));
+            errors.addAll(generalPartnerValidator.validateFull(partner, transaction, false));
         }
 
         return errors;
@@ -211,7 +211,7 @@ public class GeneralPartnerService {
                 .map(mapper::daoToDto).toList();
 
         for (GeneralPartnerDto generalPartnerDto : generalPartnerDtos) {
-            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto, transaction).isEmpty();
+            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto, transaction, false).isEmpty();
             generalPartnerDto.getData().setCompleted(isCompleted);
         }
 

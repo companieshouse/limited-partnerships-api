@@ -18,10 +18,12 @@ import java.util.List;
 @Component
 public class RemoveLimitedPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
 
-    private LimitedPartnerValidator limitedPartnerValidator;
+    private final LimitedPartnerValidator limitedPartnerValidator;
+    private final RemoveUpdatePartner removeUpdatePartner;
 
-    RemoveLimitedPartnerLegalEntity(LimitedPartnerValidator limitedPartnerValidator) {
+    RemoveLimitedPartnerLegalEntity(LimitedPartnerValidator limitedPartnerValidator, RemoveUpdatePartner removeUpdatePartner) {
         this.limitedPartnerValidator = limitedPartnerValidator;
+        this.removeUpdatePartner = removeUpdatePartner;
     }
 
     @Override
@@ -35,15 +37,7 @@ public class RemoveLimitedPartnerLegalEntity implements PostTransitionStrategy<P
 
         errorsList.addAll(errorsListValidator);
 
-        if (partnerDto.getData().getCeaseDate() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Cease date is required",
-                    "data.ceaseDate"));
-        }
-
-        if (!partnerDto.getData().getRemoveConfirmationChecked()) {
-            errorsList.add(validationStatus.createValidationStatusError("Remove confirmation checked is required",
-                    "data.removeConfirmationChecked"));
-        }
+        removeUpdatePartner.validateRemove(partnerDto, errorsList, validationStatus);
     }
 
     @Override
