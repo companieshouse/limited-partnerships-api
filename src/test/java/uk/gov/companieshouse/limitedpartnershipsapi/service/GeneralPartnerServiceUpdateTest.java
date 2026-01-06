@@ -200,6 +200,34 @@ class GeneralPartnerServiceUpdateTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    void shouldHandleServiceAddressForUpdateServiceAddressRequiredFlag(Boolean serviceAddressRequired) throws Exception {
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().withGeneralPartnerKind(
+                PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()).personDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().personDto().getData();
+        generalPartnerDataDto.setDateEffectiveFrom(null);
+        generalPartnerDataDto.setUpdateServiceAddressRequired(serviceAddressRequired);
+
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        if (serviceAddressRequired) {
+            assertTrue(sentSubmission.getData().getUpdateServiceAddressRequired());
+            assertNotNull(sentSubmission.getData().getServiceAddress());
+        } else {
+            assertFalse(sentSubmission.getData().getUpdateServiceAddressRequired());
+            assertNull(sentSubmission.getData().getServiceAddress());
+        }
+    }
+
     @Test
     void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().legalEntityDao();

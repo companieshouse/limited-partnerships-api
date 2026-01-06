@@ -121,6 +121,8 @@ public class GeneralPartnerService {
 
         handleUpdateUsualResidentialAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
 
+        handleUpdateServiceAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
+
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
@@ -145,6 +147,21 @@ public class GeneralPartnerService {
         if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdateUsualResidentialAddressRequired()) &&
                 data.getUsualResidentialAddress() != null) {
             data.setUsualResidentialAddress(null);
+        }
+    }
+
+    private void handleUpdateServiceAddressRequiredOptionality(String kind, GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto data) {
+        if (!PartnerKind.isUpdateGeneralPartnerKind(kind)) {
+            return;
+        }
+
+        /*
+         * If the patch specifically contains a false for the UpdateUServiceAddressRequired field
+         * and a service address is present then we need to erase this from the mongo data.         *
+         */
+        if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdateServiceAddressRequired()) &&
+                data.getServiceAddress() != null) {
+            data.setServiceAddress(null);
         }
     }
 

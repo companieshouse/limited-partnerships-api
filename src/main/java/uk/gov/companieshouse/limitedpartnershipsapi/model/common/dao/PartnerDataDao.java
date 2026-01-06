@@ -24,6 +24,9 @@ public abstract class PartnerDataDao {
     @Field("update_usual_residential_address_required")
     private Boolean updateUsualResidentialAddressRequired;
 
+    @Field("update_service_address_required")
+    private Boolean updateServiceAddressRequired;
+
     @Field("partnership_type")
     private PartnershipType partnershipType;
 
@@ -76,6 +79,14 @@ public abstract class PartnerDataDao {
 
     public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
         this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
+    }
+
+    public Boolean getUpdateServiceAddressRequired() {
+        return updateServiceAddressRequired;
+    }
+
+    public void setUpdateServiceAddressRequired(Boolean updateServiceAddressRequired) {
+        this.updateServiceAddressRequired = updateServiceAddressRequired;
     }
 
     public PartnershipType getPartnershipType() {
