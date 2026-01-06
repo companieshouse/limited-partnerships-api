@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -128,7 +131,6 @@ class FilingsServiceTest {
         when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
         when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
 
-
         FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
 
         DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
@@ -144,27 +146,57 @@ class FilingsServiceTest {
         assertEquals(limitedPartnerData.getContributionCurrencyValue(), filingLimitedPartnerDataDto.getContributionCurrencyValue());
     }
 
-    @Test
-    void testFilingGenerationSuccessfulForGeneralPartner() throws ResourceNotFoundException {
-        var transaction = new TransactionBuilder().build();
-        var generalPartner = new GeneralPartnerBuilder()
-                .withPartnershipType(PartnershipType.LP)
-                .withGeneralPartnerKind("limited-partnership#add-general-partner-person")
-                .personDto();
+    @Nested
+    class FilingGeneralPartnerTest {
+        @Test
+        void testFilingGenerationSuccessfulForGeneralPartner() throws ResourceNotFoundException {
+            var transaction = new TransactionBuilder().build();
+            var generalPartner = new GeneralPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withGeneralPartnerKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription())
+                    .personDto();
 
-        when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
-        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+            when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
 
-        FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
+            FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
-        DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
-        assertCommonLimitedPartnershipData(generalPartner.getData(), filingLimitedPartnershipData, transaction);
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(generalPartner.getData(), filingLimitedPartnershipData, transaction);
 
-        List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
-        GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
-        GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
-        assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
-        assertEquals(generalPartnerData.getServiceAddress(), filingGeneralPartnerDataDto.getServiceAddress());
+            List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+            GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
+            GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
+            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
+            assertEquals(generalPartnerData.getServiceAddress(), filingGeneralPartnerDataDto.getServiceAddress());
+            assertEquals(generalPartnerData.getUsualResidentialAddress(), filingGeneralPartnerDataDto.getUsualResidentialAddress());
+        }
+
+        @Test
+        void testFilingGenerationSuccessfulForGeneralPartnerWithoutAddresses() throws ResourceNotFoundException {
+            var transaction = new TransactionBuilder().build();
+            var generalPartner = new GeneralPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription())
+                    .withUpdateUsualResidentialAddressRequired(Boolean.FALSE)
+                    .withUpdateServiceAddressRequired(Boolean.FALSE)
+                    .personDto();
+
+            when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(generalPartner.getData(), filingLimitedPartnershipData, transaction);
+
+            List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+            GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
+            GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
+            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
+            assertNull(filingGeneralPartnerDataDto.getUsualResidentialAddress());
+            assertNull(filingGeneralPartnerDataDto.getServiceAddress());
+        }
     }
 
     private static void assertCommonLimitedPartnershipData(PartnerDataDto partnerDataDto, DataDto filingLimitedPartnershipData, Transaction transaction) {

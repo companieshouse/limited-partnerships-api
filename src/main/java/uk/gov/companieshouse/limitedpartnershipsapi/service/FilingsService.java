@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
@@ -118,6 +119,8 @@ public class FilingsService {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
+        updateGeneralPartnerAddresses(generalPartnerDataDto);
+
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, generalPartnerDataDto.getKind())) {
             throw new ResourceNotFoundException(String.format(
@@ -137,6 +140,18 @@ public class FilingsService {
         filing.setData(data);
 
         return filing;
+    }
+
+    private void updateGeneralPartnerAddresses(GeneralPartnerDataDto generalPartnerDataDto) {
+        if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDataDto.getKind())) {
+            if (generalPartnerDataDto.getUpdateUsualResidentialAddressRequired() == Boolean.FALSE) {
+                generalPartnerDataDto.setUsualResidentialAddress(null);
+            }
+
+            if (generalPartnerDataDto.getUpdateServiceAddressRequired() == Boolean.FALSE) {
+                generalPartnerDataDto.setServiceAddress(null);
+            }
+        }
     }
 
     public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {

@@ -173,7 +173,7 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = { false, true })
+    @ValueSource(booleans = {false, true})
     void shouldHandleUsualResidentialAddressForUpdateUraRequiredFlag(Boolean uraRequired) throws Exception {
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().withGeneralPartnerKind(
                 PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()).personDao();
@@ -201,14 +201,18 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = { false, true })
+    @ValueSource(booleans = {false, true})
     void shouldHandleServiceAddressForUpdateServiceAddressRequiredFlag(Boolean serviceAddressRequired) throws Exception {
-        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().withGeneralPartnerKind(
-                PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()).personDao();
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder()
+                .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription())
+                .personDao();
 
-        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().personDto().getData();
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder()
+                .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription())
+                .withUpdateServiceAddressRequired(serviceAddressRequired)
+                .personDto()
+                .getData();
         generalPartnerDataDto.setDateEffectiveFrom(null);
-        generalPartnerDataDto.setUpdateServiceAddressRequired(serviceAddressRequired);
 
         when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
