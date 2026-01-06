@@ -471,7 +471,7 @@ class PostTransitionPartnerTest {
     @Nested
     class UpdateGeneralPartnerPerson {
         @Test
-        void shouldReturn200IfNoErrorsUsualResidentialAddressChoiceFalse() throws Exception {
+        void shouldReturn200IfNoErrorsAllAddressChoiceFalse() throws Exception {
             generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
             generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
@@ -484,9 +484,35 @@ class PostTransitionPartnerTest {
         }
 
         @Test
-        void shouldReturn200IfNoErrorsUsualAddressChoicesAreTrue() throws Exception {
+        void shouldReturn200IfNoErrorsAllAddressChoicesAreTrue() throws Exception {
             generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(true);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(true);
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200IfNoErrorsOnlyUsualResidentialAddressChoiceIsTrue() throws Exception {
+            generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(true);
+            generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200IfNoErrorsOnlyServiceAddressChoiceIsTrue() throws Exception {
+            generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
             generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(true);
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
