@@ -153,7 +153,7 @@ public class FilingsService {
         return filing;
     }
 
-    private void updateGeneralPartnerAddresses(GeneralPartnerDataDto generalPartnerDataDto) throws ApiErrorResponseException, URIValidationException {
+    private void updateGeneralPartnerAddresses(GeneralPartnerDataDto generalPartnerDataDto) {
         if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDataDto.getKind())) {
             if (generalPartnerDataDto.getUpdateUsualResidentialAddressRequired() == Boolean.FALSE) {
                 generalPartnerDataDto.setUsualResidentialAddress(null);
