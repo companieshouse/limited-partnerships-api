@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,9 +9,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.delta.PrivateDeltaResourceHandler;
+import uk.gov.companieshouse.api.handler.delta.company.appointment.request.PrivateOfficerGet;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.payment.PaymentApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -28,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,6 +75,32 @@ class FilingsServiceTest {
     private TransactionService transactionService;
     @MockitoBean
     private PaymentService paymentService;
+
+    @MockitoBean
+    private ApiClientService apiClientService;
+    @MockitoBean
+    private InternalApiClient internalApiClient;
+    @MockitoBean
+    private PrivateDeltaResourceHandler privateDeltaResourceHandler;
+    @MockitoBean
+    private PrivateOfficerGet privateOfficerGet;
+    @MockitoBean
+    private ApiResponse<AppointmentFullRecordAPI> appointmentFullRecordAPIApiResponse;
+
+    @BeforeEach
+    public void setup() throws ApiErrorResponseException, URIValidationException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
+        when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
+        when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
+        AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
+        SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
+        sensitiveDateOfBirthAPI.setDay(15);
+        sensitiveDateOfBirthAPI.setMonth(6);
+        sensitiveDateOfBirthAPI.setYear(1980);
+        appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
+        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(appointmentFullRecordAPI);
+    }
 
     @Test
     void testFilingGenerationSuccess() throws ServiceException {
@@ -149,7 +185,7 @@ class FilingsServiceTest {
     @Nested
     class FilingGeneralPartnerTest {
         @Test
-        void testFilingGenerationSuccessfulForGeneralPartner() throws ResourceNotFoundException {
+        void testFilingGenerationSuccessfulForGeneralPartner() throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
             var transaction = new TransactionBuilder().build();
             var generalPartner = new GeneralPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
@@ -173,7 +209,7 @@ class FilingsServiceTest {
         }
 
         @Test
-        void testFilingGenerationSuccessfulForGeneralPartnerWithoutAddresses() throws ResourceNotFoundException {
+        void testFilingGenerationSuccessfulForGeneralPartnerWithoutAddresses() throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
             var transaction = new TransactionBuilder().build();
             var generalPartner = new GeneralPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
@@ -194,8 +230,8 @@ class FilingsServiceTest {
             GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
             GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
             assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
-            assertNull(filingGeneralPartnerDataDto.getUsualResidentialAddress());
-            assertNull(filingGeneralPartnerDataDto.getServiceAddress());
+            Assertions.assertNull(filingGeneralPartnerDataDto.getUsualResidentialAddress());
+            Assertions.assertNull(filingGeneralPartnerDataDto.getServiceAddress());
         }
     }
 
