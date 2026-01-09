@@ -17,6 +17,9 @@ public class GeneralPartnerBuilder {
     private String generalPartnerKind = null;
     private PartnershipType partnershipType;
 
+    private Boolean updateUsualResidentialAddressRequired;
+    private Boolean updateServiceAddressRequired;
+
     public GeneralPartnerBuilder withGeneralPartnerKind(String kind) {
         this.generalPartnerKind = kind;
         return this;
@@ -24,6 +27,16 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerBuilder withPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
+        this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withUpdateServiceAddressRequired(Boolean updateServiceAddressRequired) {
+        this.updateServiceAddressRequired = updateServiceAddressRequired;
         return this;
     }
 
@@ -42,6 +55,8 @@ public class GeneralPartnerBuilder {
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
         dataDto.setKind(generalPartnerKind);
         dataDto.setPartnershipType(partnershipType);
+        dataDto.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
+        dataDto.setUpdateServiceAddressRequired(updateServiceAddressRequired);
 
         dto.setData(dataDto);
 
@@ -95,6 +110,8 @@ public class GeneralPartnerBuilder {
         dataDao.setUsualResidentialAddress(createAddressDao());
         dataDao.setServiceAddress(createAddressDao());
         dataDao.setKind(generalPartnerKind);
+        dataDao.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
+        dataDao.setUpdateServiceAddressRequired(updateServiceAddressRequired);
 
         dao.setData(dataDao);
 

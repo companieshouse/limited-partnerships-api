@@ -10,8 +10,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.delta.PrivateDeltaResourceHandler;
+import uk.gov.companieshouse.api.handler.delta.company.appointment.request.PrivateOfficerGet;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.payment.PaymentApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
@@ -75,12 +84,36 @@ class FilingsControllerTest {
     @MockitoBean
     private PaymentService paymentService;
 
+    @MockitoBean
+    private ApiClientService apiClientService;
+    @MockitoBean
+    private InternalApiClient internalApiClient;
+    @MockitoBean
+    private PrivateDeltaResourceHandler privateDeltaResourceHandler;
+    @MockitoBean
+    private PrivateOfficerGet privateOfficerGet;
+    @MockitoBean
+    private ApiResponse<AppointmentFullRecordAPI> appointmentFullRecordAPIApiResponse;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws ApiErrorResponseException, URIValidationException {
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", PASS_THROUGH_HEADER);
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
+
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
+        when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
+        when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
+        AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
+        SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
+        sensitiveDateOfBirthAPI.setDay(15);
+        sensitiveDateOfBirthAPI.setMonth(6);
+        sensitiveDateOfBirthAPI.setYear(1980);
+        appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
+        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(appointmentFullRecordAPI);
+
     }
 
     LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
