@@ -399,14 +399,14 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
-            generalPartnerLegalEntityDao.getData().setLegalEntityName(null);
+            generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
-                            Map.entry("legal_entity_name", "Legal Entity Name is required")
+                            Map.entry("legal_entity_register_name", "Legal Entity Register Name is required")
                     );
         }
 
@@ -473,7 +473,7 @@ class PostTransitionPartnerTest {
     @Nested
     class UpdateGeneralPartnerPerson {
         @ParameterizedTest
-        @CsvSource({ "true, true", "true, false", "false, true", "false, false" })
+        @CsvSource({"true, true", "true, false", "false, true", "false, false"})
         void shouldReturn200IfNoErrorsAllAddressChoicesAreTrueOrFalse(
                 boolean usualResidentialAddressRequired, boolean serviceAddressRequired) throws Exception {
             generalPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());

@@ -355,6 +355,6 @@ public abstract class PartnerDataDto {
     }
 
     public boolean isLegalEntity() {
-        return getLegalEntityRegisterName() != null || getLegalForm() != null;
+        return getLegalEntityName() != null;
     }
 }

@@ -213,7 +213,7 @@ class LimitedPartnerServiceValidateTest {
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
         limitedPartnerDao.getData().setPartnershipType(partnershipType);
         limitedPartnerDao.getData().setRegisteredCompanyNumber("");
-        limitedPartnerDao.getData().setLegalEntityName(null);
+        limitedPartnerDao.getData().setLegalEntityRegisterName(null);
 
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
 
@@ -224,7 +224,7 @@ class LimitedPartnerServiceValidateTest {
 
         List<Tuple> expectedErrors = new ArrayList<>(List.of(
                 tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
-                tuple("Legal Entity Name is required", LimitedPartnerDataDto.LEGAL_ENTITY_NAME_FIELD)
+                tuple("Legal Entity Register Name is required", LimitedPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD)
         ));
 
         if (shouldHaveContribution) {

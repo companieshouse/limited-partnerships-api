@@ -160,7 +160,7 @@ class GeneralPartnerServiceValidateTest {
         // given
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setRegisteredCompanyNumber("");
-        generalPartnerDao.getData().setLegalEntityName(null);
+        generalPartnerDao.getData().setLegalEntityRegisterName(null);
         generalPartnerDao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
@@ -174,7 +174,7 @@ class GeneralPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
-                        tuple("Legal Entity Name is required", GeneralPartnerDataDto.LEGAL_ENTITY_NAME_FIELD));
+                        tuple("Legal Entity Register Name is required", GeneralPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD));
     }
 
     @Test
