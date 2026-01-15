@@ -125,7 +125,7 @@ class GeneralPartnerServiceCreateTest {
             GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
 
             var data = dto.getData();
-            data.setLegalEntityName(null);
+            data.setLegalEntityRegisterName(null);
             data.setLegalForm(null);
             data.setGoverningLaw(null);
             data.setLegalEntityRegistrationLocation(null);
@@ -135,8 +135,8 @@ class GeneralPartnerServiceCreateTest {
                     service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID)
             );
 
-            assertNull(exception.getBindingResult().getFieldError("legal_entity_register_name"));
-            assertEquals("Legal Entity Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_name")).getDefaultMessage());
+            assertNull(exception.getBindingResult().getFieldError("legal_entity_name"));
+            assertEquals("Legal Entity Register Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
             assertEquals("Legal Form is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_form")).getDefaultMessage());
             assertEquals("Governing Law is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
             assertEquals("Legal Entity Registration Location is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
@@ -148,7 +148,7 @@ class GeneralPartnerServiceCreateTest {
             GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
             var data = dto.getData();
 
-            data.setLegalEntityName(null);
+            data.setLegalEntityRegisterName(null);
             data.setGoverningLaw(null);
             data.setLegalEntityRegisterName(null);
             data.setLegalEntityRegistrationLocation(null);
@@ -159,7 +159,7 @@ class GeneralPartnerServiceCreateTest {
             );
 
             assertNull(exception.getBindingResult().getFieldError("legal_form"));
-            assertEquals("Legal Entity Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_name")).getDefaultMessage());
+            assertEquals("Legal Entity Register Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
             assertEquals("Governing Law is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
             assertEquals("Legal Entity Register Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
             assertEquals("Legal Entity Registration Location is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
