@@ -13,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AppointmentPreviousDetailsDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
@@ -130,7 +131,7 @@ public class FilingsService {
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
         updateGeneralPartnerAddresses(generalPartnerDataDto);
-        setSensitiveData(generalPartnerDataDto, transaction);
+        setExtraData(generalPartnerDataDto, transaction);
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, generalPartnerDataDto.getKind())) {
@@ -165,20 +166,36 @@ public class FilingsService {
         }
     }
 
-    private void setSensitiveData(GeneralPartnerDataDto generalPartnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+    private void setExtraData(GeneralPartnerDataDto generalPartnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+        String companyNumber = transaction.getCompanyNumber();
+        String appointmentId = generalPartnerDataDto.getAppointmentId();
+
+        String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
+        ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
+        AppointmentFullRecordAPI appointmentFullRecordAPI = response.getData();
+
+        setSensitiveData(generalPartnerDataDto, appointmentFullRecordAPI);
+
+        if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDataDto.getKind())) {
+            AppointmentPreviousDetailsDto appointmentPreviousDetails = new AppointmentPreviousDetailsDto();
+            appointmentPreviousDetails.setForename(appointmentFullRecordAPI.getForename());
+            appointmentPreviousDetails.setSurname(appointmentFullRecordAPI.getSurname());
+            appointmentPreviousDetails.setDateOfBirth(LocalDate.of(
+                    appointmentFullRecordAPI.getDateOfBirth().getYear(),
+                    appointmentFullRecordAPI.getDateOfBirth().getMonth(),
+                    appointmentFullRecordAPI.getDateOfBirth().getDay()));
+
+            generalPartnerDataDto.setAppointmentPreviousDetails(appointmentPreviousDetails);
+        }
+    }
+
+    private void setSensitiveData(GeneralPartnerDataDto generalPartnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
         if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDataDto.getKind()) || PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDataDto.getKind())) {
-            String companyNumber = transaction.getCompanyNumber();
-            String appointmentId = generalPartnerDataDto.getAppointmentId();
-
-            String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
-
-            ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
-
-            if (response.getData().getDateOfBirth() != null) {
+            if (appointmentFullRecordAPI.getDateOfBirth() != null) {
                 generalPartnerDataDto.setDateOfBirth(LocalDate.of(
-                        response.getData().getDateOfBirth().getYear(),
-                        response.getData().getDateOfBirth().getMonth(),
-                        response.getData().getDateOfBirth().getDay()));
+                        appointmentFullRecordAPI.getDateOfBirth().getYear(),
+                        appointmentFullRecordAPI.getDateOfBirth().getMonth(),
+                        appointmentFullRecordAPI.getDateOfBirth().getDay()));
             }
         }
     }

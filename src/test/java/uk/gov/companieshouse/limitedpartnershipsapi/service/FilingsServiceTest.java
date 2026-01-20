@@ -35,6 +35,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -99,6 +100,8 @@ class FilingsServiceTest {
         sensitiveDateOfBirthAPI.setMonth(6);
         sensitiveDateOfBirthAPI.setYear(1980);
         appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
+        appointmentFullRecordAPI.setForename("Prev forename");
+        appointmentFullRecordAPI.setSurname("Prev surname");
         when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(appointmentFullRecordAPI);
     }
 
@@ -232,6 +235,10 @@ class FilingsServiceTest {
             assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
             Assertions.assertNull(filingGeneralPartnerDataDto.getUsualResidentialAddress());
             Assertions.assertNull(filingGeneralPartnerDataDto.getServiceAddress());
+
+            assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
+            assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+            assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
         }
     }
 
