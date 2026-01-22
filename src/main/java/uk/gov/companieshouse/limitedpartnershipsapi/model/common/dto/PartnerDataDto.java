@@ -49,6 +49,7 @@ public abstract class PartnerDataDto {
     @JsonProperty("update_service_address_required")
     private Boolean updateServiceAddressRequired;
 
+    @JsonProperty("appointment_previous_details")
     private AppointmentPreviousDetailsDto appointmentPreviousDetails;
 
     private PartnershipType partnershipType;
