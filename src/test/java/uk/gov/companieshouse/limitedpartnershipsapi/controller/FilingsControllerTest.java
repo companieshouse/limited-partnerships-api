@@ -112,6 +112,8 @@ class FilingsControllerTest {
         sensitiveDateOfBirthAPI.setMonth(6);
         sensitiveDateOfBirthAPI.setYear(1980);
         appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
+        appointmentFullRecordAPI.setForename("Prev forename");
+        appointmentFullRecordAPI.setSurname("Prev surname");
         when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(appointmentFullRecordAPI);
 
     }
@@ -217,6 +219,31 @@ class FilingsControllerTest {
                     .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
                     .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
                     .andExpect(jsonPath("[0].kind").value(FilingMode.POST_TRANSITION.getDescription() + "#" + subKind));
+        }
+
+        @Test
+        void shouldReturn200WithAppointmentPreviousData() throws Exception {
+            FilingKind filingKind = new FilingKind();
+            String subKind = filingKind.getSubKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
+
+            mockPartner(transaction, PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
+            generalPartner.getData().setKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(FilingMode.POST_TRANSITION.getDescription() + "#" + subKind))
+                    .andExpect(jsonPath("[0].data.general_partners[0].appointment_previous_details.forename").value("Prev forename"))
+                    .andExpect(jsonPath("[0].data.general_partners[0].appointment_previous_details.surname").value("Prev surname"))
+                    .andExpect(jsonPath("[0].data.general_partners[0].appointment_previous_details.date_of_birth").value("1980-06-15"));
         }
 
         @Test

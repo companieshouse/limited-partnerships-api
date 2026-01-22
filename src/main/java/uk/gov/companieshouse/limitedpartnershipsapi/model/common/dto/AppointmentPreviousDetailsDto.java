@@ -1,11 +1,17 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 
 public class AppointmentPreviousDetailsDto {
+    @JsonProperty("forename")
     private String forename;
+    @JsonProperty("surname")
     private String surname;
+    @JsonProperty("date_of_birth")
     private LocalDate dateOfBirth;
+    @JsonProperty("legal_entity_name")
     private String legalEntityName;
 
     public String getForename() {
