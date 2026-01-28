@@ -16,6 +16,7 @@ public class GeneralPartnerBuilder {
     public static final String GENERAL_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";
     private String generalPartnerKind = null;
     private PartnershipType partnershipType;
+    private LocalDate ceaseDate;
 
     private Boolean updateUsualResidentialAddressRequired;
     private Boolean updateServiceAddressRequired;
@@ -40,6 +41,11 @@ public class GeneralPartnerBuilder {
         return this;
     }
 
+    public GeneralPartnerBuilder withCeaseDate(LocalDate ceaseDate) {
+        this.ceaseDate = ceaseDate;
+        return this;
+    }
+
     public GeneralPartnerDto personDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
         dto.setId(GENERAL_PARTNER_ID);
@@ -57,6 +63,7 @@ public class GeneralPartnerBuilder {
         dataDto.setPartnershipType(partnershipType);
         dataDto.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
         dataDto.setUpdateServiceAddressRequired(updateServiceAddressRequired);
+        dataDto.setCeaseDate(ceaseDate);
 
         dto.setData(dataDto);
 
@@ -78,6 +85,7 @@ public class GeneralPartnerBuilder {
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
         dataDto.setKind(generalPartnerKind);
         dataDto.setPartnershipType(partnershipType);
+        dataDto.setCeaseDate(ceaseDate);
 
         dto.setData(dataDto);
 
@@ -112,6 +120,7 @@ public class GeneralPartnerBuilder {
         dataDao.setKind(generalPartnerKind);
         dataDao.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
         dataDao.setUpdateServiceAddressRequired(updateServiceAddressRequired);
+        dataDao.setCeaseDate(ceaseDate);
 
         dao.setData(dataDao);
 
@@ -133,6 +142,7 @@ public class GeneralPartnerBuilder {
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
         dataDao.setKind(generalPartnerKind);
+        dataDao.setCeaseDate(ceaseDate);
 
         dao.setData(dataDao);
 
