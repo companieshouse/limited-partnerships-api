@@ -168,6 +168,7 @@ public class FilingsService {
 
     private void setExtraData(GeneralPartnerDataDto generalPartnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
         String partnerKind = generalPartnerDataDto.getKind();
+
         if (!PartnerKind.isUpdateGeneralPartnerKind(partnerKind) &&
                 !PartnerKind.isRemoveGeneralPartnerKind(partnerKind)) {
             return;
