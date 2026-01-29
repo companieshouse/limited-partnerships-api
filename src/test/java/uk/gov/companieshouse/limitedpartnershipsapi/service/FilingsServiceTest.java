@@ -87,22 +87,6 @@ class FilingsServiceTest {
     @MockitoBean
     private ApiResponse<AppointmentFullRecordAPI> appointmentFullRecordAPIApiResponse;
 
-    private void mockChsAppointmentApiData() throws URIValidationException, ApiErrorResponseException {
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
-        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
-        when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
-        when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
-        AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
-        SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
-        sensitiveDateOfBirthAPI.setDay(15);
-        sensitiveDateOfBirthAPI.setMonth(6);
-        sensitiveDateOfBirthAPI.setYear(1980);
-        appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
-        appointmentFullRecordAPI.setForename("Prev forename");
-        appointmentFullRecordAPI.setSurname("Prev surname");
-        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(appointmentFullRecordAPI);
-    }
-
     @Test
     void testFilingGenerationSuccess() throws ServiceException {
         var transaction = new TransactionBuilder().withPayment().build();
@@ -280,5 +264,25 @@ class FilingsServiceTest {
         assertEquals(partnerData.getUsualResidentialAddress(), filingPartnerDataDto.getUsualResidentialAddress());
         assertEquals(partnerData.getPrincipalOfficeAddress(), filingPartnerDataDto.getPrincipalOfficeAddress());
         assertEquals(partnerData.getKind(), filingPartnerDataDto.getKind());
+    }
+
+    private void mockChsAppointmentApiData() throws URIValidationException, ApiErrorResponseException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
+        when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
+        when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
+        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(getAppointmentFullRecordAPI());
+    }
+
+    private AppointmentFullRecordAPI getAppointmentFullRecordAPI() {
+        AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
+        SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
+        sensitiveDateOfBirthAPI.setDay(15);
+        sensitiveDateOfBirthAPI.setMonth(6);
+        sensitiveDateOfBirthAPI.setYear(1980);
+        appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
+        appointmentFullRecordAPI.setForename("Prev forename");
+        appointmentFullRecordAPI.setSurname("Prev surname");
+        return appointmentFullRecordAPI;
     }
 }
