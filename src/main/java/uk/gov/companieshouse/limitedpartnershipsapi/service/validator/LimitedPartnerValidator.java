@@ -13,7 +13,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -38,10 +37,14 @@ public class LimitedPartnerValidator extends PartnerValidator {
         super(validator, validationStatus, companyService);
     }
 
-    public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws ServiceException {
+    public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto, Transaction transaction, boolean isRemoveOrUpdate) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
         checkFieldConstraints(limitedPartnerDto, transaction, errorsList);
+
+        if (isRemoveOrUpdate) {
+            return errorsList;
+        }
 
         var dataDto = limitedPartnerDto.getData();
         if (dataDto.isLegalEntity()) {
@@ -84,9 +87,14 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     public void validateRemove(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws ServiceException, NoSuchMethodException, MethodArgumentNotValidException {
-        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, GeneralPartnerDataDto.class.getName());
+        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
+
+        if (!limitedPartnerDto.getData().isLegalEntity()) {
+            checkNotNullName(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+        }
+
         validateCeaseDate(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
@@ -172,10 +180,10 @@ public class LimitedPartnerValidator extends PartnerValidator {
     private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            validatePartial(limitedPartnerDto, transaction);
-
             if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
                 validateRemove(limitedPartnerDto, transaction);
+            } else {
+                validatePartial(limitedPartnerDto, transaction);
             }
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
