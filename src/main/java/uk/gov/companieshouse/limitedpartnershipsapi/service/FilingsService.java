@@ -167,6 +167,13 @@ public class FilingsService {
     }
 
     private void setExtraData(GeneralPartnerDataDto generalPartnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+        String partnerKind = generalPartnerDataDto.getKind();
+
+        if (!PartnerKind.isUpdateGeneralPartnerKind(partnerKind) &&
+                !PartnerKind.isRemoveGeneralPartnerKind(partnerKind)) {
+            return;
+        }
+
         String companyNumber = transaction.getCompanyNumber();
         String appointmentId = generalPartnerDataDto.getAppointmentId();
 
@@ -176,7 +183,7 @@ public class FilingsService {
 
         setSensitiveData(generalPartnerDataDto, appointmentFullRecordAPI);
 
-        if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDataDto.getKind())) {
+        if (PartnerKind.isUpdateGeneralPartnerKind(partnerKind)) {
             AppointmentPreviousDetailsDto appointmentPreviousDetails = new AppointmentPreviousDetailsDto();
             appointmentPreviousDetails.setForename(appointmentFullRecordAPI.getForename());
             appointmentPreviousDetails.setSurname(appointmentFullRecordAPI.getSurname());
@@ -190,13 +197,11 @@ public class FilingsService {
     }
 
     private void setSensitiveData(GeneralPartnerDataDto generalPartnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDataDto.getKind()) || PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDataDto.getKind())) {
-            if (appointmentFullRecordAPI.getDateOfBirth() != null) {
-                generalPartnerDataDto.setDateOfBirth(LocalDate.of(
-                        appointmentFullRecordAPI.getDateOfBirth().getYear(),
-                        appointmentFullRecordAPI.getDateOfBirth().getMonth(),
-                        appointmentFullRecordAPI.getDateOfBirth().getDay()));
-            }
+        if (appointmentFullRecordAPI.getDateOfBirth() != null) {
+            generalPartnerDataDto.setDateOfBirth(LocalDate.of(
+                    appointmentFullRecordAPI.getDateOfBirth().getYear(),
+                    appointmentFullRecordAPI.getDateOfBirth().getMonth(),
+                    appointmentFullRecordAPI.getDateOfBirth().getDay()));
         }
     }
 

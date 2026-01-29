@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,23 +86,6 @@ class FilingsServiceTest {
     private PrivateOfficerGet privateOfficerGet;
     @MockitoBean
     private ApiResponse<AppointmentFullRecordAPI> appointmentFullRecordAPIApiResponse;
-
-    @BeforeEach
-    public void setup() throws ApiErrorResponseException, URIValidationException {
-        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
-        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
-        when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
-        when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
-        AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
-        SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
-        sensitiveDateOfBirthAPI.setDay(15);
-        sensitiveDateOfBirthAPI.setMonth(6);
-        sensitiveDateOfBirthAPI.setYear(1980);
-        appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
-        appointmentFullRecordAPI.setForename("Prev forename");
-        appointmentFullRecordAPI.setSurname("Prev surname");
-        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(appointmentFullRecordAPI);
-    }
 
     @Test
     void testFilingGenerationSuccess() throws ServiceException {
@@ -213,6 +195,7 @@ class FilingsServiceTest {
 
         @Test
         void testFilingGenerationSuccessfulForGeneralPartnerWithoutAddresses() throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData();
             var transaction = new TransactionBuilder().build();
             var generalPartner = new GeneralPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
@@ -240,6 +223,32 @@ class FilingsServiceTest {
             assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
             assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
         }
+
+        @Test
+        void testFilingGenerationSuccessfulForRemoveGeneralPartnerPerson() throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData();
+            var transaction = new TransactionBuilder().build();
+            LocalDate today = LocalDate.now();
+            var generalPartner = new GeneralPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withGeneralPartnerKind(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription())
+                    .withCeaseDate(today)
+                    .personDto();
+
+            when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(generalPartner.getData(), filingLimitedPartnershipData, transaction);
+
+            List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+            GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
+            GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
+            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
+            assertEquals(today, filingGeneralPartnerDataDto.getCeaseDate());
+        }
     }
 
     private static void assertCommonLimitedPartnershipData(PartnerDataDto partnerDataDto, DataDto filingLimitedPartnershipData, Transaction transaction) {
@@ -255,5 +264,25 @@ class FilingsServiceTest {
         assertEquals(partnerData.getUsualResidentialAddress(), filingPartnerDataDto.getUsualResidentialAddress());
         assertEquals(partnerData.getPrincipalOfficeAddress(), filingPartnerDataDto.getPrincipalOfficeAddress());
         assertEquals(partnerData.getKind(), filingPartnerDataDto.getKind());
+    }
+
+    private void mockChsAppointmentApiData() throws URIValidationException, ApiErrorResponseException {
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
+        when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
+        when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
+        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(getAppointmentFullRecordAPI());
+    }
+
+    private AppointmentFullRecordAPI getAppointmentFullRecordAPI() {
+        AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
+        SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
+        sensitiveDateOfBirthAPI.setDay(15);
+        sensitiveDateOfBirthAPI.setMonth(6);
+        sensitiveDateOfBirthAPI.setYear(1980);
+        appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
+        appointmentFullRecordAPI.setForename("Prev forename");
+        appointmentFullRecordAPI.setSurname("Prev surname");
+        return appointmentFullRecordAPI;
     }
 }
