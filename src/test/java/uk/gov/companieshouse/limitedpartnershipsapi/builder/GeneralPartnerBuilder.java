@@ -83,6 +83,7 @@ public class GeneralPartnerBuilder {
         dataDto.setRegisteredCompanyNumber("12345678");
         dataDto.setPrincipalOfficeAddress(createAddressDto());
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
+        dataDto.setNotDisqualifiedStatementChecked(true);
         dataDto.setKind(generalPartnerKind);
         dataDto.setPartnershipType(partnershipType);
         dataDto.setCeaseDate(ceaseDate);

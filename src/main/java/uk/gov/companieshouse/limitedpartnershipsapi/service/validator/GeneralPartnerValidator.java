@@ -36,20 +36,20 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         var generalPartnerDataDto = generalPartnerDto.getData();
 
+        if (transaction.getFilingMode().equals(FilingMode.REGISTRATION.getDescription()) ||
+                (transaction.getFilingMode().equals(FilingMode.DEFAULT.getDescription()) && PartnerKind.isAddPartnerKind(generalPartnerDataDto.getKind()))
+        ) {
+            var notDisqualifiedStatementChecked = generalPartnerDataDto.getNotDisqualifiedStatementChecked();
+            if (notDisqualifiedStatementChecked == null || Boolean.FALSE.equals(notDisqualifiedStatementChecked)) {
+                addError(CLASS_NAME, GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
+            }
+        }
+
         if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(CLASS_NAME, generalPartnerDataDto, bindingResult);
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, generalPartnerDataDto, bindingResult);
-            if (transaction.getFilingMode().equals(FilingMode.REGISTRATION.getDescription()) ||
-                    (transaction.getFilingMode().equals(FilingMode.POST_TRANSITION.getDescription()) && PartnerKind.isAddPartnerKind(generalPartnerDataDto.getKind()))
-            ) {
-                var notDisqualifiedStatementChecked = generalPartnerDataDto.getNotDisqualifiedStatementChecked();
-                if (notDisqualifiedStatementChecked == null || Boolean.FALSE.equals(notDisqualifiedStatementChecked)) {
-                    addError(CLASS_NAME, GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD, "Not Disqualified Statement must be checked", bindingResult);
-                }
-            }
-
         } else {
             addError(CLASS_NAME, "", "Some fields are missing", bindingResult);
         }

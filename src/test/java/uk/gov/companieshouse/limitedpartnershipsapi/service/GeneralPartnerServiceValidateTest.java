@@ -139,6 +139,7 @@ class GeneralPartnerServiceValidateTest {
         generalPartnerDao.getData().setGoverningLaw(null);
         generalPartnerDao.getData().setRegisteredCompanyNumber(null);
         generalPartnerDao.getData().setPrincipalOfficeAddress(null);
+        generalPartnerDao.getData().setNotDisqualifiedStatementChecked(false);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
@@ -152,7 +153,9 @@ class GeneralPartnerServiceValidateTest {
                 .containsExactlyInAnyOrder(
                         tuple("Governing Law is required", GeneralPartnerDataDto.GOVERNING_LAW_FIELD),
                         tuple("Registered Company Number is required", GeneralPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
-                        tuple("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+                        tuple("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD),
+                        tuple("Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD));
+
     }
 
     @Test
@@ -196,6 +199,25 @@ class GeneralPartnerServiceValidateTest {
     void shouldReturnErrorWhenNotDisqualifiedStatementCheckedIsNull() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         GeneralPartnerDao generalPartnerDao = createPersonDao();
+        generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
+
+        when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+
+        // when
+        List<ValidationStatusError> errors = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+
+        // then
+        verify(repository).findById(generalPartnerDao.getId());
+        assertThat(errors)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD));
+    }
+
+    @Test
+    void shouldReturnErrorWhenNotDisqualifiedStatementCheckedIsNullLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
 
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
@@ -258,6 +280,7 @@ class GeneralPartnerServiceValidateTest {
         dataDao.setLegalEntityName("Same");
         dataDao.setGoverningLaw("UK");
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
+        dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setRegisteredCompanyNumber("LP111222");
         dataDao.setPrincipalOfficeAddress(createAddressDao());
         dataDao.setKind(FILING_KIND_GENERAL_PARTNER);
