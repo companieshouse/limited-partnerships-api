@@ -166,7 +166,7 @@ public class LimitedPartnerService {
                 .toList();
 
         for (LimitedPartnerDto limitedPartnerDto : limitedPartnerDtos) {
-            boolean isCompleted = limitedPartnerValidator.validateFull(limitedPartnerDto, transaction).isEmpty();
+            boolean isCompleted = limitedPartnerValidator.validateFull(limitedPartnerDto, transaction, false).isEmpty();
             limitedPartnerDto.getData().setCompleted(isCompleted);
         }
 
@@ -197,7 +197,7 @@ public class LimitedPartnerService {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 
-        return limitedPartnerValidator.validateFull(dto, transaction);
+        return limitedPartnerValidator.validateFull(dto, transaction, false);
     }
 
     public List<ValidationStatusError> validateLimitedPartners(Transaction transaction) throws ServiceException {
@@ -213,7 +213,7 @@ public class LimitedPartnerService {
         }
 
         for (LimitedPartnerDto partner : limitedPartners) {
-            errors.addAll(limitedPartnerValidator.validateFull(partner, transaction));
+            errors.addAll(limitedPartnerValidator.validateFull(partner, transaction, false));
         }
 
         return errors;

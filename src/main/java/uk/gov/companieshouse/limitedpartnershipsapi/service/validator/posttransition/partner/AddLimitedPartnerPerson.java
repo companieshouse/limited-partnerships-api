@@ -30,7 +30,7 @@ public class AddLimitedPartnerPerson implements PostTransitionStrategy<PartnerDt
 
     @Override
     public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsListValidator = limitedPartnerValidator.validateFull((LimitedPartnerDto) partnerDto, transaction);
+        List<ValidationStatusError> errorsListValidator = limitedPartnerValidator.validateFull((LimitedPartnerDto) partnerDto, transaction, false);
 
         errorsList.addAll(errorsListValidator);
     }
