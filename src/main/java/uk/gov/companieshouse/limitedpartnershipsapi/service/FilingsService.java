@@ -5,6 +5,7 @@ import org.springframework.util.StringUtils;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -13,7 +14,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AppointmentPreviousDetailsDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.CompanyPreviousDetailsDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
@@ -51,9 +54,10 @@ public class FilingsService {
     private final LimitedPartnerService limitedPartnerService;
     private final TransactionService transactionService;
     private final PaymentService paymentService;
+    private final ApiClientService apiClientService;
+    private final CompanyService companyService;
     private final FilingKind filingKind;
 
-    private final ApiClientService apiClientService;
 
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
@@ -61,7 +65,8 @@ public class FilingsService {
                           TransactionService transactionService,
                           PaymentService paymentService,
                           FilingKind filingKind,
-                          ApiClientService apiClientService
+                          ApiClientService apiClientService,
+                          CompanyService companyService
     ) {
 
         this.limitedPartnershipService = limitedPartnershipService;
@@ -71,6 +76,7 @@ public class FilingsService {
         this.paymentService = paymentService;
         this.filingKind = filingKind;
         this.apiClientService = apiClientService;
+        this.companyService = companyService;
     }
 
     public FilingApi generateIncorporationFiling(Transaction transaction, String incorporationId) throws ServiceException {
@@ -241,6 +247,13 @@ public class FilingsService {
         LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
         DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
 
+        if (shouldIncludeCompanyPreviousDetails(transaction, limitedPartnershipDataDto)) {
+            CompanyProfileApi companyProfile = companyService.getCompanyProfile(transaction.getCompanyNumber());
+            CompanyPreviousDetailsDto companyPreviousDetailsDto = new CompanyPreviousDetailsDto();
+            companyPreviousDetailsDto.setCompanyName(companyProfile.getCompanyName());
+            limitedPartnershipDataDto.setCompanyPreviousDetails(companyPreviousDetailsDto);
+        }
+
         var filing = new FilingApi();
 
         Map<String, Object> data = new HashMap<>();
@@ -254,6 +267,10 @@ public class FilingsService {
         filing.setData(data);
 
         return filing;
+    }
+
+    private boolean shouldIncludeCompanyPreviousDetails(Transaction transaction, DataDto limitedPartnershipDataDto) {
+        return FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode()) && PartnershipKind.UPDATE_PARTNERSHIP_NAME.getDescription().equals(limitedPartnershipDataDto.getKind());
     }
 
     /**

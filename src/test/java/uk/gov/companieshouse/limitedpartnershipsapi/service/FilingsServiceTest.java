@@ -14,6 +14,7 @@ import uk.gov.companieshouse.api.handler.delta.PrivateDeltaResourceHandler;
 import uk.gov.companieshouse.api.handler.delta.company.appointment.request.PrivateOfficerGet;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
@@ -28,11 +29,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -75,6 +78,8 @@ class FilingsServiceTest {
     private TransactionService transactionService;
     @MockitoBean
     private PaymentService paymentService;
+    @MockitoBean
+    private CompanyService companyService;
 
     @MockitoBean
     private ApiClientService apiClientService;
@@ -248,6 +253,45 @@ class FilingsServiceTest {
             GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
             assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
             assertEquals(today, filingGeneralPartnerDataDto.getCeaseDate());
+        }
+    }
+
+    @Nested
+    class FilingLimitedPartnershipTest {
+        @Test
+        void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName() throws ServiceException, ApiErrorResponseException, URIValidationException {
+            String currentCompanyName = "Current Company Name Ltd";
+            LocalDate today = LocalDate.now();
+            var transaction = new TransactionBuilder()
+                    .withFilingMode(FilingMode.DEFAULT.getDescription())
+                    .build();
+
+            var limitedPartnership = new LimitedPartnershipBuilder()
+                    .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
+                    .withDateOfUpdate(today)
+                    .buildDto();
+
+            var companyProfile = new CompanyProfileApi();
+            companyProfile.setCompanyName(currentCompanyName);
+
+            PaymentApi payment = new PaymentApi();
+            payment.setPaymentMethod(PAYMENT_METHOD);
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnership);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfile);
+            when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
+            when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
+
+            FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction);
+            var expectedFilingKind = new FilingKind().addSubKind(FilingMode.POST_TRANSITION.getDescription(), PartnershipKind.UPDATE_PARTNERSHIP_NAME.getDescription());
+            assertEquals(expectedFilingKind, filing.getKind());
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertEquals(currentCompanyName, filingLimitedPartnershipData.getCompanyPreviousDetails().getCompanyName());
+            assertEquals(limitedPartnership.getData().getPartnershipName(), filingLimitedPartnershipData.getPartnershipName());
+            assertEquals(limitedPartnership.getData().getPartnershipNumber(), filingLimitedPartnershipData.getPartnershipNumber());
+            assertEquals(limitedPartnership.getData().getPartnershipType(), filingLimitedPartnershipData.getPartnershipType());
+            assertEquals(limitedPartnership.getData().getDateOfUpdate(), filingLimitedPartnershipData.getDateOfUpdate());
         }
     }
 
