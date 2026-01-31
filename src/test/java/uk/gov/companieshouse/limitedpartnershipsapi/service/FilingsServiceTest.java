@@ -259,7 +259,7 @@ class FilingsServiceTest {
     @Nested
     class FilingLimitedPartnershipTest {
         @Test
-        void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName() throws ServiceException, ApiErrorResponseException, URIValidationException {
+        void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName() throws ServiceException {
             String currentCompanyName = "Current Company Name Ltd";
             LocalDate today = LocalDate.now();
             var transaction = new TransactionBuilder()
