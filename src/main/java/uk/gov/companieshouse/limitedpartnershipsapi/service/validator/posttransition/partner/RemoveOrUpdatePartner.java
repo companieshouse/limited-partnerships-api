@@ -8,7 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.Validation
 import java.util.List;
 
 @Component
-public class RemoveUpdatePartner {
+public class RemoveOrUpdatePartner {
     public void validateRemove(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
         if (partnerDto.getData().getCeaseDate() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Cease date is required",

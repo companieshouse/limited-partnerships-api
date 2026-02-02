@@ -19,11 +19,11 @@ import java.util.List;
 public class RemoveLimitedPartnerPerson implements PostTransitionStrategy<PartnerDto> {
 
     private final LimitedPartnerValidator limitedPartnerValidator;
-    private final RemoveUpdatePartner removeUpdatePartner;
+    private final RemoveOrUpdatePartner removeOrUpdatePartner;
 
-    RemoveLimitedPartnerPerson(LimitedPartnerValidator limitedPartnerValidator, RemoveUpdatePartner removeUpdatePartner) {
+    RemoveLimitedPartnerPerson(LimitedPartnerValidator limitedPartnerValidator, RemoveOrUpdatePartner removeOrUpdatePartner) {
         this.limitedPartnerValidator = limitedPartnerValidator;
-        this.removeUpdatePartner = removeUpdatePartner;
+        this.removeOrUpdatePartner = removeOrUpdatePartner;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class RemoveLimitedPartnerPerson implements PostTransitionStrategy<Partne
 
         errorsList.addAll(errorsListValidator);
 
-        removeUpdatePartner.validateRemove(partnerDto, errorsList, validationStatus);
+        removeOrUpdatePartner.validateRemove(partnerDto, errorsList, validationStatus);
     }
 
     @Override
