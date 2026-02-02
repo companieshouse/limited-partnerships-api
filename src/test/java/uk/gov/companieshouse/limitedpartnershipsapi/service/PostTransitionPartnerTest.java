@@ -674,6 +674,7 @@ class PostTransitionPartnerTest {
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
             generalPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerLegalEntityDao.getData().setLegalEntityName(null);
             generalPartnerLegalEntityDao.getData().setGoverningLaw(null);
             generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
             generalPartnerLegalEntityDao.getData().setLegalEntityRegistrationLocation(null);
@@ -683,9 +684,10 @@ class PostTransitionPartnerTest {
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
-            assertThat(result).hasSize(5)
+            assertThat(result).hasSize(6)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
+                            Map.entry("legal_entity_name", "Legal Entity Name is required"),
                             Map.entry("legal_form", "Legal Form is required"),
                             Map.entry("governing_law", "Governing Law is required"),
                             Map.entry("legal_entity_register_name", "Legal Entity Register Name is required"),

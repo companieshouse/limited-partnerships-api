@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttrans
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
@@ -27,7 +28,7 @@ public class RemoveOrUpdatePartner {
                     "data.dateOfUpdate"));
         }
 
-        if (partnerDto.getData().isLegalEntity()) {
+        if (partnerDto.getData().getKind().equals(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription())) {
             if (partnerDto.getData().getUpdatePrincipalOfficeAddressRequired() == null) {
                 errorsList.add(validationStatus.createValidationStatusError("Update principal office address choice is required",
                         "data.updatePrincipalOfficeAddressRequired"));
