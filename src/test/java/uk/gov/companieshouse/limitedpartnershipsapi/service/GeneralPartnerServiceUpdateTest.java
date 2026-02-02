@@ -80,7 +80,7 @@ class GeneralPartnerServiceUpdateTest {
         generalPartnerDao.getData().setNationality2(Nationality.GREENLANDIC.getDescription());
         generalPartnerDao.getData().setPrincipalOfficeAddress(null);
 
-        GeneralPartnerDto generalPartnerDto = new GeneralPartnerBuilder().legalEntityDto();
+        GeneralPartnerDto generalPartnerDto = new GeneralPartnerBuilder().withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription()).legalEntityDto();
         generalPartnerDto.getData().setDateEffectiveFrom(null);
 
         when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
@@ -236,7 +236,7 @@ class GeneralPartnerServiceUpdateTest {
     void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().legalEntityDao();
 
-        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().legalEntityDto().getData();
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription()).legalEntityDto().getData();
         generalPartnerDataDto.setDateEffectiveFrom(null);
         generalPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
