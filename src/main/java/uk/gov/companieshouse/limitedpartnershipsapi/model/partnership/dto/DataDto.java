@@ -10,6 +10,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.CompanyPreviousDetailsDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
@@ -97,6 +98,9 @@ public class DataDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @PastOrPresent(message = "Date of update must not be in the future")
     private LocalDate dateOfUpdate;
+
+    @JsonProperty("company_previous_details")
+    private CompanyPreviousDetailsDto companyPreviousDetails;
 
     public String getPartnershipNumber() {
         return partnershipNumber;
@@ -216,5 +220,13 @@ public class DataDto {
 
     public void setDateOfUpdate(LocalDate dateOfUpdate) {
         this.dateOfUpdate = dateOfUpdate;
+    }
+
+    public CompanyPreviousDetailsDto getCompanyPreviousDetails() {
+        return companyPreviousDetails;
+    }
+
+    public void setCompanyPreviousDetails(CompanyPreviousDetailsDto companyPreviousDetails) {
+        this.companyPreviousDetails = companyPreviousDetails;
     }
 }
