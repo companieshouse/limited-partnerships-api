@@ -84,7 +84,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
-        if (generalPartnerDto.getData().getKind().equals(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription())) {
+        if (PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription().equals(generalPartnerDto.getData().getKind())) {
             checkNotNullLegalEntity(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
         } else {
             checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);

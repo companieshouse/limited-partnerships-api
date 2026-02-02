@@ -28,7 +28,7 @@ public class RemoveOrUpdatePartner {
                     "data.dateOfUpdate"));
         }
 
-        if (partnerDto.getData().getKind().equals(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription())) {
+        if (PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription().equals(partnerDto.getData().getKind())) {
             if (partnerDto.getData().getUpdatePrincipalOfficeAddressRequired() == null) {
                 errorsList.add(validationStatus.createValidationStatusError("Update principal office address choice is required",
                         "data.updatePrincipalOfficeAddressRequired"));
