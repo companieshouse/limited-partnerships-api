@@ -43,9 +43,6 @@ public abstract class PartnerDataDto {
     @JsonProperty("remove_confirmation_checked")
     private boolean removeConfirmationChecked;
 
-    @JsonProperty("update_usual_residential_address_required")
-    private Boolean updateUsualResidentialAddressRequired;
-
     @JsonProperty("update_service_address_required")
     private Boolean updateServiceAddressRequired;
 
@@ -100,14 +97,6 @@ public abstract class PartnerDataDto {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
-    }
-
-    public Boolean getUpdateUsualResidentialAddressRequired() {
-        return updateUsualResidentialAddressRequired;
-    }
-
-    public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
-        this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
     }
 
     public Boolean getUpdateServiceAddressRequired() {
@@ -169,6 +158,9 @@ public abstract class PartnerDataDto {
     @Valid
     private AddressDto usualResidentialAddress;
 
+    @JsonProperty("update_usual_residential_address_required")
+    private Boolean updateUsualResidentialAddressRequired;
+
     public String getForename() {
         return forename;
     }
@@ -223,6 +215,14 @@ public abstract class PartnerDataDto {
 
     public void setUsualResidentialAddress(AddressDto usualResidentialAddress) {
         this.usualResidentialAddress = usualResidentialAddress;
+    }
+
+    public Boolean getUpdateUsualResidentialAddressRequired() {
+        return updateUsualResidentialAddressRequired;
+    }
+
+    public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
+        this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
     }
 
     // Legal Entity
@@ -282,6 +282,9 @@ public abstract class PartnerDataDto {
     @JsonProperty(PRINCIPAL_OFFICE_ADDRESS_FIELD)
     @Valid
     private AddressDto principalOfficeAddress;
+
+    @JsonProperty("update_principal_office_address_required")
+    private Boolean updatePrincipalOfficeAddressRequired;
 
     private boolean completed;
 
@@ -355,6 +358,14 @@ public abstract class PartnerDataDto {
 
     public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public Boolean getUpdatePrincipalOfficeAddressRequired() {
+        return updatePrincipalOfficeAddressRequired;
+    }
+
+    public void setUpdatePrincipalOfficeAddressRequired(Boolean updatePrincipalOfficeAddressRequired) {
+        this.updatePrincipalOfficeAddressRequired = updatePrincipalOfficeAddressRequired;
     }
 
     public boolean getCompleted() {

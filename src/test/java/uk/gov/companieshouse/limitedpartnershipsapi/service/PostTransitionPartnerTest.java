@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.CompanyBuilder;
@@ -470,6 +471,8 @@ class PostTransitionPartnerTest {
     }
 
     // -- Update Partner --
+
+    // -- Update General Partner Person --
     @Nested
     class UpdateGeneralPartnerPerson {
         @ParameterizedTest
@@ -589,6 +592,114 @@ class PostTransitionPartnerTest {
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
             var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerPersonDao.getId());
+
+            assertNull(result);
+        }
+    }
+
+    // -- Update General Partner Legal Entity
+    @Nested
+    class UpdateGeneralPartnerLegalEntity {
+        @ParameterizedTest
+        @CsvSource({"true", "false"})
+        void shouldReturn200IfNoErrorsAllAddressChoicesAreTrueOrFalse(boolean principalOfficeAddressRequired) throws Exception {
+            generalPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(principalOfficeAddressRequired);
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            ObjectMapper mapper = new ObjectMapper();
+            System.out.println(mapper.writeValueAsString(result));
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoDateOfUpdate() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            generalPartnerLegalEntityDao.getData().setDateOfUpdate(null);
+            generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(false);
+            generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(false);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Date of update is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoPrincipalOfficeAddressChoice() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            generalPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(false);
+            generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(null);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.updatePrincipalOfficeAddressRequired", "Update principal office address choice is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfCeaseDateBeforeIncorporationDate() throws Exception {
+            generalPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.of(2000, 1, 1));
+            generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
+            generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(false);
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoData() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            generalPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.now());
+            generalPartnerLegalEntityDao.getData().setGoverningLaw(null);
+            generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
+            generalPartnerLegalEntityDao.getData().setLegalEntityRegistrationLocation(null);
+            generalPartnerLegalEntityDao.getData().setLegalForm(null);
+            generalPartnerLegalEntityDao.getData().setRegisteredCompanyNumber(null);
+            generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(false);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(5)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("legal_form", "Legal Form is required"),
+                            Map.entry("governing_law", "Governing Law is required"),
+                            Map.entry("legal_entity_register_name", "Legal Entity Register Name is required"),
+                            Map.entry("legal_entity_registration_location", "Legal Entity Registration Location is required"),
+                            Map.entry("registered_company_number", "Registered Company Number is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKindUpdateGeneralPartnerLegalEntity() throws Exception {
+
+            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
             assertNull(result);
         }

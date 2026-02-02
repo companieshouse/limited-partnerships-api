@@ -20,6 +20,7 @@ public class GeneralPartnerBuilder {
 
     private Boolean updateUsualResidentialAddressRequired;
     private Boolean updateServiceAddressRequired;
+    private Boolean updatePrincipalOfficeAddressRequired;
 
     public GeneralPartnerBuilder withGeneralPartnerKind(String kind) {
         this.generalPartnerKind = kind;
@@ -38,6 +39,11 @@ public class GeneralPartnerBuilder {
 
     public GeneralPartnerBuilder withUpdateServiceAddressRequired(Boolean updateServiceAddressRequired) {
         this.updateServiceAddressRequired = updateServiceAddressRequired;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withUpdatePrincipalOfficeAddressRequired(Boolean updatePrincipalOfficeAddressRequired) {
+        this.updatePrincipalOfficeAddressRequired = updatePrincipalOfficeAddressRequired;
         return this;
     }
 
@@ -86,6 +92,7 @@ public class GeneralPartnerBuilder {
         dataDto.setNotDisqualifiedStatementChecked(true);
         dataDto.setKind(generalPartnerKind);
         dataDto.setPartnershipType(partnershipType);
+        dataDto.setUpdatePrincipalOfficeAddressRequired(updatePrincipalOfficeAddressRequired);
         dataDto.setCeaseDate(ceaseDate);
 
         dto.setData(dataDto);
@@ -142,6 +149,7 @@ public class GeneralPartnerBuilder {
         dataDao.setRegisteredCompanyNumber("12345678");
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
+        dataDao.setUpdatePrincipalOfficeAddressRequired(updatePrincipalOfficeAddressRequired);
         dataDao.setKind(generalPartnerKind);
         dataDao.setCeaseDate(ceaseDate);
 

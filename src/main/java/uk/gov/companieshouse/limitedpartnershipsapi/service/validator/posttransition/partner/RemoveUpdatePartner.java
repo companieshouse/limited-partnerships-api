@@ -27,14 +27,21 @@ public class RemoveUpdatePartner {
                     "data.dateOfUpdate"));
         }
 
-        if (partnerDto.getData().getUpdateUsualResidentialAddressRequired() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Update usual residential address choice is required",
-                    "data.updateUsualResidentialAddressRequired"));
-        }
+        if (partnerDto.getData().isLegalEntity()) {
+            if (partnerDto.getData().getUpdatePrincipalOfficeAddressRequired() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Update principal office address choice is required",
+                        "data.updatePrincipalOfficeAddressRequired"));
+            }
+        } else {
+            if (partnerDto.getData().getUpdateUsualResidentialAddressRequired() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Update usual residential address choice is required",
+                        "data.updateUsualResidentialAddressRequired"));
+            }
 
-        if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
-                    "data.updateServiceAddressRequired"));
+            if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
+                        "data.updateServiceAddressRequired"));
+            }
         }
     }
 }
