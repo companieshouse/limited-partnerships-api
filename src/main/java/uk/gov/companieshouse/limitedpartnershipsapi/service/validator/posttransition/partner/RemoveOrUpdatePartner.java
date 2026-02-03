@@ -2,13 +2,14 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttrans
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
 import java.util.List;
 
 @Component
-public class RemoveUpdatePartner {
+public class RemoveOrUpdatePartner {
     public void validateRemove(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
         if (partnerDto.getData().getCeaseDate() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Cease date is required",
@@ -27,14 +28,21 @@ public class RemoveUpdatePartner {
                     "data.dateOfUpdate"));
         }
 
-        if (partnerDto.getData().getUpdateUsualResidentialAddressRequired() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Update usual residential address choice is required",
-                    "data.updateUsualResidentialAddressRequired"));
-        }
+        if (PartnerKind.isLegalEntityKind(partnerDto.getData().getKind())) {
+            if (partnerDto.getData().getUpdatePrincipalOfficeAddressRequired() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Update principal office address choice is required",
+                        "data.updatePrincipalOfficeAddressRequired"));
+            }
+        } else {
+            if (partnerDto.getData().getUpdateUsualResidentialAddressRequired() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Update usual residential address choice is required",
+                        "data.updateUsualResidentialAddressRequired"));
+            }
 
-        if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
-                    "data.updateServiceAddressRequired"));
+            if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
+                        "data.updateServiceAddressRequired"));
+            }
         }
     }
 }

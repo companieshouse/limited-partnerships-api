@@ -19,11 +19,11 @@ import java.util.List;
 public class RemoveGeneralPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
 
     private final GeneralPartnerValidator generalPartnerValidator;
-    private final RemoveUpdatePartner removeUpdatePartner;
+    private final RemoveOrUpdatePartner removeOrUpdatePartner;
 
-    RemoveGeneralPartnerLegalEntity(GeneralPartnerValidator generalPartnerValidator, RemoveUpdatePartner removeUpdatePartner) {
+    RemoveGeneralPartnerLegalEntity(GeneralPartnerValidator generalPartnerValidator, RemoveOrUpdatePartner removeOrUpdatePartner) {
         this.generalPartnerValidator = generalPartnerValidator;
-        this.removeUpdatePartner = removeUpdatePartner;
+        this.removeOrUpdatePartner = removeOrUpdatePartner;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class RemoveGeneralPartnerLegalEntity implements PostTransitionStrategy<P
 
         errorsList.addAll(errorsListValidator);
 
-        removeUpdatePartner.validateRemove(partnerDto, errorsList, validationStatus);
+        removeOrUpdatePartner.validateRemove(partnerDto, errorsList, validationStatus);
     }
 
     @Override

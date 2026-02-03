@@ -67,7 +67,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
-        if (!generalPartnerDto.getData().isLegalEntity()) {
+        if (!PartnerKind.isLegalEntityKind(generalPartnerDto.getData().getKind())) {
             checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
         }
 
@@ -84,12 +84,13 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
-        if (!generalPartnerDto.getData().isLegalEntity()) {
+        if (PartnerKind.isLegalEntityKind(generalPartnerDto.getData().getKind())) {
+            checkNotNullLegalEntity(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
+        } else {
             checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
             checkFieldNotNull(CLASS_NAME, generalPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
+            isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
         }
-
-        isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
 
         validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
 

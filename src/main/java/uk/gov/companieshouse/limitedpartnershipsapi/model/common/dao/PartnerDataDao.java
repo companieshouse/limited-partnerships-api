@@ -21,9 +21,6 @@ public abstract class PartnerDataDao {
     @Field("removeConfirmationChecked")
     private boolean removeConfirmationChecked;
 
-    @Field("update_usual_residential_address_required")
-    private Boolean updateUsualResidentialAddressRequired;
-
     @Field("update_service_address_required")
     private Boolean updateServiceAddressRequired;
 
@@ -73,14 +70,6 @@ public abstract class PartnerDataDao {
         this.removeConfirmationChecked = removeConfirmationChecked;
     }
 
-    public Boolean getUpdateUsualResidentialAddressRequired() {
-        return updateUsualResidentialAddressRequired;
-    }
-
-    public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
-        this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
-    }
-
     public Boolean getUpdateServiceAddressRequired() {
         return updateServiceAddressRequired;
     }
@@ -127,6 +116,9 @@ public abstract class PartnerDataDao {
 
     @Field("usual_residential_address")
     private AddressDao usualResidentialAddress;
+
+    @Field("update_usual_residential_address_required")
+    private Boolean updateUsualResidentialAddressRequired;
 
     public String getForename() {
         return forename;
@@ -184,6 +176,14 @@ public abstract class PartnerDataDao {
         this.usualResidentialAddress = usualResidentialAddress;
     }
 
+    public Boolean getUpdateUsualResidentialAddressRequired() {
+        return updateUsualResidentialAddressRequired;
+    }
+
+    public void setUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
+        this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
+    }
+
     // Legal Entity
 
     @Field("legal_entity_name")
@@ -212,6 +212,9 @@ public abstract class PartnerDataDao {
 
     @Field("principal_office_address")
     private AddressDao principalOfficeAddress;
+
+    @Field("update_principal_office_address_required")
+    private Boolean updatePrincipalOfficeAddressRequired;
 
     public String getLegalEntityName() {
         return legalEntityName;
@@ -283,5 +286,13 @@ public abstract class PartnerDataDao {
 
     public void setPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public Boolean getUpdatePrincipalOfficeAddressRequired() {
+        return updatePrincipalOfficeAddressRequired;
+    }
+
+    public void setUpdatePrincipalOfficeAddressRequired(Boolean updatePrincipalOfficeAddressRequired) {
+        this.updatePrincipalOfficeAddressRequired = updatePrincipalOfficeAddressRequired;
     }
 }
