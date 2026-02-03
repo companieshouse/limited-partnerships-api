@@ -54,7 +54,7 @@ public enum PartnerKind {
             UPDATE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription()
     );
 
-    private static final Set<String> LEGAL_ENTITY_KINDS = Set.of(
+    public static final Set<String> LEGAL_ENTITY_KINDS = Set.of(
             ADD_GENERAL_PARTNER_LEGAL_ENTITY.getDescription(),
             ADD_LIMITED_PARTNER_LEGAL_ENTITY.getDescription(),
             REMOVE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription(),

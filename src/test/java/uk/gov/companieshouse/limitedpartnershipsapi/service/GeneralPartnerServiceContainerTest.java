@@ -24,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
@@ -35,15 +36,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @Testcontainers
 @SpringBootTest
 class GeneralPartnerServiceContainerTest {
-
-    private static final PartnerKind[] LEGAL_ENTITY_KINDS = {
-            PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY,
-            PartnerKind.ADD_LIMITED_PARTNER_LEGAL_ENTITY,
-            PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY,
-            PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY,
-            PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY,
-            PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY
-    };
 
     @Container
     private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
@@ -77,12 +69,12 @@ class GeneralPartnerServiceContainerTest {
 
     @ParameterizedTest
     @MethodSource("legalEntityKinds")
-    void createGeneralPartnerLegalEntityPostTransition(PartnerKind partnerKind) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void createGeneralPartnerLegalEntityPostTransition(String partnerKindDescription) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         transaction.setFilingMode(FilingMode.POST_TRANSITION.getDescription());
 
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
         dto.setId(null);
-        dto.getData().setKind(partnerKind.getDescription());
+        dto.getData().setKind(partnerKindDescription);
         dto.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
 
         when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
@@ -93,7 +85,7 @@ class GeneralPartnerServiceContainerTest {
 
         GeneralPartnerDto generalPartnerDto = service.getGeneralPartner(transaction, id);
 
-        assertEquals(partnerKind.getDescription(), generalPartnerDto.getData().getKind());
+        assertEquals(partnerKindDescription, generalPartnerDto.getData().getKind());
     }
 
     @Test
@@ -114,7 +106,7 @@ class GeneralPartnerServiceContainerTest {
         assertEquals(FILING_KIND_GENERAL_PARTNER, generalPartnerDto.getData().getKind());
     }
 
-    static Stream<PartnerKind> legalEntityKinds() {
-        return Stream.of(LEGAL_ENTITY_KINDS);
+    static Stream<String> legalEntityKinds() {
+        return PartnerKind.LEGAL_ENTITY_KINDS.stream();
     }
 }
