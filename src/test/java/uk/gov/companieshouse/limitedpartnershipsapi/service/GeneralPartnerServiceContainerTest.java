@@ -104,7 +104,7 @@ class GeneralPartnerServiceContainerTest {
         assertEquals(FILING_KIND_GENERAL_PARTNER, generalPartnerDto.getData().getKind());
     }
 
-    static Stream<String> legalEntityKinds() {
+    private static Stream<String> legalEntityKinds() {
         return PartnerKind.LEGAL_ENTITY_KINDS.stream();
     }
 }
