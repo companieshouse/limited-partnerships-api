@@ -328,7 +328,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setCeaseDate(LocalDate.of(2000, 1, 1));
             generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(true);
 
-            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerLegalEntityDao, limitedPartnerPersonDao);
+            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerPersonDao);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
