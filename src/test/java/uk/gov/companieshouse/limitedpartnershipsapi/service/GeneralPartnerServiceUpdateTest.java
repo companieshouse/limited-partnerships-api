@@ -232,6 +232,38 @@ class GeneralPartnerServiceUpdateTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void shouldHandlePrincipalOfficeAddressForUpdatePrincipalOfficeAddressRequiredFlag(Boolean principalOfficeAddressRequired) throws Exception {
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder()
+                .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription())
+                .legalEntityDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder()
+                .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY.getDescription())
+                .withUpdatePrincipalOfficeAddressRequired(principalOfficeAddressRequired)
+                .legalEntityDto()
+                .getData();
+        generalPartnerDataDto.setDateEffectiveFrom(null);
+
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        if (principalOfficeAddressRequired) {
+            assertTrue(sentSubmission.getData().getUpdatePrincipalOfficeAddressRequired());
+            assertNotNull(sentSubmission.getData().getPrincipalOfficeAddress());
+        } else {
+            assertFalse(sentSubmission.getData().getUpdatePrincipalOfficeAddressRequired());
+            assertNull(sentSubmission.getData().getPrincipalOfficeAddress());
+        }
+    }
+
     @Test
     void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().legalEntityDao();
