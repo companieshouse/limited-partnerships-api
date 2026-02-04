@@ -377,6 +377,11 @@ public abstract class PartnerDataDto {
     }
 
     public boolean isLegalEntity() {
-        return getLegalEntityName() != null;
+        return getLegalEntityName() != null
+                || getLegalEntityRegistrationLocation() != null
+                || getLegalEntityRegisterName() != null
+                || getLegalForm() != null
+                || getGoverningLaw() != null
+                || getRegisteredCompanyNumber() != null;
     }
 }

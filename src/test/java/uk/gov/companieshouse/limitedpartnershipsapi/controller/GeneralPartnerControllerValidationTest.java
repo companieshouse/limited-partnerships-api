@@ -122,6 +122,18 @@ class GeneralPartnerControllerValidationTest {
               }
             }""";
 
+    private static final String JSON_GENERAL_LEGAL_ENTITY_NO_NAME = """
+            {
+              "data": {
+                "legal_form": "Form ABC",
+                "governing_law": "Act of law",
+                "legal_entity_register_name": "Register of somewhere",
+                "legal_entity_registration_location": "Scotland",
+                "registered_company_number": "12345678",
+                "not_disqualified_statement_checked": true
+              }
+            }""";
+
     private HttpHeaders httpHeaders;
     private final Transaction transaction = new TransactionBuilder().forPartner(
             FILING_KIND_LIMITED_PARTNER,
@@ -217,6 +229,20 @@ class GeneralPartnerControllerValidationTest {
                         .content(JSON_GENERAL_LEGAL_ENTITY_INVALID_COUNTRY))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.['errors'].['data.legalEntityRegistrationLocation']").value("Legal entity registration location must be valid"));
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithNoName() throws Exception {
+        mocks();
+
+        mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(JSON_GENERAL_LEGAL_ENTITY_NO_NAME))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.['errors'].['legal_entity_name']").value("Legal Entity Name is required"));
     }
 
     @Nested
