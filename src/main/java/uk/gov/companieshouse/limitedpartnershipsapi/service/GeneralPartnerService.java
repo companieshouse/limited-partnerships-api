@@ -119,9 +119,7 @@ public class GeneralPartnerService {
 
         handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
-        handleUpdateUsualResidentialAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
-
-        handleUpdateServiceAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
+        handleUpdateAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
@@ -135,33 +133,28 @@ public class GeneralPartnerService {
         repository.save(generalPartnerDaoAfterPatch);
     }
 
-    private void handleUpdateUsualResidentialAddressRequiredOptionality(String kind, GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto data) {
+    private void handleUpdateAddressRequiredOptionality(String kind, GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto data) {
         if (!PartnerKind.isUpdateGeneralPartnerKind(kind)) {
             return;
         }
 
         /*
-         * If the patch specifically contains a false for the UpdateUsualResidentialAddressRequired field
-         * and a usual residential address is present then we need to erase this from the mongo data.         *
+         * If the patch specifically contains a false for the UpdateXXXAddressRequired field
+         * and a matching address is present (usual, service, principal) then we need to erase this from the mongo data.         *
          */
         if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdateUsualResidentialAddressRequired()) &&
                 data.getUsualResidentialAddress() != null) {
             data.setUsualResidentialAddress(null);
         }
-    }
 
-    private void handleUpdateServiceAddressRequiredOptionality(String kind, GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto data) {
-        if (!PartnerKind.isUpdateGeneralPartnerKind(kind)) {
-            return;
-        }
-
-        /*
-         * If the patch specifically contains a false for the UpdateUServiceAddressRequired field
-         * and a service address is present then we need to erase this from the mongo data.         *
-         */
         if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdateServiceAddressRequired()) &&
                 data.getServiceAddress() != null) {
             data.setServiceAddress(null);
+        }
+
+        if (Boolean.FALSE.equals(generalPartnerChangesDataDto.getUpdatePrincipalOfficeAddressRequired()) &&
+                data.getPrincipalOfficeAddress() != null) {
+            data.setPrincipalOfficeAddress(null);
         }
     }
 
