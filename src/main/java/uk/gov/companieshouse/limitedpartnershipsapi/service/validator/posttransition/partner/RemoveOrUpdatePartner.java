@@ -42,11 +42,9 @@ public class RemoveOrUpdatePartner {
             }
 
             // Only general partners have service addresses
-            if (PartnerKind.isUpdateGeneralPartnerKind(kind)) {
-                if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
-                    errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
-                            "data.updateServiceAddressRequired"));
-                }
+            if (PartnerKind.isUpdateGeneralPartnerKind(kind) && partnerDto.getData().getUpdateServiceAddressRequired() == null) {
+                errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
+                        "data.updateServiceAddressRequired"));
             }
         }
     }
