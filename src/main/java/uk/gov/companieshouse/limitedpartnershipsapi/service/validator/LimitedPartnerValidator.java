@@ -168,8 +168,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         validateDateEffectiveFrom(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
 
-        validateDateOfUpdate(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
-
         if (limitedPartnerChangesDataDto.getContributionCurrencyValue() != null || limitedPartnerChangesDataDto.getContributionCurrencyType() != null || limitedPartnerChangesDataDto.getContributionSubTypes() != null) {
             validateCapitalContributions(limitedPartnerChangesDataDto, transaction, bindingResult);
         }
