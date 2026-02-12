@@ -23,12 +23,14 @@ public class RemoveOrUpdatePartner {
     }
 
     public void validateUpdate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus) {
+        String kind = partnerDto.getData().getKind();
+
         if (partnerDto.getData().getDateOfUpdate() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
                     "data.dateOfUpdate"));
         }
 
-        if (PartnerKind.isLegalEntityKind(partnerDto.getData().getKind())) {
+        if (PartnerKind.isLegalEntityKind(kind)) {
             if (partnerDto.getData().getUpdatePrincipalOfficeAddressRequired() == null) {
                 errorsList.add(validationStatus.createValidationStatusError("Update principal office address choice is required",
                         "data.updatePrincipalOfficeAddressRequired"));
@@ -39,9 +41,12 @@ public class RemoveOrUpdatePartner {
                         "data.updateUsualResidentialAddressRequired"));
             }
 
-            if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
-                        "data.updateServiceAddressRequired"));
+            // Only general partners have service addresses
+            if (PartnerKind.isUpdateGeneralPartnerKind(kind)) {
+                if (partnerDto.getData().getUpdateServiceAddressRequired() == null) {
+                    errorsList.add(validationStatus.createValidationStatusError("Update service address choice is required",
+                            "data.updateServiceAddressRequired"));
+                }
             }
         }
     }

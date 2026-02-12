@@ -707,6 +707,180 @@ class PostTransitionPartnerTest {
         }
     }
 
+    // -- Update Limited Partner Person --
+    @Nested
+    class UpdateLimitedPartnerPerson {
+        @ParameterizedTest
+        @CsvSource({"true", "false"})
+        void shouldReturn200IfNoErrorsAllAddressChoicesAreTrueOrFalse(boolean usualResidentialAddressRequired) throws Exception {
+            limitedPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+            limitedPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(usualResidentialAddressRequired);
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoDateOfUpdate() throws Exception {
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            limitedPartnerPersonDao.getData().setDateOfUpdate(null);
+            limitedPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Date of update is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoUsualResidentialAddressChoice() throws Exception {
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            limitedPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+            limitedPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(null);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.updateUsualResidentialAddressRequired", "Update usual residential address choice is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfDateOfUpdateBeforeIncorporationDate() throws Exception {
+            limitedPartnerPersonDao.getData().setDateOfUpdate(LocalDate.of(2000, 1, 1));
+            limitedPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoData() throws Exception {
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            limitedPartnerPersonDao.getData().setDateOfUpdate(LocalDate.now());
+            limitedPartnerPersonDao.getData().setSurname(null);
+            limitedPartnerPersonDao.getData().setNationality1(null);
+            limitedPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerPersonDao.getId());
+
+            assertThat(result).hasSize(2)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("surname", "Surname is required"),
+                            Map.entry("nationality1", "Nationality1 is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKind() throws Exception {
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
+
+            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerPersonDao.getId());
+
+            assertNull(result);
+        }
+    }
+
+    // -- Update Limited Partner Legal Entity --
+    @Nested
+    class UpdateLimitedPartnerLegalEntity {
+        @ParameterizedTest
+        @CsvSource({"true", "false"})
+        void shouldReturn200IfNoErrorsAllAddressChoicesAreTrueOrFalse(boolean principalOfficeAddressRequired) throws Exception {
+            limitedPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.now());
+            limitedPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(principalOfficeAddressRequired);
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoDateOfUpdate() throws Exception {
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            limitedPartnerLegalEntityDao.getData().setDateOfUpdate(null);
+            limitedPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(false);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Date of update is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfNoPrincipalOfficeAddressChoice() throws Exception {
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            limitedPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.now());
+            limitedPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(null);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.updatePrincipalOfficeAddressRequired", "Update principal office address choice is required")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndErrorDetailsIfDateOfUpdateBeforeIncorporationDate() throws Exception {
+            limitedPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.of(2000, 1, 1));
+            limitedPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(false);
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = limitedPartnerService.validateLimitedPartner(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertThat(result).hasSize(1)
+                    .extracting(e -> Map.entry(e.getLocation(), e.getError()))
+                    .containsExactlyInAnyOrder(
+                            Map.entry("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date")
+                    );
+        }
+
+        @Test
+        void shouldReturn200AndNoFeeForKind() throws Exception {
+
+            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
+
+            assertNull(result);
+        }
+    }
+
     void mocks(PartnerKind partnerKind, GeneralPartnerDao generalPartnerDao, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         generalPartnerDao.getData().setKind(partnerKind.getDescription());
         generalPartnerDao.getData().setDateEffectiveFrom(LocalDate.now());
