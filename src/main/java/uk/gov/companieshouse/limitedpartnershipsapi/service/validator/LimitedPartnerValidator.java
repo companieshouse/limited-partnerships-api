@@ -177,10 +177,33 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
+    public void validateUpdate(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
+        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
+
+        dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
+
+        if (!limitedPartnerDto.getData().isLegalEntity()) {
+            checkNotNullName(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+            checkFieldNotNull(CLASS_NAME, limitedPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
+            isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+        }
+
+        validateDateEffectiveFrom(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
+
+        validateDateOfUpdate(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
     private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
+            if (PartnerKind.isUpdateLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
+                validateUpdate(limitedPartnerDto, transaction);
+            } else if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
                 validateRemove(limitedPartnerDto, transaction);
             } else {
                 validatePartial(limitedPartnerDto, transaction);

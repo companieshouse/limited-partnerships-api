@@ -30,5 +30,8 @@ replay_pid*
 .idea/
 *.iml
 
+# VS Code files
+.vscode/
+
 # Build artifacts
 target/
