@@ -163,7 +163,9 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
 
-        if (!limitedPartnerDto.getData().isLegalEntity()) {
+        if (limitedPartnerDto.getData().isLegalEntity() || PartnerKind.isLegalEntityKind(limitedPartnerDto.getData().getKind())) {
+            checkNotNullLegalEntity(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+        } else {
             checkNotNullName(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
             checkFieldNotNull(CLASS_NAME, limitedPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
