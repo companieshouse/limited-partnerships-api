@@ -159,7 +159,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     public void validateUpdate(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
-        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
 
         dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
@@ -174,7 +173,12 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         validateDateOfUpdate(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
 
+        if (limitedPartnerDto.getData().getContributionCurrencyValue() != null || limitedPartnerDto.getData().getContributionCurrencyType() != null || limitedPartnerDto.getData().getContributionSubTypes() != null) {
+            validateCapitalContributions(limitedPartnerDto.getData(), transaction, bindingResult);
+        }
+
         if (bindingResult.hasErrors()) {
+            var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
         }
     }
