@@ -19,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
@@ -246,6 +247,76 @@ class LimitedPartnerServiceUpdateTest {
         assertThatThrownBy(() -> service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches limited partner id: %s", transaction.getId(), LIMITED_PARTNER_ID));
+    }
+
+    @Test
+    void shouldValidateUpdateWithLegalEntityKindWhenDataHasNoLegalEntityFields() {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder()
+                .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription())
+                .personDao();
+        limitedPartnerDao.getData().setContributionCurrencyValue(null);
+        limitedPartnerDao.getData().setContributionCurrencyType(null);
+        limitedPartnerDao.getData().setContributionSubTypes(null);
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID)
+        );
+
+        assertThat(exception.getBindingResult().getFieldErrors()).anyMatch(
+                e -> e.getDefaultMessage().contains("Legal Entity Name is required")
+        );
+    }
+
+    @Test
+    void shouldValidateContributionsWhenOnlyCurrencyTypeIsPresent() throws Exception {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+        limitedPartnerDao.getData().setContributionCurrencyValue(null);
+        limitedPartnerDao.getData().setContributionSubTypes(null);
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+        assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
+        assertNull(sentSubmission.getData().getContributionCurrencyValue());
+    }
+
+    @Test
+    void shouldValidateContributionsWhenOnlySubTypesArePresent() throws Exception {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+        limitedPartnerDao.getData().setContributionCurrencyValue(null);
+        limitedPartnerDao.getData().setContributionCurrencyType(null);
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+        assertThat(sentSubmission.getData().getContributionSubTypes()).contains(ContributionSubTypes.SHARES);
+        assertNull(sentSubmission.getData().getContributionCurrencyValue());
+        assertNull(sentSubmission.getData().getContributionCurrencyType());
     }
 
     @Nested
