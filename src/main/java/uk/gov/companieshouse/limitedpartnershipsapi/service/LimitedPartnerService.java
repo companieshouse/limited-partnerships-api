@@ -126,7 +126,7 @@ public class LimitedPartnerService {
         if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
             limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
         } else {
-            limitedPartnerValidator.validateUpdate(limitedPartnerDto, limitedPartnerChangesDataDto, transaction);
+            limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         }
 
         handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());

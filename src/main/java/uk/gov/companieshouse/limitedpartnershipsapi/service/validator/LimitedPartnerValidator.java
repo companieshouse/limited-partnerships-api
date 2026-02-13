@@ -158,25 +158,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
         }
     }
 
-    public void validateUpdate(LimitedPartnerDto limitedPartnerDto, LimitedPartnerDataDto limitedPartnerChangesDataDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
-        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
-        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
-
-        dtoValidation(CLASS_NAME, limitedPartnerDto, bindingResult);
-
-        isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
-
-        validateDateEffectiveFrom(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);
-
-        if (limitedPartnerChangesDataDto.getContributionCurrencyValue() != null || limitedPartnerChangesDataDto.getContributionCurrencyType() != null || limitedPartnerChangesDataDto.getContributionSubTypes() != null) {
-            validateCapitalContributions(limitedPartnerChangesDataDto, transaction, bindingResult);
-        }
-
-        if (bindingResult.hasErrors()) {
-            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
-        }
-    }
-
     public void validateUpdate(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
         BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnerDto, LimitedPartnerDataDto.class.getName());
