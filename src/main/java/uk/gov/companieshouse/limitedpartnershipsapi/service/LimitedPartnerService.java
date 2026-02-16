@@ -70,8 +70,11 @@ public class LimitedPartnerService {
             partnershipType = PartnershipType.fromValue(companyProfile.getSubtype());
         }
 
-        if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
+        var partnerKind = limitedPartnerDto.getData().getKind();
+        if (PartnerKind.isRemoveLimitedPartnerKind(partnerKind)) {
             limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
+        } else if (PartnerKind.isUpdateLimitedPartnerKind(partnerKind)) {
+            limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         } else {
             limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
         }
