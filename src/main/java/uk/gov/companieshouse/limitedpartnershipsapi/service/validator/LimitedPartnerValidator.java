@@ -188,6 +188,9 @@ public class LimitedPartnerValidator extends PartnerValidator {
     private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
+            for (int i = 0; i< 100; i++) {
+                addError(CLASS_NAME, "data", "Test error " + i, null);
+            }
             if (PartnerKind.isUpdateLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
                 validateUpdate(limitedPartnerDto, transaction);
             } else if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
