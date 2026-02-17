@@ -189,7 +189,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
             throws ServiceException {
         try {
             for (int i = 0; i< 100; i++) {
-                addError(CLASS_NAME, "data", "Test error " + i, null);
+                ApiLogger.info("test");
             }
             if (PartnerKind.isUpdateLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
                 validateUpdate(limitedPartnerDto, transaction);
