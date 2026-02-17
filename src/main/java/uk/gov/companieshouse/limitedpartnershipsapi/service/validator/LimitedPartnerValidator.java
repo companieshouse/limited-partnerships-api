@@ -201,11 +201,5 @@ public class LimitedPartnerValidator extends PartnerValidator {
             throw new ServiceException(e.getMessage());
         }
     }
-
-    private void stuff() {
-        for (int i = 0; i< 100; i++) {
-            ApiLogger.info("test");
-        }
-    }
 }
 

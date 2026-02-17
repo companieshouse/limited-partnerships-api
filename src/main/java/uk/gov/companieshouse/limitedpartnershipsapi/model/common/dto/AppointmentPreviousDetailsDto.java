@@ -45,4 +45,11 @@ public class AppointmentPreviousDetailsDto {
     public void setLegalEntityName(String legalEntityName) {
         this.legalEntityName = legalEntityName;
     }
+
+    private String somethingElse;
+
+        public String getSomethingElse() {
+            return somethingElse;
+        }
+
 }
