@@ -188,9 +188,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
     private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            for (int i = 0; i< 100; i++) {
-                ApiLogger.info("test");
-            }
             if (PartnerKind.isUpdateLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
                 validateUpdate(limitedPartnerDto, transaction);
             } else if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
@@ -202,6 +199,12 @@ public class LimitedPartnerValidator extends PartnerValidator {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
+        }
+    }
+
+    private void stuff() {
+        for (int i = 0; i< 100; i++) {
+            ApiLogger.info("test");
         }
     }
 }
