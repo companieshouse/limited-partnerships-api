@@ -112,5 +112,6 @@ public class AppointmentPreviousDetailsDto {
             return 55;
         }
         return 0;
+    }
 
 }
