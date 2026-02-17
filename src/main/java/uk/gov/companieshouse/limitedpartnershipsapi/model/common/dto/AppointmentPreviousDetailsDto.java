@@ -52,4 +52,8 @@ public class AppointmentPreviousDetailsDto {
             return somethingElse;
         }
 
+        public void setSomethingElse(String somethingElse) {
+            this.somethingElse = somethingElse;
+        }
+
 }
