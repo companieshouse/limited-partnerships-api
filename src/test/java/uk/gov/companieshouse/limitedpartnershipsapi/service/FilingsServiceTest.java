@@ -373,8 +373,7 @@ class FilingsServiceTest {
             var transaction = new TransactionBuilder().build();
             var limitedPartnerBuilder = new LimitedPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(partnerKind)
-                    .withUpdateServiceAddressRequired(Boolean.TRUE);
+                    .withLimitedPartnerKind(partnerKind);
 
             if (isPerson) {
                 limitedPartnerBuilder.withUpdateUsualResidentialAddressRequired(Boolean.TRUE);
@@ -428,8 +427,7 @@ class FilingsServiceTest {
                     .withPartnershipType(PartnershipType.LP)
                     .withLimitedPartnerKind(partnerKind)
                     .withUpdateUsualResidentialAddressRequired(Boolean.FALSE)
-                    .withUpdatePrincipalOfficeAddressRequired(Boolean.FALSE)
-                    .withUpdateServiceAddressRequired(Boolean.FALSE);
+                    .withUpdatePrincipalOfficeAddressRequired(Boolean.FALSE);
 
             var limitedPartner = isPerson ? limitedPartnerBuilder.personDto() : limitedPartnerBuilder.legalEntityDto();
 
@@ -448,7 +446,6 @@ class FilingsServiceTest {
             assertCommonPartnerData(limitedPartnerData, filingLimitedPartnerDataDto, isPerson);
 
             assertNull(filingLimitedPartnerDataDto.getUsualResidentialAddress());
-            assertNull(filingLimitedPartnerDataDto.getServiceAddress());
 
             if (isPerson) {
                 assertEquals("Prev forename", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());

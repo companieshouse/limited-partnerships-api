@@ -27,7 +27,6 @@ public class LimitedPartnerBuilder {
     private PartnershipType partnershipType;
 
     private Boolean updateUsualResidentialAddressRequired;
-    private Boolean updateServiceAddressRequired;
     private Boolean updatePrincipalOfficeAddressRequired;
 
     public LimitedPartnerBuilder withLimitedPartnerKind(String kind) {
@@ -55,11 +54,6 @@ public class LimitedPartnerBuilder {
         return this;
     }
 
-    public LimitedPartnerBuilder withUpdateServiceAddressRequired(Boolean updateServiceAddressRequired) {
-        this.updateServiceAddressRequired = updateServiceAddressRequired;
-        return this;
-    }
-
     public LimitedPartnerBuilder withUpdatePrincipalOfficeAddressRequired(Boolean updatePrincipalOfficeAddressRequired) {
         this.updatePrincipalOfficeAddressRequired = updatePrincipalOfficeAddressRequired;
         return this;
@@ -83,7 +77,6 @@ public class LimitedPartnerBuilder {
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setServiceAddress(createAddressDto());
         dataDto.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
-        dataDto.setUpdateServiceAddressRequired(updateServiceAddressRequired);
         dataDto.setKind(limitedPartnerKind);
         dataDto.setCeaseDate(ceaseDate);
         dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
@@ -154,7 +147,6 @@ public class LimitedPartnerBuilder {
         dataDao.setUsualResidentialAddress(createAddressDao());
         dataDao.setServiceAddress(createAddressDao());
         dataDao.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
-        dataDao.setUpdateServiceAddressRequired(updateServiceAddressRequired);
         dataDao.setKind(limitedPartnerKind);
 
         dao.setData(dataDao);
