@@ -134,6 +134,8 @@ public class LimitedPartnerService {
 
         handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
+        handleUpdateAddressRequiredOptionality(kind, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+
         var limitedPartnerDaoAfterPatch = mapper.dtoToDao(limitedPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
@@ -144,6 +146,21 @@ public class LimitedPartnerService {
         ApiLogger.infoContext(requestId, String.format("Limited Partner updated with id: %s", limitedPartnerId));
 
         repository.save(limitedPartnerDaoAfterPatch);
+    }
+
+    private void handleUpdateAddressRequiredOptionality(String kind, LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto data) {
+        if (!PartnerKind.isUpdateLimitedPartnerKind(kind)) {
+            return;
+        }
+
+        /*
+         * If the patch specifically contains a false for the UpdateXXXAddressRequired field
+         * and a matching address is present (usual, service, principal) then we need to erase this from the mongo data.         *
+         */
+        if (Boolean.FALSE.equals(limitedPartnerChangesDataDto.getUpdateUsualResidentialAddressRequired()) &&
+                data.getUsualResidentialAddress() != null) {
+            data.setUsualResidentialAddress(null);
+        }
     }
 
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
