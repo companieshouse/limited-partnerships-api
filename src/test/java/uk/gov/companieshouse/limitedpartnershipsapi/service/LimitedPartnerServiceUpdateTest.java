@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,8 +36,11 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -206,6 +211,34 @@ class LimitedPartnerServiceUpdateTest {
 
         assertEquals(Nationality.AMERICAN.getDescription(), sentSubmission.getData().getNationality1());
         assertNull(sentSubmission.getData().getNationality2());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void shouldHandleUsualResidentialAddressForUpdateUraRequiredFlag(Boolean uraRequired) throws Exception {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().withLimitedPartnerKind(
+                PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription()).personDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
+        limitedPartnerDataDto.setDateEffectiveFrom(null);
+        limitedPartnerDataDto.setUpdateUsualResidentialAddressRequired(uraRequired);
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        if (uraRequired) {
+            assertTrue(sentSubmission.getData().getUpdateUsualResidentialAddressRequired());
+            assertNotNull(sentSubmission.getData().getUsualResidentialAddress());
+        } else {
+            assertFalse(sentSubmission.getData().getUpdateUsualResidentialAddressRequired());
+            assertNull(sentSubmission.getData().getUsualResidentialAddress());
+        }
     }
 
     @Test
