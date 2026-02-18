@@ -58,7 +58,6 @@ public class FilingsService {
     private final CompanyService companyService;
     private final FilingKind filingKind;
 
-
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
@@ -136,7 +135,7 @@ public class FilingsService {
         GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
-        updateGeneralPartnerAddresses(generalPartnerDataDto);
+        updatePartnerAddresses(generalPartnerDataDto);
         setExtraData(generalPartnerDataDto, transaction);
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
@@ -160,60 +159,12 @@ public class FilingsService {
         return filing;
     }
 
-    private void updateGeneralPartnerAddresses(GeneralPartnerDataDto generalPartnerDataDto) {
-        if (PartnerKind.isUpdateGeneralPartnerKind(generalPartnerDataDto.getKind())) {
-            if (generalPartnerDataDto.getUpdateUsualResidentialAddressRequired() == Boolean.FALSE) {
-                generalPartnerDataDto.setUsualResidentialAddress(null);
-            }
-
-            if (generalPartnerDataDto.getUpdateServiceAddressRequired() == Boolean.FALSE) {
-                generalPartnerDataDto.setServiceAddress(null);
-            }
-        }
-    }
-
-    private void setExtraData(GeneralPartnerDataDto generalPartnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
-        String partnerKind = generalPartnerDataDto.getKind();
-
-        if (!PartnerKind.isUpdateGeneralPartnerKind(partnerKind) &&
-                !PartnerKind.isRemoveGeneralPartnerKind(partnerKind)) {
-            return;
-        }
-
-        String companyNumber = transaction.getCompanyNumber();
-        String appointmentId = generalPartnerDataDto.getAppointmentId();
-
-        String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
-        ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
-        AppointmentFullRecordAPI appointmentFullRecordAPI = response.getData();
-
-        setSensitiveData(generalPartnerDataDto, appointmentFullRecordAPI);
-
-        if (PartnerKind.isUpdateGeneralPartnerKind(partnerKind)) {
-            AppointmentPreviousDetailsDto appointmentPreviousDetails = new AppointmentPreviousDetailsDto();
-            appointmentPreviousDetails.setForename(appointmentFullRecordAPI.getForename());
-            appointmentPreviousDetails.setSurname(appointmentFullRecordAPI.getSurname());
-            appointmentPreviousDetails.setDateOfBirth(LocalDate.of(
-                    appointmentFullRecordAPI.getDateOfBirth().getYear(),
-                    appointmentFullRecordAPI.getDateOfBirth().getMonth(),
-                    appointmentFullRecordAPI.getDateOfBirth().getDay()));
-
-            generalPartnerDataDto.setAppointmentPreviousDetails(appointmentPreviousDetails);
-        }
-    }
-
-    private void setSensitiveData(GeneralPartnerDataDto generalPartnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        if (appointmentFullRecordAPI.getDateOfBirth() != null) {
-            generalPartnerDataDto.setDateOfBirth(LocalDate.of(
-                    appointmentFullRecordAPI.getDateOfBirth().getYear(),
-                    appointmentFullRecordAPI.getDateOfBirth().getMonth(),
-                    appointmentFullRecordAPI.getDateOfBirth().getDay()));
-        }
-    }
-
-    public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {
+    public FilingApi generateLimitedPartnerFiling(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
         LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
         LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
+
+        updatePartnerAddresses(limitedPartnerDataDto);
+        setExtraData(limitedPartnerDataDto, transaction);
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
         if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
@@ -234,6 +185,64 @@ public class FilingsService {
         filing.setData(data);
 
         return filing;
+    }
+
+    private void updatePartnerAddresses(PartnerDataDto partnerDataDto) {
+        if (PartnerKind.isUpdatePartnerKind(partnerDataDto.getKind())) {
+            if (partnerDataDto.getUpdateUsualResidentialAddressRequired() == Boolean.FALSE) {
+                partnerDataDto.setUsualResidentialAddress(null);
+            }
+
+            if (partnerDataDto.getUpdatePrincipalOfficeAddressRequired() == Boolean.FALSE) {
+                partnerDataDto.setPrincipalOfficeAddress(null);
+            }
+
+            if (partnerDataDto.getUpdateServiceAddressRequired() == Boolean.FALSE) {
+                partnerDataDto.setServiceAddress(null);
+            }
+        }
+    }
+
+    private void setExtraData(PartnerDataDto partnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+        String partnerKind = partnerDataDto.getKind();
+
+        if (!PartnerKind.isUpdatePartnerKind(partnerKind) &&
+                !PartnerKind.isRemovePartnerKind(partnerKind)) {
+            return;
+        }
+
+        String companyNumber = transaction.getCompanyNumber();
+        String appointmentId = partnerDataDto.getAppointmentId();
+
+        String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
+        ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
+        AppointmentFullRecordAPI appointmentFullRecordAPI = response.getData();
+
+        setSensitiveData(partnerDataDto, appointmentFullRecordAPI);
+
+        AppointmentPreviousDetailsDto appointmentPreviousDetails = new AppointmentPreviousDetailsDto();
+
+        if (partnerKind.contains("person")) {
+            appointmentPreviousDetails.setForename(appointmentFullRecordAPI.getForename());
+            appointmentPreviousDetails.setSurname(appointmentFullRecordAPI.getSurname());
+            appointmentPreviousDetails.setDateOfBirth(LocalDate.of(
+                    appointmentFullRecordAPI.getDateOfBirth().getYear(),
+                    appointmentFullRecordAPI.getDateOfBirth().getMonth(),
+                    appointmentFullRecordAPI.getDateOfBirth().getDay()));
+        } else {
+            appointmentPreviousDetails.setLegalEntityName(appointmentFullRecordAPI.getSurname());
+        }
+
+        partnerDataDto.setAppointmentPreviousDetails(appointmentPreviousDetails);
+    }
+
+    private void setSensitiveData(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (appointmentFullRecordAPI.getDateOfBirth() != null) {
+            partnerDataDto.setDateOfBirth(LocalDate.of(
+                    appointmentFullRecordAPI.getDateOfBirth().getYear(),
+                    appointmentFullRecordAPI.getDateOfBirth().getMonth(),
+                    appointmentFullRecordAPI.getDateOfBirth().getDay()));
+        }
     }
 
     private DataDto buildLimitedPartnershipData(Transaction transaction, PartnerDataDto partnerDataDto) {

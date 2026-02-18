@@ -1,9 +1,10 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +29,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
@@ -44,6 +44,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -146,41 +147,22 @@ class FilingsServiceTest {
         assertThrows(ServiceException.class, () -> filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID));
     }
 
-    @Test
-    void testFilingGenerationSuccessfulForLimitedPartner() throws ResourceNotFoundException {
-        var transaction = new TransactionBuilder().build();
-        var limitedPartner = new LimitedPartnerBuilder()
-                .withPartnershipType(PartnershipType.LP)
-                .withLimitedPartnerKind("limited-partnership#add-limited-partner-person")
-                .personDto();
-
-        when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-        FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-        DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
-        assertCommonLimitedPartnershipData(limitedPartner.getData(), filingLimitedPartnershipData, transaction);
-
-        List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-        LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-        LimitedPartnerDataDto limitedPartnerData = limitedPartner.getData();
-        assertCommonPartnerData(limitedPartnerData, filingLimitedPartnerDataDto);
-
-        assertEquals(limitedPartnerData.getContributionSubTypes(), filingLimitedPartnerDataDto.getContributionSubTypes());
-        assertEquals(limitedPartnerData.getContributionCurrencyType(), filingLimitedPartnerDataDto.getContributionCurrencyType());
-        assertEquals(limitedPartnerData.getContributionCurrencyValue(), filingLimitedPartnerDataDto.getContributionCurrencyValue());
-    }
-
     @Nested
     class FilingGeneralPartnerTest {
-        @Test
-        void testFilingGenerationSuccessfulForGeneralPartner() throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#add-general-partner-person",
+                "false, limited-partnership#add-general-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForAddingGeneralPartner(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
             var transaction = new TransactionBuilder().build();
-            var generalPartner = new GeneralPartnerBuilder()
+            var generalPartnerBuilder = new GeneralPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
-                    .withGeneralPartnerKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription())
-                    .personDto();
+                    .withGeneralPartnerKind(partnerKind);
+
+            var generalPartner = isPerson ? generalPartnerBuilder.personDto() : generalPartnerBuilder.legalEntityDto();
 
             when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
             when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
@@ -193,21 +175,36 @@ class FilingsServiceTest {
             List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
             GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
             GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
-            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
+
+            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto, isPerson);
+
             assertEquals(generalPartnerData.getServiceAddress(), filingGeneralPartnerDataDto.getServiceAddress());
             assertEquals(generalPartnerData.getUsualResidentialAddress(), filingGeneralPartnerDataDto.getUsualResidentialAddress());
         }
 
-        @Test
-        void testFilingGenerationSuccessfulForGeneralPartnerWithoutAddresses() throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
-            mockChsAppointmentApiData();
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#update-general-partner-person",
+                "false, limited-partnership#update-general-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForUpdatingGeneralPartnerWithAddresses(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
             var transaction = new TransactionBuilder().build();
-            var generalPartner = new GeneralPartnerBuilder()
+
+            var generalPartnerBuilder = new GeneralPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
-                    .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription())
-                    .withUpdateUsualResidentialAddressRequired(Boolean.FALSE)
-                    .withUpdateServiceAddressRequired(Boolean.FALSE)
-                    .personDto();
+                    .withGeneralPartnerKind(partnerKind)
+                    .withUpdateServiceAddressRequired(Boolean.TRUE);
+
+            if (isPerson) {
+                generalPartnerBuilder.withUpdateUsualResidentialAddressRequired(Boolean.TRUE);
+            } else {
+                generalPartnerBuilder.withUpdatePrincipalOfficeAddressRequired(Boolean.TRUE);
+            }
+
+            var generalPartner = isPerson ? generalPartnerBuilder.personDto() : generalPartnerBuilder.legalEntityDto();
 
             when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
             when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
@@ -220,23 +217,82 @@ class FilingsServiceTest {
             List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
             GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
             GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
-            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
-            Assertions.assertNull(filingGeneralPartnerDataDto.getUsualResidentialAddress());
-            Assertions.assertNull(filingGeneralPartnerDataDto.getServiceAddress());
 
-            assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
-            assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
-            assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
+            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto, isPerson);
+
+            if (isPerson) {
+                assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
+                assertEquals(generalPartnerData.getUsualResidentialAddress(), filingGeneralPartnerDataDto.getUsualResidentialAddress());
+            } else {
+                assertEquals("Prev legal entity name", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(generalPartnerData.getPrincipalOfficeAddress(), filingGeneralPartnerDataDto.getPrincipalOfficeAddress());
+            }
+
+            assertEquals(generalPartnerData.getServiceAddress(), filingGeneralPartnerDataDto.getServiceAddress());
         }
 
-        @Test
-        void testFilingGenerationSuccessfulForRemoveGeneralPartnerPerson() throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
-            mockChsAppointmentApiData();
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#update-general-partner-person",
+                "false, limited-partnership#update-general-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForUpdatingGeneralPartnerWithoutAddresses(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
+            var transaction = new TransactionBuilder().build();
+            var generalPartnerBuilder = new GeneralPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withGeneralPartnerKind(partnerKind)
+                    .withUpdateUsualResidentialAddressRequired(Boolean.FALSE)
+                    .withUpdatePrincipalOfficeAddressRequired(Boolean.FALSE)
+                    .withUpdateServiceAddressRequired(Boolean.FALSE);
+
+            var generalPartner = isPerson ? generalPartnerBuilder.personDto() : generalPartnerBuilder.legalEntityDto();
+
+            when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(generalPartner.getData(), filingLimitedPartnershipData, transaction);
+
+            List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+            GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
+            GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
+
+            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto, isPerson);
+
+            assertNull(filingGeneralPartnerDataDto.getUsualResidentialAddress());
+            assertNull(filingGeneralPartnerDataDto.getPrincipalOfficeAddress());
+            assertNull(filingGeneralPartnerDataDto.getServiceAddress());
+
+            if (isPerson) {
+                assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
+            } else {
+                assertEquals("Prev legal entity name", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+            }
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#remove-general-partner-person",
+                "false, limited-partnership#remove-general-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForRemovingGeneralPartnerPerson(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
             var transaction = new TransactionBuilder().build();
             LocalDate today = LocalDate.now();
             var generalPartner = new GeneralPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
-                    .withGeneralPartnerKind(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON.getDescription())
+                    .withGeneralPartnerKind(partnerKind)
                     .withCeaseDate(today)
                     .personDto();
 
@@ -251,8 +307,202 @@ class FilingsServiceTest {
             List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
             GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
             GeneralPartnerDataDto generalPartnerData = generalPartner.getData();
-            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto);
+
+            assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto, isPerson);
+
+            if (isPerson) {
+                assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
+            } else {
+                assertEquals("Prev legal entity name", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+            }
+
             assertEquals(today, filingGeneralPartnerDataDto.getCeaseDate());
+        }
+    }
+
+    @Nested
+    class FilingLimitedPartnerTest {
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#add-limited-partner-person",
+                "false, limited-partnership#add-limited-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForAddingLimitedPartner(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            var transaction = new TransactionBuilder().build();
+            var limitedPartnerBuilder = new LimitedPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withLimitedPartnerKind(partnerKind);
+
+            var limitedPartner = isPerson ? limitedPartnerBuilder.personDto() : limitedPartnerBuilder.legalEntityDto();
+
+            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(limitedPartner.getData(), filingLimitedPartnershipData, transaction);
+
+            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
+            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
+            LimitedPartnerDataDto limitedPartnerData = limitedPartner.getData();
+
+            assertCommonPartnerData(limitedPartnerData, filingLimitedPartnerDataDto, isPerson);
+
+            assertEquals(limitedPartnerData.getContributionSubTypes(), filingLimitedPartnerDataDto.getContributionSubTypes());
+            assertEquals(limitedPartnerData.getContributionCurrencyType(), filingLimitedPartnerDataDto.getContributionCurrencyType());
+            assertEquals(limitedPartnerData.getContributionCurrencyValue(), filingLimitedPartnerDataDto.getContributionCurrencyValue());
+
+            assertEquals(limitedPartnerData.getUsualResidentialAddress(), filingLimitedPartnerDataDto.getUsualResidentialAddress());
+
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#update-limited-partner-person",
+                "false, limited-partnership#update-limited-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForUpdatingLimitedPartnerWithAddresses(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
+            var transaction = new TransactionBuilder().build();
+            var limitedPartnerBuilder = new LimitedPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withLimitedPartnerKind(partnerKind)
+                    .withUpdateServiceAddressRequired(Boolean.TRUE);
+
+            if (isPerson) {
+                limitedPartnerBuilder.withUpdateUsualResidentialAddressRequired(Boolean.TRUE);
+            } else {
+                limitedPartnerBuilder.withUpdatePrincipalOfficeAddressRequired(Boolean.TRUE);
+            }
+
+            var limitedPartner = isPerson ? limitedPartnerBuilder.personDto() : limitedPartnerBuilder.legalEntityDto();
+
+            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(limitedPartner.getData(), filingLimitedPartnershipData, transaction);
+
+            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
+            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
+            LimitedPartnerDataDto limitedPartnerData = limitedPartner.getData();
+
+            assertCommonPartnerData(limitedPartnerData, filingLimitedPartnerDataDto, isPerson);
+
+            assertEquals(limitedPartnerData.getUsualResidentialAddress(), filingLimitedPartnerDataDto.getUsualResidentialAddress());
+            assertEquals(limitedPartnerData.getServiceAddress(), filingLimitedPartnerDataDto.getServiceAddress());
+
+            if (isPerson) {
+                assertEquals("Prev forename", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals("Prev surname", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(LocalDate.of(1980, 6, 15), filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
+                assertEquals(limitedPartnerData.getUsualResidentialAddress(), filingLimitedPartnerDataDto.getUsualResidentialAddress());
+            } else {
+                assertEquals("Prev legal entity name", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(limitedPartnerData.getPrincipalOfficeAddress(), filingLimitedPartnerDataDto.getPrincipalOfficeAddress());
+            }
+
+            assertEquals(limitedPartnerData.getServiceAddress(), filingLimitedPartnerDataDto.getServiceAddress());
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#update-limited-partner-person",
+                "false, limited-partnership#update-limited-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForUpdatingLimitedPartnerWithoutAddresses(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
+            var transaction = new TransactionBuilder().build();
+            var limitedPartnerBuilder = new LimitedPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withLimitedPartnerKind(partnerKind)
+                    .withUpdateUsualResidentialAddressRequired(Boolean.FALSE)
+                    .withUpdatePrincipalOfficeAddressRequired(Boolean.FALSE)
+                    .withUpdateServiceAddressRequired(Boolean.FALSE);
+
+            var limitedPartner = isPerson ? limitedPartnerBuilder.personDto() : limitedPartnerBuilder.legalEntityDto();
+
+            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(limitedPartner.getData(), filingLimitedPartnershipData, transaction);
+
+            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
+            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
+            LimitedPartnerDataDto limitedPartnerData = limitedPartner.getData();
+
+            assertCommonPartnerData(limitedPartnerData, filingLimitedPartnerDataDto, isPerson);
+
+            assertNull(filingLimitedPartnerDataDto.getUsualResidentialAddress());
+            assertNull(filingLimitedPartnerDataDto.getServiceAddress());
+
+            if (isPerson) {
+                assertEquals("Prev forename", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals("Prev surname", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(LocalDate.of(1980, 6, 15), filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
+                assertEquals(limitedPartnerData.getUsualResidentialAddress(), filingLimitedPartnerDataDto.getUsualResidentialAddress());
+            } else {
+                assertEquals("Prev legal entity name", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(limitedPartnerData.getPrincipalOfficeAddress(), filingLimitedPartnerDataDto.getPrincipalOfficeAddress());
+            }
+
+            assertEquals(limitedPartnerData.getServiceAddress(), filingLimitedPartnerDataDto.getServiceAddress());
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#remove-limited-partner-person",
+                "false, limited-partnership#remove-limited-partner-legal-entity"
+        })
+        void testFilingGenerationSuccessfulForRemovingLimitedPartnerPerson(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
+            var transaction = new TransactionBuilder().build();
+            LocalDate today = LocalDate.now();
+            var limitedPartner = new LimitedPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withLimitedPartnerKind(partnerKind)
+                    .withCeaseDate(today)
+                    .personDto();
+
+            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
+            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+            assertCommonLimitedPartnershipData(limitedPartner.getData(), filingLimitedPartnershipData, transaction);
+
+            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
+            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
+            LimitedPartnerDataDto limitedPartnerData = limitedPartner.getData();
+
+            assertCommonPartnerData(limitedPartnerData, filingLimitedPartnerDataDto, isPerson);
+
+            if (isPerson) {
+                assertEquals("Prev forename", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals("Prev surname", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(LocalDate.of(1980, 6, 15), filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
+            } else {
+                assertEquals("Prev legal entity name", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+            }
+
+            assertEquals(today, filingLimitedPartnerDataDto.getCeaseDate());
         }
     }
 
@@ -300,9 +550,14 @@ class FilingsServiceTest {
         assertEquals(COMPANY_NUMBER, transaction.getCompanyNumber());
     }
 
-    private static void assertCommonPartnerData(PartnerDataDto partnerData, PartnerDataDto filingPartnerDataDto) {
-        assertEquals(partnerData.getForename(), filingPartnerDataDto.getForename());
-        assertEquals(partnerData.getSurname(), filingPartnerDataDto.getSurname());
+    private static void assertCommonPartnerData(PartnerDataDto partnerData, PartnerDataDto filingPartnerDataDto, boolean isPerson) {
+        if (isPerson) {
+            assertEquals(partnerData.getForename(), filingPartnerDataDto.getForename());
+            assertEquals(partnerData.getSurname(), filingPartnerDataDto.getSurname());
+        } else {
+            assertEquals(partnerData.getLegalEntityName(), filingPartnerDataDto.getLegalEntityName());
+        }
+
         assertEquals(partnerData.getDateOfBirth(), filingPartnerDataDto.getDateOfBirth());
         assertEquals(partnerData.getDateEffectiveFrom(), filingPartnerDataDto.getDateEffectiveFrom());
         assertEquals(partnerData.getUsualResidentialAddress(), filingPartnerDataDto.getUsualResidentialAddress());
@@ -310,23 +565,29 @@ class FilingsServiceTest {
         assertEquals(partnerData.getKind(), filingPartnerDataDto.getKind());
     }
 
-    private void mockChsAppointmentApiData() throws URIValidationException, ApiErrorResponseException {
+    private void mockChsAppointmentApiData(boolean isPerson) throws URIValidationException, ApiErrorResponseException {
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
         when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
         when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
-        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(getAppointmentFullRecordAPI());
+        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(getAppointmentFullRecordAPI(isPerson));
     }
 
-    private AppointmentFullRecordAPI getAppointmentFullRecordAPI() {
+    private AppointmentFullRecordAPI getAppointmentFullRecordAPI(boolean isPerson) {
         AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
         SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
         sensitiveDateOfBirthAPI.setDay(15);
         sensitiveDateOfBirthAPI.setMonth(6);
         sensitiveDateOfBirthAPI.setYear(1980);
         appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
-        appointmentFullRecordAPI.setForename("Prev forename");
-        appointmentFullRecordAPI.setSurname("Prev surname");
+
+        if (isPerson) {
+            appointmentFullRecordAPI.setForename("Prev forename");
+            appointmentFullRecordAPI.setSurname("Prev surname");
+        } else {
+            appointmentFullRecordAPI.setSurname("Prev legal entity name");
+        }
+
         return appointmentFullRecordAPI;
     }
 }

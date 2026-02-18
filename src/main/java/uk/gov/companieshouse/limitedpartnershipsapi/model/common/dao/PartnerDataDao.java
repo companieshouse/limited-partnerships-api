@@ -21,6 +21,9 @@ public abstract class PartnerDataDao {
     @Field("removeConfirmationChecked")
     private boolean removeConfirmationChecked;
 
+    @Field("service_address")
+    private AddressDao serviceAddress;
+
     @Field("update_service_address_required")
     private Boolean updateServiceAddressRequired;
 
@@ -68,6 +71,14 @@ public abstract class PartnerDataDao {
 
     public void setRemoveConfirmationChecked(boolean removeConfirmationChecked) {
         this.removeConfirmationChecked = removeConfirmationChecked;
+    }
+
+    public AddressDao getServiceAddress() {
+        return serviceAddress;
+    }
+
+    public void setServiceAddress(AddressDao serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 
     public Boolean getUpdateServiceAddressRequired() {
