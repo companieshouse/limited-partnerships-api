@@ -14,6 +14,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
@@ -42,6 +43,10 @@ public abstract class PartnerDataDto {
 
     @JsonProperty("remove_confirmation_checked")
     private boolean removeConfirmationChecked;
+
+    @JsonProperty(SERVICE_ADDRESS_FIELD)
+    @Valid
+    private AddressDto serviceAddress;
 
     @JsonProperty("update_service_address_required")
     private Boolean updateServiceAddressRequired;
@@ -97,6 +102,14 @@ public abstract class PartnerDataDto {
 
     public void setPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
+    }
+
+    public AddressDto getServiceAddress() {
+        return serviceAddress;
+    }
+
+    public void setServiceAddress(AddressDto serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 
     public Boolean getUpdateServiceAddressRequired() {

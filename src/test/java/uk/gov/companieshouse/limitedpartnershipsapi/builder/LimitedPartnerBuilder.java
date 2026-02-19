@@ -26,6 +26,8 @@ public class LimitedPartnerBuilder {
     private boolean removeConfirmationChecked;
     private PartnershipType partnershipType;
 
+    private Boolean updateUsualResidentialAddressRequired;
+    private Boolean updatePrincipalOfficeAddressRequired;
 
     public LimitedPartnerBuilder withLimitedPartnerKind(String kind) {
         this.limitedPartnerKind = kind;
@@ -47,6 +49,16 @@ public class LimitedPartnerBuilder {
         return this;
     }
 
+    public LimitedPartnerBuilder withUpdateUsualResidentialAddressRequired(Boolean updateUsualResidentialAddressRequired) {
+        this.updateUsualResidentialAddressRequired = updateUsualResidentialAddressRequired;
+        return this;
+    }
+
+    public LimitedPartnerBuilder withUpdatePrincipalOfficeAddressRequired(Boolean updatePrincipalOfficeAddressRequired) {
+        this.updatePrincipalOfficeAddressRequired = updatePrincipalOfficeAddressRequired;
+        return this;
+    }
+
     public LimitedPartnerDto personDto() {
         LimitedPartnerDto dto = new LimitedPartnerDto();
         dto.setId(LIMITED_PARTNER_ID);
@@ -63,6 +75,8 @@ public class LimitedPartnerBuilder {
         dataDto.setContributionCurrencyValue("1000.00");
         dataDto.setContributionCurrencyType(Currency.GBP);
         dataDto.setUsualResidentialAddress(createAddressDto());
+        dataDto.setServiceAddress(createAddressDto());
+        dataDto.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
         dataDto.setKind(limitedPartnerKind);
         dataDto.setCeaseDate(ceaseDate);
         dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
@@ -91,6 +105,7 @@ public class LimitedPartnerBuilder {
         contributionSubTypes.add(SHARES);
         dataDto.setContributionSubTypes(contributionSubTypes);
         dataDto.setPrincipalOfficeAddress(createAddressDto());
+        dataDto.setUpdatePrincipalOfficeAddressRequired(updatePrincipalOfficeAddressRequired);
         dataDto.setKind(limitedPartnerKind);
         dataDto.setCeaseDate(ceaseDate);
         dataDto.setRemoveConfirmationChecked(removeConfirmationChecked);
@@ -130,6 +145,8 @@ public class LimitedPartnerBuilder {
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setContributionSubTypes(contributionSubTypes);
         dataDao.setUsualResidentialAddress(createAddressDao());
+        dataDao.setServiceAddress(createAddressDao());
+        dataDao.setUpdateUsualResidentialAddressRequired(updateUsualResidentialAddressRequired);
         dataDao.setKind(limitedPartnerKind);
 
         dao.setData(dataDao);
@@ -158,6 +175,7 @@ public class LimitedPartnerBuilder {
         dataDao.setContributionCurrencyValue("1000.00");
         dataDao.setContributionCurrencyType(Currency.GBP);
         dataDao.setPrincipalOfficeAddress(createAddressDao());
+        dataDao.setUpdatePrincipalOfficeAddressRequired(updatePrincipalOfficeAddressRequired);
         dataDao.setKind(limitedPartnerKind);
 
         dao.setData(dataDao);

@@ -73,7 +73,7 @@ public class FilingsController {
     public ResponseEntity<FilingApi[]> getLimitedPartnerFiling(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_FILING_RESOURCE_ID) String limitedPartnerId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException, ApiErrorResponseException, URIValidationException {
 
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());

@@ -90,6 +90,10 @@ public enum PartnerKind {
         return kind != null && REMOVE_LIMITED_PARTNER_KINDS.contains(kind);
     }
 
+    public static boolean isRemovePartnerKind(String kind) {
+        return isRemoveGeneralPartnerKind(kind) || isRemoveLimitedPartnerKind(kind);
+    }
+
     public static boolean isAddPartnerKind(String kind) {
         return kind != null && (ADD_GENERAL_PARTNER_KINDS.contains(kind) || ADD_LIMITED_PARTNER_KINDS.contains(kind));
     }
@@ -100,6 +104,10 @@ public enum PartnerKind {
 
     public static boolean isUpdateLimitedPartnerKind(String kind) {
         return kind != null && UPDATE_LIMITED_PARTNER_KINDS.contains(kind);
+    }
+
+    public static boolean isUpdatePartnerKind(String kind) {
+        return isUpdateGeneralPartnerKind(kind) || isUpdateLimitedPartnerKind(kind);
     }
 
     public static boolean isLegalEntityKind(String kind) {
