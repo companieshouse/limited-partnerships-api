@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_METHOD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_REFERENCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
@@ -87,6 +88,10 @@ public class FilingsService {
 
         var filing = new FilingApi();
         setFilingApiData(filing, transaction);
+
+        String cost = String.format(URL_GET_INCORPORATION, transaction.getId(), incorporationId) + COSTS_URI_SUFFIX;
+        filing.setCost(cost);
+
         return filing;
     }
 

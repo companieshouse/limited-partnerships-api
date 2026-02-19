@@ -53,11 +53,13 @@ import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder.GENERAL_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder.LIMITED_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder.COMPANY_NUMBER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_METHOD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_REFERENCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -116,6 +118,9 @@ class FilingsServiceTest {
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_METHOD));
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_REFERENCE));
         assertEquals("Register a Limited Partnership", filing.getDescription());
+
+        String cost = String.format(URL_GET_INCORPORATION, transaction.getId(), INCORPORATION_ID) + COSTS_URI_SUFFIX;
+        assertEquals(cost, filing.getCost());
     }
 
     @Test
