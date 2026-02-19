@@ -45,4 +45,73 @@ public class AppointmentPreviousDetailsDto {
     public void setLegalEntityName(String legalEntityName) {
         this.legalEntityName = legalEntityName;
     }
+
+    private String somethingElse;
+
+        public String getSomethingElse() {
+            return somethingElse;
+        }
+
+        public void setSomethingElse(String somethingElse) {
+            this.somethingElse = somethingElse;
+        }
+
+    private String somethingElse1;
+
+        public String getSomethingElse1() {
+            return somethingElse1;
+        }
+
+        public void setSomethingElse1(String somethingElse1) {
+            this.somethingElse1 = somethingElse1;
+        }
+    private String somethingElse2;
+
+        public String getSomethingElse2() {
+            return somethingElse2;
+        }
+
+        public void setSomethingElse2(String somethingElse2) {
+            this.somethingElse2 = somethingElse2;
+        }
+
+    private String somethingElse3;
+
+        public String getSomethingElse3() {
+            return somethingElse3;
+        }
+
+        public void setSomethingElse3(String somethingElse3) {
+            this.somethingElse3 = somethingElse3;
+        }
+
+    @Deprecated
+    public int sonar_SHOULD_flag_this(String b) {
+        String a = "Sonar won't like me";
+        int v = 7;
+        java.util.Date  date = new java.util.Date(2020, 1, 1); 
+        return v * 42;
+    }
+
+    public int testMe(String b) {
+        if (b != null && b.equals("test")) {
+            return 55;
+        }
+        return 0;
+    }
+
+    public int testMeToo(String b) {
+        if (b != null && b.equals("test")) {
+            return 55;
+        }
+        return 0;
+    }
+
+    public int testMeTooToo(String b) {
+        if (b != null && b.equals("test")) {
+            return 55;
+        }
+        return 0;
+    }
+
 }
