@@ -29,7 +29,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
@@ -52,7 +51,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder.GENERAL_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder.LIMITED_PARTNER_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder.SUBMISSION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder.COMPANY_NUMBER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder.TRANSACTION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_METHOD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_PAYMENT_REFERENCE;
@@ -60,6 +61,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENER
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -118,9 +120,6 @@ class FilingsServiceTest {
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_METHOD));
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_REFERENCE));
         assertEquals("Register a Limited Partnership", filing.getDescription());
-
-        String cost = String.format(URL_GET_INCORPORATION, transaction.getId(), INCORPORATION_ID) + COSTS_URI_SUFFIX;
-        assertEquals(cost, filing.getCost());
     }
 
     @Test
@@ -510,16 +509,28 @@ class FilingsServiceTest {
 
     @Nested
     class FilingLimitedPartnershipTest {
-        @Test
-        void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName() throws ServiceException {
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#update-partnership-name",
+                "true, limited-partnership#update-partnership-term",
+                "false, limited-partnership#update-partnership-registered-office-address"
+        })
+        void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName(
+                boolean hasCostLink,
+                String partnerKind) throws ServiceException {
             String currentCompanyName = "Current Company Name Ltd";
             LocalDate today = LocalDate.now();
-            var transaction = new TransactionBuilder()
-                    .withFilingMode(FilingMode.DEFAULT.getDescription())
-                    .build();
+            TransactionBuilder transactionBuilder = new TransactionBuilder()
+                    .withFilingMode(FilingMode.DEFAULT.getDescription());
+
+            if (hasCostLink) {
+                transactionBuilder.withCostLink(String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID) + COSTS_URI_SUFFIX);
+            }
+
+            Transaction transaction = transactionBuilder.build();
 
             var limitedPartnership = new LimitedPartnershipBuilder()
-                    .withPartnershipKind(PartnershipKind.UPDATE_PARTNERSHIP_NAME)
+                    .withPartnershipKind(partnerKind)
                     .withDateOfUpdate(today)
                     .buildDto();
 
@@ -535,11 +546,77 @@ class FilingsServiceTest {
             when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
 
             FilingApi filing = filingsService.generateLimitedPartnershipFiling(transaction);
-            var expectedFilingKind = new FilingKind().addSubKind(FilingMode.POST_TRANSITION.getDescription(), PartnershipKind.UPDATE_PARTNERSHIP_NAME.getDescription());
+            var expectedFilingKind = new FilingKind().addSubKind(FilingMode.POST_TRANSITION.getDescription(), partnerKind);
+
             assertEquals(expectedFilingKind, filing.getKind());
 
+            if (hasCostLink) {
+                String cost = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID) + COSTS_URI_SUFFIX;
+                assertEquals(cost, filing.getCost());
+            } else {
+                assertNull(filing.getCost());
+            }
+
             DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
-            assertEquals(currentCompanyName, filingLimitedPartnershipData.getCompanyPreviousDetails().getCompanyName());
+
+            if (partnerKind.equals("limited-partnership#update-partnership-name")) {
+                assertEquals(currentCompanyName, filingLimitedPartnershipData.getCompanyPreviousDetails().getCompanyName());
+            }
+
+            assertEquals(limitedPartnership.getData().getPartnershipName(), filingLimitedPartnershipData.getPartnershipName());
+            assertEquals(limitedPartnership.getData().getPartnershipNumber(), filingLimitedPartnershipData.getPartnershipNumber());
+            assertEquals(limitedPartnership.getData().getPartnershipType(), filingLimitedPartnershipData.getPartnershipType());
+            assertEquals(limitedPartnership.getData().getDateOfUpdate(), filingLimitedPartnershipData.getDateOfUpdate());
+        }
+    }
+
+    @Nested
+    class FilingIncorporationTest {
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership-registration",
+                "false, limited-partnership-transition"
+        })
+        void testFilingGenerationSuccessfulForIncorporation(
+                boolean hasCostLink,
+                String partnerKind) throws ServiceException {
+            TransactionBuilder transactionBuilder = new TransactionBuilder()
+                    .withFilingMode(partnerKind)
+                    .withResource(String.format(URL_GET_INCORPORATION, TRANSACTION_ID, SUBMISSION_ID));
+
+            if (hasCostLink) {
+                transactionBuilder.withCostLink(String.format(URL_GET_INCORPORATION, TRANSACTION_ID, SUBMISSION_ID) + COSTS_URI_SUFFIX);
+            }
+
+            Transaction transaction = transactionBuilder.build();
+
+            var limitedPartnership = new LimitedPartnershipBuilder()
+                    .withPartnershipKind(partnerKind)
+                    .buildDto();
+
+            var companyProfile = new CompanyProfileApi();
+
+            PaymentApi payment = new PaymentApi();
+            payment.setPaymentMethod(PAYMENT_METHOD);
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnership);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfile);
+            when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
+            when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
+
+            when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateIncorporationFiling(transaction, SUBMISSION_ID);
+
+            if (hasCostLink) {
+                String cost = String.format(URL_GET_INCORPORATION, transaction.getId(), SUBMISSION_ID) + COSTS_URI_SUFFIX;
+                assertEquals(cost, filing.getCost());
+            } else {
+                assertNull(filing.getCost());
+            }
+
+            DataDto filingLimitedPartnershipData = (DataDto) filing.getData().get(LIMITED_PARTNERSHIP_FIELD);
+
             assertEquals(limitedPartnership.getData().getPartnershipName(), filingLimitedPartnershipData.getPartnershipName());
             assertEquals(limitedPartnership.getData().getPartnershipNumber(), filingLimitedPartnershipData.getPartnershipNumber());
             assertEquals(limitedPartnership.getData().getPartnershipType(), filingLimitedPartnershipData.getPartnershipType());

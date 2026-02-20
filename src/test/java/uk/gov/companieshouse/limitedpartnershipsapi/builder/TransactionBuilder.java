@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 
 public class TransactionBuilder {
     public static final String TRANSACTION_ID = "863851-951242-143528";
@@ -24,6 +26,7 @@ public class TransactionBuilder {
             TRANSACTION_ID,
             SUBMISSION_ID
     );
+    String costLink;
 
     public TransactionBuilder forPartner(String kind, String url, String id) {
         this.kind = kind;
@@ -47,6 +50,16 @@ public class TransactionBuilder {
         return this;
     }
 
+    public TransactionBuilder withResource(String uri) {
+        this.uri = uri;
+        return this;
+    }
+
+    public TransactionBuilder withCostLink(String costLink) {
+        this.costLink = costLink;
+        return this;
+    }
+
     public Transaction build() {
         Transaction transaction = new Transaction();
         transaction.setId(TRANSACTION_ID);
@@ -65,8 +78,11 @@ public class TransactionBuilder {
         resource.setKind(kind);
 
         Map<String, String> resourceLinks = new HashMap<>();
-        resourceLinks.put("resource", uri);
+        resourceLinks.put(LINK_RESOURCE, uri);
         resource.setLinks(resourceLinks);
+        if (costLink != null) {
+            resourceLinks.put(LINK_COSTS, costLink);
+        }
 
         Map<String, Resource> resourceMap = new HashMap<>();
         resourceMap.put(uri, resource);

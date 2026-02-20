@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
@@ -150,8 +149,8 @@ public class LimitedPartnershipBuilder {
         return this;
     }
 
-    public LimitedPartnershipBuilder withPartnershipKind(PartnershipKind partnershipKind) {
-        this.partnershipKind = partnershipKind.getDescription();
+    public LimitedPartnershipBuilder withPartnershipKind(String partnershipKind) {
+        this.partnershipKind = partnershipKind;
         return this;
     }
 
