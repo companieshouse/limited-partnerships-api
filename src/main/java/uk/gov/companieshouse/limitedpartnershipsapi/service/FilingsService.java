@@ -90,7 +90,7 @@ public class FilingsService {
         var filing = new FilingApi();
         setFilingApiData(filing, transaction);
 
-        addCostLinkInFilingIsExistsInResource(transaction, filing);
+        addCostLinkInFilingIfExistsInResource(transaction, filing);
 
         return filing;
     }
@@ -280,12 +280,12 @@ public class FilingsService {
         setPaymentData(data, transaction);
         filing.setData(data);
 
-        addCostLinkInFilingIsExistsInResource(transaction, filing);
+        addCostLinkInFilingIfExistsInResource(transaction, filing);
 
         return filing;
     }
 
-    private static void addCostLinkInFilingIsExistsInResource(Transaction transaction, FilingApi filing) {
+    private static void addCostLinkInFilingIfExistsInResource(Transaction transaction, FilingApi filing) {
         Resource resource = transaction.getResources().values().stream().toList().getFirst();
         String cost = resource.getLinks().get(LINK_COSTS);
         if (cost != null) {
