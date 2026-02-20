@@ -512,7 +512,8 @@ class FilingsServiceTest {
         @ParameterizedTest
         @CsvSource({
                 "true, limited-partnership#update-partnership-name",
-                "true, limited-partnership#update-partnership-term",
+                "true, limited-partnership#update-partnership-redesignate-to-pflp",
+                "false, limited-partnership#update-partnership-term",
                 "false, limited-partnership#update-partnership-registered-office-address"
         })
         void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName(
