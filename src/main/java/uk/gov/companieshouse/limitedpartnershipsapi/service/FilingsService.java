@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -37,6 +38,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
@@ -87,6 +89,9 @@ public class FilingsService {
 
         var filing = new FilingApi();
         setFilingApiData(filing, transaction);
+
+        addCostLinkInFilingForRefundIfExistsInResource(transaction, filing);
+
         return filing;
     }
 
@@ -275,7 +280,17 @@ public class FilingsService {
         setPaymentData(data, transaction);
         filing.setData(data);
 
+        addCostLinkInFilingForRefundIfExistsInResource(transaction, filing);
+
         return filing;
+    }
+
+    private static void addCostLinkInFilingForRefundIfExistsInResource(Transaction transaction, FilingApi filing) {
+        Resource resource = transaction.getResources().values().stream().toList().getFirst();
+        String cost = resource.getLinks().get(LINK_COSTS);
+        if (cost != null) {
+            filing.setCost(cost);
+        }
     }
 
     private boolean shouldIncludeCompanyPreviousDetails(Transaction transaction, DataDto limitedPartnershipDataDto) {
