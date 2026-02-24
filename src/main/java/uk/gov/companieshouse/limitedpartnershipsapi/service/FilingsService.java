@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
@@ -58,6 +59,7 @@ public class FilingsService {
     private final PaymentService paymentService;
     private final ApiClientService apiClientService;
     private final CompanyService companyService;
+    private final CostsService costsService;
     private final FilingKind filingKind;
 
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
@@ -67,7 +69,8 @@ public class FilingsService {
                           PaymentService paymentService,
                           FilingKind filingKind,
                           ApiClientService apiClientService,
-                          CompanyService companyService
+                          CompanyService companyService,
+                          CostsService costsService
     ) {
 
         this.limitedPartnershipService = limitedPartnershipService;
@@ -78,6 +81,7 @@ public class FilingsService {
         this.filingKind = filingKind;
         this.apiClientService = apiClientService;
         this.companyService = companyService;
+        this.costsService = costsService;
     }
 
     public FilingApi generateIncorporationFiling(Transaction transaction, String incorporationId) throws ServiceException {
@@ -90,7 +94,8 @@ public class FilingsService {
         var filing = new FilingApi();
         setFilingApiData(filing, transaction);
 
-        addCostLinkInFilingForRefundIfExistsInResource(transaction, filing);
+        Cost cost = costsService.getCost(incorporationId, "");
+        addCostInFilingForRefundIfCostLinkExistsInResource(transaction, filing, cost);
 
         return filing;
     }
@@ -280,16 +285,17 @@ public class FilingsService {
         setPaymentData(data, transaction);
         filing.setData(data);
 
-        addCostLinkInFilingForRefundIfExistsInResource(transaction, filing);
+        Cost cost = costsService.getPostTransitionLimitedPartnershipCost(transaction);
+        addCostInFilingForRefundIfCostLinkExistsInResource(transaction, filing, cost);
 
         return filing;
     }
 
-    private static void addCostLinkInFilingForRefundIfExistsInResource(Transaction transaction, FilingApi filing) {
+    private static void addCostInFilingForRefundIfCostLinkExistsInResource(Transaction transaction, FilingApi filing, Cost cost) {
         Resource resource = transaction.getResources().values().stream().toList().getFirst();
-        String cost = resource.getLinks().get(LINK_COSTS);
-        if (cost != null) {
-            filing.setCost(cost);
+        String costLink = resource.getLinks().get(LINK_COSTS);
+        if (costLink != null) {
+            filing.setCost(cost.getAmount());
         }
     }
 
