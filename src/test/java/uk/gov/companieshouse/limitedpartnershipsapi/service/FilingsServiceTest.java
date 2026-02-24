@@ -31,15 +31,18 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -85,6 +88,8 @@ class FilingsServiceTest {
     private PaymentService paymentService;
     @MockitoBean
     private CompanyService companyService;
+    @MockitoBean
+    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
 
     @MockitoBean
     private ApiClientService apiClientService;
@@ -109,6 +114,7 @@ class FilingsServiceTest {
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
+        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
 
         FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
 
@@ -130,7 +136,10 @@ class FilingsServiceTest {
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+
         FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
+
         assertNotNull(filing);
         assertEquals("Transition a Limited Partnership", filing.getDescription());
     }
@@ -511,14 +520,15 @@ class FilingsServiceTest {
     class FilingLimitedPartnershipTest {
         @ParameterizedTest
         @CsvSource({
-                "true, limited-partnership#update-partnership-name",
-                "true, limited-partnership#update-partnership-redesignate-to-pflp",
-                "false, limited-partnership#update-partnership-term",
-                "false, limited-partnership#update-partnership-registered-office-address"
+                "true, limited-partnership#update-partnership-name, 50.00",
+                "true, limited-partnership#update-partnership-redesignate-to-pflp, 1.00",
+                "false, limited-partnership#update-partnership-term, 50.00",
+                "false, limited-partnership#update-partnership-registered-office-address, 50.00"
         })
         void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName(
                 boolean hasCostLink,
-                String partnerKind) throws ServiceException {
+                String partnerKind,
+                String cost) throws ServiceException {
             String currentCompanyName = "Current Company Name Ltd";
             LocalDate today = LocalDate.now();
             TransactionBuilder transactionBuilder = new TransactionBuilder()
@@ -552,7 +562,6 @@ class FilingsServiceTest {
             assertEquals(expectedFilingKind, filing.getKind());
 
             if (hasCostLink) {
-                String cost = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID) + COSTS_URI_SUFFIX;
                 assertEquals(cost, filing.getCost());
             } else {
                 assertNull(filing.getCost());
@@ -575,12 +584,13 @@ class FilingsServiceTest {
     class FilingIncorporationTest {
         @ParameterizedTest
         @CsvSource({
-                "true, limited-partnership-registration",
-                "false, limited-partnership-transition"
+                "true, limited-partnership-registration, 100.00",
+                "false, limited-partnership-transition, 50.00"
         })
         void testFilingGenerationSuccessfulForIncorporation(
                 boolean hasCostLink,
-                String partnerKind) throws ServiceException {
+                String partnerKind,
+                String cost) throws ServiceException {
             TransactionBuilder transactionBuilder = new TransactionBuilder()
                     .withFilingMode(partnerKind)
                     .withResource(String.format(URL_GET_INCORPORATION, TRANSACTION_ID, SUBMISSION_ID));
@@ -604,13 +614,13 @@ class FilingsServiceTest {
             when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfile);
             when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
             when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
+            when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
 
             when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
 
             FilingApi filing = filingsService.generateIncorporationFiling(transaction, SUBMISSION_ID);
 
             if (hasCostLink) {
-                String cost = String.format(URL_GET_INCORPORATION, transaction.getId(), SUBMISSION_ID) + COSTS_URI_SUFFIX;
                 assertEquals(cost, filing.getCost());
             } else {
                 assertNull(filing.getCost());
