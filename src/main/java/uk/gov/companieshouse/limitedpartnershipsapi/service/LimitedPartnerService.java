@@ -161,6 +161,11 @@ public class LimitedPartnerService {
                 data.getUsualResidentialAddress() != null) {
             data.setUsualResidentialAddress(null);
         }
+
+        if (Boolean.FALSE.equals(limitedPartnerChangesDataDto.getUpdatePrincipalOfficeAddressRequired()) &&
+                data.getPrincipalOfficeAddress() != null) {
+            data.setPrincipalOfficeAddress(null);
+        }
     }
 
     public LimitedPartnerDto getLimitedPartner(Transaction transaction, String limitedPartnerId) throws ResourceNotFoundException {

@@ -241,6 +241,34 @@ class LimitedPartnerServiceUpdateTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void shouldHandlePrincipalOfficeAddressForUpdatePOARequiredFlag(Boolean poaRequired) throws Exception {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().withLimitedPartnerKind(
+                PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription()).legalEntityDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().legalEntityDto().getData();
+        limitedPartnerDataDto.setDateEffectiveFrom(null);
+        limitedPartnerDataDto.setUpdatePrincipalOfficeAddressRequired(poaRequired);
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        if (poaRequired) {
+            assertTrue(sentSubmission.getData().getUpdatePrincipalOfficeAddressRequired());
+            assertNotNull(sentSubmission.getData().getPrincipalOfficeAddress());
+        } else {
+            assertFalse(sentSubmission.getData().getUpdatePrincipalOfficeAddressRequired());
+            assertNull(sentSubmission.getData().getPrincipalOfficeAddress());
+        }
+    }
+
     @Test
     void shouldUpdateTheDaoWithLegalEntityRegistrationLocation() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().legalEntityDao();
