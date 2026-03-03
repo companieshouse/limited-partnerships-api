@@ -675,7 +675,7 @@ class FilingsServiceTest {
             appointmentFullRecordAPI.setForename("Prev forename");
             appointmentFullRecordAPI.setSurname("Prev surname");
         } else {
-            appointmentFullRecordAPI.setSurname("Prev legal entity name");
+            appointmentFullRecordAPI.setName("Prev legal entity name");
         }
 
         return appointmentFullRecordAPI;
