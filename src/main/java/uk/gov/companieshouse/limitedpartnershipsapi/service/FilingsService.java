@@ -240,7 +240,7 @@ public class FilingsService {
                     appointmentFullRecordAPI.getDateOfBirth().getMonth(),
                     appointmentFullRecordAPI.getDateOfBirth().getDay()));
         } else {
-            appointmentPreviousDetails.setLegalEntityName(appointmentFullRecordAPI.getSurname());
+            appointmentPreviousDetails.setLegalEntityName(appointmentFullRecordAPI.getName());
         }
 
         partnerDataDto.setAppointmentPreviousDetails(appointmentPreviousDetails);
