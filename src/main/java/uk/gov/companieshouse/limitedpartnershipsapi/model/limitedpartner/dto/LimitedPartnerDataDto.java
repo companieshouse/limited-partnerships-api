@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
@@ -23,6 +24,7 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
 
     @JsonProperty(CONTRIBUTION_CURRENCY_VALUE_FIELD)
     @Pattern(regexp = "^\\d+(\\.\\d{2})$", message = "Contribution currency value must be a valid decimal number")
+    @Size(max = 15, message = "Contribution currency value must not exceed 12 whole numbers and 2 decimal places")
     private String contributionCurrencyValue;
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
