@@ -1,51 +1,48 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.NatureOfControl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ADDRESS_LINE1_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ADDRESS_LINE2_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.APPOINTMENT_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.COUNTRY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.COUNTRY_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.DATE_EFFECTIVE_FROM;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.DATE_OF_BIRTH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ETAG;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.FORENAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.FORMER_NAMES;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.GOVERNING_LAW;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_NAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_REGISTER_NAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_REGISTRATION_LOCATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_FORM;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LOCALITY_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY1;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY2;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATURE_OF_CONTROL;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.POA_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.POSTAL_CODE_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.PREMISES_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.REGION_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.REGISTERED_COMPANY_NUMBER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.RESIGNATION_DATE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SERVICE_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SURNAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.URA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
 
+
 class PscMapperTest {
-    private static final String ETAG = "eTag";
-    private static final String APPOINTMENT_ID = "1234";
-    private static final String COUNTRY = "England";
-    private static final String FORENAME = "John";
-    private static final String FORMER_NAMES = "Doe";
-    private static final String GOVERNING_LAW = "law of england";
-    private static final String LEGAL_ENTITY_NAME = "Legal Entity Name";
-    private static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
-    private static final String LEGAL_ENTITY_REGISTRATION_LOCATION = "England";
-    private static final String LEGAL_FORM = "Legal Form";
-    private static final String NATIONALITY1 = "British";
-    private static final String NATIONALITY2 = "French";
-    private static final String REGISTERED_COMPANY_NUMBER = "12345678";
-    private static final String SURNAME = "Smith";
-    private static final String NATURE_OF_CONTROL = "test";
-    private static final String POA_PREFIX = "poa";
-    private static final String SERVICE_PREFIX = "service";
-    private static final String URA_PREFIX = "ura";
-    private static final String ADDRESS_LINE1_SUFFIX = " line1";
-    private static final String ADDRESS_LINE2_SUFFIX = " line2";
-    private static final String COUNTRY_SUFFIX = " England";
-    private static final String LOCALITY_SUFFIX = " Birmingham";
-    private static final String POSTAL_CODE_SUFFIX = " BM1 2EH";
-    private static final String PREMISES_SUFFIX = " 22";
-    private static final String REGION_SUFFIX = " West Midlands";
-    private static final LocalDate DATE_EFFECTIVE_FROM = LocalDate.of(2026, 1, 20);
-    private static final LocalDate DATE_OF_BIRTH = LocalDate.of(1999, 12, 31);
-    private static final LocalDate RESIGNATION_DATE = LocalDate.of(2025, 12, 11);
 
     // Field name constants for extracting()
     private static final String FN_APPOINTMENT_ID = "appointmentId";
@@ -74,41 +71,13 @@ class PscMapperTest {
     private static final String FN_PREMISES = "premises";
     private static final String FN_REGION = "region";
 
-
     @Test
     void givenDao_whenMapsToDto_thenCorrect() {
         // given
-        PscDataDao sourceData = new PscDataDao();
-        // set data fields
-        sourceData.setAppointmentId(APPOINTMENT_ID);
-        sourceData.setCountry(COUNTRY);
-        sourceData.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        sourceData.setDateOfBirth(DATE_OF_BIRTH);
-        sourceData.setEtag(ETAG);
-        sourceData.setForename(FORENAME);
-        sourceData.setFormerNames(FORMER_NAMES);
-        sourceData.setGoverningLaw(GOVERNING_LAW);
-        sourceData.setKind(REGISTRATION.getDescription());
-        sourceData.setLegalEntityName(LEGAL_ENTITY_NAME);
-        sourceData.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        sourceData.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
-        sourceData.setLegalForm(LEGAL_FORM);
-        sourceData.setLegalPersonalityStatementChecked(true);
-        sourceData.setNationality1(NATIONALITY1);
-        sourceData.setNationality2(NATIONALITY2);
-        List<String> nocList = List.of(NATURE_OF_CONTROL, NATURE_OF_CONTROL, NATURE_OF_CONTROL);
-        sourceData.setNaturesOfControl(nocList);
-        sourceData.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
-        sourceData.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        sourceData.setResignationDate(RESIGNATION_DATE);
-        sourceData.setServiceAddress(createAddressDao(SERVICE_PREFIX));
-        sourceData.setSurname(SURNAME);
-        sourceData.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
-        PscDao source = new PscDao();
-        source.setData(sourceData);
+        PscDao pscDao = PscBuilder.getPscDao();
 
         // when
-        PscDto result = PscMapper.INSTANCE.daoToDto(source);
+        PscDto result = PscMapper.INSTANCE.daoToDto(pscDao);
         PscDataDto dataDto = result.getData();
 
         // Grouped assertions for main fields
@@ -161,101 +130,18 @@ class PscMapperTest {
             .hasSize(3)
             .containsExactlyInAnyOrder(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST);
 
-        // Grouped assertions for address fields
-        assertThat(dataDto.getPrincipalOfficeAddress())
-            .extracting(
-                FN_ADDRESS_LINE1,
-                FN_ADDRESS_LINE2,
-                FN_COUNTRY,
-                FN_LOCALITY,
-                FN_POSTAL_CODE,
-                FN_PREMISES,
-                FN_REGION
-            )
-            .containsExactly(
-                POA_PREFIX + ADDRESS_LINE1_SUFFIX,
-                POA_PREFIX + ADDRESS_LINE2_SUFFIX,
-                POA_PREFIX + COUNTRY_SUFFIX,
-                POA_PREFIX + LOCALITY_SUFFIX,
-                POA_PREFIX + POSTAL_CODE_SUFFIX,
-                POA_PREFIX + PREMISES_SUFFIX,
-                POA_PREFIX + REGION_SUFFIX
-            );
-
-        assertThat(dataDto.getServiceAddress())
-            .extracting(
-                FN_ADDRESS_LINE1,
-                FN_ADDRESS_LINE2,
-                FN_COUNTRY,
-                FN_LOCALITY,
-                FN_POSTAL_CODE,
-                FN_PREMISES,
-                FN_REGION
-            )
-            .containsExactly(
-                SERVICE_PREFIX + ADDRESS_LINE1_SUFFIX,
-                SERVICE_PREFIX + ADDRESS_LINE2_SUFFIX,
-                SERVICE_PREFIX + COUNTRY_SUFFIX,
-                SERVICE_PREFIX + LOCALITY_SUFFIX,
-                SERVICE_PREFIX + POSTAL_CODE_SUFFIX,
-                SERVICE_PREFIX + PREMISES_SUFFIX,
-                SERVICE_PREFIX + REGION_SUFFIX
-            );
-
-        assertThat(dataDto.getUsualResidentialAddress())
-            .extracting(
-                FN_ADDRESS_LINE1,
-                FN_ADDRESS_LINE2,
-                FN_COUNTRY,
-                FN_LOCALITY,
-                FN_POSTAL_CODE,
-                FN_PREMISES,
-                FN_REGION
-            )
-            .containsExactly(
-                URA_PREFIX + ADDRESS_LINE1_SUFFIX,
-                URA_PREFIX + ADDRESS_LINE2_SUFFIX,
-                URA_PREFIX + COUNTRY_SUFFIX,
-                URA_PREFIX + LOCALITY_SUFFIX,
-                URA_PREFIX + POSTAL_CODE_SUFFIX,
-                URA_PREFIX + PREMISES_SUFFIX,
-                URA_PREFIX + REGION_SUFFIX
-            );
+        assertAddress(dataDto.getPrincipalOfficeAddress(), POA_PREFIX);
+        assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
+        assertAddress(dataDto.getUsualResidentialAddress(), URA_PREFIX);
     }
 
     @Test
     void givenDto_whenMapsToDao_thenCorrect() {
         // given
-        PscDataDto dataDto = new PscDataDto();
-        dataDto.setAppointmentId(APPOINTMENT_ID);
-        dataDto.setCountry(Country.ENGLAND);
-        dataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        dataDto.setDateOfBirth(DATE_OF_BIRTH);
-        dataDto.setEtag(ETAG);
-        dataDto.setForename(FORENAME);
-        dataDto.setFormerNames(FORMER_NAMES);
-        dataDto.setGoverningLaw(GOVERNING_LAW);
-        dataDto.setKind(REGISTRATION.getDescription());
-        dataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
-        dataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        dataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
-        dataDto.setLegalForm(LEGAL_FORM);
-        dataDto.setLegalPersonalityStatementChecked(true);
-        dataDto.setNationality1(Nationality.BRITISH);
-        dataDto.setNationality2(Nationality.FRENCH);
-        List<NatureOfControl> nocList = List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST);
-        dataDto.setNaturesOfControl(nocList);
-        dataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
-        dataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        dataDto.setResignationDate(RESIGNATION_DATE);
-        dataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
-        dataDto.setSurname(SURNAME);
-        dataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
-        PscDto dto = new PscDto();
-        dto.setData(dataDto);
+        PscDto pscDto = PscBuilder.getPscDto();
 
         // when
-        PscDao result = PscMapper.INSTANCE.dtoToDao(dto);
+        PscDao result = PscMapper.INSTANCE.dtoToDao(pscDto);
         PscDataDao daoData = result.getData();
 
         // Grouped assertions for main fields
@@ -308,89 +194,31 @@ class PscMapperTest {
             .hasSize(3)
             .containsExactlyInAnyOrder(NATURE_OF_CONTROL, NATURE_OF_CONTROL, NATURE_OF_CONTROL);
 
-        // Grouped assertions for address fields
-        assertThat(daoData.getPrincipalOfficeAddress())
-            .extracting(
-                FN_ADDRESS_LINE1,
-                FN_ADDRESS_LINE2,
-                FN_COUNTRY,
-                FN_LOCALITY,
-                FN_POSTAL_CODE,
-                FN_PREMISES,
-                FN_REGION
-            )
-            .containsExactly(
-                POA_PREFIX + ADDRESS_LINE1_SUFFIX,
-                POA_PREFIX + ADDRESS_LINE2_SUFFIX,
-                POA_PREFIX + COUNTRY_SUFFIX,
-                POA_PREFIX + LOCALITY_SUFFIX,
-                POA_PREFIX + POSTAL_CODE_SUFFIX,
-                POA_PREFIX + PREMISES_SUFFIX,
-                POA_PREFIX + REGION_SUFFIX
-            );
-
-        assertThat(daoData.getServiceAddress())
-            .extracting(
-                FN_ADDRESS_LINE1,
-                FN_ADDRESS_LINE2,
-                FN_COUNTRY,
-                FN_LOCALITY,
-                FN_POSTAL_CODE,
-                FN_PREMISES,
-                FN_REGION
-            )
-            .containsExactly(
-                SERVICE_PREFIX + ADDRESS_LINE1_SUFFIX,
-                SERVICE_PREFIX + ADDRESS_LINE2_SUFFIX,
-                SERVICE_PREFIX + COUNTRY_SUFFIX,
-                SERVICE_PREFIX + LOCALITY_SUFFIX,
-                SERVICE_PREFIX + POSTAL_CODE_SUFFIX,
-                SERVICE_PREFIX + PREMISES_SUFFIX,
-                SERVICE_PREFIX + REGION_SUFFIX
-            );
-
-        assertThat(daoData.getUsualResidentialAddress())
-            .extracting(
-                FN_ADDRESS_LINE1,
-                FN_ADDRESS_LINE2,
-                FN_COUNTRY,
-                FN_LOCALITY,
-                FN_POSTAL_CODE,
-                FN_PREMISES,
-                FN_REGION
-            )
-            .containsExactly(
-                URA_PREFIX + ADDRESS_LINE1_SUFFIX,
-                URA_PREFIX + ADDRESS_LINE2_SUFFIX,
-                URA_PREFIX + COUNTRY_SUFFIX,
-                URA_PREFIX + LOCALITY_SUFFIX,
-                URA_PREFIX + POSTAL_CODE_SUFFIX,
-                URA_PREFIX + PREMISES_SUFFIX,
-                URA_PREFIX + REGION_SUFFIX
-            );
+        assertAddress(daoData.getPrincipalOfficeAddress(), POA_PREFIX);
+        assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);
+        assertAddress(daoData.getUsualResidentialAddress(), URA_PREFIX);
     }
 
-    private AddressDao createAddressDao(String prefix) {
-        AddressDao addressDao = new AddressDao();
-        addressDao.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
-        addressDao.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
-        addressDao.setCountry(prefix + COUNTRY_SUFFIX);
-        addressDao.setLocality(prefix + LOCALITY_SUFFIX);
-        addressDao.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
-        addressDao.setPremises(prefix + PREMISES_SUFFIX);
-        addressDao.setRegion(prefix + REGION_SUFFIX);
-        return addressDao;
+    private void assertAddress(Object address, String prefix) {
+        assertThat(address)
+                .extracting(
+                        FN_ADDRESS_LINE1,
+                        FN_ADDRESS_LINE2,
+                        FN_COUNTRY,
+                        FN_LOCALITY,
+                        FN_POSTAL_CODE,
+                        FN_PREMISES,
+                        FN_REGION
+                )
+                .containsExactly(
+                        prefix + ADDRESS_LINE1_SUFFIX,
+                        prefix + ADDRESS_LINE2_SUFFIX,
+                        prefix + COUNTRY_SUFFIX,
+                        prefix + LOCALITY_SUFFIX,
+                        prefix + POSTAL_CODE_SUFFIX,
+                        prefix + PREMISES_SUFFIX,
+                        prefix + REGION_SUFFIX
+                );
     }
 
-    private AddressDto createAddressDto(String prefix) {
-        AddressDto addressDto = new AddressDto();
-        addressDto.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
-        addressDto.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
-        addressDto.setCountry(prefix + COUNTRY_SUFFIX);
-        addressDto.setLocality(prefix + LOCALITY_SUFFIX);
-        addressDto.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
-        addressDto.setPremises(prefix + PREMISES_SUFFIX);
-        addressDto.setRegion(prefix + REGION_SUFFIX);
-        return addressDto;
-    }
 }

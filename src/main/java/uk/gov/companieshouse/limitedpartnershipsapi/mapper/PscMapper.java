@@ -6,7 +6,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 
