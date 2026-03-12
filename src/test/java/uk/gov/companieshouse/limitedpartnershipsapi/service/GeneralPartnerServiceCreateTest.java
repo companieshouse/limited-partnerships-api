@@ -56,7 +56,7 @@ class GeneralPartnerServiceCreateTest {
     private static final String GENERAL_PARTNER_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
             GENERAL_PARTNER_ID
@@ -108,7 +108,7 @@ class GeneralPartnerServiceCreateTest {
         void shouldAddCorrectLinksToTransactionResource(FilingMode incoporationKind) throws Exception {
             createGeneralPartner(incoporationKind);
 
-            verify(transactionService).updateTransactionWithLinksForPartner(
+            verify(transactionService).updateTransactionWithLinksForResource(
                     eq(REQUEST_ID), eq(transaction), any(), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();

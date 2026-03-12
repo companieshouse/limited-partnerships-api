@@ -72,7 +72,7 @@ public class GeneralPartnerService {
             cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
         }
 
-        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind, cost);
+        transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, cost);
 
         return insertedSubmission.getId();
     }

@@ -115,7 +115,7 @@ public class TransactionService {
         updateTransaction(transaction, requestId);
     }
 
-    public void updateTransactionWithLinksForPartner(
+    public void updateTransactionWithLinksForResource(
             String requestId, Transaction transaction, String submissionUri, String kind, Cost cost) throws ServiceException {
         final var resource = createResourceAndAddLinks(transaction, submissionUri, kind);
 

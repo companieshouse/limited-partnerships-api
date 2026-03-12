@@ -64,7 +64,7 @@ class LimitedPartnerServiceCreateTest {
     private static final String LIMITED_PARTNER_ID = LimitedPartnerBuilder.LIMITED_PARTNER_ID;
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LIMITED_PARTNER_ID
@@ -134,7 +134,7 @@ class LimitedPartnerServiceCreateTest {
         void shouldAddCorrectLinksToTransactionResource(FilingMode filingMode) throws Exception {
             createLimitedPartner(filingMode);
 
-            verify(transactionService).updateTransactionWithLinksForPartner(
+            verify(transactionService).updateTransactionWithLinksForResource(
                     eq(REQUEST_ID), eq(transaction), any(), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();

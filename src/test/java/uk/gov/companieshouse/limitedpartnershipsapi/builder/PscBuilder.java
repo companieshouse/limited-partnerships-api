@@ -15,9 +15,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 
 public class PscBuilder {
 
+    public static final String ID = "1234";
     public static final String ETAG = "eTag";
     public static final String APPOINTMENT_ID = "1234";
     public static final String COUNTRY = "England";
@@ -58,7 +60,7 @@ public class PscBuilder {
         pscDatadao.setForename(FORENAME);
         pscDatadao.setFormerNames(FORMER_NAMES);
         pscDatadao.setGoverningLaw(GOVERNING_LAW);
-        pscDatadao.setKind(REGISTRATION.getDescription());
+        pscDatadao.setKind(FILING_KIND_PSC);
         pscDatadao.setLegalEntityName(LEGAL_ENTITY_NAME);
         pscDatadao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
         pscDatadao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
@@ -75,6 +77,7 @@ public class PscBuilder {
         pscDatadao.setSurname(SURNAME);
         pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
         PscDao pscDao = new PscDao();
+        pscDao.setId(ID);
         pscDao.setData(pscDatadao);
         return pscDao;
     }

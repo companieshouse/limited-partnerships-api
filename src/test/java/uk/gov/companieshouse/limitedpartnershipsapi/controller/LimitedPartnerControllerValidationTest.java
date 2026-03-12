@@ -121,7 +121,7 @@ class LimitedPartnerControllerValidationTest {
             }""";
 
     private HttpHeaders httpHeaders;
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LIMITED_PARTNER_ID

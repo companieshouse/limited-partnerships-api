@@ -8,6 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 
 import java.util.List;
@@ -22,6 +23,8 @@ public interface PscMapper {
     PscDto daoToDto(PscDao dao);
 
     PscDao dtoToDao(PscDto dto);
+
+    PscDataDto map(PscDataDto dto);
 
     // ENUMS
     default String mapNationalityToString(Nationality nationality) {
