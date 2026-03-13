@@ -28,7 +28,7 @@ public interface PscMapper {
 
     // ENUMS
     default String mapNationalityToString(Nationality nationality) {
-        return nationality.getDescription();
+        return nationality != null ? nationality.getDescription() : null;
     }
 
     default Nationality mapNationalityToEnum(String nationality) {
@@ -36,7 +36,8 @@ public interface PscMapper {
     }
 
     default String mapCountryToString(Country country) {
-        return country.getDescription();
+
+        return country != null ? country.getDescription() : null;
     }
 
     default Country mapCountryToEnum(String country) {
@@ -44,7 +45,7 @@ public interface PscMapper {
     }
 
     default String mapNatureOfControlToString(NatureOfControl natureOfControl) {
-        return natureOfControl.getDescription();
+        return natureOfControl != null ? natureOfControl.getDescription() : null;
     }
 
     default NatureOfControl mapNatureOfControlToEnum(String natureOfControl) {

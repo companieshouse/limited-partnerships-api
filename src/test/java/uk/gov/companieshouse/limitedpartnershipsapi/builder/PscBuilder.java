@@ -14,7 +14,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import java.time.LocalDate;
 import java.util.List;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 
 public class PscBuilder {
@@ -92,7 +91,7 @@ public class PscBuilder {
             FORENAME,
             FORMER_NAMES,
             GOVERNING_LAW,
-            REGISTRATION.getDescription(),
+            FILING_KIND_PSC,
             LEGAL_ENTITY_NAME,
             LEGAL_ENTITY_REGISTER_NAME,
             Country.ENGLAND,

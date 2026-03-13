@@ -8,7 +8,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
 import java.util.List;

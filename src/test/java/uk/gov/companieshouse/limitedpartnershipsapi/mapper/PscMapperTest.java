@@ -39,7 +39,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.RE
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SERVICE_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SURNAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.URA_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 
 
 class PscMapperTest {
@@ -112,7 +112,7 @@ class PscMapperTest {
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                REGISTRATION.getDescription(),
+                FILING_KIND_PSC,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
                 Country.ENGLAND,
@@ -176,7 +176,7 @@ class PscMapperTest {
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                REGISTRATION.getDescription(),
+                FILING_KIND_PSC,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
                 LEGAL_ENTITY_REGISTRATION_LOCATION,
