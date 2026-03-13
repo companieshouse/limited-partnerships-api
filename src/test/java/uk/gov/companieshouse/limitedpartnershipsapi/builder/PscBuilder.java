@@ -80,31 +80,31 @@ public class PscBuilder {
     }
 
     public static PscDto getPscDto() {
-        PscDataDto pscDataDto = new PscDataDto();
-        pscDataDto.setAppointmentId(APPOINTMENT_ID);
-        pscDataDto.setCountry(Country.ENGLAND);
-        pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        pscDataDto.setDateOfBirth(DATE_OF_BIRTH);
-        pscDataDto.setEtag(ETAG);
-        pscDataDto.setForename(FORENAME);
-        pscDataDto.setFormerNames(FORMER_NAMES);
-        pscDataDto.setGoverningLaw(GOVERNING_LAW);
-        pscDataDto.setKind(REGISTRATION.getDescription());
-        pscDataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
-        pscDataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        pscDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
-        pscDataDto.setLegalForm(LEGAL_FORM);
-        pscDataDto.setLegalPersonalityStatementChecked(true);
-        pscDataDto.setNationality1(Nationality.BRITISH);
-        pscDataDto.setNationality2(Nationality.FRENCH);
-        List<NatureOfControl> nocList = List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST);
-        pscDataDto.setNaturesOfControl(nocList);
-        pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
-        pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        pscDataDto.setResignationDate(RESIGNATION_DATE);
-        pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
-        pscDataDto.setSurname(SURNAME);
-        pscDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
+        PscDataDto pscDataDto = new PscDataDto(
+            APPOINTMENT_ID,
+            Country.ENGLAND,
+            DATE_EFFECTIVE_FROM,
+            DATE_OF_BIRTH,
+            ETAG,
+            FORENAME,
+            FORMER_NAMES,
+            GOVERNING_LAW,
+            REGISTRATION.getDescription(),
+            LEGAL_ENTITY_NAME,
+            LEGAL_ENTITY_REGISTER_NAME,
+            Country.ENGLAND,
+            LEGAL_FORM,
+            true,
+            Nationality.BRITISH,
+            Nationality.FRENCH,
+            List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST),
+            createAddressDto(POA_PREFIX),
+            REGISTERED_COMPANY_NUMBER,
+            RESIGNATION_DATE,
+            createAddressDto(SERVICE_PREFIX),
+            SURNAME,
+            createAddressDto(URA_PREFIX)
+        );
         PscDto pscDto = new PscDto();
         pscDto.setData(pscDataDto);
         return pscDto;
