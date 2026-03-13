@@ -34,7 +34,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PSC;
 
 @ExtendWith(MockitoExtension.class)
-public class PscControllerTest {
+class PscControllerTest {
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
     private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;

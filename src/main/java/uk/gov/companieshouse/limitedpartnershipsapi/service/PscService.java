@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -34,7 +33,7 @@ public class PscService {
         this.transactionService = transactionService;
     }
 
-    public String createPsc(Transaction transaction, PscDto pscDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    public String createPsc(Transaction transaction, PscDto pscDto, String requestId, String userId) throws ServiceException, NoSuchMethodException {
         PscDao dao = mapper.dtoToDao(pscDto);
         PscDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
