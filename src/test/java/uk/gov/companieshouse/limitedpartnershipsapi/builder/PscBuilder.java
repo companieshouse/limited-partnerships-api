@@ -1,0 +1,136 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.builder;
+
+
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+
+public class PscBuilder {
+
+    public static final String ETAG = "eTag";
+    public static final String APPOINTMENT_ID = "1234";
+    public static final String COUNTRY = "England";
+    public static final String FORENAME = "John";
+    public static final String FORMER_NAMES = "Doe";
+    public static final String GOVERNING_LAW = "law of england";
+    public static final String LEGAL_ENTITY_NAME = "Legal Entity Name";
+    public static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
+    public static final String LEGAL_ENTITY_REGISTRATION_LOCATION = "England";
+    public static final String LEGAL_FORM = "Legal Form";
+    public static final String NATIONALITY1 = "British";
+    public static final String NATIONALITY2 = "French";
+    public static final String REGISTERED_COMPANY_NUMBER = "12345678";
+    public static final String SURNAME = "Smith";
+    public static final String NATURE_OF_CONTROL = "test";
+    public static final String POA_PREFIX = "poa";
+    public static final String SERVICE_PREFIX = "service";
+    public static final String URA_PREFIX = "ura";
+    public static final String ADDRESS_LINE1_SUFFIX = " line1";
+    public static final String ADDRESS_LINE2_SUFFIX = " line2";
+    public static final String COUNTRY_SUFFIX = " England";
+    public static final String LOCALITY_SUFFIX = " Birmingham";
+    public static final String POSTAL_CODE_SUFFIX = " BM1 2EH";
+    public static final String PREMISES_SUFFIX = " 22";
+    public static final String REGION_SUFFIX = " West Midlands";
+    public static final LocalDate DATE_EFFECTIVE_FROM = LocalDate.of(2026, 1, 20);
+    public static final LocalDate DATE_OF_BIRTH = LocalDate.of(1999, 12, 31);
+    public static final LocalDate RESIGNATION_DATE = LocalDate.of(2025, 12, 11);
+
+    public static PscDao getPscDao() {
+        PscDataDao pscDatadao = new PscDataDao();
+        // set data fields
+        pscDatadao.setAppointmentId(APPOINTMENT_ID);
+        pscDatadao.setCountry(COUNTRY);
+        pscDatadao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+        pscDatadao.setDateOfBirth(DATE_OF_BIRTH);
+        pscDatadao.setEtag(ETAG);
+        pscDatadao.setForename(FORENAME);
+        pscDatadao.setFormerNames(FORMER_NAMES);
+        pscDatadao.setGoverningLaw(GOVERNING_LAW);
+        pscDatadao.setKind(REGISTRATION.getDescription());
+        pscDatadao.setLegalEntityName(LEGAL_ENTITY_NAME);
+        pscDatadao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
+        pscDatadao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
+        pscDatadao.setLegalForm(LEGAL_FORM);
+        pscDatadao.setLegalPersonalityStatementChecked(true);
+        pscDatadao.setNationality1(NATIONALITY1);
+        pscDatadao.setNationality2(NATIONALITY2);
+        List<String> nocList = List.of(NATURE_OF_CONTROL, NATURE_OF_CONTROL, NATURE_OF_CONTROL);
+        pscDatadao.setNaturesOfControl(nocList);
+        pscDatadao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
+        pscDatadao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
+        pscDatadao.setResignationDate(RESIGNATION_DATE);
+        pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
+        pscDatadao.setSurname(SURNAME);
+        pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+        PscDao pscDao = new PscDao();
+        pscDao.setData(pscDatadao);
+        return pscDao;
+    }
+
+    public static PscDto getPscDto() {
+        PscDataDto pscDataDto = new PscDataDto(
+            APPOINTMENT_ID,
+            Country.ENGLAND,
+            DATE_EFFECTIVE_FROM,
+            DATE_OF_BIRTH,
+            ETAG,
+            FORENAME,
+            FORMER_NAMES,
+            GOVERNING_LAW,
+            REGISTRATION.getDescription(),
+            LEGAL_ENTITY_NAME,
+            LEGAL_ENTITY_REGISTER_NAME,
+            Country.ENGLAND,
+            LEGAL_FORM,
+            true,
+            Nationality.BRITISH,
+            Nationality.FRENCH,
+            List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST),
+            createAddressDto(POA_PREFIX),
+            REGISTERED_COMPANY_NUMBER,
+            RESIGNATION_DATE,
+            createAddressDto(SERVICE_PREFIX),
+            SURNAME,
+            createAddressDto(URA_PREFIX)
+        );
+        PscDto pscDto = new PscDto();
+        pscDto.setData(pscDataDto);
+        return pscDto;
+    }
+
+    private static AddressDao createAddressDao(String prefix) {
+        AddressDao addressDao = new AddressDao();
+        addressDao.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
+        addressDao.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
+        addressDao.setCountry(prefix + COUNTRY_SUFFIX);
+        addressDao.setLocality(prefix + LOCALITY_SUFFIX);
+        addressDao.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
+        addressDao.setPremises(prefix + PREMISES_SUFFIX);
+        addressDao.setRegion(prefix + REGION_SUFFIX);
+        return addressDao;
+    }
+
+    private static AddressDto createAddressDto(String prefix) {
+        AddressDto addressDto = new AddressDto();
+        addressDto.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
+        addressDto.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
+        addressDto.setCountry(prefix + COUNTRY_SUFFIX);
+        addressDto.setLocality(prefix + LOCALITY_SUFFIX);
+        addressDto.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
+        addressDto.setPremises(prefix + PREMISES_SUFFIX);
+        addressDto.setRegion(prefix + REGION_SUFFIX);
+        return addressDto;
+    }
+}
