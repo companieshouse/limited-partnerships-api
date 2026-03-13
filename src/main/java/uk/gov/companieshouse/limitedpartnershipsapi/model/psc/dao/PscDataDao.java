@@ -148,14 +148,6 @@ public class PscDataDao {
         this.kind = kind;
     }
 
-    public String getLegalEntityName() {
-        return legalEntityName;
-    }
-
-    public void setLegalEntityName(String legalEntityName) {
-        this.legalEntityName = legalEntityName;
-    }
-
     public String getLegalEntityRegisterName() {
         return legalEntityRegisterName;
     }
@@ -164,12 +156,12 @@ public class PscDataDao {
         this.legalEntityRegisterName = legalEntityRegisterName;
     }
 
-    public String getLegalEntityRegistrationLocation() {
-        return legalEntityRegistrationLocation;
+    public String getLegalEntityName() {
+        return legalEntityName;
     }
 
-    public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
-        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+    public void setLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
     }
 
     public String getLegalForm() {
@@ -186,6 +178,14 @@ public class PscDataDao {
 
     public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
         this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    }
+
+    public String getLegalEntityRegistrationLocation() {
+        return legalEntityRegistrationLocation;
+    }
+
+    public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
+        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
     }
 
     public String getNationality1() {
