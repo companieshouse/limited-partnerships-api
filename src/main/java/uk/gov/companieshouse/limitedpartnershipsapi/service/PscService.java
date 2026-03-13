@@ -33,7 +33,7 @@ public class PscService {
         this.transactionService = transactionService;
     }
 
-    public String createPsc(Transaction transaction, PscDto pscDto, String requestId, String userId) throws ServiceException, NoSuchMethodException {
+    public String createPsc(Transaction transaction, PscDto pscDto, String requestId, String userId) throws ServiceException {
         PscDao dao = mapper.dtoToDao(pscDto);
         PscDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);

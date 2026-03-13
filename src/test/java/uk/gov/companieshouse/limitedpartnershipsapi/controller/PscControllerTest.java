@@ -11,7 +11,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
@@ -85,26 +84,8 @@ class PscControllerTest {
     }
 
     @Test
-    void testCreatePscThrowsNoSuchMethodException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        doThrow(new NoSuchMethodException("Test")).when(pscService).createPsc(
-                eq(transaction),
-                any(PscDto.class),
-                eq(REQUEST_ID),
-                eq(USER_ID));
-
-        var response = pscController.createPsc(
-                transaction,
-                pscDto,
-                REQUEST_ID,
-                USER_ID);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
-
-    }
-
-    @Test
-    void testCreatePscThrowsServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-         NoSuchMethodException exception = new NoSuchMethodException("Test");
+    void testCreatePscThrowsServiceException() throws ServiceException {
+        ServiceException exception = new ServiceException("Test");
         try (MockedStatic<ApiLogger> mockedLogger = Mockito.mockStatic(ApiLogger.class)) {
             doThrow(exception).when(pscService).createPsc(
                     eq(transaction),
