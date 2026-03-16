@@ -258,5 +258,5 @@ public class PscDataDto {
     public void setUsualResidentialAddress(AddressDto usualResidentialAddress) {
         this.usualResidentialAddress = usualResidentialAddress;
     }
-};
+}
 
