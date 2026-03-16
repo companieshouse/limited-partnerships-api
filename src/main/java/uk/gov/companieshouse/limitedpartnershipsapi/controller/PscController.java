@@ -44,14 +44,14 @@ public class PscController {
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        ApiLogger.infoContext(requestId, "Create a person of significant control", logMap);
+        ApiLogger.infoContext(requestId, "Create a person with significant control", logMap);
         try {
             String pscId = pscService.createPsc(transaction, pscDto, requestId, userId);
             var location = URI.create(String.format(URL_GET_PSC, transactionId, pscId));
             var response = new PscSubmissionCreatedResponseDto(pscId);
             return ResponseEntity.created(location).body(response);
         } catch (Exception e) {
-            ApiLogger.errorContext(requestId, "Error creating the person of significant control", e, logMap);
+            ApiLogger.errorContext(requestId, "Error creating the person with significant control", e, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
