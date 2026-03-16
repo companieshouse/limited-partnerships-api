@@ -448,7 +448,7 @@ class TransactionServiceTest {
         transactionResources.put(LIMITED_PARTNER_SELF_LINK, limitedPartnerResource);
         transaction.setResources(transactionResources);
         // when
-        var result = transactionService.isTransactionLinkedToPartner(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
+        var result = transactionService.isTransactionLinkedToResource(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
         // then
         assertTrue(result);
     }
@@ -456,7 +456,7 @@ class TransactionServiceTest {
     @Test
     void givenALimitedPartnerSelfLinkIsBlank_thenReturnFalse() {
         // when
-        var result = transactionService.isTransactionLinkedToPartner(transaction, "", FILING_KIND_LIMITED_PARTNER);
+        var result = transactionService.isTransactionLinkedToResource(transaction, "", FILING_KIND_LIMITED_PARTNER);
         // then
         assertFalse(result);
     }
@@ -466,7 +466,7 @@ class TransactionServiceTest {
         // given
         transaction.setResources(null);
         // when
-        var result = transactionService.isTransactionLinkedToPartner(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
+        var result = transactionService.isTransactionLinkedToResource(transaction, LIMITED_PARTNER_SELF_LINK, FILING_KIND_LIMITED_PARTNER);
         // then
         assertFalse(result);
     }
@@ -483,7 +483,7 @@ class TransactionServiceTest {
         generalPartnerResource.setLinks(generalPartnerResourceLinks);
 
         transaction.setResources(transactionResources);
-        var result = transactionService.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+        var result = transactionService.isTransactionLinkedToResource(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
 
         assertTrue(result);
     }
@@ -500,21 +500,21 @@ class TransactionServiceTest {
         generalPartnerResource.setLinks(generalPartnerResourceLinks);
 
         transaction.setResources(transactionResources);
-        var result = transactionService.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+        var result = transactionService.isTransactionLinkedToResource(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
 
         assertFalse(result);
     }
 
     @Test
     void givenGeneralPartnerSelfLinkIsBlank_thenReturnFalse() {
-        var result = transactionService.isTransactionLinkedToPartner(transaction, "", FILING_KIND_GENERAL_PARTNER);
+        var result = transactionService.isTransactionLinkedToResource(transaction, "", FILING_KIND_GENERAL_PARTNER);
         assertFalse(result);
     }
 
     @Test
     void givenGeneralPartnerTransactionIsNull_thenReturnFalse() {
         when(transaction.getResources()).thenReturn(null);
-        var result = transactionService.isTransactionLinkedToPartner(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
+        var result = transactionService.isTransactionLinkedToResource(transaction, GENERAL_PARTNER_SELF_LINK, FILING_KIND_GENERAL_PARTNER);
         assertFalse(result);
     }
 

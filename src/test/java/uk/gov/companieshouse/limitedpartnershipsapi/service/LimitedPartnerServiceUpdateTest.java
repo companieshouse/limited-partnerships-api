@@ -93,7 +93,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         // dao principal office address is null before mapping/update
         assertNull(limitedPartnerDao.getData().getPrincipalOfficeAddress());
@@ -129,7 +129,7 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
 
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -156,7 +156,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                 service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID)
@@ -177,7 +177,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -201,7 +201,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -224,7 +224,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setUpdateUsualResidentialAddressRequired(uraRequired);
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -252,7 +252,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDataDto.setUpdatePrincipalOfficeAddressRequired(poaRequired);
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -280,7 +280,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         // dao principal office address before mapping/update
         assertEquals("United Kingdom", limitedPartnerDao.getData().getLegalEntityRegistrationLocation());
@@ -324,7 +324,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
                 service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID)
@@ -346,7 +346,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -368,7 +368,7 @@ class LimitedPartnerServiceUpdateTest {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
 
@@ -387,7 +387,7 @@ class LimitedPartnerServiceUpdateTest {
             LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
-            when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
             service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID);
 
@@ -402,7 +402,7 @@ class LimitedPartnerServiceUpdateTest {
             LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
-            when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
             doThrow(new ServiceException("Transaction resource delete failed"))
                     .when(transactionService).deleteTransactionResource(TRANSACTION_ID,
@@ -418,7 +418,7 @@ class LimitedPartnerServiceUpdateTest {
         @Test
         void shouldThrowServiceExceptionWhenLimitedPartnerNotFound() {
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.empty());
-            when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
             assertThatThrownBy(() -> service.deleteLimitedPartner(transaction, LIMITED_PARTNER_ID, REQUEST_ID))
                     .isInstanceOf(ResourceNotFoundException.class)

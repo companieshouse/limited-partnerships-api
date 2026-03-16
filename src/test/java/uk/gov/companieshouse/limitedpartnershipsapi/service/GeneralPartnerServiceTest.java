@@ -82,7 +82,7 @@ class GeneralPartnerServiceTest {
                 .thenReturn(Optional.of(dao));
 
         when(mapper.daoToDto(dao)).thenReturn(new GeneralPartnerBuilder().personDto());
-        when(transactionService.isTransactionLinkedToPartner(any(), anyString(), anyString()))
+        when(transactionService.isTransactionLinkedToResource(any(), anyString(), anyString()))
                 .thenReturn(true);
 
         var dto = generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID);
@@ -106,7 +106,7 @@ class GeneralPartnerServiceTest {
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), any(String.class)))
+        when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), any(String.class)))
                 .thenReturn(false);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> generalPartnerService.getGeneralPartner(transaction, SUBMISSION_ID));
         assertEquals(String.format("Transaction id: %s does not have a resource that matches general partner id: %s", transaction.getId(), SUBMISSION_ID), resourceNotFoundException.getMessage());

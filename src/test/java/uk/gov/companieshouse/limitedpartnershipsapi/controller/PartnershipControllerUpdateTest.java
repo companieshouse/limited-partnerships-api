@@ -209,7 +209,7 @@ class PartnershipControllerUpdateTest {
         when(limitedPartnershipRepository.save(any())).thenReturn(limitedPartnershipDao);
         when(limitedPartnershipRepository.findById(LimitedPartnershipBuilder.SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
 
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         CompanyProfileApi companyProfile = new CompanyBuilder().build();
         when(companyService.getCompanyProfile(any())).thenReturn(companyProfile);

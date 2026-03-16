@@ -893,6 +893,6 @@ class PostTransitionPartnerTest {
         when(generalPartnerRepository.findById(GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
         when(limitedPartnerRepository.findById(LimitedPartnerBuilder.LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
 
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
     }
 }

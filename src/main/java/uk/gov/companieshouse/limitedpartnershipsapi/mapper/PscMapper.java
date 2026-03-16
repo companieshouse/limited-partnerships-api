@@ -1,10 +1,13 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
@@ -22,6 +25,9 @@ public interface PscMapper {
     PscDao dtoToDao(PscDto dto);
 
     PscDataDto map(PscDataDto dto);
+
+    @InheritConfiguration
+    void update(PscDataDto update, @MappingTarget PscDataDto destination);
 
     // ENUMS
     default String mapNationalityToString(Nationality nationality) {
