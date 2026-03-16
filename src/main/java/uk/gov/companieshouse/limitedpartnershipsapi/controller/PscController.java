@@ -3,7 +3,12 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscSubmissionCreatedResponseDto;
@@ -14,7 +19,10 @@ import java.net.URI;
 import java.util.HashMap;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.*;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PSC;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/")
@@ -36,7 +44,7 @@ public class PscController {
         var transactionId = transaction.getId();
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
-        ApiLogger.infoContext(requestId, "Create a Psc", logMap);
+        ApiLogger.infoContext(requestId, "Create a person of significant control", logMap);
         try {
             String pscId = pscService.createPsc(transaction, pscDto, requestId, userId);
             var location = URI.create(String.format(URL_GET_PSC, transactionId, pscId));

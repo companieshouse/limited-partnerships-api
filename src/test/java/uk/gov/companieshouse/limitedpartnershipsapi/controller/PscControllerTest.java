@@ -54,9 +54,8 @@ class PscControllerTest {
 
     private PscDto pscDto;
 
-     @BeforeEach
-     void init() { pscDto = PscBuilder.getPscDto(); }
-
+    @BeforeEach
+    void init() { pscDto = PscBuilder.getPscDto(); }
 
     @Test
     void testCreatePscReturnsSuccess() throws Exception {

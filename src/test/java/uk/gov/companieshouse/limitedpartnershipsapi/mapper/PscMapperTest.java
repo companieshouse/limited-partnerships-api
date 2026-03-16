@@ -42,7 +42,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 
 
 class PscMapperTest {
-    private final PscMapper mapper = Mappers.getMapper(PscMapper.class);
+    private static final PscMapper MAPPER = Mappers.getMapper(PscMapper.class);
 
     // Field name constants for extracting()
     private static final String FN_APPOINTMENT_ID = "appointmentId";
@@ -76,7 +76,7 @@ class PscMapperTest {
         PscDao pscDao = PscBuilder.getPscDao();
 
         // when
-        PscDto result = mapper.daoToDto(pscDao);
+        PscDto result = MAPPER.daoToDto(pscDao);
         PscDataDto dataDto = result.getData();
 
         // Grouped assertions for main fields
@@ -138,7 +138,7 @@ class PscMapperTest {
         PscDto pscDto = PscBuilder.getPscDto();
 
         // when
-        PscDao result = mapper.dtoToDao(pscDto);
+        PscDao result = MAPPER.dtoToDao(pscDto);
         PscDataDao daoData = result.getData();
 
         // Grouped assertions for main fields
