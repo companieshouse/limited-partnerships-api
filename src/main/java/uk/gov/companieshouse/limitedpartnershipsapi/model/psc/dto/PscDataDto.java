@@ -91,14 +91,6 @@ public class PscDataDto {
         this.appointmentId = appointmentId;
     }
 
-    public Country getCountry() {
-        return country;
-    }
-
-    public void setCountry(Country country) {
-        this.country = country;
-    }
-
     public LocalDate getDateEffectiveFrom() {
         return dateEffectiveFrom;
     }
@@ -107,12 +99,12 @@ public class PscDataDto {
         this.dateEffectiveFrom = dateEffectiveFrom;
     }
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
+    public String getLegalEntityName() {
+        return legalEntityName;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
     }
 
     public String getForename() {
@@ -123,12 +115,12 @@ public class PscDataDto {
         this.forename = forename;
     }
 
-    public String getFormerNames() {
-        return formerNames;
+    public Boolean getLegalPersonalityStatementChecked() {
+        return legalPersonalityStatementChecked;
     }
 
-    public void setFormerNames(String formerNames) {
-        this.formerNames = formerNames;
+    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
+        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public String getGoverningLaw() {
@@ -147,20 +139,20 @@ public class PscDataDto {
         this.kind = kind;
     }
 
-    public String getLegalEntityName() {
-        return legalEntityName;
-    }
-
-    public void setLegalEntityName(String legalEntityName) {
-        this.legalEntityName = legalEntityName;
-    }
-
     public String getLegalEntityRegisterName() {
         return legalEntityRegisterName;
     }
 
     public void setLegalEntityRegisterName(String legalEntityRegisterName) {
         this.legalEntityRegisterName = legalEntityRegisterName;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
     }
 
     public Country getLegalEntityRegistrationLocation() {
@@ -179,12 +171,20 @@ public class PscDataDto {
         this.legalForm = legalForm;
     }
 
-    public Boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
+    public String getFormerNames() {
+        return formerNames;
     }
 
-    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    public void setFormerNames(String formerNames) {
+        this.formerNames = formerNames;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public Nationality getNationality1() {
@@ -211,14 +211,6 @@ public class PscDataDto {
         this.naturesOfControl = naturesOfControl;
     }
 
-    public AddressDto getPrincipalOfficeAddress() {
-        return principalOfficeAddress;
-    }
-
-    public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
-        this.principalOfficeAddress = principalOfficeAddress;
-    }
-
     public String getRegisteredCompanyNumber() {
         return registeredCompanyNumber;
     }
@@ -233,6 +225,14 @@ public class PscDataDto {
 
     public void setResignationDate(LocalDate resignationDate) {
         this.resignationDate = resignationDate;
+    }
+
+    public AddressDto getPrincipalOfficeAddress() {
+        return principalOfficeAddress;
+    }
+
+    public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
+        this.principalOfficeAddress = principalOfficeAddress;
     }
 
     public AddressDto getServiceAddress() {
