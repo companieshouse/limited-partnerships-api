@@ -18,8 +18,6 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring")
 public interface PscMapper {
-    PscMapper INSTANCE = Mappers.getMapper(PscMapper.class);
-
     PscDto daoToDto(PscDao dao);
 
     PscDao dtoToDao(PscDto dto);
