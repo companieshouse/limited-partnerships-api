@@ -69,7 +69,7 @@ class PostTransitionPartnerTest {
     @MockitoBean
     private CompanyService companyService;
 
-    private final Transaction transactionGeneralPartner = new TransactionBuilder().forPartner(
+    private final Transaction transactionGeneralPartner = new TransactionBuilder().withKindAndUri(
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
             GeneralPartnerBuilder.GENERAL_PARTNER_ID
@@ -81,7 +81,7 @@ class PostTransitionPartnerTest {
     private final GeneralPartnerDao generalPartnerLegalEntityDao = new GeneralPartnerBuilder()
             .legalEntityDao();
 
-    private final Transaction transactionLimitedPartner = new TransactionBuilder().forPartner(
+    private final Transaction transactionLimitedPartner = new TransactionBuilder().withKindAndUri(
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LimitedPartnerBuilder.LIMITED_PARTNER_ID

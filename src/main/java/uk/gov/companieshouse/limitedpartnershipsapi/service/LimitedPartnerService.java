@@ -87,7 +87,7 @@ public class LimitedPartnerService {
 
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        transactionService.updateTransactionWithLinksForPartner(requestId, transaction, submissionUri, kind, null);
+        transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null);
 
         return insertedSubmission.getId();
     }

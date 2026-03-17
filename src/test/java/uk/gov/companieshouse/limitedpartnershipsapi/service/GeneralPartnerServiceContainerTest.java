@@ -43,7 +43,7 @@ class GeneralPartnerServiceContainerTest {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
-    Transaction transaction = new TransactionBuilder().forPartner(
+    Transaction transaction = new TransactionBuilder().withKindAndUri(
                     FILING_KIND_GENERAL_PARTNER,
                     URL_GET_GENERAL_PARTNER,
                     GeneralPartnerBuilder.GENERAL_PARTNER_ID

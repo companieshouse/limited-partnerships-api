@@ -6,10 +6,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 public class PscDto {
+    protected String id;
 
     @JsonInclude(NON_NULL)
     @JsonProperty("data")
     private PscDataDto data;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public PscDataDto getData() {
         return data;

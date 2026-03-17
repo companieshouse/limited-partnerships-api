@@ -53,7 +53,7 @@ class GeneralPartnerServiceUpdateTest {
     private static final String USER_ID = "xbJf0l";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
 
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
             GENERAL_PARTNER_ID

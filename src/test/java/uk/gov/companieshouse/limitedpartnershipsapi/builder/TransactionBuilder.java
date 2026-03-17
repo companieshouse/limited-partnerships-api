@@ -28,7 +28,7 @@ public class TransactionBuilder {
     );
     String costLink;
 
-    public TransactionBuilder forPartner(String kind, String url, String id) {
+    public TransactionBuilder withKindAndUri(String kind, String url, String id) {
         this.kind = kind;
         this.uri = String.format(url, TRANSACTION_ID, id);
 

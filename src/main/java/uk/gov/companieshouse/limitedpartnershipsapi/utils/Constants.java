@@ -34,11 +34,13 @@ public class Constants {
     public static final String URL_GET_INCORPORATION = "/transactions/%s/incorporation/limited-partnership/%s";
     public static final String URL_GET_LIMITED_PARTNER = "/transactions/%s/limited-partnership/limited-partner/%s";
     public static final String URL_GET_GENERAL_PARTNER = "/transactions/%s/limited-partnership/general-partner/%s";
+    public static final String URL_GET_PSC = "/transactions/%s/limited-partnership/persons-with-significant-control/%s";
 
     // Filings
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
     public static final String FILING_KIND_LIMITED_PARTNER = "limited-partnership#limited-partner";
     public static final String FILING_KIND_GENERAL_PARTNER = "limited-partnership#general-partner";
+    public static final String FILING_KIND_PSC = "limited-partnership#person-with-significant-control";
 
     // Payment
     public static final String FILING_PAYMENT_REFERENCE = "payment_reference";

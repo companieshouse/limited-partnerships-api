@@ -201,7 +201,7 @@ class FilingsControllerTest {
     @Nested
     class GeneralPartnerFiling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/general-partner/" + GeneralPartnerBuilder.GENERAL_PARTNER_ID + "/filings";
-        private final Transaction transaction = new TransactionBuilder().forPartner(
+        private final Transaction transaction = new TransactionBuilder().withKindAndUri(
                 PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription(),
                 URL_GET_GENERAL_PARTNER,
                 GeneralPartnerBuilder.GENERAL_PARTNER_ID
@@ -273,7 +273,7 @@ class FilingsControllerTest {
     @Nested
     class LimitedPartnerFilling {
         private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/limited-partner/" + LimitedPartnerBuilder.LIMITED_PARTNER_ID + "/filings";
-        private final Transaction transaction = new TransactionBuilder().forPartner(
+        private final Transaction transaction = new TransactionBuilder().withKindAndUri(
                 PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription(),
                 URL_GET_LIMITED_PARTNER,
                 LimitedPartnerBuilder.LIMITED_PARTNER_ID

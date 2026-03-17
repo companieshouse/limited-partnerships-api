@@ -7,6 +7,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class PscDataDao {
+
+    @Field("etag")
+    private String etag;
+
+    @Field("kind")
+    private String kind;
+
     @Field("appointment_id")
     private String appointmentId;
 
@@ -16,11 +23,19 @@ public class PscDataDao {
     @Field("date_effective_from")
     private LocalDate dateEffectiveFrom;
 
-    @Field("date_of_birth")
-    private LocalDate dateOfBirth;
+    @Field("resignation_date")
+    private LocalDate resignationDate;
 
-    @Field("etag")
-    private String etag;
+    @Field("natures_of_control")
+    private List<String> naturesOfControl;
+
+    @Field("legal_personality_statement_checked")
+    private Boolean legalPersonalityStatementChecked;
+
+    @Field("service_address")
+    private AddressDao serviceAddress;
+
+    // PERSON
 
     @Field("forename")
     private String forename;
@@ -28,26 +43,11 @@ public class PscDataDao {
     @Field("former_names")
     private String formerNames;
 
-    @Field("governing_law")
-    private String governingLaw;
+    @Field("surname")
+    private String surname;
 
-    @Field("kind")
-    private String kind;
-
-    @Field("legal_entity_name")
-    private String legalEntityName;
-
-    @Field("legal_entity_register_name")
-    private String legalEntityRegisterName;
-
-    @Field("legal_entity_registration_location")
-    private String legalEntityRegistrationLocation;
-
-    @Field("legal_form")
-    private String legalForm;
-
-    @Field("legal_personality_statement_checked")
-    private Boolean legalPersonalityStatementChecked;
+    @Field("date_of_birth")
+    private LocalDate dateOfBirth;
 
     @Field("nationality1")
     private String nationality1;
@@ -55,26 +55,47 @@ public class PscDataDao {
     @Field("nationality2")
     private String nationality2;
 
-    @Field("natures_of_control")
-    private List<String> naturesOfControl;
+    @Field("usual_residential_address")
+    private AddressDao usualResidentialAddress;
 
-    @Field("principal_office_address")
-    private AddressDao principalOfficeAddress;
+    // LEGAL ENTITY
+
+    @Field("legal_entity_name")
+    private String legalEntityName;
+
+    @Field("legal_form")
+    private String legalForm;
+
+    @Field("governing_law")
+    private String governingLaw;
+
+    @Field("legal_entity_register_name")
+    private String legalEntityRegisterName;
+
+    @Field("legal_entity_registration_location")
+    private String legalEntityRegistrationLocation;
 
     @Field("registered_company_number")
     private String registeredCompanyNumber;
 
-    @Field("resignation_date")
-    private LocalDate resignationDate;
+    @Field("principal_office_address")
+    private AddressDao principalOfficeAddress;
 
-    @Field("service_address")
-    private AddressDao serviceAddress;
+    public String getEtag() {
+        return etag;
+    }
 
-    @Field("surname")
-    private String surname;
+    public void setEtag(String etag) {
+        this.etag = etag;
+    }
 
-    @Field("usual_residential_address")
-    private AddressDao usualResidentialAddress;
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
 
     public String getAppointmentId() {
         return appointmentId;
@@ -100,20 +121,36 @@ public class PscDataDao {
         this.dateEffectiveFrom = dateEffectiveFrom;
     }
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
+    public LocalDate getResignationDate() {
+        return resignationDate;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setResignationDate(LocalDate resignationDate) {
+        this.resignationDate = resignationDate;
     }
 
-    public String getEtag() {
-        return etag;
+    public List<String> getNaturesOfControl() {
+        return naturesOfControl;
     }
 
-    public void setEtag(String etag) {
-        this.etag = etag;
+    public void setNaturesOfControl(List<String> naturesOfControl) {
+        this.naturesOfControl = naturesOfControl;
+    }
+
+    public Boolean getLegalPersonalityStatementChecked() {
+        return legalPersonalityStatementChecked;
+    }
+
+    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
+        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    }
+
+    public AddressDao getServiceAddress() {
+        return serviceAddress;
+    }
+
+    public void setServiceAddress(AddressDao serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 
     public String getForename() {
@@ -132,60 +169,20 @@ public class PscDataDao {
         this.formerNames = formerNames;
     }
 
-    public String getGoverningLaw() {
-        return governingLaw;
+    public String getSurname() {
+        return surname;
     }
 
-    public void setGoverningLaw(String governingLaw) {
-        this.governingLaw = governingLaw;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
-    public String getKind() {
-        return kind;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setKind(String kind) {
-        this.kind = kind;
-    }
-
-    public String getLegalEntityRegisterName() {
-        return legalEntityRegisterName;
-    }
-
-    public void setLegalEntityRegisterName(String legalEntityRegisterName) {
-        this.legalEntityRegisterName = legalEntityRegisterName;
-    }
-
-    public String getLegalEntityName() {
-        return legalEntityName;
-    }
-
-    public void setLegalEntityName(String legalEntityName) {
-        this.legalEntityName = legalEntityName;
-    }
-
-    public String getLegalForm() {
-        return legalForm;
-    }
-
-    public void setLegalForm(String legalForm) {
-        this.legalForm = legalForm;
-    }
-
-    public Boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
-    }
-
-    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
-    }
-
-    public String getLegalEntityRegistrationLocation() {
-        return legalEntityRegistrationLocation;
-    }
-
-    public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
-        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getNationality1() {
@@ -204,20 +201,52 @@ public class PscDataDao {
         this.nationality2 = nationality2;
     }
 
-    public List<String> getNaturesOfControl() {
-        return naturesOfControl;
+    public AddressDao getUsualResidentialAddress() {
+        return usualResidentialAddress;
     }
 
-    public void setNaturesOfControl(List<String> naturesOfControl) {
-        this.naturesOfControl = naturesOfControl;
+    public void setUsualResidentialAddress(AddressDao usualResidentialAddress) {
+        this.usualResidentialAddress = usualResidentialAddress;
     }
 
-    public AddressDao getPrincipalOfficeAddress() {
-        return principalOfficeAddress;
+    public String getLegalEntityName() {
+        return legalEntityName;
     }
 
-    public void setPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
-        this.principalOfficeAddress = principalOfficeAddress;
+    public void setLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
+    }
+
+    public String getLegalForm() {
+        return legalForm;
+    }
+
+    public void setLegalForm(String legalForm) {
+        this.legalForm = legalForm;
+    }
+
+    public String getGoverningLaw() {
+        return governingLaw;
+    }
+
+    public void setGoverningLaw(String governingLaw) {
+        this.governingLaw = governingLaw;
+    }
+
+    public String getLegalEntityRegisterName() {
+        return legalEntityRegisterName;
+    }
+
+    public void setLegalEntityRegisterName(String legalEntityRegisterName) {
+        this.legalEntityRegisterName = legalEntityRegisterName;
+    }
+
+    public String getLegalEntityRegistrationLocation() {
+        return legalEntityRegistrationLocation;
+    }
+
+    public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
+        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
     }
 
     public String getRegisteredCompanyNumber() {
@@ -228,35 +257,11 @@ public class PscDataDao {
         this.registeredCompanyNumber = registeredCompanyNumber;
     }
 
-    public LocalDate getResignationDate() {
-        return resignationDate;
+    public AddressDao getPrincipalOfficeAddress() {
+        return principalOfficeAddress;
     }
 
-    public void setResignationDate(LocalDate resignationDate) {
-        this.resignationDate = resignationDate;
-    }
-
-    public AddressDao getServiceAddress() {
-        return serviceAddress;
-    }
-
-    public void setServiceAddress(AddressDao serviceAddress) {
-        this.serviceAddress = serviceAddress;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public AddressDao getUsualResidentialAddress() {
-        return usualResidentialAddress;
-    }
-
-    public void setUsualResidentialAddress(AddressDao usualResidentialAddress) {
-        this.usualResidentialAddress = usualResidentialAddress;
+    public void setPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
+        this.principalOfficeAddress = principalOfficeAddress;
     }
 }

@@ -49,7 +49,7 @@ class GeneralPartnerServiceTest {
     private static final String SUBMISSION_ID = GeneralPartnerBuilder.GENERAL_PARTNER_ID;
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
-    Transaction transaction = new TransactionBuilder().forPartner(
+    Transaction transaction = new TransactionBuilder().withKindAndUri(
                     FILING_KIND_GENERAL_PARTNER,
                     URL_GET_GENERAL_PARTNER,
                     GeneralPartnerBuilder.GENERAL_PARTNER_ID

@@ -59,7 +59,7 @@ class LimitedPartnerControllerTest {
     @Mock
     private TransactionService transactionService;
 
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_LIMITED_PARTNER,
             URL_GET_LIMITED_PARTNER,
             LIMITED_PARTNER_ID
@@ -117,7 +117,7 @@ class LimitedPartnerControllerTest {
     })
     void testCreatePartnerIsSuccessful(FilingMode filingMode) throws Exception {
         Transaction txn = new TransactionBuilder()
-                .forPartner(
+                .withKindAndUri(
                         FILING_KIND_GENERAL_PARTNER,
                         URL_GET_GENERAL_PARTNER,
                         LIMITED_PARTNER_ID)
@@ -129,7 +129,7 @@ class LimitedPartnerControllerTest {
     @Test
     void testPostTransitionCreatePartnerReturnsSuccess() throws Exception {
         Transaction txn = new TransactionBuilder()
-                .forPartner(
+                .withKindAndUri(
                         FILING_KIND_GENERAL_PARTNER,
                         URL_GET_GENERAL_PARTNER,
                         LIMITED_PARTNER_ID)

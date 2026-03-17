@@ -96,7 +96,7 @@ class GeneralPartnerControllerUpdateTest {
     private static final String GENERAL_PARTNER_POST_URL = "/transactions/" + TRANSACTION_ID + "/limited-partnership/general-partner";
 
     private HttpHeaders httpHeaders;
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
             GENERAL_PARTNER_ID

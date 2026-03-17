@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
@@ -14,18 +14,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ADDRESS_LINE1_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ADDRESS_LINE2_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.APPOINTMENT_ID;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.COUNTRY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.COUNTRY_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.DATE_EFFECTIVE_FROM;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.DATE_OF_BIRTH;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ETAG;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.FORENAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.FORMER_NAMES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.GOVERNING_LAW;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_NAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_REGISTER_NAME;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_REGISTRATION_LOCATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_FORM;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_PERSONALITY_STATEMENT_CHECKED;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LOCALITY_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY1;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY2;
@@ -39,17 +37,18 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.RE
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SERVICE_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SURNAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.URA_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 
 
 class PscMapperTest {
+    private static final PscMapper MAPPER = Mappers.getMapper(PscMapper.class);
 
     // Field name constants for extracting()
     private static final String FN_APPOINTMENT_ID = "appointmentId";
     private static final String FN_COUNTRY = "country";
     private static final String FN_DATE_EFFECTIVE_FROM = "dateEffectiveFrom";
     private static final String FN_DATE_OF_BIRTH = "dateOfBirth";
-    private static final String FN_ETAG = "etag";
     private static final String FN_FORENAME = "forename";
     private static final String FN_FORMER_NAMES = "formerNames";
     private static final String FN_GOVERNING_LAW = "governingLaw";
@@ -77,7 +76,7 @@ class PscMapperTest {
         PscDao pscDao = PscBuilder.getPscDao();
 
         // when
-        PscDto result = PscMapper.INSTANCE.daoToDto(pscDao);
+        PscDto result = MAPPER.daoToDto(pscDao);
         PscDataDto dataDto = result.getData();
 
         // Grouped assertions for main fields
@@ -87,7 +86,6 @@ class PscMapperTest {
                 FN_COUNTRY,
                 FN_DATE_EFFECTIVE_FROM,
                 FN_DATE_OF_BIRTH,
-                FN_ETAG,
                 FN_FORENAME,
                 FN_FORMER_NAMES,
                 FN_GOVERNING_LAW,
@@ -105,19 +103,18 @@ class PscMapperTest {
             )
             .containsExactly(
                 APPOINTMENT_ID,
-                Country.ENGLAND,
+                ENGLAND,
                 DATE_EFFECTIVE_FROM,
                 DATE_OF_BIRTH,
-                ETAG,
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                REGISTRATION.getDescription(),
+                FILING_KIND_PSC,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
-                Country.ENGLAND,
+                ENGLAND,
                 LEGAL_FORM,
-                true,
+                LEGAL_PERSONALITY_STATEMENT_CHECKED,
                 Nationality.BRITISH,
                 Nationality.FRENCH,
                 REGISTERED_COMPANY_NUMBER,
@@ -126,13 +123,13 @@ class PscMapperTest {
             );
 
         // Assert naturesOfControl
-        assertThat(dataDto.naturesOfControl())
+        assertThat(dataDto.getNaturesOfControl())
             .hasSize(3)
             .containsExactlyInAnyOrder(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST);
 
-        assertAddress(dataDto.principalOfficeAddress(), POA_PREFIX);
-        assertAddress(dataDto.serviceAddress(), SERVICE_PREFIX);
-        assertAddress(dataDto.usualResidentialAddress(), URA_PREFIX);
+        assertAddress(dataDto.getPrincipalOfficeAddress(), POA_PREFIX);
+        assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
+        assertAddress(dataDto.getUsualResidentialAddress(), URA_PREFIX);
     }
 
     @Test
@@ -141,7 +138,7 @@ class PscMapperTest {
         PscDto pscDto = PscBuilder.getPscDto();
 
         // when
-        PscDao result = PscMapper.INSTANCE.dtoToDao(pscDto);
+        PscDao result = MAPPER.dtoToDao(pscDto);
         PscDataDao daoData = result.getData();
 
         // Grouped assertions for main fields
@@ -151,7 +148,6 @@ class PscMapperTest {
                 FN_COUNTRY,
                 FN_DATE_EFFECTIVE_FROM,
                 FN_DATE_OF_BIRTH,
-                FN_ETAG,
                 FN_FORENAME,
                 FN_FORMER_NAMES,
                 FN_GOVERNING_LAW,
@@ -169,17 +165,16 @@ class PscMapperTest {
             )
             .containsExactly(
                 APPOINTMENT_ID,
-                COUNTRY,
+                ENGLAND.getDescription(),
                 DATE_EFFECTIVE_FROM,
                 DATE_OF_BIRTH,
-                ETAG,
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                REGISTRATION.getDescription(),
+                FILING_KIND_PSC,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
-                LEGAL_ENTITY_REGISTRATION_LOCATION,
+                ENGLAND.getDescription(),
                 LEGAL_FORM,
                 true,
                 NATIONALITY1,

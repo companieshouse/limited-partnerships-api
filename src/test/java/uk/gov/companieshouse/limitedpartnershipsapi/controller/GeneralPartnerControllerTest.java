@@ -60,7 +60,7 @@ class GeneralPartnerControllerTest {
     @Mock
     private TransactionService transactionService;
 
-    private final Transaction transaction = new TransactionBuilder().forPartner(
+    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_GENERAL_PARTNER,
             URL_GET_GENERAL_PARTNER,
             GENERAL_PARTNER_ID
@@ -129,7 +129,7 @@ class GeneralPartnerControllerTest {
     @EnumSource(value = FilingMode.class, names = {"REGISTRATION", "TRANSITION"})
     void testCreatePartnerReturnsSuccess(FilingMode filingMode) throws Exception {
         Transaction txn = new TransactionBuilder()
-                .forPartner(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
+                .withKindAndUri(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
                 .withIncorporationKind(filingMode)
                 .build();
         assertCreatePartnerReturnsSuccess(txn, false);
@@ -138,7 +138,7 @@ class GeneralPartnerControllerTest {
     @Test
     void testPostTransitionCreatePartnerReturnsSuccess() throws Exception {
         Transaction txn = new TransactionBuilder()
-                .forPartner(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
+                .withKindAndUri(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
                 .build();
         txn.setFilingMode(FilingMode.DEFAULT.getDescription());
         assertCreatePartnerReturnsSuccess(txn, true);
