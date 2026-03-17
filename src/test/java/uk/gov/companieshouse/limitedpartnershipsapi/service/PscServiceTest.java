@@ -81,7 +81,7 @@ class PscServiceTest {
                 .thenReturn(Optional.empty());
 
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(transaction, SUBMISSION_ID));
-        assertEquals("Person with significant control submission with id " + SUBMISSION_ID + " not found", resourceNotFoundException.getMessage());
+        assertEquals("Person with significant control resource with id " + SUBMISSION_ID + " not found", resourceNotFoundException.getMessage());
     }
 
     @Test
