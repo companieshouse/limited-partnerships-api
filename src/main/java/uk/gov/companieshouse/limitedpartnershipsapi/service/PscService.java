@@ -6,7 +6,6 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PscMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
@@ -16,7 +15,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import java.util.Collections;
 
 import static java.util.Objects.requireNonNullElse;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.*;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PSC;
 
 @Service
 public class PscService {
