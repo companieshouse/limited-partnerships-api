@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder.TRANSACTION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PSC;
 
@@ -40,8 +41,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class PscControllerTest {
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
-    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
-    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String PSC_ID = PscBuilder.ID;
 
     @InjectMocks
@@ -50,11 +49,13 @@ class PscControllerTest {
     @Mock
     private PscService pscService;
 
-    private final Transaction transaction = new TransactionBuilder().withKindAndUri(
+    private final Transaction transaction = new TransactionBuilder()
+        .withKindAndUri(
             FILING_KIND_PSC,
             URL_GET_PSC,
             PSC_ID
-    ).build();
+        )
+        .build();
 
     private PscDto pscDto;
 
@@ -64,10 +65,10 @@ class PscControllerTest {
     @Test
     void testGetPscReturnsDto() throws ServiceException {
         PscDto dto = new PscDto();
-        when(pscService.getPsc(any(Transaction.class), anyString()))
+        when(pscService.getPsc(transaction, PSC_ID))
                 .thenReturn(dto);
 
-        var response = pscController.getPsc(transaction, SUBMISSION_ID, REQUEST_ID);
+        var response = pscController.getPsc(transaction, PSC_ID, REQUEST_ID);
         assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         assertNotNull(response.getBody());
     }
@@ -78,7 +79,7 @@ class PscControllerTest {
                 .thenThrow(ResourceNotFoundException.class);
 
         assertThrows(ResourceNotFoundException.class, () -> pscController.getPsc(
-                transaction, SUBMISSION_ID, REQUEST_ID));
+                transaction, PSC_ID, REQUEST_ID));
     }
 
     @Test
@@ -88,7 +89,7 @@ class PscControllerTest {
                 any(PscDto.class),
                 eq(REQUEST_ID),
                 eq(USER_ID)))
-                .thenReturn(SUBMISSION_ID);
+                .thenReturn(PSC_ID);
 
         var response = pscController.createPsc(
                 transaction,
@@ -98,10 +99,10 @@ class PscControllerTest {
 
         assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
-        assertEquals(String.format(URL_GET_PSC, TRANSACTION_ID, SUBMISSION_ID), responseHeaderLocation);
+        assertEquals(String.format(URL_GET_PSC, TRANSACTION_ID, PSC_ID), responseHeaderLocation);
         PscSubmissionCreatedResponseDto responseBody = response.getBody();
         assert responseBody != null;
-        assertEquals(SUBMISSION_ID, responseBody.id());
+        assertEquals(PSC_ID, responseBody.id());
 
         assertTrue(StringUtils.isBlank(transaction.getResumeJourneyUri()));
     }

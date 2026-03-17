@@ -148,7 +148,7 @@ public class PscBuilder {
         pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
         pscDataDto.setNationality1(BRITISH);
         pscDataDto.setNationality2(FRENCH);
-        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST));
+        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL));
         pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
         pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         pscDataDto.setResignationDate(RESIGNATION_DATE);
@@ -173,7 +173,7 @@ public class PscBuilder {
         pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         pscDataDto.setLegalForm(LEGAL_FORM);
         pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST));
+        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL));
         pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
         pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         pscDataDto.setResignationDate(RESIGNATION_DATE);
@@ -195,7 +195,7 @@ public class PscBuilder {
         pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
         pscDataDto.setNationality1(BRITISH);
         pscDataDto.setNationality2(FRENCH);
-        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST));
+        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL));
         pscDataDto.setResignationDate(RESIGNATION_DATE);
         pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         pscDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));

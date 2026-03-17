@@ -125,7 +125,7 @@ class PscMapperTest {
         // Assert naturesOfControl
         assertThat(dataDto.getNaturesOfControl())
             .hasSize(3)
-            .containsExactlyInAnyOrder(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST);
+            .containsExactlyInAnyOrder(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL);
 
         assertAddress(dataDto.getPrincipalOfficeAddress(), POA_PREFIX);
         assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
