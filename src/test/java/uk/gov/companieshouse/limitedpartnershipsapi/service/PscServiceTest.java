@@ -85,7 +85,7 @@ class PscServiceTest {
     }
 
     @Test
-    void testGetPscLinkFails() {
+    void testTransactionLinkedToPscFails() {
         PscDao dao = new PscBuilder().PscPersonDao();
 
         when(repository.findById(SUBMISSION_ID))
