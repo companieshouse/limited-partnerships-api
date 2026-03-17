@@ -102,7 +102,7 @@ class PscControllerTest {
 
             mockedLogger.verify(() -> ApiLogger.errorContext(
                     eq(REQUEST_ID),
-                    eq("Error creating the person of significant control"),
+                    eq("Error creating the person with significant control"),
                     eq(exception),
                     any()
             ));

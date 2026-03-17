@@ -76,7 +76,7 @@ public class PscService {
         dao.setTransactionId(transaction.getId());
 
         PscDao insertedSubmission = repository.insert(dao);
-        ApiLogger.infoContext(requestId, String.format("Person of significant control submission created with id: %s", insertedSubmission.getId()));
+        ApiLogger.infoContext(requestId, String.format("Person with significant control submission created with id: %s", insertedSubmission.getId()));
         return insertedSubmission;
     }
 

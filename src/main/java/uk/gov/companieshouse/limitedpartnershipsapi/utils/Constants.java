@@ -41,7 +41,7 @@ public class Constants {
     public static final String FILING_KIND_LIMITED_PARTNERSHIP = "limited-partnership";
     public static final String FILING_KIND_LIMITED_PARTNER = "limited-partnership#limited-partner";
     public static final String FILING_KIND_GENERAL_PARTNER = "limited-partnership#general-partner";
-    public static final String FILING_KIND_PSC = "limited-partnership#person-of-significant-control";
+    public static final String FILING_KIND_PSC = "limited-partnership#person-with-significant-control";
 
     // Payment
     public static final String FILING_PAYMENT_REFERENCE = "payment_reference";

@@ -23,6 +23,9 @@
       "name": "Limited Partners"
     },
     {
+      "name": "Persons with Significant Control"
+    },
+    {
       "name": "Validation Status"
     },
     {
@@ -481,7 +484,7 @@
           "200": {
             "description": "Successful response",
             "schema": {
-              "$ref": "#/definitions/PartnerData"
+              "$ref": "#/definitions/GeneralPartnerData"
             }
           },
           "401": {
@@ -561,7 +564,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PartnerData"
+                "$ref": "#/definitions/GeneralPartnerData"
               }
             }
           },
@@ -821,6 +824,131 @@
         }
       }
     },
+    "/transactions/{transaction_id}/limited-partnership/persons-with-significant-control": {
+      "post": {
+        "tags": [
+          "Persons with Significant Control"
+        ],
+        "summary": "Create a Person with Significant Control",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PSCSubmission"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Person with Significant Control has been successfully created.",
+            "schema": {
+              "$ref": "#/definitions/CreatedResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/limited-partnership/persons-with-significant-control/{filing_resource_id}": {
+      "get": {
+        "tags": [
+          "Persons with Significant Control"
+        ],
+        "summary": "Get Person with Significant Control details",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/PSCData"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Persons with Significant Control"
+        ],
+        "summary": "Update a Person with Significant Control details",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PSCSubmission"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Person with Significant Control has been successfully updated."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/validation-status": {
       "get": {
         "tags": [
@@ -980,7 +1108,7 @@
         }
       }
     },
-    "PartnerData": {
+    "AppointmentData": {
       "type": "object",
       "properties": {
         "date_effective_from": {
@@ -1048,6 +1176,13 @@
         }
       }
     },
+    "GeneralPartnerData": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/AppointmentData"
+        }
+      ]
+    },
     "LimitedPartnerData": {
       "allOf": [
         {
@@ -1075,7 +1210,25 @@
           }
         },
         {
-          "$ref": "#/definitions/PartnerData"
+          "$ref": "#/definitions/AppointmentData"
+        }
+      ]
+    },
+    "PSCData": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "natures_of_control": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/AppointmentData"
         }
       ]
     },
@@ -1098,13 +1251,19 @@
             "general_partners": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/PartnerData"
+                "$ref": "#/definitions/GeneralPartnerData"
               }
             },
             "limited_partners": {
               "type": "array",
               "items": {
                 "$ref": "#/definitions/LimitedPartnerData"
+              }
+            },
+            "persons_with_significant_control": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PSCData"
               }
             },
             "partnership": {
@@ -1204,7 +1363,7 @@
       ],
       "properties": {
         "data": {
-          "$ref": "#/definitions/PartnerData"
+          "$ref": "#/definitions/GeneralPartnerData"
         }
       }
     },
@@ -1216,6 +1375,17 @@
       "properties": {
         "data": {
           "$ref": "#/definitions/LimitedPartnerData"
+        }
+      }
+    },
+      "PSCSubmission": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/PSCData"
         }
       }
     },
