@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PscService;
@@ -22,6 +25,7 @@ import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTIT
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PSC;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_PSC_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_PARAM_TRANSACTION_ID;
 
 @RestController
@@ -33,6 +37,21 @@ public class PscController {
     @Autowired
     public PscController(PscService pscService) {
         this.pscService = pscService;
+    }
+
+    @GetMapping("/persons-with-significant-control/{" + URL_PARAM_PSC_ID + "}")
+    public ResponseEntity<PscDto> getPsc(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                               @PathVariable(URL_PARAM_PSC_ID) String pscId,
+                                                               @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
+            throws ResourceNotFoundException {
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        logMap.put(URL_PARAM_PSC_ID, pscId);
+
+        ApiLogger.infoContext(requestId, String.format("Retrieving a person with significant control %s", pscId), logMap);
+        var dto = pscService.getPsc(transaction, pscId);
+        return ResponseEntity.ok().body(dto);
     }
 
     @PostMapping("/persons-with-significant-control")

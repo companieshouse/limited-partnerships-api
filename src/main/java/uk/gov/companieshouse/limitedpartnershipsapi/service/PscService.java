@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PscMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
@@ -31,6 +32,17 @@ public class PscService {
         this.repository = repository;
         this.mapper = mapper;
         this.transactionService = transactionService;
+    }
+
+    public PscDto getPsc(Transaction transaction, String pscId) throws ResourceNotFoundException {
+
+        var pscDao = repository.findById(pscId).orElseThrow(() -> new ResourceNotFoundException(String.format("Person with significant control submission with id %s not found", pscId)));
+
+        String kind = requireNonNullElse(pscDao.getData().getKind(), FILING_KIND_PSC);
+
+        checkPscIsLinkedToTransaction(transaction, pscId, kind);
+
+        return mapper.daoToDto(pscDao);
     }
 
     public String createPsc(Transaction transaction, PscDto pscDto, String requestId, String userId) throws ServiceException {
@@ -66,5 +78,15 @@ public class PscService {
         dao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(dao);
         return submissionUri;
+    }
+
+    private void checkPscIsLinkedToTransaction(Transaction transaction, String pscId, String kind) throws ResourceNotFoundException {
+        String transactionId = transaction.getId();
+        var submissionUri = String.format(URL_GET_PSC, transactionId, pscId);
+
+        if (!transactionService.isTransactionLinkedToSubmission(transaction, submissionUri, kind)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches person with significant control id: %s", transactionId, pscId));
+        }
     }
 }
