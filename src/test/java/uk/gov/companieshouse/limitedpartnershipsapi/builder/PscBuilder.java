@@ -23,6 +23,7 @@ public class PscBuilder {
     public static final String APPOINTMENT_ID = "1234";
     public static final String FORENAME = "John";
     public static final String FORMER_NAMES = "Doe";
+    public static final String SURNAME = "Smith";
     public static final String GOVERNING_LAW = "law of england";
     public static final String LEGAL_ENTITY_NAME = "Legal Entity Name";
     public static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
@@ -32,7 +33,6 @@ public class PscBuilder {
     public static final String NATIONALITY2 = "French";
     public static final String REGISTERED_COMPANY_NUMBER = "12345678";
     public static final boolean LEGAL_PERSONALITY_STATEMENT_CHECKED = true;
-    public static final String SURNAME = "Smith";
     public static final String NATURE_OF_CONTROL = "test";
     public static final String POA_PREFIX = "poa";
     public static final String SERVICE_PREFIX = "service";
@@ -81,7 +81,7 @@ public class PscBuilder {
         return pscDao;
     }
 
-    public static PscDao PscPersonDao() {
+    public PscDao PscPersonDao() {
         PscDataDao pscDatadao = new PscDataDao();
         pscDatadao.setAppointmentId(APPOINTMENT_ID);
         pscDatadao.setKind(FILING_KIND_PSC);
@@ -105,7 +105,7 @@ public class PscBuilder {
         return pscDao;
     }
 
-    public static PscDao PscLegalEntityDao() {
+    public PscDao PscLegalEntityDao() {
         PscDataDao pscDatadao = new PscDataDao();
         pscDatadao.setAppointmentId(APPOINTMENT_ID);
         pscDatadao.setKind(FILING_KIND_PSC);
@@ -160,7 +160,7 @@ public class PscBuilder {
         return pscDto;
     }
 
-    public static PscDto legalEntityDto() {
+    public PscDto legalEntityDto() {
         PscDataDto pscDataDto = new PscDataDto();
         pscDataDto.setAppointmentId(APPOINTMENT_ID);
         pscDataDto.setKind(FILING_KIND_PSC);
@@ -183,7 +183,7 @@ public class PscBuilder {
         return pscDto;
     }
 
-    public static PscDto personPscDto() {
+    public PscDto personPscDto() {
         PscDataDto pscDataDto = new PscDataDto();
         pscDataDto.setAppointmentId(APPOINTMENT_ID);
         pscDataDto.setKind(FILING_KIND_PSC);
