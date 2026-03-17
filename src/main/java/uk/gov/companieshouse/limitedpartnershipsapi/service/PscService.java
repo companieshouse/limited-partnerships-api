@@ -84,7 +84,7 @@ public class PscService {
         String transactionId = transaction.getId();
         var submissionUri = String.format(URL_GET_PSC, transactionId, pscId);
 
-        if (!transactionService.isTransactionLinkedToSubmission(transaction, submissionUri, kind)) {
+        if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, kind)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches person with significant control id: %s", transactionId, pscId));
         }

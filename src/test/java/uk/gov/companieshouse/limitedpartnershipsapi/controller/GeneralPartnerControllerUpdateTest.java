@@ -459,7 +459,7 @@ class GeneralPartnerControllerUpdateTest {
         when(generalPartnerRepository.save(any())).thenReturn(generalPartnerDao);
         when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
 
-        when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
     }
 
     private void mocks() {
