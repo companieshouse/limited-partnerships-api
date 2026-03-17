@@ -180,12 +180,16 @@ public class TransactionService {
         return FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode());
     }
 
-    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink, String kind) {
-        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, kind);
-    }
+//    public boolean isTransactionLinkedToLimitedPartnership(Transaction transaction, String limitedPartnershipSubmissionSelfLink, String kind) {
+//        return doChecks(transaction, limitedPartnershipSubmissionSelfLink, kind);
+//    }
+//
+//    public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
+//        return doChecks(transaction, partnerSubmissionSelfLink, kind);
+//    }
 
-    public boolean isTransactionLinkedToPartner(Transaction transaction, String partnerSubmissionSelfLink, String kind) {
-        return doChecks(transaction, partnerSubmissionSelfLink, kind);
+    public boolean isTransactionLinkedToSubmission(Transaction transaction, String submissionSelfLink, String kind) {
+        return doChecks(transaction, submissionSelfLink, kind);
     }
 
     private boolean doIncorporationChecks(Transaction transaction, String selfLink) {

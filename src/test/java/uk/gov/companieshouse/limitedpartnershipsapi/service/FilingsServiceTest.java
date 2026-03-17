@@ -178,7 +178,7 @@ class FilingsServiceTest {
             var generalPartner = isPerson ? generalPartnerBuilder.personDto() : generalPartnerBuilder.legalEntityDto();
 
             when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
@@ -220,7 +220,7 @@ class FilingsServiceTest {
             var generalPartner = isPerson ? generalPartnerBuilder.personDto() : generalPartnerBuilder.legalEntityDto();
 
             when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
@@ -266,7 +266,7 @@ class FilingsServiceTest {
             var generalPartner = isPerson ? generalPartnerBuilder.personDto() : generalPartnerBuilder.legalEntityDto();
 
             when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
@@ -310,7 +310,7 @@ class FilingsServiceTest {
                     .personDto();
 
             when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
@@ -353,7 +353,7 @@ class FilingsServiceTest {
             var limitedPartner = isPerson ? limitedPartnerBuilder.personDto() : limitedPartnerBuilder.legalEntityDto();
 
             when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
 
@@ -397,7 +397,7 @@ class FilingsServiceTest {
             var limitedPartner = isPerson ? limitedPartnerBuilder.personDto() : limitedPartnerBuilder.legalEntityDto();
 
             when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
 
@@ -445,7 +445,7 @@ class FilingsServiceTest {
             var limitedPartner = isPerson ? limitedPartnerBuilder.personDto() : limitedPartnerBuilder.legalEntityDto();
 
             when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
 
@@ -491,7 +491,7 @@ class FilingsServiceTest {
                     .personDto();
 
             when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+            when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
 
             FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
 

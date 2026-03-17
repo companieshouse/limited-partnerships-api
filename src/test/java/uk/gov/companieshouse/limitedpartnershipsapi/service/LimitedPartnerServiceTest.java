@@ -80,7 +80,7 @@ class LimitedPartnerServiceTest {
                 .thenReturn(Optional.of(dao));
 
         when(mapper.daoToDto(dao)).thenReturn(limitedPartnerDto);
-        when(transactionService.isTransactionLinkedToPartner(any(Transaction.class), any(String.class), any(String.class))).thenReturn(true)
+        when(transactionService.isTransactionLinkedToSubmission(any(Transaction.class), any(String.class), any(String.class))).thenReturn(true)
                 .thenReturn(true);
 
         var dto = limitedPartnerService.getLimitedPartner(transaction, LIMITED_ID);

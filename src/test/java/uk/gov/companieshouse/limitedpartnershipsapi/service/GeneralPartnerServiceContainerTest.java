@@ -75,7 +75,7 @@ class GeneralPartnerServiceContainerTest {
         dto.getData().setKind(partnerKindDescription);
         dto.getData().setCeaseDate(LocalDate.of(2025, 1, 1));
 
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
         when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
         when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2022, 1, 3));
 
@@ -93,7 +93,7 @@ class GeneralPartnerServiceContainerTest {
         GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
         dto.setId(null);
 
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
         when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
         when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2022, 1, 3));
 

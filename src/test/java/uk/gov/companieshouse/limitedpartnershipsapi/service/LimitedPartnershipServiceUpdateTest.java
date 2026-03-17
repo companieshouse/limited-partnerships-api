@@ -96,7 +96,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -151,7 +151,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -204,7 +204,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -261,7 +261,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -291,7 +291,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipPatchDto.setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // dao sic codes is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getSicCodes());
@@ -318,7 +318,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipDao.getData().setSicCodes(sicCodes);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
@@ -342,7 +342,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipPatchDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // dao lawful purpose statement check is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getLawfulPurposeStatementChecked());
@@ -366,7 +366,7 @@ class LimitedPartnershipServiceUpdateTest {
                 limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(true);
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
-                when(transactionService.isTransactionLinkedToLimitedPartnership(any(), any(), any())).thenReturn(true);
+                when(transactionService.isTransactionLinkedToSubmission(any(), any(), any())).thenReturn(true);
 
                 // when
                 LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);

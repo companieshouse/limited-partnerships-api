@@ -67,7 +67,7 @@ class PscServiceTest {
                 .thenReturn(Optional.of(dao));
 
         when(mapper.daoToDto(dao)).thenReturn(new PscBuilder().personPscDto());
-        when(transactionService.isTransactionLinkedToPsc(any(), anyString(), anyString()))
+        when(transactionService.isTransactionLinkedToSubmission(any(), anyString(), anyString()))
                 .thenReturn(true);
 
         var dto = pscService.getPsc(transaction, SUBMISSION_ID);
@@ -91,7 +91,7 @@ class PscServiceTest {
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(transactionService.isTransactionLinkedToPsc(eq(transaction), any(String.class), any(String.class)))
+        when(transactionService.isTransactionLinkedToSubmission(eq(transaction), any(String.class), any(String.class)))
                 .thenReturn(false);
         ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(transaction, SUBMISSION_ID));
         assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", transaction.getId(), SUBMISSION_ID), resourceNotFoundException.getMessage());
