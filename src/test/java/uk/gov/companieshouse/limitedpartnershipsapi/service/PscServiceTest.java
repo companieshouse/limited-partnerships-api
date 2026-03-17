@@ -10,13 +10,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PscMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -51,6 +58,44 @@ class PscServiceTest {
 
     @Captor
     private ArgumentCaptor<PscDao> submissionCaptor;
+
+    @Test
+    void testGetPscSuccess() throws ServiceException {
+        PscDao dao = new PscBuilder().PscPersonDao();
+
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.of(dao));
+
+        when(mapper.daoToDto(dao)).thenReturn(new PscBuilder().personPscDto());
+        when(transactionService.isTransactionLinkedToPsc(any(), anyString(), anyString()))
+                .thenReturn(true);
+
+        var dto = pscService.getPsc(transaction, SUBMISSION_ID);
+        assertEquals("John", dto.getData().getForename());
+        assertEquals("Smith", dto.getData().getSurname());
+    }
+
+    @Test
+    void testGetPscNotFound() {
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(transaction, SUBMISSION_ID));
+        assertEquals("Person with significant control submission with id " + SUBMISSION_ID + " not found", resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testGetPscLinkFails() {
+        PscDao dao = new PscBuilder().PscPersonDao();
+
+        when(repository.findById(SUBMISSION_ID))
+                .thenReturn(Optional.of(dao));
+
+        when(transactionService.isTransactionLinkedToPsc(eq(transaction), any(String.class), any(String.class)))
+                .thenReturn(false);
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(transaction, SUBMISSION_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", transaction.getId(), SUBMISSION_ID), resourceNotFoundException.getMessage());
+    }
 
     @Test
     void testCreatePscReturnsSuccess() throws ServiceException {

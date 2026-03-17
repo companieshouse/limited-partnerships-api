@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscSubmissionCreatedResponseDto;
@@ -24,8 +25,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -56,6 +60,26 @@ class PscControllerTest {
 
     @BeforeEach
     void init() { pscDto = PscBuilder.getPscDto(); }
+
+    @Test
+    void testGetPscReturnsDto() throws ServiceException {
+        PscDto dto = new PscDto();
+        when(pscService.getPsc(any(Transaction.class), anyString()))
+                .thenReturn(dto);
+
+        var response = pscController.getPsc(transaction, SUBMISSION_ID, REQUEST_ID);
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    void testGetPscThrowsResourceNotFoundException() throws ServiceException {
+        when(pscService.getPsc(any(Transaction.class), anyString()))
+                .thenThrow(ResourceNotFoundException.class);
+
+        assertThrows(ResourceNotFoundException.class, () -> pscController.getPsc(
+                transaction, SUBMISSION_ID, REQUEST_ID));
+    }
 
     @Test
     void testCreatePscReturnsSuccess() throws Exception {
