@@ -74,6 +74,7 @@ public class PscBuilder {
         pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
         pscDatadao.setSurname(SURNAME);
         pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+
         PscDao pscDao = new PscDao();
         pscDao.setId(ID);
         pscDao.setData(pscDatadao);
@@ -84,7 +85,6 @@ public class PscBuilder {
         PscDataDao pscDatadao = new PscDataDao();
         pscDatadao.setAppointmentId(APPOINTMENT_ID);
         pscDatadao.setKind(FILING_KIND_PSC);
-
         pscDatadao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         pscDatadao.setDateOfBirth(DATE_OF_BIRTH);
         pscDatadao.setEtag(ETAG);
@@ -98,6 +98,7 @@ public class PscBuilder {
         pscDatadao.setResignationDate(RESIGNATION_DATE);
         pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
         pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+
         PscDao pscDao = new PscDao();
         pscDao.setId(ID);
         pscDao.setData(pscDatadao);
@@ -108,7 +109,6 @@ public class PscBuilder {
         PscDataDao pscDatadao = new PscDataDao();
         pscDatadao.setAppointmentId(APPOINTMENT_ID);
         pscDatadao.setKind(FILING_KIND_PSC);
-
         pscDatadao.setCountry(ENGLAND.getDescription());
         pscDatadao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         pscDatadao.setEtag(ETAG);
@@ -164,7 +164,6 @@ public class PscBuilder {
         PscDataDto pscDataDto = new PscDataDto();
         pscDataDto.setAppointmentId(APPOINTMENT_ID);
         pscDataDto.setKind(FILING_KIND_PSC);
-
         pscDataDto.setCountry(ENGLAND);
         pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         pscDataDto.setGoverningLaw(GOVERNING_LAW);
@@ -188,7 +187,6 @@ public class PscBuilder {
         PscDataDto pscDataDto = new PscDataDto();
         pscDataDto.setAppointmentId(APPOINTMENT_ID);
         pscDataDto.setKind(FILING_KIND_PSC);
-
         pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         pscDataDto.setDateOfBirth(DATE_OF_BIRTH);
         pscDataDto.setForename(FORENAME);
