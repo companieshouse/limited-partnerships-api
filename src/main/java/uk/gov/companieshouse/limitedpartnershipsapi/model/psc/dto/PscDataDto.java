@@ -14,6 +14,9 @@ import java.util.List;
 
 public class PscDataDto {
 
+    @JsonProperty("kind")
+    String kind;
+
     @JsonProperty("appointment_id")
     String appointmentId;
 
@@ -24,9 +27,20 @@ public class PscDataDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate dateEffectiveFrom;
 
-    @JsonProperty("date_of_birth")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate dateOfBirth;
+    @JsonProperty("resignation_date")
+    LocalDate resignationDate;
+
+    @JsonProperty("natures_of_control")
+    List<NatureOfControl> naturesOfControl;
+
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty("legal_personality_statement_checked")
+    Boolean legalPersonalityStatementChecked;
+
+    @JsonProperty("service_address")
+    AddressDto serviceAddress;
+
+    // PERSON
 
     @JsonProperty("forename")
     String forename;
@@ -34,11 +48,26 @@ public class PscDataDto {
     @JsonProperty("former_names")
     String formerNames;
 
+    @JsonProperty("surname")
+    String surname;
+
+    @JsonProperty("date_of_birth")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    LocalDate dateOfBirth;
+
+    @JsonProperty("nationality1")
+    Nationality nationality1;
+
+    @JsonProperty("nationality2")
+    Nationality nationality2;
+
+    @JsonProperty("usual_residential_address")
+    AddressDto usualResidentialAddress;
+
+    // LEGAL ENTITY
+
     @JsonProperty("governing_law")
     String governingLaw;
-
-    @JsonProperty("kind")
-    String kind;
 
     @JsonProperty("legal_entity_name")
     String legalEntityName;
@@ -52,84 +81,11 @@ public class PscDataDto {
     @JsonProperty("legal_form")
     String legalForm;
 
-    @JsonInclude(Include.NON_NULL)
-    @JsonProperty("legal_personality_statement_checked")
-    Boolean legalPersonalityStatementChecked;
-
-    @JsonProperty("nationality1")
-    Nationality nationality1;
-
-    @JsonProperty("nationality2")
-    Nationality nationality2;
-
-    @JsonProperty("natures_of_control")
-    List<NatureOfControl> naturesOfControl;
-
-    @JsonProperty("principal_office_address")
-    AddressDto principalOfficeAddress;
-
     @JsonProperty("registered_company_number")
     String registeredCompanyNumber;
 
-    @JsonProperty("resignation_date")
-    LocalDate resignationDate;
-
-    @JsonProperty("service_address")
-    AddressDto serviceAddress;
-
-    @JsonProperty("surname")
-    String surname;
-
-    @JsonProperty("usual_residential_address")
-    AddressDto usualResidentialAddress;
-
-    public String getAppointmentId() {
-        return appointmentId;
-    }
-
-    public void setAppointmentId(String appointmentId) {
-        this.appointmentId = appointmentId;
-    }
-
-    public LocalDate getDateEffectiveFrom() {
-        return dateEffectiveFrom;
-    }
-
-    public void setDateEffectiveFrom(LocalDate dateEffectiveFrom) {
-        this.dateEffectiveFrom = dateEffectiveFrom;
-    }
-
-    public String getLegalEntityName() {
-        return legalEntityName;
-    }
-
-    public void setLegalEntityName(String legalEntityName) {
-        this.legalEntityName = legalEntityName;
-    }
-
-    public String getForename() {
-        return forename;
-    }
-
-    public void setForename(String forename) {
-        this.forename = forename;
-    }
-
-    public Boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
-    }
-
-    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
-    }
-
-    public String getGoverningLaw() {
-        return governingLaw;
-    }
-
-    public void setGoverningLaw(String governingLaw) {
-        this.governingLaw = governingLaw;
-    }
+    @JsonProperty("principal_office_address")
+    AddressDto principalOfficeAddress;
 
     public String getKind() {
         return kind;
@@ -139,12 +95,12 @@ public class PscDataDto {
         this.kind = kind;
     }
 
-    public String getLegalEntityRegisterName() {
-        return legalEntityRegisterName;
+    public String getAppointmentId() {
+        return appointmentId;
     }
 
-    public void setLegalEntityRegisterName(String legalEntityRegisterName) {
-        this.legalEntityRegisterName = legalEntityRegisterName;
+    public void setAppointmentId(String appointmentId) {
+        this.appointmentId = appointmentId;
     }
 
     public Country getCountry() {
@@ -155,20 +111,52 @@ public class PscDataDto {
         this.country = country;
     }
 
-    public Country getLegalEntityRegistrationLocation() {
-        return legalEntityRegistrationLocation;
+    public LocalDate getDateEffectiveFrom() {
+        return dateEffectiveFrom;
     }
 
-    public void setLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
-        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+    public void setDateEffectiveFrom(LocalDate dateEffectiveFrom) {
+        this.dateEffectiveFrom = dateEffectiveFrom;
     }
 
-    public String getLegalForm() {
-        return legalForm;
+    public LocalDate getResignationDate() {
+        return resignationDate;
     }
 
-    public void setLegalForm(String legalForm) {
-        this.legalForm = legalForm;
+    public void setResignationDate(LocalDate resignationDate) {
+        this.resignationDate = resignationDate;
+    }
+
+    public List<NatureOfControl> getNaturesOfControl() {
+        return naturesOfControl;
+    }
+
+    public void setNaturesOfControl(List<NatureOfControl> naturesOfControl) {
+        this.naturesOfControl = naturesOfControl;
+    }
+
+    public Boolean getLegalPersonalityStatementChecked() {
+        return legalPersonalityStatementChecked;
+    }
+
+    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
+        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    }
+
+    public AddressDto getServiceAddress() {
+        return serviceAddress;
+    }
+
+    public void setServiceAddress(AddressDto serviceAddress) {
+        this.serviceAddress = serviceAddress;
+    }
+
+    public String getForename() {
+        return forename;
+    }
+
+    public void setForename(String forename) {
+        this.forename = forename;
     }
 
     public String getFormerNames() {
@@ -177,6 +165,14 @@ public class PscDataDto {
 
     public void setFormerNames(String formerNames) {
         this.formerNames = formerNames;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
     public LocalDate getDateOfBirth() {
@@ -203,12 +199,52 @@ public class PscDataDto {
         this.nationality2 = nationality2;
     }
 
-    public List<NatureOfControl> getNaturesOfControl() {
-        return naturesOfControl;
+    public AddressDto getUsualResidentialAddress() {
+        return usualResidentialAddress;
     }
 
-    public void setNaturesOfControl(List<NatureOfControl> naturesOfControl) {
-        this.naturesOfControl = naturesOfControl;
+    public void setUsualResidentialAddress(AddressDto usualResidentialAddress) {
+        this.usualResidentialAddress = usualResidentialAddress;
+    }
+
+    public String getLegalEntityName() {
+        return legalEntityName;
+    }
+
+    public void setLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
+    }
+
+    public String getLegalForm() {
+        return legalForm;
+    }
+
+    public void setLegalForm(String legalForm) {
+        this.legalForm = legalForm;
+    }
+
+    public String getGoverningLaw() {
+        return governingLaw;
+    }
+
+    public void setGoverningLaw(String governingLaw) {
+        this.governingLaw = governingLaw;
+    }
+
+    public String getLegalEntityRegisterName() {
+        return legalEntityRegisterName;
+    }
+
+    public void setLegalEntityRegisterName(String legalEntityRegisterName) {
+        this.legalEntityRegisterName = legalEntityRegisterName;
+    }
+
+    public Country getLegalEntityRegistrationLocation() {
+        return legalEntityRegistrationLocation;
+    }
+
+    public void setLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
+        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
     }
 
     public String getRegisteredCompanyNumber() {
@@ -219,44 +255,12 @@ public class PscDataDto {
         this.registeredCompanyNumber = registeredCompanyNumber;
     }
 
-    public LocalDate getResignationDate() {
-        return resignationDate;
-    }
-
-    public void setResignationDate(LocalDate resignationDate) {
-        this.resignationDate = resignationDate;
-    }
-
     public AddressDto getPrincipalOfficeAddress() {
         return principalOfficeAddress;
     }
 
     public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
-    }
-
-    public AddressDto getServiceAddress() {
-        return serviceAddress;
-    }
-
-    public void setServiceAddress(AddressDto serviceAddress) {
-        this.serviceAddress = serviceAddress;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public AddressDto getUsualResidentialAddress() {
-        return usualResidentialAddress;
-    }
-
-    public void setUsualResidentialAddress(AddressDto usualResidentialAddress) {
-        this.usualResidentialAddress = usualResidentialAddress;
     }
 }
 
