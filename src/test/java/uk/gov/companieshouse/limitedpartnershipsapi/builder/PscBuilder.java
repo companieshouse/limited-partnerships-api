@@ -13,8 +13,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.FRANCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.BRITISH;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.FRENCH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.SPANISH;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 
 public class PscBuilder {
@@ -205,6 +207,15 @@ public class PscBuilder {
         PscDto pscDto = new PscDto();
         pscDto.setData(pscDataDto);
         return pscDto;
+    }
+
+    public static PscDataDto getPscDataDtoForPatch() {
+        PscDataDto pscDataDto = new PscDataDto();
+        pscDataDto.setCountry(FRANCE);
+        pscDataDto.setForename("Bob");
+        pscDataDto.setFormerNames("Former");
+        pscDataDto.setNationality1(SPANISH);
+        return pscDataDto;
     }
 
     private static AddressDao createAddressDao(String prefix) {

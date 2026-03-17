@@ -10,13 +10,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PscMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +36,7 @@ class PscServiceTest {
     private static final String USER_ID = "user123";
     private static final String SUBMISSION_ID = PscBuilder.ID;
 
-    Transaction transaction = new TransactionBuilder().withKindAndUri(
+    private static final Transaction TRANSACTION = new TransactionBuilder().withKindAndUri(
                     FILING_KIND_PSC,
                     URL_GET_PSC,
                     SUBMISSION_ID
@@ -52,21 +58,24 @@ class PscServiceTest {
     @Captor
     private ArgumentCaptor<PscDao> submissionCaptor;
 
+    @Captor
+    private ArgumentCaptor<PscDto> pscDtoCaptor;
+
     @Test
     void testCreatePscReturnsSuccess() throws ServiceException {
-        var submissionUri = String.format(URL_GET_PSC, transaction.getId(), SUBMISSION_ID);
+        var submissionUri = String.format(URL_GET_PSC, TRANSACTION.getId(), SUBMISSION_ID);
         PscDto dto =  PscBuilder.getPscDto();
         PscDao dao = PscBuilder.getPscDao();
 
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
 
-        String submissionId = pscService.createPsc(transaction, dto, REQUEST_ID, USER_ID);
+        String submissionId = pscService.createPsc(TRANSACTION, dto, REQUEST_ID, USER_ID);
 
         verify(mapper, times(1)).dtoToDao(dto);
         verify(repository, times(1)).insert(dao);
         verify(repository, times(1)).save(submissionCaptor.capture());
-        verify(transactionService, times(1)).updateTransactionWithLinksForResource(REQUEST_ID, transaction, submissionUri, dao.getData().getKind(), null);
+        verify(transactionService, times(1)).updateTransactionWithLinksForResource(REQUEST_ID, TRANSACTION, submissionUri, dao.getData().getKind(), null);
 
         PscDao sentSubmission = submissionCaptor.getValue();
         assertEquals(USER_ID, sentSubmission.getCreatedBy());
@@ -74,8 +83,68 @@ class PscServiceTest {
         assertEquals(SUBMISSION_ID, submissionId);
 
         // Assert self link
-        String expectedUri = String.format(URL_GET_PSC, transaction.getId(), SUBMISSION_ID);
+        String expectedUri = String.format(URL_GET_PSC, TRANSACTION.getId(), SUBMISSION_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
 
+    @Test
+    void testUpdatePscReturnsSuccess() throws ServiceException {
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), SUBMISSION_ID);
+
+        PscDao existingDao = PscBuilder.getPscDao();
+        PscDto existingDto = PscBuilder.getPscDto();
+        PscDataDto changesDataDto = PscBuilder.getPscDataDtoForPatch();
+        PscDao afterPatchDao = new PscDao();
+
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(true);
+        when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
+        when(mapper.dtoToDao(existingDto)).thenReturn(afterPatchDao);
+
+        assertNull(afterPatchDao.getId());
+        assertNull(afterPatchDao.getCreatedAt());
+        assertNull(afterPatchDao.getCreatedBy());
+        assertNull(afterPatchDao.getLinks());
+        assertNull(afterPatchDao.getTransactionId());
+
+        pscService.updatePsc(TRANSACTION, SUBMISSION_ID, changesDataDto, REQUEST_ID, USER_ID);
+
+        verify(repository, times(1)).findById(SUBMISSION_ID);
+        verify(mapper, times(1)).daoToDto(existingDao);
+        verify(mapper, times(1)).update(changesDataDto, existingDto.getData());
+        verify(repository, times(1)).save(submissionCaptor.capture());
+
+        PscDao savedDao = submissionCaptor.getValue();
+        assertEquals(existingDao.getId(), savedDao.getId());
+        assertEquals(existingDao.getCreatedAt(), savedDao.getCreatedAt());
+        assertEquals(existingDao.getCreatedBy(), savedDao.getCreatedBy());
+        assertEquals(existingDao.getLinks(), savedDao.getLinks());
+        assertEquals(existingDao.getTransactionId(), savedDao.getTransactionId());
+        assertEquals(USER_ID, savedDao.getUpdatedBy());
+    }
+
+    @Test
+    void testSecondNationalityHandledCorrectlyOnUpdate() throws ResourceNotFoundException {
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), SUBMISSION_ID);
+
+        PscDao existingDao = PscBuilder.getPscDao();
+        PscDto existingDto = PscBuilder.getPscDto();
+        PscDataDto changesDataDto = PscBuilder.getPscDataDtoForPatch();
+        PscDao afterPatchDao = new PscDao();
+
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(true);
+        when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
+        when(mapper.dtoToDao(existingDto)).thenReturn(afterPatchDao);
+
+        assertNotNull(existingDto.getData().getNationality2());
+
+        pscService.updatePsc(TRANSACTION, SUBMISSION_ID, changesDataDto, REQUEST_ID, USER_ID);
+
+        verify(mapper, times(1)).update(changesDataDto, existingDto.getData());
+        verify(mapper, times(1)).dtoToDao(pscDtoCaptor.capture());
+
+        var capturedDto = pscDtoCaptor.getValue();
+        assertNull(capturedDto.getData().getNationality2());
     }
 }
