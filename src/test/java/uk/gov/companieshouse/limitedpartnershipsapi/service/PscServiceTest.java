@@ -61,12 +61,12 @@ class PscServiceTest {
 
     @Test
     void testGetPscSuccess() throws ServiceException {
-        PscDao dao = new PscBuilder().PscPersonDao();
+        PscDao dao = PscBuilder.PscPersonDao();
 
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(mapper.daoToDto(dao)).thenReturn(new PscBuilder().personPscDto());
+        when(mapper.daoToDto(dao)).thenReturn(PscBuilder.personPscDto());
         when(transactionService.isTransactionLinkedToResource(any(), anyString(), anyString()))
                 .thenReturn(true);
 
@@ -86,7 +86,7 @@ class PscServiceTest {
 
     @Test
     void testTransactionLinkedToPscFails() {
-        PscDao dao = new PscBuilder().PscPersonDao();
+        PscDao dao = PscBuilder.PscPersonDao();
 
         when(repository.findById(SUBMISSION_ID))
                 .thenReturn(Optional.of(dao));

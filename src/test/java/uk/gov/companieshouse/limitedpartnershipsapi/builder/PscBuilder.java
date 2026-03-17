@@ -89,7 +89,7 @@ public class PscBuilder {
         return pscDao;
     }
 
-    public PscDao PscPersonDao() {
+    public static PscDao PscPersonDao() {
         PscDataDao pscDatadao = new PscDataDao();
         pscDatadao.setAppointmentId(APPOINTMENT_ID);
         pscDatadao.setKind(FILING_KIND_PSC);
@@ -113,7 +113,7 @@ public class PscBuilder {
         return pscDao;
     }
 
-    public PscDao PscLegalEntityDao() {
+    public static PscDao PscLegalEntityDao() {
         PscDataDao pscDatadao = new PscDataDao();
         pscDatadao.setAppointmentId(APPOINTMENT_ID);
         pscDatadao.setKind(FILING_KIND_PSC);
@@ -168,7 +168,7 @@ public class PscBuilder {
         return pscDto;
     }
 
-    public PscDto legalEntityDto() {
+    public static PscDto legalEntityDto() {
         PscDataDto pscDataDto = new PscDataDto();
         pscDataDto.setAppointmentId(APPOINTMENT_ID);
         pscDataDto.setKind(FILING_KIND_PSC);
@@ -191,7 +191,7 @@ public class PscBuilder {
         return pscDto;
     }
 
-    public PscDto personPscDto() {
+    public static PscDto personPscDto() {
         PscDataDto pscDataDto = new PscDataDto();
         pscDataDto.setAppointmentId(APPOINTMENT_ID);
         pscDataDto.setKind(FILING_KIND_PSC);
