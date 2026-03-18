@@ -165,7 +165,7 @@ public class LimitedPartnershipService {
 
         String kind = requireNonNullElse(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        if (!transactionService.isTransactionLinkedToLimitedPartnership(transaction, submissionUri, kind)) {
+        if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, kind)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
         }

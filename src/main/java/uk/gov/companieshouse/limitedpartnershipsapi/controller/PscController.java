@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,6 +40,21 @@ public class PscController {
     @Autowired
     public PscController(PscService pscService) {
         this.pscService = pscService;
+    }
+
+    @GetMapping("/persons-with-significant-control/{" + URL_PARAM_PSC_ID + "}")
+    public ResponseEntity<PscDto> getPsc(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                               @PathVariable(URL_PARAM_PSC_ID) String pscId,
+                                                               @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
+            throws ResourceNotFoundException {
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        logMap.put(URL_PARAM_PSC_ID, pscId);
+
+        ApiLogger.infoContext(requestId, String.format("Retrieving a person with significant control %s", pscId), logMap);
+        var dto = pscService.getPsc(transaction, pscId);
+        return ResponseEntity.ok().body(dto);
     }
 
     @PostMapping("/persons-with-significant-control")

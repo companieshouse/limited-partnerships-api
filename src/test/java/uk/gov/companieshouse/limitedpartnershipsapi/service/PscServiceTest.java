@@ -21,6 +21,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.times;
@@ -60,6 +64,44 @@ class PscServiceTest {
 
     @Captor
     private ArgumentCaptor<PscDto> pscDtoCaptor;
+
+    @Test
+    void testGetPscSuccess() throws ServiceException {
+        PscDao dao = PscBuilder.PscPersonDao();
+
+        when(repository.findById(PSC_ID))
+                .thenReturn(Optional.of(dao));
+
+        when(mapper.daoToDto(dao)).thenReturn(PscBuilder.personPscDto());
+        when(transactionService.isTransactionLinkedToResource(any(), anyString(), anyString()))
+                .thenReturn(true);
+
+        var dto = pscService.getPsc(TRANSACTION, PSC_ID);
+        assertEquals("John", dto.getData().getForename());
+        assertEquals("Smith", dto.getData().getSurname());
+    }
+
+    @Test
+    void testGetPscNotFound() {
+        when(repository.findById(PSC_ID))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(TRANSACTION, PSC_ID));
+        assertEquals("Person with significant control resource with id " + PSC_ID + " not found", resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testTransactionLinkedToPscFails() {
+        PscDao dao = PscBuilder.PscPersonDao();
+
+        when(repository.findById(PSC_ID))
+                .thenReturn(Optional.of(dao));
+
+        when(transactionService.isTransactionLinkedToResource(eq(TRANSACTION), any(String.class), any(String.class)))
+                .thenReturn(false);
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(TRANSACTION, PSC_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", TRANSACTION.getId(), PSC_ID), resourceNotFoundException.getMessage());
+    }
 
     @Test
     void testCreatePscReturnsSuccess() throws ServiceException {
