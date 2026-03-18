@@ -16,6 +16,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PscService;
@@ -131,5 +132,29 @@ class PscControllerTest {
                     any()
             ));
         }
+    }
+
+    @Test
+    void testUpdatePscReturnsSuccess() throws Exception {
+        var response = pscController.updatePsc(
+                transaction,
+                PSC_ID,
+                new PscBuilder.PscDtoBuilder().pscDto().build().getData(),
+                REQUEST_ID,
+                USER_ID);
+
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdatePscThrowsResourceNotFoundException() throws ServiceException {
+        doThrow(ResourceNotFoundException.class).when(pscService).updatePsc(any(Transaction.class), anyString(), any(PscDataDto.class), anyString(), anyString() );
+
+        assertThrows(ResourceNotFoundException.class, () -> pscController.updatePsc(
+                transaction,
+                PSC_ID,
+                new PscBuilder.PscDtoBuilder().pscDto().build().getData(),
+                REQUEST_ID,
+                USER_ID));
     }
 }
