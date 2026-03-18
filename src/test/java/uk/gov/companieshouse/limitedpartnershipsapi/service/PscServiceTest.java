@@ -130,6 +130,24 @@ class PscServiceTest {
     }
 
     @Test
+    void testCreatePscWithNullKindDefaultsToPsc() throws ServiceException {
+        PscDto dto =  new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscDao().withKind(null).build();
+
+        when(mapper.dtoToDao(dto)).thenReturn(dao);
+        when(repository.insert(dao)).thenReturn(dao);
+
+        pscService.createPsc(TRANSACTION, dto, REQUEST_ID, USER_ID);
+
+        verify(mapper, times(1)).dtoToDao(dto);
+        verify(repository, times(1)).insert(dao);
+        verify(repository, times(1)).save(pscDaoArgumentCaptor.capture());
+
+        PscDao sentSubmission = pscDaoArgumentCaptor.getValue();
+        assertEquals(FILING_KIND_PSC, sentSubmission.getData().getKind());
+    }
+
+    @Test
     void testUpdatePscPersistsUpdatedFieldsSuccessfully() throws ServiceException {
         var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
 
