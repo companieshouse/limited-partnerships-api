@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PscMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
@@ -33,16 +34,27 @@ public class PscService {
         this.transactionService = transactionService;
     }
 
+    public PscDto getPsc(Transaction transaction, String pscId) throws ResourceNotFoundException {
+
+        var pscDao = repository.findById(pscId).orElseThrow(() -> new ResourceNotFoundException(String.format("Person with significant control resource with id %s not found", pscId)));
+
+        String kind = requireNonNullElse(pscDao.getData().getKind(), FILING_KIND_PSC);
+
+        checkPscIsLinkedToTransaction(transaction, pscId, kind);
+
+        return mapper.daoToDto(pscDao);
+    }
+
     public String createPsc(Transaction transaction, PscDto pscDto, String requestId, String userId) throws ServiceException {
         PscDao dao = mapper.dtoToDao(pscDto);
-        PscDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
-        String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
+        PscDao insertedResource = insertDaoWithMetadata(requestId, transaction, userId, dao);
+        String resourceUri = linkAndSaveDao(transaction, insertedResource.getId(), dao);
 
-        String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_PSC);
+        String kind = requireNonNullElse(insertedResource.getData().getKind(), FILING_KIND_PSC);
 
-        transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null);
+        transactionService.updateTransactionWithLinksForResource(requestId, transaction, resourceUri, kind, null);
 
-        return insertedSubmission.getId();
+        return insertedResource.getId();
     }
 
     private PscDao insertDaoWithMetadata(
@@ -56,15 +68,25 @@ public class PscService {
         dao.setUpdatedBy(userId);
         dao.setTransactionId(transaction.getId());
 
-        PscDao insertedSubmission = repository.insert(dao);
-        ApiLogger.infoContext(requestId, String.format("Person with significant control submission created with id: %s", insertedSubmission.getId()));
-        return insertedSubmission;
+        PscDao insertedResource = repository.insert(dao);
+        ApiLogger.infoContext(requestId, String.format("Person with significant control resource created with id: %s", insertedResource.getId()));
+        return insertedResource;
     }
 
-    private String linkAndSaveDao(Transaction transaction, String submissionId, PscDao dao) {
-        var submissionUri = String.format(URL_GET_PSC, transaction.getId(), submissionId);
-        dao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
+    private String linkAndSaveDao(Transaction transaction, String resourceId, PscDao dao) {
+        var resourceUri = String.format(URL_GET_PSC, transaction.getId(), resourceId);
+        dao.setLinks(Collections.singletonMap(LINK_SELF, resourceUri));
         repository.save(dao);
-        return submissionUri;
+        return resourceUri;
+    }
+
+    private void checkPscIsLinkedToTransaction(Transaction transaction, String pscId, String kind) throws ResourceNotFoundException {
+        String transactionId = transaction.getId();
+        var resourceUri = String.format(URL_GET_PSC, transactionId, pscId);
+
+        if (!transactionService.isTransactionLinkedToResource(transaction, resourceUri, kind)) {
+            throw new ResourceNotFoundException(String.format(
+                    "Transaction id: %s does not have a resource that matches person with significant control id: %s", transactionId, pscId));
+        }
     }
 }

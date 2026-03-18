@@ -27,7 +27,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LE
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LOCALITY_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY1;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY2;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATURE_OF_CONTROL;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATURES_OF_CONTROL_LIST_DESCRIPTIONS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.POA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.POSTAL_CODE_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.PREMISES_SUFFIX;
@@ -125,7 +125,7 @@ class PscMapperTest {
         // Assert naturesOfControl
         assertThat(dataDto.getNaturesOfControl())
             .hasSize(3)
-            .containsExactlyInAnyOrder(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST);
+            .containsExactlyInAnyOrder(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL);
 
         assertAddress(dataDto.getPrincipalOfficeAddress(), POA_PREFIX);
         assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
@@ -187,7 +187,7 @@ class PscMapperTest {
         // Assert naturesOfControl
         assertThat(daoData.getNaturesOfControl())
             .hasSize(3)
-            .containsExactlyInAnyOrder(NATURE_OF_CONTROL, NATURE_OF_CONTROL, NATURE_OF_CONTROL);
+            .allMatch(NATURES_OF_CONTROL_LIST_DESCRIPTIONS::contains);
 
         assertAddress(daoData.getPrincipalOfficeAddress(), POA_PREFIX);
         assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);

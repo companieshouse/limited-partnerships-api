@@ -269,7 +269,7 @@ public class LimitedPartnerService {
         String transactionId = transaction.getId();
         var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transactionId, limitedPartnerId);
 
-        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, kind)) {
+        if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, kind)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches limited partner id: %s", transactionId, limitedPartnerId));
         }

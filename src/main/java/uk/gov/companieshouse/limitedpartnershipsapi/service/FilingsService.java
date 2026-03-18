@@ -149,7 +149,7 @@ public class FilingsService {
         setExtraData(generalPartnerDataDto, transaction);
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
-        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, generalPartnerDataDto.getKind())) {
+        if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, generalPartnerDataDto.getKind())) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches General Partner id: %s", transaction.getId(), generalPartnerId));
         }
@@ -177,7 +177,7 @@ public class FilingsService {
         setExtraData(limitedPartnerDataDto, transaction);
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
-        if (!transactionService.isTransactionLinkedToPartner(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
+        if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches Limited Partner id: %s", transaction.getId(), limitedPartnerId));
         }

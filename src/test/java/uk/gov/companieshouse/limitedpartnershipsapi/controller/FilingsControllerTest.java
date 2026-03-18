@@ -323,7 +323,7 @@ class FilingsControllerTest {
         generalPartner.getData().setKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
         limitedPartner.getData().setKind(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
 
-        when(transactionService.isTransactionLinkedToPartner(eq(transaction), any(String.class), eq(kind))).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(kind))).thenReturn(true);
         when(generalPartnerService.getGeneralPartner(transaction, generalPartner.getId())).thenReturn(generalPartner);
         when(limitedPartnerService.getLimitedPartner(transaction, limitedPartner.getId())).thenReturn(limitedPartner);
     }

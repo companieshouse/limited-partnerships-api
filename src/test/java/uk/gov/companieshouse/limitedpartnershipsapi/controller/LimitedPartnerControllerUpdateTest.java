@@ -612,7 +612,7 @@ class LimitedPartnerControllerUpdateTest {
         when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
         doNothing().when(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
 
-        when(transactionService.isTransactionLinkedToPartner(any(), any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
         DataDto dataDto = new DataDto();

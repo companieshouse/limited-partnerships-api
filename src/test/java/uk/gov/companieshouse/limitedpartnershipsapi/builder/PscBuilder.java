@@ -23,6 +23,7 @@ public class PscBuilder {
     public static final String APPOINTMENT_ID = "1234";
     public static final String FORENAME = "John";
     public static final String FORMER_NAMES = "Doe";
+    public static final String SURNAME = "Smith";
     public static final String GOVERNING_LAW = "law of england";
     public static final String LEGAL_ENTITY_NAME = "Legal Entity Name";
     public static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
@@ -32,8 +33,6 @@ public class PscBuilder {
     public static final String NATIONALITY2 = "French";
     public static final String REGISTERED_COMPANY_NUMBER = "12345678";
     public static final boolean LEGAL_PERSONALITY_STATEMENT_CHECKED = true;
-    public static final String SURNAME = "Smith";
-    public static final String NATURE_OF_CONTROL = "test";
     public static final String POA_PREFIX = "poa";
     public static final String SERVICE_PREFIX = "service";
     public static final String URA_PREFIX = "ura";
@@ -47,6 +46,16 @@ public class PscBuilder {
     public static final LocalDate DATE_EFFECTIVE_FROM = LocalDate.of(2026, 1, 20);
     public static final LocalDate DATE_OF_BIRTH = LocalDate.of(1999, 12, 31);
     public static final LocalDate RESIGNATION_DATE = LocalDate.of(2025, 12, 11);
+    public static final List<String> NATURES_OF_CONTROL_LIST_DESCRIPTIONS = List.of(
+            NatureOfControl.RLE.getDescription(),
+            NatureOfControl.INDIVIDUAL_FIRM_CONTROL.getDescription(),
+            NatureOfControl.ORP_TRUST_CONTROL.getDescription()
+    );
+    public static final List<NatureOfControl> NATURES_OF_CONTROL_LIST = List.of(
+            NatureOfControl.RLE,
+            NatureOfControl.INDIVIDUAL_FIRM_CONTROL,
+            NatureOfControl.ORP_TRUST_CONTROL
+    );
 
     public static PscDao getPscDao() {
         PscDataDao pscDatadao = new PscDataDao();
@@ -66,8 +75,7 @@ public class PscBuilder {
         pscDatadao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
         pscDatadao.setNationality1(NATIONALITY1);
         pscDatadao.setNationality2(NATIONALITY2);
-        List<String> nocList = List.of(NATURE_OF_CONTROL, NATURE_OF_CONTROL, NATURE_OF_CONTROL);
-        pscDatadao.setNaturesOfControl(nocList);
+        pscDatadao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
         pscDatadao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
         pscDatadao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         pscDatadao.setResignationDate(RESIGNATION_DATE);
@@ -94,7 +102,7 @@ public class PscBuilder {
         pscDatadao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
         pscDatadao.setNationality1(NATIONALITY1);
         pscDatadao.setNationality2(NATIONALITY2);
-        pscDatadao.setNaturesOfControl(List.of(NATURE_OF_CONTROL, NATURE_OF_CONTROL, NATURE_OF_CONTROL));
+        pscDatadao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
         pscDatadao.setResignationDate(RESIGNATION_DATE);
         pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
         pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
@@ -119,7 +127,7 @@ public class PscBuilder {
         pscDatadao.setLegalForm(LEGAL_FORM);
         pscDatadao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         pscDatadao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDatadao.setNaturesOfControl(List.of(NATURE_OF_CONTROL, NATURE_OF_CONTROL, NATURE_OF_CONTROL));
+        pscDatadao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
         pscDatadao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
         pscDatadao.setResignationDate(RESIGNATION_DATE);
         pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
@@ -148,7 +156,7 @@ public class PscBuilder {
         pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
         pscDataDto.setNationality1(BRITISH);
         pscDataDto.setNationality2(FRENCH);
-        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST));
+        pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
         pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
         pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         pscDataDto.setResignationDate(RESIGNATION_DATE);
@@ -173,7 +181,7 @@ public class PscBuilder {
         pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         pscDataDto.setLegalForm(LEGAL_FORM);
         pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST));
+        pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
         pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
         pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         pscDataDto.setResignationDate(RESIGNATION_DATE);
@@ -195,7 +203,7 @@ public class PscBuilder {
         pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
         pscDataDto.setNationality1(BRITISH);
         pscDataDto.setNationality2(FRENCH);
-        pscDataDto.setNaturesOfControl(List.of(NatureOfControl.TEST, NatureOfControl.TEST, NatureOfControl.TEST));
+        pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
         pscDataDto.setResignationDate(RESIGNATION_DATE);
         pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         pscDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
