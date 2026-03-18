@@ -101,9 +101,6 @@ class PscServiceTest {
         when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
         when(mapper.dtoToDao(existingDto)).thenReturn(afterPatchDao);
 
-        // all we can really do, due to mocking the mapper, is assert that the fields we expect to be copied from the existing dao
-        // to the after patch dao are actually copied, and that the updatedBy field is set to the user id.
-        // The rest of the fields are tested in the mapper tests.
         assertNull(afterPatchDao.getId());
         assertNull(afterPatchDao.getCreatedAt());
         assertNull(afterPatchDao.getCreatedBy());
