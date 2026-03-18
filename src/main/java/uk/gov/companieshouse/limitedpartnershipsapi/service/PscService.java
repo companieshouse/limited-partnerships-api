@@ -71,7 +71,7 @@ public class PscService {
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
         copyMetaDataForPatch(pscDaoBeforePatch, pscDaoAfterPatch, userId);
 
-        ApiLogger.infoContext(requestId, String.format("Person of significant control updated with id: %s", pscId));
+        ApiLogger.infoContext(requestId, String.format("Person with significant control updated with id: %s", pscId));
 
         repository.save(pscDaoAfterPatch);
     }
