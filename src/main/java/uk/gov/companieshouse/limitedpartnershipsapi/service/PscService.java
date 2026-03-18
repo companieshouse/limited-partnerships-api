@@ -59,9 +59,10 @@ public class PscService {
     }
 
     public void updatePsc(Transaction transaction, String pscId, PscDataDto pscChangesDataDto, String requestId, String userId) throws ResourceNotFoundException {
-        var pscDaoBeforePatch = repository.findById(pscId).orElseThrow(() -> new ResourceNotFoundException(String.format("Person of significant control with id %s not found", pscId)));
+        var pscDaoBeforePatch = repository.findById(pscId).orElseThrow(() -> new ResourceNotFoundException(String.format("Person with significant control with id %s not found", pscId)));
         String kind = requireNonNullElse(pscDaoBeforePatch.getData().getKind(), FILING_KIND_PSC);
         checkPscIsLinkedToTransaction(transaction, pscId, kind);
+
         var pscDto = mapper.daoToDto(pscDaoBeforePatch);
         mapper.update(pscChangesDataDto, pscDto.getData());
 

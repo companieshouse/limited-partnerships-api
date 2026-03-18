@@ -21,12 +21,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -188,5 +188,29 @@ class PscServiceTest {
 
         var capturedDto = pscDtoCaptor.getValue();
         assertNull(capturedDto.getData().getNationality2());
+    }
+
+    @Test
+    void testUpdatePscNotFound() {
+        when(repository.findById(PSC_ID)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(
+                ResourceNotFoundException.class,
+                () -> pscService.updatePsc(TRANSACTION, PSC_ID, new PscDataDto(), REQUEST_ID, USER_ID));
+        assertEquals("Person with significant control with id " + PSC_ID + " not found", resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testUpdatePscTransactionNotLinked() {
+        PscDao existingDao = PscBuilder.getPscDao();
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(false);
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(
+                ResourceNotFoundException.class,
+                () -> pscService.updatePsc(TRANSACTION, PSC_ID, new PscDataDto(), REQUEST_ID, USER_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", TRANSACTION.getId(), PSC_ID), resourceNotFoundException.getMessage());
     }
 }

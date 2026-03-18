@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -84,20 +84,16 @@ public class PscController {
             @PathVariable(URL_PARAM_PSC_ID) String pscId,
             @Valid @RequestBody PscDataDto pscDataDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
-            @RequestHeader(value = ERIC_IDENTITY) String userId) {
+            @RequestHeader(value = ERIC_IDENTITY) String userId) throws ResourceNotFoundException {
 
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
         logMap.put(URL_PARAM_PSC_ID, pscId);
 
-        try {
-            pscService.updatePsc(transaction, pscId, pscDataDto, requestId, userId);
+        ApiLogger.infoContext(requestId, String.format("Updating a person with significant control %s", pscId), logMap);
+        pscService.updatePsc(transaction, pscId, pscDataDto, requestId, userId);
 
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (ResourceNotFoundException e) {
-            ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
-            return ResponseEntity.notFound().build();
-        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
