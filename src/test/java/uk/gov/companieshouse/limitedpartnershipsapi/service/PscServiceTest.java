@@ -67,12 +67,12 @@ class PscServiceTest {
 
     @Test
     void testGetPscSuccess() throws ServiceException {
-        PscDao dao = PscBuilder.PscPersonDao();
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscPersonDao().build();
 
         when(repository.findById(PSC_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(mapper.daoToDto(dao)).thenReturn(PscBuilder.personPscDto());
+        when(mapper.daoToDto(dao)).thenReturn(new PscBuilder.PscDtoBuilder().personPscDto().build());
         when(transactionService.isTransactionLinkedToResource(any(), anyString(), anyString()))
                 .thenReturn(true);
 
@@ -91,8 +91,8 @@ class PscServiceTest {
     }
 
     @Test
-    void testTransactionLinkedToPscFails() {
-        PscDao dao = PscBuilder.PscPersonDao();
+    void testGetPscTransactionLinkedToPscFails() {
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscPersonDao().build();
 
         when(repository.findById(PSC_ID))
                 .thenReturn(Optional.of(dao));
@@ -106,8 +106,8 @@ class PscServiceTest {
     @Test
     void testCreatePscReturnsSuccess() throws ServiceException {
         var submissionUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
-        PscDto dto =  PscBuilder.getPscDto();
-        PscDao dao = PscBuilder.getPscDao();
+        PscDto dto =  new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscDao().build();
 
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
@@ -133,9 +133,9 @@ class PscServiceTest {
     void testUpdatePscPersistsUpdatedFieldsSuccessfully() throws ServiceException {
         var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
 
-        PscDao existingDao = PscBuilder.getPscDao();
-        PscDto existingDto = PscBuilder.getPscDto();
-        PscDataDto changesDataDto = PscBuilder.getPscDataDtoForPatch();
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        PscDto existingDto = new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDataDto changesDataDto = new PscBuilder.PscDtoBuilder().pscDtoForPatch().build().getData();
         PscDao afterPatchDao = new PscDao();
 
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
@@ -169,9 +169,9 @@ class PscServiceTest {
     void testUpdatePscRemovesSecondNationalityWhenPatchedToNull() throws ResourceNotFoundException {
         var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
 
-        PscDao existingDao = PscBuilder.getPscDao();
-        PscDto existingDto = PscBuilder.getPscDto();
-        PscDataDto changesDataDto = PscBuilder.getPscDataDtoForPatch();
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        PscDto existingDto = new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDataDto changesDataDto = new PscBuilder.PscDtoBuilder().pscDtoForPatch().build().getData();
         PscDao afterPatchDao = new PscDao();
 
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
@@ -202,7 +202,7 @@ class PscServiceTest {
 
     @Test
     void testUpdatePscTransactionNotLinked() {
-        PscDao existingDao = PscBuilder.getPscDao();
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
         var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
 
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));

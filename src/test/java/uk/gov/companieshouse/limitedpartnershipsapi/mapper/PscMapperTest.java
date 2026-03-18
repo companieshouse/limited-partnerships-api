@@ -73,7 +73,7 @@ class PscMapperTest {
     @Test
     void givenDao_whenMapsToDto_thenCorrect() {
         // given
-        PscDao pscDao = PscBuilder.getPscDao();
+        PscDao pscDao = new PscBuilder.PscDaoBuilder().pscDao().build();
 
         // when
         PscDto result = MAPPER.daoToDto(pscDao);
@@ -135,7 +135,7 @@ class PscMapperTest {
     @Test
     void givenDto_whenMapsToDao_thenCorrect() {
         // given
-        PscDto pscDto = PscBuilder.getPscDto();
+        PscDto pscDto = new PscBuilder.PscDtoBuilder().pscDto().build();
 
         // when
         PscDao result = MAPPER.dtoToDao(pscDto);

@@ -59,192 +59,210 @@ public class PscBuilder {
             NatureOfControl.ORP_TRUST_CONTROL
     );
 
-    public static PscDao getPscDao() {
-        PscDataDao pscDatadao = new PscDataDao();
-        pscDatadao.setAppointmentId(APPOINTMENT_ID);
-        pscDatadao.setCountry(ENGLAND.getDescription());
-        pscDatadao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        pscDatadao.setDateOfBirth(DATE_OF_BIRTH);
-        pscDatadao.setEtag(ETAG);
-        pscDatadao.setForename(FORENAME);
-        pscDatadao.setFormerNames(FORMER_NAMES);
-        pscDatadao.setGoverningLaw(GOVERNING_LAW);
-        pscDatadao.setKind(FILING_KIND_PSC);
-        pscDatadao.setLegalEntityName(LEGAL_ENTITY_NAME);
-        pscDatadao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        pscDatadao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
-        pscDatadao.setLegalForm(LEGAL_FORM);
-        pscDatadao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDatadao.setNationality1(NATIONALITY1);
-        pscDatadao.setNationality2(NATIONALITY2);
-        pscDatadao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
-        pscDatadao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
-        pscDatadao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        pscDatadao.setResignationDate(RESIGNATION_DATE);
-        pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
-        pscDatadao.setSurname(SURNAME);
-        pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
 
-        PscDao pscDao = new PscDao();
-        pscDao.setId(ID);
-        pscDao.setData(pscDatadao);
-        return pscDao;
+    public static class PscDaoBuilder {
+
+        private final PscDao pscDao = new PscDao();
+        private final PscDataDao pscDataDao = new PscDataDao();
+
+        public PscDaoBuilder pscDao() {
+            pscDataDao.setAppointmentId(APPOINTMENT_ID);
+            pscDataDao.setCountry(ENGLAND.getDescription());
+            pscDataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+            pscDataDao.setDateOfBirth(DATE_OF_BIRTH);
+            pscDataDao.setEtag(ETAG);
+            pscDataDao.setForename(FORENAME);
+            pscDataDao.setFormerNames(FORMER_NAMES);
+            pscDataDao.setGoverningLaw(GOVERNING_LAW);
+            pscDataDao.setKind(FILING_KIND_PSC);
+            pscDataDao.setLegalEntityName(LEGAL_ENTITY_NAME);
+            pscDataDao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
+            pscDataDao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
+            pscDataDao.setLegalForm(LEGAL_FORM);
+            pscDataDao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
+            pscDataDao.setNationality1(NATIONALITY1);
+            pscDataDao.setNationality2(NATIONALITY2);
+            pscDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
+            pscDataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
+            pscDataDao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
+            pscDataDao.setResignationDate(RESIGNATION_DATE);
+            pscDataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
+            pscDataDao.setSurname(SURNAME);
+            pscDataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+
+            pscDao.setId(ID);
+            pscDao.setData(pscDataDao);
+            return this;
+        }
+
+        public PscDaoBuilder pscPersonDao() {
+            pscDataDao.setAppointmentId(APPOINTMENT_ID);
+            pscDataDao.setKind(FILING_KIND_PSC);
+            pscDataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+            pscDataDao.setDateOfBirth(DATE_OF_BIRTH);
+            pscDataDao.setEtag(ETAG);
+            pscDataDao.setForename(FORENAME);
+            pscDataDao.setSurname(SURNAME);
+            pscDataDao.setFormerNames(FORMER_NAMES);
+            pscDataDao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
+            pscDataDao.setNationality1(NATIONALITY1);
+            pscDataDao.setNationality2(NATIONALITY2);
+            pscDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
+            pscDataDao.setResignationDate(RESIGNATION_DATE);
+            pscDataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
+            pscDataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+
+            pscDao.setId(ID);
+            pscDao.setData(pscDataDao);
+            return this;
+        }
+
+        public PscDaoBuilder pscLegalEntityDao() {
+            pscDataDao.setAppointmentId(APPOINTMENT_ID);
+            pscDataDao.setKind(FILING_KIND_PSC);
+            pscDataDao.setCountry(ENGLAND.getDescription());
+            pscDataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+            pscDataDao.setEtag(ETAG);
+            pscDataDao.setGoverningLaw(GOVERNING_LAW);
+            pscDataDao.setLegalEntityName(LEGAL_ENTITY_NAME);
+            pscDataDao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
+            pscDataDao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
+            pscDataDao.setLegalForm(LEGAL_FORM);
+            pscDataDao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
+            pscDataDao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
+            pscDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
+            pscDataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
+            pscDataDao.setResignationDate(RESIGNATION_DATE);
+            pscDataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
+            pscDataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+
+            pscDao.setId(ID);
+            pscDao.setData(pscDataDao);
+            return this;
+        }
+
+        public PscDaoBuilder withKind(String kind) {
+            this.pscDataDao.setKind(kind);
+            return this;
+        }
+
+        public PscDao build() {
+            pscDao.setData(pscDataDao);
+            return pscDao;
+        }
+
+        private AddressDao createAddressDao(String prefix) {
+            AddressDao addressDao = new AddressDao();
+            addressDao.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
+            addressDao.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
+            addressDao.setCountry(prefix + COUNTRY_SUFFIX);
+            addressDao.setLocality(prefix + LOCALITY_SUFFIX);
+            addressDao.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
+            addressDao.setPremises(prefix + PREMISES_SUFFIX);
+            addressDao.setRegion(prefix + REGION_SUFFIX);
+            return addressDao;
+        }
     }
 
-    public static PscDao PscPersonDao() {
-        PscDataDao pscDatadao = new PscDataDao();
-        pscDatadao.setAppointmentId(APPOINTMENT_ID);
-        pscDatadao.setKind(FILING_KIND_PSC);
-        pscDatadao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        pscDatadao.setDateOfBirth(DATE_OF_BIRTH);
-        pscDatadao.setEtag(ETAG);
-        pscDatadao.setForename(FORENAME);
-        pscDatadao.setSurname(SURNAME);
-        pscDatadao.setFormerNames(FORMER_NAMES);
-        pscDatadao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDatadao.setNationality1(NATIONALITY1);
-        pscDatadao.setNationality2(NATIONALITY2);
-        pscDatadao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
-        pscDatadao.setResignationDate(RESIGNATION_DATE);
-        pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
-        pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
 
-        PscDao pscDao = new PscDao();
-        pscDao.setId(ID);
-        pscDao.setData(pscDatadao);
-        return pscDao;
-    }
+    public static class PscDtoBuilder {
+        private final PscDto pscDto = new PscDto();
+        private final PscDataDto pscDataDto = new PscDataDto();
 
-    public static PscDao PscLegalEntityDao() {
-        PscDataDao pscDatadao = new PscDataDao();
-        pscDatadao.setAppointmentId(APPOINTMENT_ID);
-        pscDatadao.setKind(FILING_KIND_PSC);
-        pscDatadao.setCountry(ENGLAND.getDescription());
-        pscDatadao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        pscDatadao.setEtag(ETAG);
-        pscDatadao.setGoverningLaw(GOVERNING_LAW);
-        pscDatadao.setLegalEntityName(LEGAL_ENTITY_NAME);
-        pscDatadao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        pscDatadao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
-        pscDatadao.setLegalForm(LEGAL_FORM);
-        pscDatadao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        pscDatadao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDatadao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
-        pscDatadao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
-        pscDatadao.setResignationDate(RESIGNATION_DATE);
-        pscDatadao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
-        pscDatadao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+        public PscDtoBuilder pscDto() {
+            pscDataDto.setAppointmentId(APPOINTMENT_ID);
+            pscDataDto.setCountry(ENGLAND);
+            pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+            pscDataDto.setDateOfBirth(DATE_OF_BIRTH);
+            pscDataDto.setForename(FORENAME);
+            pscDataDto.setFormerNames(FORMER_NAMES);
+            pscDataDto.setGoverningLaw(GOVERNING_LAW);
+            pscDataDto.setKind(FILING_KIND_PSC);
+            pscDataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
+            pscDataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
+            pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
+            pscDataDto.setLegalForm(LEGAL_FORM);
+            pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
+            pscDataDto.setNationality1(BRITISH);
+            pscDataDto.setNationality2(FRENCH);
+            pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
+            pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
+            pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
+            pscDataDto.setResignationDate(RESIGNATION_DATE);
+            pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
+            pscDataDto.setSurname(SURNAME);
+            pscDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
 
-        PscDao pscDao = new PscDao();
-        pscDao.setId(ID);
-        pscDao.setData(pscDatadao);
-        return pscDao;
-    }
+            return this;
+        }
 
-    public static PscDto getPscDto() {
-        PscDataDto pscDataDto = new PscDataDto();
-        pscDataDto.setAppointmentId(APPOINTMENT_ID);
-        pscDataDto.setCountry(ENGLAND);
-        pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        pscDataDto.setDateOfBirth(DATE_OF_BIRTH);
-        pscDataDto.setForename(FORENAME);
-        pscDataDto.setFormerNames(FORMER_NAMES);
-        pscDataDto.setGoverningLaw(GOVERNING_LAW);
-        pscDataDto.setKind(FILING_KIND_PSC);
-        pscDataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
-        pscDataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
-        pscDataDto.setLegalForm(LEGAL_FORM);
-        pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDataDto.setNationality1(BRITISH);
-        pscDataDto.setNationality2(FRENCH);
-        pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
-        pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
-        pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        pscDataDto.setResignationDate(RESIGNATION_DATE);
-        pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
-        pscDataDto.setSurname(SURNAME);
-        pscDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
-        PscDto pscDto = new PscDto();
-        pscDto.setData(pscDataDto);
-        return pscDto;
-    }
+        public PscDtoBuilder legalEntityDto() {
+            pscDataDto.setAppointmentId(APPOINTMENT_ID);
+            pscDataDto.setKind(FILING_KIND_PSC);
+            pscDataDto.setCountry(ENGLAND);
+            pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+            pscDataDto.setGoverningLaw(GOVERNING_LAW);
+            pscDataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
+            pscDataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
+            pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
+            pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
+            pscDataDto.setLegalForm(LEGAL_FORM);
+            pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
+            pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
+            pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
+            pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
+            pscDataDto.setResignationDate(RESIGNATION_DATE);
 
-    public static PscDto legalEntityDto() {
-        PscDataDto pscDataDto = new PscDataDto();
-        pscDataDto.setAppointmentId(APPOINTMENT_ID);
-        pscDataDto.setKind(FILING_KIND_PSC);
-        pscDataDto.setCountry(ENGLAND);
-        pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        pscDataDto.setGoverningLaw(GOVERNING_LAW);
-        pscDataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
-        pscDataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
-        pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        pscDataDto.setLegalForm(LEGAL_FORM);
-        pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
-        pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
-        pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
-        pscDataDto.setResignationDate(RESIGNATION_DATE);
+            return this;
+        }
 
-        PscDto pscDto = new PscDto();
-        pscDto.setData(pscDataDto);
-        return pscDto;
-    }
+        public PscDtoBuilder personPscDto() {
+            pscDataDto.setAppointmentId(APPOINTMENT_ID);
+            pscDataDto.setKind(FILING_KIND_PSC);
+            pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+            pscDataDto.setDateOfBirth(DATE_OF_BIRTH);
+            pscDataDto.setForename(FORENAME);
+            pscDataDto.setSurname(SURNAME);
+            pscDataDto.setFormerNames(FORMER_NAMES);
+            pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
+            pscDataDto.setNationality1(BRITISH);
+            pscDataDto.setNationality2(FRENCH);
+            pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
+            pscDataDto.setResignationDate(RESIGNATION_DATE);
+            pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
+            pscDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
 
-    public static PscDto personPscDto() {
-        PscDataDto pscDataDto = new PscDataDto();
-        pscDataDto.setAppointmentId(APPOINTMENT_ID);
-        pscDataDto.setKind(FILING_KIND_PSC);
-        pscDataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
-        pscDataDto.setDateOfBirth(DATE_OF_BIRTH);
-        pscDataDto.setForename(FORENAME);
-        pscDataDto.setSurname(SURNAME);
-        pscDataDto.setFormerNames(FORMER_NAMES);
-        pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
-        pscDataDto.setNationality1(BRITISH);
-        pscDataDto.setNationality2(FRENCH);
-        pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
-        pscDataDto.setResignationDate(RESIGNATION_DATE);
-        pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
-        pscDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
+            return this;
+        }
 
-        PscDto pscDto = new PscDto();
-        pscDto.setData(pscDataDto);
-        return pscDto;
-    }
+        public PscDtoBuilder pscDtoForPatch() {
+            pscDataDto.setCountry(FRANCE);
+            pscDataDto.setForename("Bob");
+            pscDataDto.setFormerNames("Former");
+            pscDataDto.setNationality1(SPANISH);
+            return this;
+        }
 
-    public static PscDataDto getPscDataDtoForPatch() {
-        PscDataDto pscDataDto = new PscDataDto();
-        pscDataDto.setCountry(FRANCE);
-        pscDataDto.setForename("Bob");
-        pscDataDto.setFormerNames("Former");
-        pscDataDto.setNationality1(SPANISH);
-        return pscDataDto;
-    }
+        public PscDtoBuilder withKind(String kind) {
+            this.pscDataDto.setKind(kind);
+            return this;
+        }
 
-    private static AddressDao createAddressDao(String prefix) {
-        AddressDao addressDao = new AddressDao();
-        addressDao.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
-        addressDao.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
-        addressDao.setCountry(prefix + COUNTRY_SUFFIX);
-        addressDao.setLocality(prefix + LOCALITY_SUFFIX);
-        addressDao.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
-        addressDao.setPremises(prefix + PREMISES_SUFFIX);
-        addressDao.setRegion(prefix + REGION_SUFFIX);
-        return addressDao;
-    }
+        public PscDto build() {
+            pscDto.setData(pscDataDto);
+            return pscDto;
+        }
 
-    private static AddressDto createAddressDto(String prefix) {
-        AddressDto addressDto = new AddressDto();
-        addressDto.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
-        addressDto.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
-        addressDto.setCountry(prefix + COUNTRY_SUFFIX);
-        addressDto.setLocality(prefix + LOCALITY_SUFFIX);
-        addressDto.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
-        addressDto.setPremises(prefix + PREMISES_SUFFIX);
-        addressDto.setRegion(prefix + REGION_SUFFIX);
-        return addressDto;
+        private AddressDto createAddressDto(String prefix) {
+            AddressDto addressDto = new AddressDto();
+            addressDto.setAddressLine1(prefix + ADDRESS_LINE1_SUFFIX);
+            addressDto.setAddressLine2(prefix + ADDRESS_LINE2_SUFFIX);
+            addressDto.setCountry(prefix + COUNTRY_SUFFIX);
+            addressDto.setLocality(prefix + LOCALITY_SUFFIX);
+            addressDto.setPostalCode(prefix + POSTAL_CODE_SUFFIX);
+            addressDto.setPremises(prefix + PREMISES_SUFFIX);
+            addressDto.setRegion(prefix + REGION_SUFFIX);
+            return addressDto;
+        }
     }
 }

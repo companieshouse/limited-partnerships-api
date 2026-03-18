@@ -59,7 +59,7 @@ class PscControllerTest {
     private PscDto pscDto;
 
     @BeforeEach
-    void init() { pscDto = PscBuilder.getPscDto(); }
+    void init() { pscDto = new PscBuilder.PscDtoBuilder().pscDto().build(); }
 
     @Test
     void testGetPscReturnsDto() throws ServiceException {
