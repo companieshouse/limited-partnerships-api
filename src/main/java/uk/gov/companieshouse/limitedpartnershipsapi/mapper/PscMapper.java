@@ -12,6 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -56,15 +57,19 @@ public interface PscMapper {
 
     // Java
     default List<String> mapNatureOfControlListToStringList(List<NatureOfControl> natures) {
-        return natures == null ? null : natures.stream()
-                .map(this::mapNatureOfControlToString)
-                .toList();
+        return natures == null ? null : new ArrayList<>(
+                natures.stream()
+                        .map(this::mapNatureOfControlToString)
+                        .toList()
+        );
     }
 
     default List<NatureOfControl> mapStringListToNatureOfControlList(List<String> natures) {
-        return natures == null ? null : natures.stream()
-                .map(this::mapNatureOfControlToEnum)
-                .toList();
+        return natures == null ? null : new ArrayList<>(
+                natures.stream()
+                        .map(this::mapNatureOfControlToEnum)
+                        .toList()
+        );
     }
 
 }
