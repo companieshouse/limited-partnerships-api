@@ -15,77 +15,77 @@ import java.util.List;
 public class PscDataDto {
 
     @JsonProperty("kind")
-    String kind;
+    private String kind;
 
     @JsonProperty("appointment_id")
-    String appointmentId;
+    private String appointmentId;
 
     @JsonProperty("country")
-    Country country;
+    private Country country;
 
     @JsonProperty("date_effective_from")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate dateEffectiveFrom;
+    private LocalDate dateEffectiveFrom;
 
     @JsonProperty("resignation_date")
-    LocalDate resignationDate;
+    private LocalDate resignationDate;
 
     @JsonProperty("natures_of_control")
-    List<NatureOfControl> naturesOfControl;
+    private List<NatureOfControl> naturesOfControl;
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("legal_personality_statement_checked")
-    Boolean legalPersonalityStatementChecked;
+    private Boolean legalPersonalityStatementChecked;
 
     @JsonProperty("service_address")
-    AddressDto serviceAddress;
+    private AddressDto serviceAddress;
 
     // PERSON
 
     @JsonProperty("forename")
-    String forename;
+    private String forename;
 
     @JsonProperty("former_names")
-    String formerNames;
+    private String formerNames;
 
     @JsonProperty("surname")
-    String surname;
+    private String surname;
 
     @JsonProperty("date_of_birth")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @JsonProperty("nationality1")
-    Nationality nationality1;
+    private Nationality nationality1;
 
     @JsonProperty("nationality2")
-    Nationality nationality2;
+    private Nationality nationality2;
 
     @JsonProperty("usual_residential_address")
-    AddressDto usualResidentialAddress;
+    private AddressDto usualResidentialAddress;
 
     // LEGAL ENTITY
 
     @JsonProperty("governing_law")
-    String governingLaw;
+    private String governingLaw;
 
     @JsonProperty("legal_entity_name")
-    String legalEntityName;
+    private String legalEntityName;
 
     @JsonProperty("legal_entity_register_name")
-    String legalEntityRegisterName;
+    private String legalEntityRegisterName;
 
     @JsonProperty("legal_entity_registration_location")
-    Country legalEntityRegistrationLocation;
+    private Country legalEntityRegistrationLocation;
 
     @JsonProperty("legal_form")
-    String legalForm;
+    private String legalForm;
 
     @JsonProperty("registered_company_number")
-    String registeredCompanyNumber;
+    private String registeredCompanyNumber;
 
     @JsonProperty("principal_office_address")
-    AddressDto principalOfficeAddress;
+    private AddressDto principalOfficeAddress;
 
     public String getKind() {
         return kind;
