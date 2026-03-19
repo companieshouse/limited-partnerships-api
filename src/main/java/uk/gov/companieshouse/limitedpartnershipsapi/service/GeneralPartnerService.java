@@ -29,6 +29,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
 
 @Service
 public class GeneralPartnerService {
@@ -125,9 +127,8 @@ public class GeneralPartnerService {
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
-        copyMetaDataForUpdate(generalPartnerDaoBeforePatch, generalPartnerDaoAfterPatch);
-
-        setAuditDetailsForUpdate(userId, generalPartnerDaoAfterPatch);
+        copyMetaDataForPatch(generalPartnerDaoBeforePatch, generalPartnerDaoAfterPatch);
+        setAuditDetailsForPatch(generalPartnerDaoAfterPatch, userId);
 
         ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
 
@@ -233,19 +234,6 @@ public class GeneralPartnerService {
         repository.deleteById(generalPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
-    }
-
-    private void copyMetaDataForUpdate(GeneralPartnerDao generalPartnerDaoBeforePatch,
-                                       GeneralPartnerDao generalPartnerDaoAfterPatch) {
-        generalPartnerDaoAfterPatch.setId(generalPartnerDaoBeforePatch.getId());
-        generalPartnerDaoAfterPatch.setCreatedAt(generalPartnerDaoBeforePatch.getCreatedAt());
-        generalPartnerDaoAfterPatch.setCreatedBy(generalPartnerDaoBeforePatch.getCreatedBy());
-        generalPartnerDaoAfterPatch.setLinks(generalPartnerDaoBeforePatch.getLinks());
-        generalPartnerDaoAfterPatch.setTransactionId(generalPartnerDaoBeforePatch.getTransactionId());
-    }
-
-    private void setAuditDetailsForUpdate(String userId, GeneralPartnerDao generalPartnerDaoAfterPatch) {
-        generalPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
     private void checkGeneralPartnerIsLinkedToTransaction(Transaction transaction, String generalPartnerId, String kind) throws ResourceNotFoundException {

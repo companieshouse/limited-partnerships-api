@@ -31,6 +31,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
 
 @Service
 public class LimitedPartnerService {
@@ -140,9 +142,8 @@ public class LimitedPartnerService {
         var limitedPartnerDaoAfterPatch = mapper.dtoToDao(limitedPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
-        copyMetaDataForUpdate(limitedPartnerDaoBeforePatch, limitedPartnerDaoAfterPatch);
-
-        setAuditDetailsForUpdate(userId, limitedPartnerDaoAfterPatch);
+        copyMetaDataForPatch(limitedPartnerDaoBeforePatch, limitedPartnerDaoAfterPatch);
+        setAuditDetailsForPatch(limitedPartnerDaoAfterPatch, userId);
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner updated with id: %s", limitedPartnerId));
 
@@ -243,19 +244,6 @@ public class LimitedPartnerService {
         }
 
         return errors;
-    }
-
-    private void copyMetaDataForUpdate(LimitedPartnerDao limitedPartnerDaoBeforePatch,
-                                       LimitedPartnerDao limitedPartnerDaoAfterPatch) {
-        limitedPartnerDaoAfterPatch.setId(limitedPartnerDaoBeforePatch.getId());
-        limitedPartnerDaoAfterPatch.setCreatedAt(limitedPartnerDaoBeforePatch.getCreatedAt());
-        limitedPartnerDaoAfterPatch.setCreatedBy(limitedPartnerDaoBeforePatch.getCreatedBy());
-        limitedPartnerDaoAfterPatch.setLinks(limitedPartnerDaoBeforePatch.getLinks());
-        limitedPartnerDaoAfterPatch.setTransactionId(limitedPartnerDaoBeforePatch.getTransactionId());
-    }
-
-    private void setAuditDetailsForUpdate(String userId, LimitedPartnerDao limitedPartnerDaoAfterPatch) {
-        limitedPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
     private void checkLimitedPartnerIsLinkedToTransaction(Transaction transaction, String limitedPartnerId, String kind) throws ResourceNotFoundException {

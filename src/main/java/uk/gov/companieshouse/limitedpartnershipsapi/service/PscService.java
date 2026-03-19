@@ -19,6 +19,8 @@ import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PSC;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
 
 @Service
 public class PscService {
@@ -71,8 +73,8 @@ public class PscService {
 
         var pscDaoAfterPatch = mapper.dtoToDao(pscDto);
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
-        copyMetaDataForPatch(pscDaoBeforePatch, pscDaoAfterPatch, userId);
-
+        copyMetaDataForPatch(pscDaoBeforePatch, pscDaoAfterPatch);
+        setAuditDetailsForPatch(pscDaoAfterPatch, userId);
         ApiLogger.infoContext(requestId, String.format("Person with significant control updated with id: %s", pscId));
 
         repository.save(pscDaoAfterPatch);
@@ -109,16 +111,5 @@ public class PscService {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches person with significant control id: %s", transactionId, pscId));
         }
-    }
-
-    private void copyMetaDataForPatch(PscDao pscDaoBeforePatch,
-                                      PscDao pscDaoAfterPatch,
-                                      String userId) {
-        pscDaoAfterPatch.setId(pscDaoBeforePatch.getId());
-        pscDaoAfterPatch.setCreatedAt(pscDaoBeforePatch.getCreatedAt());
-        pscDaoAfterPatch.setCreatedBy(pscDaoBeforePatch.getCreatedBy());
-        pscDaoAfterPatch.setLinks(pscDaoBeforePatch.getLinks());
-        pscDaoAfterPatch.setTransactionId(pscDaoBeforePatch.getTransactionId());
-        pscDaoAfterPatch.setUpdatedBy(userId);
     }
 }

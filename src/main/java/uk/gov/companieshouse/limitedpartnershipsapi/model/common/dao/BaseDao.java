@@ -30,6 +30,9 @@ public abstract class BaseDao {
     @Field("links")
     private Map<String, String> links;
 
+    @Field("transaction_id")
+    private String transactionId;
+
     public String getId() {
         return id;
     }
@@ -76,5 +79,13 @@ public abstract class BaseDao {
 
     public void setLinks(Map<String, String> links) {
         this.links = links;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 }
