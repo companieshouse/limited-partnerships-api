@@ -31,7 +31,7 @@ class LimitedPartnershipPatchMapperTest {
     private LimitedPartnershipPatchMapper patchMapper;
 
     @Test
-    void testObjectMapperCanHandleNullFields() throws JsonProcessingException {
+    void testObjectMapperCanHandleNullFields() throws JsonProcessingException { 
         assertEquals("some description", mapper.readValue("{\"partnership_name\":\"some description\"}",
                 LimitedPartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{\"partnership_name\":null}",
