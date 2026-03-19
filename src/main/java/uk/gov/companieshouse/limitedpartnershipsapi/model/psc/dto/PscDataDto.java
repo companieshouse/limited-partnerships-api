@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
@@ -12,7 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
 import java.time.LocalDate;
 import java.util.List;
 
-public class PscDataDto {
+public class PscDataDto implements HasNationality {
 
     @JsonProperty("kind")
     private String kind;
@@ -183,16 +184,16 @@ public class PscDataDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Nationality getNationality1() {
-        return nationality1;
+    public String getNationality1() {
+        return nationality1 != null ? nationality1.getDescription() : null;
     }
 
     public void setNationality1(Nationality nationality1) {
         this.nationality1 = nationality1;
     }
 
-    public Nationality getNationality2() {
-        return nationality2;
+    public String getNationality2() {
+        return nationality2 != null ? nationality2.getDescription() : null;
     }
 
     public void setNationality2(Nationality nationality2) {

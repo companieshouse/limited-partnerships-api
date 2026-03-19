@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
 import java.util.Collections;
 
@@ -66,7 +67,8 @@ public class PscService {
         var pscDto = mapper.daoToDto(pscDaoBeforePatch);
         mapper.update(pscChangesDataDto, pscDto.getData());
 
-        handleSecondNationalityOptionality(pscChangesDataDto, pscDto.getData());
+        NationalityUtils.handleSecondNationalityOptionality(pscChangesDataDto, pscDto.getData());
+
         var pscDaoAfterPatch = mapper.dtoToDao(pscDto);
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
         copyMetaDataForPatch(pscDaoBeforePatch, pscDaoAfterPatch, userId);
@@ -106,14 +108,6 @@ public class PscService {
         if (!transactionService.isTransactionLinkedToResource(transaction, resourceUri, kind)) {
             throw new ResourceNotFoundException(String.format(
                     "Transaction id: %s does not have a resource that matches person with significant control id: %s", transactionId, pscId));
-        }
-    }
-
-    private void handleSecondNationalityOptionality(PscDataDto pscChangesDataDto,
-                                                    PscDataDto pscDataDto) {
-        // The first 'not null' check here ensures that second nationality isn't wiped if, for example, only address data is being updated
-        if (pscChangesDataDto.getNationality1() != null && pscChangesDataDto.getNationality2() == null) {
-            pscDataDto.setNationality2(null);
         }
     }
 

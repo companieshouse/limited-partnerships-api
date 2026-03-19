@@ -18,6 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.GeneralPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -117,7 +118,7 @@ public class GeneralPartnerService {
             generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
         }
 
-        handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
+        NationalityUtils.handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         handleUpdateAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
 
@@ -232,14 +233,6 @@ public class GeneralPartnerService {
         repository.deleteById(generalPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
-    }
-
-    private void handleSecondNationalityOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto,
-                                                    GeneralPartnerDataDto generalPartnerDataDto) {
-        // The first 'not null' check here ensures that second nationality isn't wiped if, for example, only address data is being updated
-        if (generalPartnerChangesDataDto.getNationality1() != null && generalPartnerChangesDataDto.getNationality2() == null) {
-            generalPartnerDataDto.setNationality2(null);
-        }
     }
 
     private void copyMetaDataForUpdate(GeneralPartnerDao generalPartnerDaoBeforePatch,

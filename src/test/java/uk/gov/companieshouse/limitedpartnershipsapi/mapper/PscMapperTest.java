@@ -115,8 +115,8 @@ class PscMapperTest {
                 ENGLAND,
                 LEGAL_FORM,
                 LEGAL_PERSONALITY_STATEMENT_CHECKED,
-                Nationality.BRITISH,
-                Nationality.FRENCH,
+                Nationality.BRITISH.getDescription(),
+                Nationality.FRENCH.getDescription(),
                 REGISTERED_COMPANY_NUMBER,
                 RESIGNATION_DATE,
                 SURNAME

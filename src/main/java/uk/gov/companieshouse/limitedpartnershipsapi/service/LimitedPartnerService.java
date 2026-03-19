@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,7 +133,7 @@ public class LimitedPartnerService {
             limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         }
 
-        handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+        NationalityUtils.handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         handleUpdateAddressRequiredOptionality(kind, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
@@ -242,14 +243,6 @@ public class LimitedPartnerService {
         }
 
         return errors;
-    }
-
-    private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,
-                                                    LimitedPartnerDataDto limitedPartnerDataDto) {
-        // The first 'not null' check here ensures that second nationality isn't wiped if, for example, only address data is being updated
-        if (limitedPartnerChangesDataDto.getNationality1() != null && limitedPartnerChangesDataDto.getNationality2() == null) {
-            limitedPartnerDataDto.setNationality2(null);
-        }
     }
 
     private void copyMetaDataForUpdate(LimitedPartnerDao limitedPartnerDaoBeforePatch,
