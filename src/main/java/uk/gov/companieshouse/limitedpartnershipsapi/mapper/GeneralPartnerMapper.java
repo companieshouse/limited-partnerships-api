@@ -12,8 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 
 @Component
-@Mapper(uses = JsonNullableMapper.class,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring")
 public interface GeneralPartnerMapper {
     GeneralPartnerDto daoToDto(GeneralPartnerDao dao);

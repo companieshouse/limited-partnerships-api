@@ -12,8 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 
 @Component
-@Mapper(uses = JsonNullableMapper.class,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring")
 public interface LimitedPartnerMapper {
 

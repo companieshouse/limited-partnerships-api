@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
@@ -13,9 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import java.util.List;
 
 @Component
-@Mapper(uses = JsonNullableMapper.class,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        componentModel = "spring")
+@Mapper(componentModel = "spring")
 public interface PscMapper {
     PscDto daoToDto(PscDao dao);
 

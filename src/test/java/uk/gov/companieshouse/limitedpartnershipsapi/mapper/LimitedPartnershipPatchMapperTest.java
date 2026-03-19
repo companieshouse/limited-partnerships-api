@@ -16,10 +16,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.Limite
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-/**
- * In many of these tests, it's only necessary to test with one of the JsonNullable fields in the Patch class changing
- * as the behaviour should be the same for all of them.
- */
 @SpringBootTest
 class LimitedPartnershipPatchMapperTest {
 
@@ -35,7 +31,7 @@ class LimitedPartnershipPatchMapperTest {
     private LimitedPartnershipPatchMapper patchMapper;
 
     @Test
-    void testObjectMapperCanHandleJsonNullableFields() throws JsonProcessingException {
+    void testObjectMapperCanHandleNullFields() throws JsonProcessingException {
         assertEquals("some description", mapper.readValue("{\"partnership_name\":\"some description\"}",
                 LimitedPartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{\"partnership_name\":null}",
