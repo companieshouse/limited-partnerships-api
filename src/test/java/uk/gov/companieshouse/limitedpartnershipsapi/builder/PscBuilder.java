@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 
+import com.google.common.collect.Lists;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
@@ -11,7 +12,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
@@ -50,16 +50,16 @@ public class PscBuilder {
     public static final LocalDate DATE_EFFECTIVE_FROM = LocalDate.of(2026, 1, 20);
     public static final LocalDate DATE_OF_BIRTH = LocalDate.of(1999, 12, 31);
     public static final LocalDate RESIGNATION_DATE = LocalDate.of(2025, 12, 11);
-    public static final List<String> NATURES_OF_CONTROL_LIST_DESCRIPTIONS = new ArrayList<>(List.of(
+    public static final List<String> NATURES_OF_CONTROL_LIST_DESCRIPTIONS = Lists.newArrayList(
             NatureOfControl.RLE.getDescription(),
             NatureOfControl.INDIVIDUAL_FIRM_CONTROL.getDescription(),
             NatureOfControl.ORP_TRUST_CONTROL.getDescription()
-    ));
-    public static final List<NatureOfControl> NATURES_OF_CONTROL_LIST = new ArrayList<>(List.of(
+    );
+    public static final List<NatureOfControl> NATURES_OF_CONTROL_LIST = Lists.newArrayList(
             NatureOfControl.RLE,
             NatureOfControl.INDIVIDUAL_FIRM_CONTROL,
             NatureOfControl.ORP_TRUST_CONTROL
-    ));
+    );
 
 
     public static class PscDaoBuilder {
