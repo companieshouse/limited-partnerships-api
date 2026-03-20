@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,6 +62,22 @@ class PscServiceUpdateTest {
     private ArgumentCaptor<PscDao> pscDaoArgumentCaptor;
 
 
+    @BeforeEach
+    void setUp() {
+        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
+    }
+
+    private void assertAddressEquals(AddressDto expected, AddressDao actual) {
+        assertThat(actual).isNotNull();
+        assertThat(actual.getAddressLine1()).isEqualTo(expected.getAddressLine1());
+        assertThat(actual.getAddressLine2()).isEqualTo(expected.getAddressLine2());
+        assertThat(actual.getCountry()).isEqualTo(expected.getCountry());
+        assertThat(actual.getLocality()).isEqualTo(expected.getLocality());
+        assertThat(actual.getPostalCode()).isEqualTo(expected.getPostalCode());
+        assertThat(actual.getPremises()).isEqualTo(expected.getPremises());
+        assertThat(actual.getRegion()).isEqualTo(expected.getRegion());
+    }
+
     @Test
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException {
         PscDao pscDao = new PscBuilder.PscDaoBuilder()
@@ -68,8 +86,6 @@ class PscServiceUpdateTest {
                 .build();
 
         PscDataDto pscDataDto = new PscBuilder.PscDtoBuilder().legalEntityPscDto().build().getData();
-
-        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
 
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -89,13 +105,7 @@ class PscServiceUpdateTest {
         AddressDao savedPrincipalOfficeAddress = savedPscDao.getData().getPrincipalOfficeAddress();
 
         assertEquals(pscDataDto.getForename(), savedPscDao.getData().getForename());
-        assertEquals(principalOfficeAddress.getAddressLine1(), savedPrincipalOfficeAddress.getAddressLine1());
-        assertEquals(principalOfficeAddress.getAddressLine2(), savedPrincipalOfficeAddress.getAddressLine2());
-        assertEquals(principalOfficeAddress.getCountry(), savedPrincipalOfficeAddress.getCountry());
-        assertEquals(principalOfficeAddress.getLocality(), savedPrincipalOfficeAddress.getLocality());
-        assertEquals(principalOfficeAddress.getPostalCode(), savedPrincipalOfficeAddress.getPostalCode());
-        assertEquals(principalOfficeAddress.getPremises(), savedPrincipalOfficeAddress.getPremises());
-        assertEquals(principalOfficeAddress.getRegion(), savedPrincipalOfficeAddress.getRegion());
+        assertAddressEquals(principalOfficeAddress, savedPrincipalOfficeAddress);
     }
 
     @Test
@@ -112,8 +122,6 @@ class PscServiceUpdateTest {
                 .withNationality2(null)
                 .build()
                 .getData();
-
-        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
 
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -133,16 +141,8 @@ class PscServiceUpdateTest {
         AddressDao savedUsualResidentialAddress = savedPscDao.getData().getUsualResidentialAddress();
 
         assertEquals(pscDataDto.getForename(), savedPscDao.getData().getForename());
-        assertEquals(patchUsualResidentialAddress.getAddressLine1(), savedUsualResidentialAddress.getAddressLine1());
-        assertEquals(patchUsualResidentialAddress.getAddressLine2(), savedUsualResidentialAddress.getAddressLine2());
-        assertEquals(patchUsualResidentialAddress.getCountry(), savedUsualResidentialAddress.getCountry());
-        assertEquals(patchUsualResidentialAddress.getLocality(), savedUsualResidentialAddress.getLocality());
-        assertEquals(patchUsualResidentialAddress.getPostalCode(), savedUsualResidentialAddress.getPostalCode());
-        assertEquals(patchUsualResidentialAddress.getPremises(), savedUsualResidentialAddress.getPremises());
-        assertEquals(patchUsualResidentialAddress.getRegion(), savedUsualResidentialAddress.getRegion());
-
-        // Ensure that second nationality isn't cleared if only address data is updated
-        assertEquals(Nationality.GREENLANDIC.getDescription(), savedPscDao.getData().getNationality2());
+        assertAddressEquals(patchUsualResidentialAddress, savedUsualResidentialAddress);
+        assertThat(savedPscDao.getData().getNationality2()).isEqualTo(Nationality.GREENLANDIC.getDescription());
     }
 
     @Test
@@ -159,8 +159,6 @@ class PscServiceUpdateTest {
                 .withNationality2(null)
                 .build()
                 .getData();
-
-        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
 
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -180,16 +178,8 @@ class PscServiceUpdateTest {
         AddressDao savedServiceAddress = savedPscDao.getData().getServiceAddress();
 
         assertEquals(pscDataDto.getForename(), savedPscDao.getData().getForename());
-        assertEquals(patchServiceAddress.getAddressLine1(), savedServiceAddress.getAddressLine1());
-        assertEquals(patchServiceAddress.getAddressLine2(), savedServiceAddress.getAddressLine2());
-        assertEquals(patchServiceAddress.getCountry(), savedServiceAddress.getCountry());
-        assertEquals(patchServiceAddress.getLocality(), savedServiceAddress.getLocality());
-        assertEquals(patchServiceAddress.getPostalCode(), savedServiceAddress.getPostalCode());
-        assertEquals(patchServiceAddress.getPremises(), savedServiceAddress.getPremises());
-        assertEquals(patchServiceAddress.getRegion(), savedServiceAddress.getRegion());
-
-        // Ensure that second nationality isn't cleared if only address data is updated
-        assertEquals(Nationality.GREENLANDIC.getDescription(), savedPscDao.getData().getNationality2());
+        assertAddressEquals(patchServiceAddress, savedServiceAddress);
+        assertThat(savedPscDao.getData().getNationality2()).isEqualTo(Nationality.GREENLANDIC.getDescription());
     }
 
     @Test
@@ -200,8 +190,6 @@ class PscServiceUpdateTest {
         pscDataDto.setNationality1(Nationality.AMERICAN);
         pscDataDto.setNationality2(null);
 
-        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
-
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
@@ -211,8 +199,8 @@ class PscServiceUpdateTest {
 
         PscDao savedPscDao = pscDaoArgumentCaptor.getValue();
 
-        assertEquals(Nationality.AMERICAN.getDescription(), savedPscDao.getData().getNationality1());
-        assertNull(savedPscDao.getData().getNationality2());
+        assertThat(savedPscDao.getData().getNationality1()).isEqualTo(Nationality.AMERICAN.getDescription());
+        assertThat(savedPscDao.getData().getNationality2()).isNull();
     }
 
     @Test
