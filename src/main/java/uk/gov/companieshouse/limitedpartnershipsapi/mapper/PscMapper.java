@@ -13,8 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import java.util.List;
 
 @Component
-@Mapper(uses = JsonNullableMapper.class,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring")
 public interface PscMapper {
     PscDto daoToDto(PscDao dao);
