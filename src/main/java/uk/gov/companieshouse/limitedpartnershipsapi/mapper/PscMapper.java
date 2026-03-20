@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
+import com.google.common.collect.Lists;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -12,7 +13,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -57,7 +57,7 @@ public interface PscMapper {
 
     // Java
     default List<String> mapNatureOfControlListToStringList(List<NatureOfControl> natures) {
-        return natures == null ? null : new ArrayList<>(
+        return natures == null ? null : Lists.newArrayList(
                 natures.stream()
                         .map(this::mapNatureOfControlToString)
                         .toList()
@@ -65,7 +65,7 @@ public interface PscMapper {
     }
 
     default List<NatureOfControl> mapStringListToNatureOfControlList(List<String> natures) {
-        return natures == null ? null : new ArrayList<>(
+        return natures == null ? null : Lists.newArrayList(
                 natures.stream()
                         .map(this::mapNatureOfControlToEnum)
                         .toList()

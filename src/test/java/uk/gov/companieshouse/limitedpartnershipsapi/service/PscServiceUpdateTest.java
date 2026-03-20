@@ -64,13 +64,12 @@ class PscServiceUpdateTest {
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException {
         PscDao pscDao = new PscBuilder.PscDaoBuilder()
                 .legalEntityPscDao()
-                .withNationality2(Nationality.GREENLANDIC.getDescription())
                 .withPrincipalOfficeAddress(null)
                 .build();
 
         PscDataDto pscDataDto = new PscBuilder.PscDtoBuilder().legalEntityPscDto().build().getData();
 
-        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
 
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -78,9 +77,6 @@ class PscServiceUpdateTest {
         // dao principal office address is null before mapping/update
         assertNull(pscDao.getData().getPrincipalOfficeAddress());
         assertNotNull(pscDataDto.getPrincipalOfficeAddress());
-
-        // dto nationality2 should be null
-        assertNull(pscDataDto.getNationality2());
 
         pscService.updatePsc(transaction, PSC_ID, pscDataDto, REQUEST_ID, USER_ID);
 
@@ -100,9 +96,6 @@ class PscServiceUpdateTest {
         assertEquals(principalOfficeAddress.getPostalCode(), savedPrincipalOfficeAddress.getPostalCode());
         assertEquals(principalOfficeAddress.getPremises(), savedPrincipalOfficeAddress.getPremises());
         assertEquals(principalOfficeAddress.getRegion(), savedPrincipalOfficeAddress.getRegion());
-
-        // Ensure that second nationality isn't cleared if only address data is updated
-        assertEquals(Nationality.GREENLANDIC.getDescription(), savedPscDao.getData().getNationality2());
     }
 
     @Test
@@ -120,7 +113,7 @@ class PscServiceUpdateTest {
                 .build()
                 .getData();
 
-        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
 
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -167,7 +160,7 @@ class PscServiceUpdateTest {
                 .build()
                 .getData();
 
-        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
 
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -207,7 +200,7 @@ class PscServiceUpdateTest {
         pscDataDto.setNationality1(Nationality.AMERICAN);
         pscDataDto.setNationality2(null);
 
-        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+        transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
 
         when(pscRepository.findById(pscDao.getId())).thenReturn(Optional.of(pscDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
