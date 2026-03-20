@@ -211,6 +211,7 @@ class PscServiceUpdateTest {
         pscDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
         when(pscRepository.findById(PSC_ID)).thenReturn(Optional.of(pscDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(false);
 
         assertThatThrownBy(() -> pscService.updatePsc(transaction, PSC_ID, pscDataDto, REQUEST_ID, USER_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
