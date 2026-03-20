@@ -14,12 +14,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PscMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,12 +38,12 @@ class PscServiceTest {
 
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
-    private static final String SUBMISSION_ID = PscBuilder.ID;
+    private static final String PSC_ID = PscBuilder.ID;
 
-    Transaction transaction = new TransactionBuilder().withKindAndUri(
+    private static final Transaction TRANSACTION = new TransactionBuilder().withKindAndUri(
                     FILING_KIND_PSC,
                     URL_GET_PSC,
-                    SUBMISSION_ID
+                    PSC_ID
             )
             .build();
 
@@ -57,70 +60,175 @@ class PscServiceTest {
     private TransactionService transactionService;
 
     @Captor
-    private ArgumentCaptor<PscDao> submissionCaptor;
+    private ArgumentCaptor<PscDao> pscDaoArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<PscDto> pscDtoCaptor;
 
     @Test
     void testGetPscSuccess() throws ServiceException {
-        PscDao dao = PscBuilder.PscPersonDao();
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscPersonDao().build();
 
-        when(repository.findById(SUBMISSION_ID))
+        when(repository.findById(PSC_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(mapper.daoToDto(dao)).thenReturn(PscBuilder.personPscDto());
+        when(mapper.daoToDto(dao)).thenReturn(new PscBuilder.PscDtoBuilder().personPscDto().build());
         when(transactionService.isTransactionLinkedToResource(any(), anyString(), anyString()))
                 .thenReturn(true);
 
-        var dto = pscService.getPsc(transaction, SUBMISSION_ID);
+        var dto = pscService.getPsc(TRANSACTION, PSC_ID);
         assertEquals("John", dto.getData().getForename());
         assertEquals("Smith", dto.getData().getSurname());
     }
 
     @Test
     void testGetPscNotFound() {
-        when(repository.findById(SUBMISSION_ID))
+        when(repository.findById(PSC_ID))
                 .thenReturn(Optional.empty());
 
-        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(transaction, SUBMISSION_ID));
-        assertEquals("Person with significant control resource with id " + SUBMISSION_ID + " not found", resourceNotFoundException.getMessage());
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(TRANSACTION, PSC_ID));
+        assertEquals("Person with significant control resource with id " + PSC_ID + " not found", resourceNotFoundException.getMessage());
     }
 
     @Test
-    void testTransactionLinkedToPscFails() {
-        PscDao dao = PscBuilder.PscPersonDao();
+    void testGetPscTransactionLinkedToPscFails() {
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscPersonDao().build();
 
-        when(repository.findById(SUBMISSION_ID))
+        when(repository.findById(PSC_ID))
                 .thenReturn(Optional.of(dao));
 
-        when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), any(String.class)))
+        when(transactionService.isTransactionLinkedToResource(eq(TRANSACTION), any(String.class), any(String.class)))
                 .thenReturn(false);
-        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(transaction, SUBMISSION_ID));
-        assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", transaction.getId(), SUBMISSION_ID), resourceNotFoundException.getMessage());
+        ResourceNotFoundException resourceNotFoundException = assertThrows(ResourceNotFoundException.class, () -> pscService.getPsc(TRANSACTION, PSC_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", TRANSACTION.getId(), PSC_ID), resourceNotFoundException.getMessage());
     }
 
     @Test
     void testCreatePscReturnsSuccess() throws ServiceException {
-        var submissionUri = String.format(URL_GET_PSC, transaction.getId(), SUBMISSION_ID);
-        PscDto dto =  PscBuilder.getPscDto();
-        PscDao dao = PscBuilder.getPscDao();
+        var submissionUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
+        PscDto dto =  new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscDao().build();
 
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
 
-        String submissionId = pscService.createPsc(transaction, dto, REQUEST_ID, USER_ID);
+        String submissionId = pscService.createPsc(TRANSACTION, dto, REQUEST_ID, USER_ID);
 
         verify(mapper, times(1)).dtoToDao(dto);
         verify(repository, times(1)).insert(dao);
-        verify(repository, times(1)).save(submissionCaptor.capture());
-        verify(transactionService, times(1)).updateTransactionWithLinksForResource(REQUEST_ID, transaction, submissionUri, dao.getData().getKind(), null);
+        verify(repository, times(1)).save(pscDaoArgumentCaptor.capture());
+        verify(transactionService, times(1)).updateTransactionWithLinksForResource(REQUEST_ID, TRANSACTION, submissionUri, dao.getData().getKind(), null);
 
-        PscDao sentSubmission = submissionCaptor.getValue();
+        PscDao sentSubmission = pscDaoArgumentCaptor.getValue();
         assertEquals(USER_ID, sentSubmission.getCreatedBy());
         assertEquals(FILING_KIND_PSC, sentSubmission.getData().getKind());
-        assertEquals(SUBMISSION_ID, submissionId);
+        assertEquals(PSC_ID, submissionId);
 
         // Assert self link
-        String expectedUri = String.format(URL_GET_PSC, transaction.getId(), SUBMISSION_ID);
+        String expectedUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
         assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
 
+    @Test
+    void testCreatePscWithNullKindDefaultsToPsc() throws ServiceException {
+        PscDto dto =  new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDao dao = new PscBuilder.PscDaoBuilder().pscDao().withKind(null).build();
+
+        when(mapper.dtoToDao(dto)).thenReturn(dao);
+        when(repository.insert(dao)).thenReturn(dao);
+
+        pscService.createPsc(TRANSACTION, dto, REQUEST_ID, USER_ID);
+
+        verify(mapper, times(1)).dtoToDao(dto);
+        verify(repository, times(1)).insert(dao);
+        verify(repository, times(1)).save(pscDaoArgumentCaptor.capture());
+
+        PscDao sentSubmission = pscDaoArgumentCaptor.getValue();
+        assertEquals(FILING_KIND_PSC, sentSubmission.getData().getKind());
+    }
+
+    @Test
+    void testUpdatePscPersistsUpdatedFieldsSuccessfully() throws ServiceException {
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
+
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        PscDto existingDto = new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDataDto changesDataDto = new PscBuilder.PscDtoBuilder().pscDtoForPatch().build().getData();
+        PscDao afterPatchDao = new PscDao();
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(true);
+        when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
+        when(mapper.dtoToDao(existingDto)).thenReturn(afterPatchDao);
+
+        assertNull(afterPatchDao.getId());
+        assertNull(afterPatchDao.getCreatedAt());
+        assertNull(afterPatchDao.getCreatedBy());
+        assertNull(afterPatchDao.getLinks());
+        assertNull(afterPatchDao.getTransactionId());
+
+        pscService.updatePsc(TRANSACTION, PSC_ID, changesDataDto, REQUEST_ID, USER_ID);
+
+        verify(repository, times(1)).findById(PSC_ID);
+        verify(mapper, times(1)).daoToDto(existingDao);
+        verify(mapper, times(1)).update(changesDataDto, existingDto.getData());
+        verify(repository, times(1)).save(pscDaoArgumentCaptor.capture());
+
+        PscDao savedDao = pscDaoArgumentCaptor.getValue();
+        assertEquals(existingDao.getId(), savedDao.getId());
+        assertEquals(existingDao.getCreatedAt(), savedDao.getCreatedAt());
+        assertEquals(existingDao.getCreatedBy(), savedDao.getCreatedBy());
+        assertEquals(existingDao.getLinks(), savedDao.getLinks());
+        assertEquals(existingDao.getTransactionId(), savedDao.getTransactionId());
+        assertEquals(USER_ID, savedDao.getUpdatedBy());
+    }
+
+    @Test
+    void testUpdatePscRemovesSecondNationalityWhenPatchedToNull() throws ResourceNotFoundException {
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
+
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        PscDto existingDto = new PscBuilder.PscDtoBuilder().pscDto().build();
+        PscDataDto changesDataDto = new PscBuilder.PscDtoBuilder().pscDtoForPatch().build().getData();
+        PscDao afterPatchDao = new PscDao();
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(true);
+        when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
+        when(mapper.dtoToDao(existingDto)).thenReturn(afterPatchDao);
+
+        assertNotNull(existingDto.getData().getNationality2());
+
+        pscService.updatePsc(TRANSACTION, PSC_ID, changesDataDto, REQUEST_ID, USER_ID);
+
+        verify(mapper, times(1)).update(changesDataDto, existingDto.getData());
+        verify(mapper, times(1)).dtoToDao(pscDtoCaptor.capture());
+
+        var capturedDto = pscDtoCaptor.getValue();
+        assertNull(capturedDto.getData().getNationality2());
+    }
+
+    @Test
+    void testUpdatePscNotFound() {
+        when(repository.findById(PSC_ID)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(
+                ResourceNotFoundException.class,
+                () -> pscService.updatePsc(TRANSACTION, PSC_ID, new PscDataDto(), REQUEST_ID, USER_ID));
+        assertEquals("Person with significant control with id " + PSC_ID + " not found", resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testUpdatePscTransactionNotLinked() {
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(false);
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(
+                ResourceNotFoundException.class,
+                () -> pscService.updatePsc(TRANSACTION, PSC_ID, new PscDataDto(), REQUEST_ID, USER_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", TRANSACTION.getId(), PSC_ID), resourceNotFoundException.getMessage());
     }
 }

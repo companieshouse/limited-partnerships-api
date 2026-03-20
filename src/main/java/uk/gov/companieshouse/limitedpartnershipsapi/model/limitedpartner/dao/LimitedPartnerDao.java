@@ -10,9 +10,6 @@ public class LimitedPartnerDao extends BaseDao {
     @Field("data")
     private LimitedPartnerDataDao data;
 
-    @Field("transaction_id")
-    private String transactionId;
-
     public LimitedPartnerDataDao getData() {
         if (data == null) {
             data = new LimitedPartnerDataDao();
@@ -22,13 +19,5 @@ public class LimitedPartnerDao extends BaseDao {
 
     public void setData(LimitedPartnerDataDao data) {
         this.data = data;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
     }
 }

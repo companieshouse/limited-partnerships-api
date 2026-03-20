@@ -10,22 +10,11 @@ public class GeneralPartnerDao extends BaseDao {
     @Field("data")
     private GeneralPartnerDataDao data;
 
-    @Field("transaction_id")
-    private String transactionId;
-
     public GeneralPartnerDataDao getData() {
         return data;
     }
 
     public void setData(GeneralPartnerDataDao data) {
         this.data = data;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
     }
 }

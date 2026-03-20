@@ -7,9 +7,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PscMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PscRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
 import java.util.Collections;
 
@@ -17,6 +19,8 @@ import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PSC;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
 
 @Service
 public class PscService {
@@ -55,6 +59,25 @@ public class PscService {
         transactionService.updateTransactionWithLinksForResource(requestId, transaction, resourceUri, kind, null);
 
         return insertedResource.getId();
+    }
+
+    public void updatePsc(Transaction transaction, String pscId, PscDataDto pscChangesDataDto, String requestId, String userId) throws ResourceNotFoundException {
+        var pscDaoBeforePatch = repository.findById(pscId).orElseThrow(() -> new ResourceNotFoundException(String.format("Person with significant control with id %s not found", pscId)));
+        String kind = requireNonNullElse(pscDaoBeforePatch.getData().getKind(), FILING_KIND_PSC);
+        checkPscIsLinkedToTransaction(transaction, pscId, kind);
+
+        var pscDto = mapper.daoToDto(pscDaoBeforePatch);
+        mapper.update(pscChangesDataDto, pscDto.getData());
+
+        NationalityUtils.handleSecondNationalityOptionality(pscChangesDataDto, pscDto.getData());
+
+        var pscDaoAfterPatch = mapper.dtoToDao(pscDto);
+        // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
+        copyMetaDataForPatch(pscDaoBeforePatch, pscDaoAfterPatch);
+        setAuditDetailsForPatch(pscDaoAfterPatch, userId);
+        ApiLogger.infoContext(requestId, String.format("Person with significant control updated with id: %s", pscId));
+
+        repository.save(pscDaoAfterPatch);
     }
 
     private PscDao insertDaoWithMetadata(

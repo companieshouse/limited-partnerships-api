@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
@@ -12,80 +13,80 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
 import java.time.LocalDate;
 import java.util.List;
 
-public class PscDataDto {
+public class PscDataDto implements HasNationality {
 
     @JsonProperty("kind")
-    String kind;
+    private String kind;
 
     @JsonProperty("appointment_id")
-    String appointmentId;
+    private String appointmentId;
 
     @JsonProperty("country")
-    Country country;
+    private Country country;
 
     @JsonProperty("date_effective_from")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate dateEffectiveFrom;
+    private LocalDate dateEffectiveFrom;
 
     @JsonProperty("resignation_date")
-    LocalDate resignationDate;
+    private LocalDate resignationDate;
 
     @JsonProperty("natures_of_control")
-    List<NatureOfControl> naturesOfControl;
+    private List<NatureOfControl> naturesOfControl;
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("legal_personality_statement_checked")
-    Boolean legalPersonalityStatementChecked;
+    private Boolean legalPersonalityStatementChecked;
 
     @JsonProperty("service_address")
-    AddressDto serviceAddress;
+    private AddressDto serviceAddress;
 
     // PERSON
 
     @JsonProperty("forename")
-    String forename;
+    private String forename;
 
     @JsonProperty("former_names")
-    String formerNames;
+    private String formerNames;
 
     @JsonProperty("surname")
-    String surname;
+    private String surname;
 
     @JsonProperty("date_of_birth")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    LocalDate dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @JsonProperty("nationality1")
-    Nationality nationality1;
+    private Nationality nationality1;
 
     @JsonProperty("nationality2")
-    Nationality nationality2;
+    private Nationality nationality2;
 
     @JsonProperty("usual_residential_address")
-    AddressDto usualResidentialAddress;
+    private AddressDto usualResidentialAddress;
 
     // LEGAL ENTITY
 
     @JsonProperty("governing_law")
-    String governingLaw;
+    private String governingLaw;
 
     @JsonProperty("legal_entity_name")
-    String legalEntityName;
+    private String legalEntityName;
 
     @JsonProperty("legal_entity_register_name")
-    String legalEntityRegisterName;
+    private String legalEntityRegisterName;
 
     @JsonProperty("legal_entity_registration_location")
-    Country legalEntityRegistrationLocation;
+    private Country legalEntityRegistrationLocation;
 
     @JsonProperty("legal_form")
-    String legalForm;
+    private String legalForm;
 
     @JsonProperty("registered_company_number")
-    String registeredCompanyNumber;
+    private String registeredCompanyNumber;
 
     @JsonProperty("principal_office_address")
-    AddressDto principalOfficeAddress;
+    private AddressDto principalOfficeAddress;
 
     public String getKind() {
         return kind;
@@ -183,16 +184,16 @@ public class PscDataDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Nationality getNationality1() {
-        return nationality1;
+    public String getNationality1() {
+        return nationality1 != null ? nationality1.getDescription() : null;
     }
 
     public void setNationality1(Nationality nationality1) {
         this.nationality1 = nationality1;
     }
 
-    public Nationality getNationality2() {
-        return nationality2;
+    public String getNationality2() {
+        return nationality2 != null ? nationality2.getDescription() : null;
     }
 
     public void setNationality2(Nationality nationality2) {

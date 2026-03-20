@@ -10,8 +10,6 @@ public class LimitedPartnershipIncorporationDao extends BaseDao {
     @Field("data")
     private IncorporationDataDao data;
 
-
-
     public IncorporationDataDao getData() {
         if (data == null) {
             data = new IncorporationDataDao();

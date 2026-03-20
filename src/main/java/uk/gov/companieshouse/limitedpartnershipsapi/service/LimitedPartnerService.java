@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
 
 @Service
 public class LimitedPartnerService {
@@ -132,16 +135,15 @@ public class LimitedPartnerService {
             limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         }
 
-        handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+        NationalityUtils.handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         handleUpdateAddressRequiredOptionality(kind, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         var limitedPartnerDaoAfterPatch = mapper.dtoToDao(limitedPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
-        copyMetaDataForUpdate(limitedPartnerDaoBeforePatch, limitedPartnerDaoAfterPatch);
-
-        setAuditDetailsForUpdate(userId, limitedPartnerDaoAfterPatch);
+        copyMetaDataForPatch(limitedPartnerDaoBeforePatch, limitedPartnerDaoAfterPatch);
+        setAuditDetailsForPatch(limitedPartnerDaoAfterPatch, userId);
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner updated with id: %s", limitedPartnerId));
 
@@ -242,27 +244,6 @@ public class LimitedPartnerService {
         }
 
         return errors;
-    }
-
-    private void handleSecondNationalityOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto,
-                                                    LimitedPartnerDataDto limitedPartnerDataDto) {
-        // The first 'not null' check here ensures that second nationality isn't wiped if, for example, only address data is being updated
-        if (limitedPartnerChangesDataDto.getNationality1() != null && limitedPartnerChangesDataDto.getNationality2() == null) {
-            limitedPartnerDataDto.setNationality2(null);
-        }
-    }
-
-    private void copyMetaDataForUpdate(LimitedPartnerDao limitedPartnerDaoBeforePatch,
-                                       LimitedPartnerDao limitedPartnerDaoAfterPatch) {
-        limitedPartnerDaoAfterPatch.setId(limitedPartnerDaoBeforePatch.getId());
-        limitedPartnerDaoAfterPatch.setCreatedAt(limitedPartnerDaoBeforePatch.getCreatedAt());
-        limitedPartnerDaoAfterPatch.setCreatedBy(limitedPartnerDaoBeforePatch.getCreatedBy());
-        limitedPartnerDaoAfterPatch.setLinks(limitedPartnerDaoBeforePatch.getLinks());
-        limitedPartnerDaoAfterPatch.setTransactionId(limitedPartnerDaoBeforePatch.getTransactionId());
-    }
-
-    private void setAuditDetailsForUpdate(String userId, LimitedPartnerDao limitedPartnerDaoAfterPatch) {
-        limitedPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
     private void checkLimitedPartnerIsLinkedToTransaction(Transaction transaction, String limitedPartnerId, String kind) throws ResourceNotFoundException {

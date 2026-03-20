@@ -18,6 +18,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.GeneralPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +29,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
 
 @Service
 public class GeneralPartnerService {
@@ -117,16 +120,15 @@ public class GeneralPartnerService {
             generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
         }
 
-        handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
+        NationalityUtils.handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         handleUpdateAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         var generalPartnerDaoAfterPatch = mapper.dtoToDao(generalPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
-        copyMetaDataForUpdate(generalPartnerDaoBeforePatch, generalPartnerDaoAfterPatch);
-
-        setAuditDetailsForUpdate(userId, generalPartnerDaoAfterPatch);
+        copyMetaDataForPatch(generalPartnerDaoBeforePatch, generalPartnerDaoAfterPatch);
+        setAuditDetailsForPatch(generalPartnerDaoAfterPatch, userId);
 
         ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
 
@@ -232,27 +234,6 @@ public class GeneralPartnerService {
         repository.deleteById(generalPartnerDao.getId());
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
-    }
-
-    private void handleSecondNationalityOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto,
-                                                    GeneralPartnerDataDto generalPartnerDataDto) {
-        // The first 'not null' check here ensures that second nationality isn't wiped if, for example, only address data is being updated
-        if (generalPartnerChangesDataDto.getNationality1() != null && generalPartnerChangesDataDto.getNationality2() == null) {
-            generalPartnerDataDto.setNationality2(null);
-        }
-    }
-
-    private void copyMetaDataForUpdate(GeneralPartnerDao generalPartnerDaoBeforePatch,
-                                       GeneralPartnerDao generalPartnerDaoAfterPatch) {
-        generalPartnerDaoAfterPatch.setId(generalPartnerDaoBeforePatch.getId());
-        generalPartnerDaoAfterPatch.setCreatedAt(generalPartnerDaoBeforePatch.getCreatedAt());
-        generalPartnerDaoAfterPatch.setCreatedBy(generalPartnerDaoBeforePatch.getCreatedBy());
-        generalPartnerDaoAfterPatch.setLinks(generalPartnerDaoBeforePatch.getLinks());
-        generalPartnerDaoAfterPatch.setTransactionId(generalPartnerDaoBeforePatch.getTransactionId());
-    }
-
-    private void setAuditDetailsForUpdate(String userId, GeneralPartnerDao generalPartnerDaoAfterPatch) {
-        generalPartnerDaoAfterPatch.setUpdatedBy(userId);
     }
 
     private void checkGeneralPartnerIsLinkedToTransaction(Transaction transaction, String generalPartnerId, String kind) throws ResourceNotFoundException {
