@@ -67,7 +67,7 @@ class PscServiceTest {
 
     @Test
     void testGetPscSuccess() throws ServiceException {
-        PscDao dao = new PscBuilder.PscDaoBuilder().pscPersonDao().build();
+        PscDao dao = new PscBuilder.PscDaoBuilder().personPscDao().build();
 
         when(repository.findById(PSC_ID))
                 .thenReturn(Optional.of(dao));
@@ -92,7 +92,7 @@ class PscServiceTest {
 
     @Test
     void testGetPscTransactionLinkedToPscFails() {
-        PscDao dao = new PscBuilder.PscDaoBuilder().pscPersonDao().build();
+        PscDao dao = new PscBuilder.PscDaoBuilder().personPscDao().build();
 
         when(repository.findById(PSC_ID))
                 .thenReturn(Optional.of(dao));

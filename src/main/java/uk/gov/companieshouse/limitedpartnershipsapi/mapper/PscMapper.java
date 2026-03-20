@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
+import com.google.common.collect.Lists;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -56,15 +57,19 @@ public interface PscMapper {
 
     // Java
     default List<String> mapNatureOfControlListToStringList(List<NatureOfControl> natures) {
-        return natures == null ? null : natures.stream()
-                .map(this::mapNatureOfControlToString)
-                .toList();
+        return natures == null ? null : Lists.newArrayList(
+                natures.stream()
+                        .map(this::mapNatureOfControlToString)
+                        .toList()
+        );
     }
 
     default List<NatureOfControl> mapStringListToNatureOfControlList(List<String> natures) {
-        return natures == null ? null : natures.stream()
-                .map(this::mapNatureOfControlToEnum)
-                .toList();
+        return natures == null ? null : Lists.newArrayList(
+                natures.stream()
+                        .map(this::mapNatureOfControlToEnum)
+                        .toList()
+        );
     }
 
 }
