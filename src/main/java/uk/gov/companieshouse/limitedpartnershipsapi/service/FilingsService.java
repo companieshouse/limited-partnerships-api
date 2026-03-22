@@ -336,7 +336,6 @@ public class FilingsService {
 
 //        // Use ignore case comparison for legal entity registration location as the web page converts it to title case
 //        // TODO java sdk is not including the identification.register_location field
-//        // TODO cross reference with teh web, are we getting data from the same sdk locations
 //        // TODO register location seems to be in latest api sdk private, but we need to update the sdk manager to use latest private sdk.
 //        var partnerLegalEntityRegistrationLocation = StringUtils.trim(partnerDataDto.getLegalEntityRegistrationLocation());
 //        var identificationRegisterLocation = StringUtils.trim(identification.getRegisterLocation());
