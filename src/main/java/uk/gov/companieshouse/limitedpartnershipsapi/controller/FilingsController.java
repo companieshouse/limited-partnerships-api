@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,10 +31,12 @@ public class FilingsController {
     private static final String FILINGS = "/filings";
 
     private final FilingsService filingsService;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public FilingsController(FilingsService filingsService) {
+    public FilingsController(FilingsService filingsService, ObjectMapper objectMapper) {
         this.filingsService = filingsService;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/incorporation/limited-partnership/{" + URL_PARAM_FILING_RESOURCE_ID + "}" + FILINGS)
@@ -66,6 +70,14 @@ public class FilingsController {
 
         FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, generalPartnerId);
 
+        // Convert filing to JSON and log it
+        try {
+            String filingJson = objectMapper.writeValueAsString(filing);
+            ApiLogger.infoContext(requestId, "Filing as JSON: " + filingJson, logMap);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert filing to JSON", e);
+        }
+
         return ResponseEntity.ok(new FilingApi[]{filing});
     }
 
@@ -82,6 +94,14 @@ public class FilingsController {
         ApiLogger.infoContext(requestId, "Calling service to retrieve limited partner filing", logMap);
 
         FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, limitedPartnerId);
+
+        // Convert filing to JSON and log it
+        try {
+            String filingJson = objectMapper.writeValueAsString(filing);
+            ApiLogger.infoContext(requestId, "Filing as JSON: " + filingJson, logMap);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert filing to JSON", e);
+        }
 
         return ResponseEntity.ok(new FilingApi[]{filing});
     }
