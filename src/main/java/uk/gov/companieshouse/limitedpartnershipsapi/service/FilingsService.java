@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
@@ -233,6 +233,7 @@ public class FilingsService {
         AppointmentPreviousDetailsDto appointmentPreviousDetails = new AppointmentPreviousDetailsDto();
 
         if (partnerKind.contains("person")) {
+            // looking at the web, we get forename and surname from name, but mongo seems to have forename and surname populated, is web wrong?
             appointmentPreviousDetails.setForename(appointmentFullRecordAPI.getForename());
             appointmentPreviousDetails.setSurname(appointmentFullRecordAPI.getSurname());
             appointmentPreviousDetails.setDateOfBirth(LocalDate.of(
@@ -243,6 +244,8 @@ public class FilingsService {
             appointmentPreviousDetails.setLegalEntityName(appointmentFullRecordAPI.getName());
         }
 
+        setFieldValuesForUpdatePartnerChanges(partnerDataDto, appointmentFullRecordAPI);
+
         partnerDataDto.setAppointmentPreviousDetails(appointmentPreviousDetails);
     }
 
@@ -252,6 +255,98 @@ public class FilingsService {
                     appointmentFullRecordAPI.getDateOfBirth().getYear(),
                     appointmentFullRecordAPI.getDateOfBirth().getMonth(),
                     appointmentFullRecordAPI.getDateOfBirth().getDay()));
+        }
+    }
+
+    private void setFieldValuesForUpdatePartnerChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (PartnerKind.isUpdatePartnerPersonKind(partnerDataDto.getKind())) {
+            setFieldValuesForUpdatePartnerPersonChanges(partnerDataDto, appointmentFullRecordAPI);
+        } else if (PartnerKind.isUpdatePartnerLegalEntityKind(partnerDataDto.getKind())) {
+            setFieldValuesForUpdatePartnerLegalEntityChanges(partnerDataDto, appointmentFullRecordAPI);
+        }
+    }
+
+    private void setFieldValuesForUpdatePartnerPersonChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        // TODO change PostTransitionPartnerController.comparePartnerDetails in web to use trim() as well
+
+        // TODO check with Vern, some appointment records in cidev have 3 nationalities: eg, cidev -> appointments.delta_appointments -> _id: taKpnAcrMXRKrEpKlqQD9vDpr7M
+        // or use this mongo query - {'data.nationality':{$regex:'^[^,]*,[^,]*,[^,]*$'}}
+
+        // TODO nationality 2, can they set it to null if it was previously a value
+
+        var partnerForename = StringUtils.trim(partnerDataDto.getForename());
+        var appointmentForename = StringUtils.trim(appointmentFullRecordAPI.getForename());
+        if (partnerForename != null && partnerForename.equalsIgnoreCase(appointmentForename)) {
+            partnerDataDto.setForename(null);
+        }
+
+        var partnerSurname = StringUtils.trim(partnerDataDto.getSurname());
+        var appointmentSurname = StringUtils.trim(appointmentFullRecordAPI.getSurname());
+        if (partnerSurname != null && partnerSurname.equalsIgnoreCase(appointmentSurname)) {
+            partnerDataDto.setSurname(null);
+        }
+
+        // Nationality fields
+        String[] appointmentNationalities = appointmentFullRecordAPI.getNationality() != null
+                ? appointmentFullRecordAPI.getNationality().split(",")
+                : new String[0];
+        String appointmentNationality1 = appointmentNationalities.length > 0 ? appointmentNationalities[0].trim() : null;
+        String appointmentNationality2 = appointmentNationalities.length > 1 ? appointmentNationalities[1].trim() : null;
+
+        var partnerNationality1 = StringUtils.trim(partnerDataDto.getNationality1());
+        if (partnerNationality1 != null && partnerNationality1.equalsIgnoreCase(appointmentNationality1)) {
+            partnerDataDto.setNationality1(null);
+        }
+
+        var partnerNationality2 = StringUtils.trim(partnerDataDto.getNationality2());
+        if (partnerNationality2 != null && partnerNationality2.equalsIgnoreCase(appointmentNationality2)) {
+            partnerDataDto.setNationality2(null);
+        }
+    }
+
+    private void setFieldValuesForUpdatePartnerLegalEntityChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        var partnerLegalEntityName = StringUtils.trim(partnerDataDto.getLegalEntityName());
+        var appointmentLegalEntityName = StringUtils.trim(appointmentFullRecordAPI.getName());
+        if (partnerLegalEntityName != null && partnerLegalEntityName.equalsIgnoreCase(appointmentLegalEntityName)) {
+            partnerDataDto.setLegalEntityName(null);
+        }
+
+        var identification = appointmentFullRecordAPI.getIdentification();
+        if (identification == null) {
+            return;
+        }
+
+        var partnerLegalForm = StringUtils.trim(partnerDataDto.getLegalForm());
+        var identificationLegalForm = StringUtils.trim(identification.getLegalForm());
+        if (partnerLegalForm != null && partnerLegalForm.equalsIgnoreCase(identificationLegalForm)) {
+            partnerDataDto.setLegalForm(null);
+        }
+
+        var partnerGoverningLaw = StringUtils.trim(partnerDataDto.getGoverningLaw());
+        var identificationGoverningLaw = StringUtils.trim(identification.getLegalAuthority());
+        if (partnerGoverningLaw != null && partnerGoverningLaw.equalsIgnoreCase(identificationGoverningLaw)) {
+            partnerDataDto.setGoverningLaw(null);
+        }
+
+        var partnerLegalEntityRegisterName = StringUtils.trim(partnerDataDto.getLegalEntityRegisterName());
+        var identificationPlaceRegistered = StringUtils.trim(identification.getPlaceRegistered());
+        if (partnerLegalEntityRegisterName != null && partnerLegalEntityRegisterName.equalsIgnoreCase(identificationPlaceRegistered)) {
+            partnerDataDto.setLegalEntityRegisterName(null);
+        }
+
+//        // Use ignore case comparison for legal entity registration location as the web page converts it to title case
+//        // TODO java sdk is not including the identification.register_location field
+//        // TODO register location seems to be in latest api sdk private, but we need to update the sdk manager to use latest private sdk.
+//        var partnerLegalEntityRegistrationLocation = StringUtils.trim(partnerDataDto.getLegalEntityRegistrationLocation());
+//        var identificationRegisterLocation = StringUtils.trim(identification.getRegisterLocation());
+//        if (partnerLegalEntityRegistrationLocation != null && partnerLegalEntityRegistrationLocation.equalsIgnoreCase(identificationRegisterLocation)) {
+//            partnerDataDto.setLegalEntityRegistrationLocation(null);
+//        }
+
+        var partnerRegisteredCompanyNumber = StringUtils.trim(partnerDataDto.getRegisteredCompanyNumber());
+        var identificationRegistrationNumber = StringUtils.trim(identification.getRegistrationNumber());
+        if (partnerRegisteredCompanyNumber != null && partnerRegisteredCompanyNumber.equalsIgnoreCase(identificationRegistrationNumber)) {
+            partnerDataDto.setRegisteredCompanyNumber(null);
         }
     }
 
@@ -315,7 +410,7 @@ public class FilingsService {
      * @throws ServiceException if an error occurs while retrieving payment information
      */
     private void setPaymentData(Map<String, Object> data, Transaction transaction) throws ServiceException {
-        if (transaction.getLinks() == null || !StringUtils.hasText(transaction.getLinks().getPayment())) {
+        if (transaction.getLinks() == null || !StringUtils.isNotBlank(transaction.getLinks().getPayment())) {
             // Transaction has no payment link so no payment data to set
             return;
         }
