@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 
+import com.google.common.collect.Lists;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
@@ -48,12 +50,12 @@ public class PscBuilder {
     public static final LocalDate DATE_EFFECTIVE_FROM = LocalDate.of(2026, 1, 20);
     public static final LocalDate DATE_OF_BIRTH = LocalDate.of(1999, 12, 31);
     public static final LocalDate RESIGNATION_DATE = LocalDate.of(2025, 12, 11);
-    public static final List<String> NATURES_OF_CONTROL_LIST_DESCRIPTIONS = List.of(
+    public static final List<String> NATURES_OF_CONTROL_LIST_DESCRIPTIONS = Lists.newArrayList(
             NatureOfControl.RLE.getDescription(),
             NatureOfControl.INDIVIDUAL_FIRM_CONTROL.getDescription(),
             NatureOfControl.ORP_TRUST_CONTROL.getDescription()
     );
-    public static final List<NatureOfControl> NATURES_OF_CONTROL_LIST = List.of(
+    public static final List<NatureOfControl> NATURES_OF_CONTROL_LIST = Lists.newArrayList(
             NatureOfControl.RLE,
             NatureOfControl.INDIVIDUAL_FIRM_CONTROL,
             NatureOfControl.ORP_TRUST_CONTROL
@@ -95,7 +97,7 @@ public class PscBuilder {
             return this;
         }
 
-        public PscDaoBuilder pscPersonDao() {
+        public PscDaoBuilder personPscDao() {
             pscDataDao.setAppointmentId(APPOINTMENT_ID);
             pscDataDao.setKind(FILING_KIND_PSC);
             pscDataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
@@ -117,7 +119,7 @@ public class PscBuilder {
             return this;
         }
 
-        public PscDaoBuilder pscLegalEntityDao() {
+        public PscDaoBuilder legalEntityPscDao() {
             pscDataDao.setAppointmentId(APPOINTMENT_ID);
             pscDataDao.setKind(FILING_KIND_PSC);
             pscDataDao.setCountry(ENGLAND.getDescription());
@@ -143,6 +145,26 @@ public class PscBuilder {
 
         public PscDaoBuilder withKind(String kind) {
             this.pscDataDao.setKind(kind);
+            return this;
+        }
+
+        public PscDaoBuilder withNationality2(String nationality2) {
+            this.pscDataDao.setNationality2(nationality2);
+            return this;
+        }
+
+        public PscDaoBuilder withPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
+            this.pscDataDao.setPrincipalOfficeAddress(principalOfficeAddress);
+            return this;
+        }
+
+        public PscDaoBuilder withUsualResidentialAddress(AddressDao usualResidentialAddress) {
+            this.pscDataDao.setUsualResidentialAddress(usualResidentialAddress);
+            return this;
+        }
+
+        public PscDaoBuilder withServiceAddress(AddressDao serviceAddress) {
+            this.pscDataDao.setServiceAddress(serviceAddress);
             return this;
         }
 
@@ -196,7 +218,7 @@ public class PscBuilder {
             return this;
         }
 
-        public PscDtoBuilder legalEntityDto() {
+        public PscDtoBuilder legalEntityPscDto() {
             pscDataDto.setAppointmentId(APPOINTMENT_ID);
             pscDataDto.setKind(FILING_KIND_PSC);
             pscDataDto.setCountry(ENGLAND);
@@ -245,6 +267,16 @@ public class PscBuilder {
 
         public PscDtoBuilder withKind(String kind) {
             this.pscDataDto.setKind(kind);
+            return this;
+        }
+
+        public PscDtoBuilder withNationality1(Nationality nationality1) {
+            this.pscDataDto.setNationality1(nationality1);
+            return this;
+        }
+
+        public PscDtoBuilder withNationality2(Nationality nationality2) {
+            this.pscDataDto.setNationality2(nationality2);
             return this;
         }
 
