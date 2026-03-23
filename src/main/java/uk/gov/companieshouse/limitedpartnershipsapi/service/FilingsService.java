@@ -146,7 +146,13 @@ public class FilingsService {
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
         updatePartnerAddresses(generalPartnerDataDto);
-        setExtraData(generalPartnerDataDto, transaction);
+
+        String partnerKind = generalPartnerDataDto.getKind();
+        if (PartnerKind.isUpdatePartnerKind(partnerKind) || PartnerKind.isRemovePartnerKind(partnerKind)) {
+            AppointmentFullRecordAPI appointmentFullRecordAPI = getAppointmentFullRecordAPI(generalPartnerDataDto, transaction);
+            setExtraData(generalPartnerDataDto, appointmentFullRecordAPI);
+            setFieldValuesForUpdatePartnerChanges(generalPartnerDataDto, appointmentFullRecordAPI);
+        }
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, generalPartnerDataDto.getKind())) {
@@ -174,7 +180,13 @@ public class FilingsService {
         LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
 
         updatePartnerAddresses(limitedPartnerDataDto);
-        setExtraData(limitedPartnerDataDto, transaction);
+
+        String partnerKind = limitedPartnerDataDto.getKind();
+        if (PartnerKind.isUpdatePartnerKind(partnerKind) || PartnerKind.isRemovePartnerKind(partnerKind)) {
+            AppointmentFullRecordAPI appointmentFullRecordAPI = getAppointmentFullRecordAPI(limitedPartnerDataDto, transaction);
+            setExtraData(limitedPartnerDataDto, appointmentFullRecordAPI);
+            setFieldValuesForUpdatePartnerChanges(limitedPartnerDataDto, appointmentFullRecordAPI);
+        }
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
         if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
@@ -213,20 +225,13 @@ public class FilingsService {
         }
     }
 
-    private void setExtraData(PartnerDataDto partnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+    private void setExtraData(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
         String partnerKind = partnerDataDto.getKind();
 
         if (!PartnerKind.isUpdatePartnerKind(partnerKind) &&
                 !PartnerKind.isRemovePartnerKind(partnerKind)) {
             return;
         }
-
-        String companyNumber = transaction.getCompanyNumber();
-        String appointmentId = partnerDataDto.getAppointmentId();
-
-        String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
-        ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
-        AppointmentFullRecordAPI appointmentFullRecordAPI = response.getData();
 
         setSensitiveData(partnerDataDto, appointmentFullRecordAPI);
 
@@ -244,9 +249,16 @@ public class FilingsService {
             appointmentPreviousDetails.setLegalEntityName(appointmentFullRecordAPI.getName());
         }
 
-        setFieldValuesForUpdatePartnerChanges(partnerDataDto, appointmentFullRecordAPI);
-
         partnerDataDto.setAppointmentPreviousDetails(appointmentPreviousDetails);
+    }
+
+    private AppointmentFullRecordAPI getAppointmentFullRecordAPI(PartnerDataDto partnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+        String companyNumber = transaction.getCompanyNumber();
+        String appointmentId = partnerDataDto.getAppointmentId();
+
+        String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
+        ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
+        return response.getData();
     }
 
     private void setSensitiveData(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
@@ -267,11 +279,6 @@ public class FilingsService {
     }
 
     private void setFieldValuesForUpdatePartnerPersonChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        // TODO change PostTransitionPartnerController.comparePartnerDetails in web to use trim() as well
-
-        // TODO check with Vern, some appointment records in cidev have 3 nationalities: eg, cidev -> appointments.delta_appointments -> _id: taKpnAcrMXRKrEpKlqQD9vDpr7M
-        // or use this mongo query - {'data.nationality':{$regex:'^[^,]*,[^,]*,[^,]*$'}}
-
         // TODO nationality 2, can they set it to null if it was previously a value
 
         var partnerForename = StringUtils.trim(partnerDataDto.getForename());
@@ -334,14 +341,11 @@ public class FilingsService {
             partnerDataDto.setLegalEntityRegisterName(null);
         }
 
-//        // Use ignore case comparison for legal entity registration location as the web page converts it to title case
-//        // TODO java sdk is not including the identification.register_location field
-//        // TODO register location seems to be in latest api sdk private, but we need to update the sdk manager to use latest private sdk.
-//        var partnerLegalEntityRegistrationLocation = StringUtils.trim(partnerDataDto.getLegalEntityRegistrationLocation());
-//        var identificationRegisterLocation = StringUtils.trim(identification.getRegisterLocation());
-//        if (partnerLegalEntityRegistrationLocation != null && partnerLegalEntityRegistrationLocation.equalsIgnoreCase(identificationRegisterLocation)) {
-//            partnerDataDto.setLegalEntityRegistrationLocation(null);
-//        }
+        var partnerLegalEntityRegistrationLocation = StringUtils.trim(partnerDataDto.getLegalEntityRegistrationLocation());
+        var identificationRegisterLocation = StringUtils.trim(identification.getRegisterLocation());
+        if (partnerLegalEntityRegistrationLocation != null && partnerLegalEntityRegistrationLocation.equalsIgnoreCase(identificationRegisterLocation)) {
+            partnerDataDto.setLegalEntityRegistrationLocation(null);
+        }
 
         var partnerRegisteredCompanyNumber = StringUtils.trim(partnerDataDto.getRegisteredCompanyNumber());
         var identificationRegistrationNumber = StringUtils.trim(identification.getRegistrationNumber());
