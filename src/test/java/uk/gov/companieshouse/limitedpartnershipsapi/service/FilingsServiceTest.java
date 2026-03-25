@@ -376,7 +376,7 @@ class FilingsServiceTest {
             final String removeNationality1AndUpdateNationality2NotAllowed = "null,SPANISH,null,null";
             final String updateNationality2 = "BRITISH,SPANISH,BRITISH,SPANISH";
             final String removeNationality2 = "BRITISH,SPANISH,BRITISH,SPANISH";
-            final String updateNationality1AndNationality2 = "IRISH,SPANISH,IRISH,SPANISH";
+            final String updateNationality1AndNationality2 = "IRISH,null,IRISH,null";
 
             @ParameterizedTest
             @CsvSource({
