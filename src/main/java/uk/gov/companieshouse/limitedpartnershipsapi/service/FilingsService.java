@@ -239,7 +239,6 @@ public class FilingsService {
         AppointmentPreviousDetailsDto appointmentPreviousDetails = new AppointmentPreviousDetailsDto();
 
         if (partnerKind.contains("person")) {
-            // looking at the web, we get forename and surname from name, but mongo seems to have forename and surname populated, is web wrong?
             appointmentPreviousDetails.setForename(appointmentFullRecordAPI.getForename());
             appointmentPreviousDetails.setSurname(appointmentFullRecordAPI.getSurname());
             appointmentPreviousDetails.setDateOfBirth(LocalDate.of(

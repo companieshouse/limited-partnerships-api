@@ -29,6 +29,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
@@ -87,6 +88,7 @@ class FilingsServiceTest {
     public static final String LEGAL_AUTHORITY = "CHS legal authority";
     public static final String REGISTRATION_NUMBER = "CHS registration number";
     public static final String PLACE_REGISTERED = "England";
+    public static final String REGISTRATION_LOCATION = "England";
 
     @Autowired
     private FilingsService filingsService;
@@ -332,12 +334,13 @@ class FilingsServiceTest {
                         .personDto();
             } else {
                 generalPartner = generalPartnerBuilder
-                        .withLegalEntityName(PREV_LEGAL_ENTITY_NAME)
-                        .withLegalForm(LEGAL_FORM)
-                        .withGoverningLaw(LEGAL_AUTHORITY)
-                        .withLegalEntityRegisterName(PLACE_REGISTERED)
-                        .withRegisteredCompanyNumber(REGISTRATION_NUMBER)
-                        .legalEntityDto();
+                    .withLegalEntityName(PREV_LEGAL_ENTITY_NAME)
+                    .withLegalForm(LEGAL_FORM)
+                    .withGoverningLaw(LEGAL_AUTHORITY)
+                    .withLegalEntityRegisterName(PLACE_REGISTERED)
+                    .withRegisteredCompanyNumber(REGISTRATION_NUMBER)
+                    .withLegalEntityRegistrationLocation(Country.fromDescription(REGISTRATION_LOCATION))
+                    .legalEntityDto();
             }
 
             when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
@@ -362,8 +365,7 @@ class FilingsServiceTest {
                 assertThat(filingGeneralPartnerDataDto.getLegalForm()).isNull();
                 assertThat(filingGeneralPartnerDataDto.getGoverningLaw()).isNull();
                 assertThat(filingGeneralPartnerDataDto.getLegalEntityRegisterName()).isNull();
-                // TODO uncomment this once we have set the register location when we update the SDK
-                // assertThat(filingGeneralPartnerDataDto.getLegalEntityRegistrationLocation()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getLegalEntityRegistrationLocation()).isNull();
                 assertThat(filingGeneralPartnerDataDto.getRegisteredCompanyNumber()).isNull();
             }
         }
@@ -421,8 +423,7 @@ class FilingsServiceTest {
                 FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
                 List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
-                GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
-                return filingGeneralPartnerDataDto;
+                return generalPartners.getFirst();
             }
         }
 
@@ -632,12 +633,13 @@ class FilingsServiceTest {
                         .personDto();
             } else {
                 limitedPartner = limitedPartnerBuilder
-                        .withLegalEntityName(PREV_LEGAL_ENTITY_NAME)
-                        .withLegalForm(LEGAL_FORM)
-                        .withGoverningLaw(LEGAL_AUTHORITY)
-                        .withLegalEntityRegisterName(PLACE_REGISTERED)
-                        .withRegisteredCompanyNumber(REGISTRATION_NUMBER)
-                        .legalEntityDto();
+                    .withLegalEntityName(PREV_LEGAL_ENTITY_NAME)
+                    .withLegalForm(LEGAL_FORM)
+                    .withGoverningLaw(LEGAL_AUTHORITY)
+                    .withLegalEntityRegisterName(PLACE_REGISTERED)
+                    .withRegisteredCompanyNumber(REGISTRATION_NUMBER)
+                    .withLegalEntityRegistrationLocation(Country.fromDescription(REGISTRATION_LOCATION))
+                    .legalEntityDto();
             }
 
             when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
@@ -658,8 +660,7 @@ class FilingsServiceTest {
                 assertThat(filingLimitedPartnerDataDto.getLegalForm()).isNull();
                 assertThat(filingLimitedPartnerDataDto.getGoverningLaw()).isNull();
                 assertThat(filingLimitedPartnerDataDto.getLegalEntityRegisterName()).isNull();
-                // TODO uncomment this once we have set the register location when we update the SDK
-                // assertThat(filingLimitedPartnerDataDto.getLegalEntityRegistrationLocation()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getLegalEntityRegistrationLocation()).isNull();
                 assertThat(filingLimitedPartnerDataDto.getRegisteredCompanyNumber()).isNull();
             }
         }
@@ -873,7 +874,7 @@ class FilingsServiceTest {
             identificationAPI.setLegalAuthority(LEGAL_AUTHORITY);
             identificationAPI.setPlaceRegistered(PLACE_REGISTERED);
             identificationAPI.setRegistrationNumber(REGISTRATION_NUMBER);
-            // TODO set registerLocation when we update the SDK to the version that contains this field
+            identificationAPI.setRegisterLocation(REGISTRATION_LOCATION);
             appointmentFullRecordAPI.setIdentification(identificationAPI);
         }
 
