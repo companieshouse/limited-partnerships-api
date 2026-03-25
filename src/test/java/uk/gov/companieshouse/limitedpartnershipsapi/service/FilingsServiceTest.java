@@ -31,6 +31,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
@@ -364,6 +365,64 @@ class FilingsServiceTest {
                 // TODO uncomment this once we have set the register location when we update the SDK
                 // assertThat(filingGeneralPartnerDataDto.getLegalEntityRegistrationLocation()).isNull();
                 assertThat(filingGeneralPartnerDataDto.getRegisteredCompanyNumber()).isNull();
+            }
+        }
+
+        @Nested
+        class UpdateNationalities {
+            final String noUpdate = "BRITISH,FRENCH,null,null";
+            final String updateNationality1 = "IRISH,FRENCH,IRISH,FRENCH";
+            final String removeNationality1NotAllowed = "null,FRENCH,null,null";
+            final String removeNationality1AndUpdateNationality2NotAllowed = "null,SPANISH,null,null";
+            final String updateNationality2 = "BRITISH,SPANISH,BRITISH,SPANISH";
+            final String removeNationality2 = "BRITISH,SPANISH,BRITISH,SPANISH";
+            final String updateNationality1AndNationality2 = "IRISH,SPANISH,IRISH,SPANISH";
+
+            @ParameterizedTest
+            @CsvSource({
+                noUpdate,
+                updateNationality1,
+                removeNationality1NotAllowed,
+                removeNationality1AndUpdateNationality2NotAllowed,
+                updateNationality2,
+                removeNationality2,
+                updateNationality1AndNationality2
+            })
+            void testFilingGenerationForGeneralPartnerNationalities(
+                String nationality1,
+                String nationality2,
+                String nationality1Expected,
+                String nationality2Expected) throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
+                Nationality generalPartnerNationality1 = "null".equalsIgnoreCase(nationality1) ? null : Nationality.valueOf(nationality1);
+                Nationality generalPartnerNationality2 = "null".equalsIgnoreCase(nationality2) ? null : Nationality.valueOf(nationality2);
+
+                final GeneralPartnerDataDto filingGeneralPartnerDataDto = getFilingGeneralPartnerDataDto(generalPartnerNationality1, generalPartnerNationality2);
+
+                String expected1Description = "null".equalsIgnoreCase(nationality1Expected) ? null : Nationality.valueOf(nationality1Expected).getDescription();
+                String expected2Description = "null".equalsIgnoreCase(nationality2Expected) ? null : Nationality.valueOf(nationality2Expected).getDescription();
+
+                assertEquals(expected1Description, filingGeneralPartnerDataDto.getNationality1());
+                assertEquals(expected2Description, filingGeneralPartnerDataDto.getNationality2());
+            }
+
+            private GeneralPartnerDataDto getFilingGeneralPartnerDataDto(Nationality nationality1, Nationality nationality2) throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
+                mockChsAppointmentApiData(true);
+                var transaction = new TransactionBuilder().build();
+                var generalPartner = new GeneralPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription())
+                    .withNationality1(nationality1)
+                    .withNationality2(nationality2)
+                    .personDto();
+
+                when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
+                when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+
+                FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
+
+                List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+                GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
+                return filingGeneralPartnerDataDto;
             }
         }
 

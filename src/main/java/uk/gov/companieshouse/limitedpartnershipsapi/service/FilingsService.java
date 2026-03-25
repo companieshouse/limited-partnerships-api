@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AppointmentPreviousDetailsDto;
@@ -279,8 +280,6 @@ public class FilingsService {
     }
 
     private void setFieldValuesForUpdatePartnerPersonChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
-        // TODO nationality 2, can they set it to null if it was previously a value
-
         var partnerForename = StringUtils.trim(partnerDataDto.getForename());
         var appointmentForename = StringUtils.trim(appointmentFullRecordAPI.getForename());
         if (partnerForename != null && partnerForename.equalsIgnoreCase(appointmentForename)) {
@@ -292,8 +291,11 @@ public class FilingsService {
         if (partnerSurname != null && partnerSurname.equalsIgnoreCase(appointmentSurname)) {
             partnerDataDto.setSurname(null);
         }
+        
+        setNationalitiesFields(partnerDataDto, appointmentFullRecordAPI);
+    }
 
-        // Nationality fields
+    private static void setNationalitiesFields(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
         String[] appointmentNationalities = appointmentFullRecordAPI.getNationality() != null
                 ? appointmentFullRecordAPI.getNationality().split(",")
                 : new String[0];
@@ -301,12 +303,24 @@ public class FilingsService {
         String appointmentNationality2 = appointmentNationalities.length > 1 ? appointmentNationalities[1].trim() : null;
 
         var partnerNationality1 = StringUtils.trim(partnerDataDto.getNationality1());
-        if (partnerNationality1 != null && partnerNationality1.equalsIgnoreCase(appointmentNationality1)) {
-            partnerDataDto.setNationality1(null);
-        }
-
         var partnerNationality2 = StringUtils.trim(partnerDataDto.getNationality2());
-        if (partnerNationality2 != null && partnerNationality2.equalsIgnoreCase(appointmentNationality2)) {
+        Boolean nationality1Changed = partnerNationality1 != null && !partnerNationality1.equalsIgnoreCase(appointmentNationality1);
+        Boolean nationality2Changed = partnerNationality2 == null || !partnerNationality2.equalsIgnoreCase(appointmentNationality2);
+
+        if (nationality1Changed || nationality2Changed) {
+            if (partnerNationality1 == null) {
+                partnerDataDto.setNationality1(null);
+                partnerDataDto.setNationality2(null);
+                return;
+            }
+
+            partnerDataDto.setNationality1(Nationality.fromDescription(partnerNationality1));
+
+            Nationality nationality2FromDescription = Nationality.fromDescription(partnerNationality2);
+            Nationality nationality2 = nationality2FromDescription == Nationality.UNKNOWN ? null : nationality2FromDescription;
+            partnerDataDto.setNationality2(nationality2);
+        } else {
+            partnerDataDto.setNationality1(null);
             partnerDataDto.setNationality2(null);
         }
     }
