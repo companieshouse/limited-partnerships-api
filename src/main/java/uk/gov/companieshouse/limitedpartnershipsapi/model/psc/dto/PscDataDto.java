@@ -38,6 +38,10 @@ public class PscDataDto implements HasNationality {
     @JsonProperty("legal_personality_statement_checked")
     private Boolean legalPersonalityStatementChecked;
 
+    @JsonInclude(Include.NON_NULL)
+    @JsonProperty("no_individual_or_entity_with_significant_control")
+    private Boolean noIndividualOrEntityWithSignificantControl;
+
     @JsonProperty("service_address")
     private AddressDto serviceAddress;
 
@@ -142,6 +146,14 @@ public class PscDataDto implements HasNationality {
 
     public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
         this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    }
+
+    public Boolean getNoIndividualOrEntityWithSignificantControl() {
+        return noIndividualOrEntityWithSignificantControl;
+    }
+
+    public void setNoIndividualOrEntityWithSignificantControl(Boolean noIndividualOrEntityWithSignificantControl) {
+        this.noIndividualOrEntityWithSignificantControl = noIndividualOrEntityWithSignificantControl;
     }
 
     public AddressDto getServiceAddress() {

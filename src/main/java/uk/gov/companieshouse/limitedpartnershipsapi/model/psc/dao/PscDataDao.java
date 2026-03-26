@@ -32,6 +32,9 @@ public class PscDataDao {
     @Field("legal_personality_statement_checked")
     private Boolean legalPersonalityStatementChecked;
 
+    @Field("no_individual_or_entity_with_significant_control")
+    private Boolean noIndividualOrEntityWithSignificantControl;
+
     @Field("service_address")
     private AddressDao serviceAddress;
 
@@ -143,6 +146,14 @@ public class PscDataDao {
 
     public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
         this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
+    }
+
+    public Boolean getNoIndividualOrEntityWithSignificantControl() {
+        return noIndividualOrEntityWithSignificantControl;
+    }
+
+    public void setNoIndividualOrEntityWithSignificantControl(Boolean noIndividualOrEntityWithSignificantControl) {
+        this.noIndividualOrEntityWithSignificantControl = noIndividualOrEntityWithSignificantControl;
     }
 
     public AddressDao getServiceAddress() {
