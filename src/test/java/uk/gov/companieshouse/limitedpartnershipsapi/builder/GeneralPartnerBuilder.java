@@ -22,6 +22,17 @@ public class GeneralPartnerBuilder {
     private Boolean updateServiceAddressRequired;
     private Boolean updatePrincipalOfficeAddressRequired;
 
+    private String forename = "Jack";
+    private String surname = "Jones";
+    private Nationality nationality1 = Nationality.BRITISH;
+    private Nationality nationality2 = null;
+    private String legalEntityName = "Legal Entity Name";
+    private String legalForm = "Form";
+    private String governingLaw = "Act of law";
+    private String legalEntityRegisterName = "Register of United States";
+    private Country legalEntityRegistrationLocation = Country.UNITED_STATES;
+    private String registeredCompanyNumber = "12345678";
+
     public GeneralPartnerBuilder withGeneralPartnerKind(String kind) {
         this.generalPartnerKind = kind;
         return this;
@@ -52,15 +63,66 @@ public class GeneralPartnerBuilder {
         return this;
     }
 
+    public GeneralPartnerBuilder withForename(String forename) {
+        this.forename = forename;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withSurname(String surname) {
+        this.surname = surname;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withNationality1(Nationality nationality1) {
+        this.nationality1 = nationality1;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withNationality2(Nationality nationality2) {
+        this.nationality2 = nationality2;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withLegalForm(String legalForm) {
+        this.legalForm = legalForm;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withGoverningLaw(String governingLaw) {
+        this.governingLaw = governingLaw;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withLegalEntityRegisterName(String legalEntityRegisterName) {
+        this.legalEntityRegisterName = legalEntityRegisterName;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
+        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+        return this;
+    }
+
+    public GeneralPartnerBuilder withRegisteredCompanyNumber(String registeredCompanyNumber) {
+        this.registeredCompanyNumber = registeredCompanyNumber;
+        return this;
+    }
+
     public GeneralPartnerDto personDto() {
         GeneralPartnerDto dto = new GeneralPartnerDto();
         dto.setId(GENERAL_PARTNER_ID);
 
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
-        dataDto.setForename("Jack");
-        dataDto.setSurname("Jones");
+        dataDto.setForename(forename);
+        dataDto.setSurname(surname);
         dataDto.setDateOfBirth(LocalDate.of(2000, 10, 3));
-        dataDto.setNationality1(Nationality.BRITISH);
+        dataDto.setNationality1(nationality1);
+        dataDto.setNationality2(nationality2);
         dataDto.setNotDisqualifiedStatementChecked(true);
         dataDto.setUsualResidentialAddress(createAddressDto());
         dataDto.setServiceAddress(createAddressDto());
@@ -81,12 +143,12 @@ public class GeneralPartnerBuilder {
         dto.setId(GENERAL_PARTNER_ID);
 
         GeneralPartnerDataDto dataDto = new GeneralPartnerDataDto();
-        dataDto.setLegalEntityName("Legal Entity Name");
-        dataDto.setLegalForm("Form");
-        dataDto.setGoverningLaw("Act of law");
-        dataDto.setLegalEntityRegisterName("Register of United States");
-        dataDto.setLegalEntityRegistrationLocation(Country.UNITED_STATES);
-        dataDto.setRegisteredCompanyNumber("12345678");
+        dataDto.setLegalEntityName(legalEntityName);
+        dataDto.setLegalForm(legalForm);
+        dataDto.setGoverningLaw(governingLaw);
+        dataDto.setLegalEntityRegisterName(legalEntityRegisterName);
+        dataDto.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation);
+        dataDto.setRegisteredCompanyNumber(registeredCompanyNumber);
         dataDto.setPrincipalOfficeAddress(createAddressDto());
         dataDto.setDateEffectiveFrom(LocalDate.of(2024, 1, 1));
         dataDto.setNotDisqualifiedStatementChecked(true);

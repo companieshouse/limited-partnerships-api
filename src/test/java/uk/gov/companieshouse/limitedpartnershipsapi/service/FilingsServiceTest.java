@@ -17,6 +17,7 @@ import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.delta.officers.IdentificationAPI;
 import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 import uk.gov.companieshouse.api.model.payment.PaymentApi;
@@ -28,11 +29,16 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
@@ -44,6 +50,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -73,6 +80,15 @@ class FilingsServiceTest {
     private static final String INCORPORATION_ID = "inc456";
     private static final String PAYMENT_METHOD = "credit-card";
     private static final String PAYMENT_REFERENCE = "21311sfg23";
+    public static final String PREV_FORENAME = "Prev forename";
+    public static final String PREV_SURNAME = "Prev surname";
+    public static final String NATIONALITY = "British, French";
+    public static final String PREV_LEGAL_ENTITY_NAME = "Prev legal entity name";
+    public static final String LEGAL_FORM = "CHS legal form";
+    public static final String LEGAL_AUTHORITY = "CHS legal authority";
+    public static final String REGISTRATION_NUMBER = "CHS registration number";
+    public static final String PLACE_REGISTERED = "England";
+    public static final String REGISTRATION_LOCATION = "England";
 
     @Autowired
     private FilingsService filingsService;
@@ -234,12 +250,12 @@ class FilingsServiceTest {
             assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto, isPerson);
 
             if (isPerson) {
-                assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
-                assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(PREV_FORENAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals(PREV_SURNAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
                 assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
                 assertEquals(generalPartnerData.getUsualResidentialAddress(), filingGeneralPartnerDataDto.getUsualResidentialAddress());
             } else {
-                assertEquals("Prev legal entity name", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(PREV_LEGAL_ENTITY_NAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
                 assertEquals(generalPartnerData.getPrincipalOfficeAddress(), filingGeneralPartnerDataDto.getPrincipalOfficeAddress());
             }
 
@@ -284,11 +300,131 @@ class FilingsServiceTest {
             assertNull(filingGeneralPartnerDataDto.getServiceAddress());
 
             if (isPerson) {
-                assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
-                assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(PREV_FORENAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals(PREV_SURNAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
                 assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
             } else {
-                assertEquals("Prev legal entity name", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(PREV_LEGAL_ENTITY_NAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+            }
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#update-general-partner-person",
+                "false, limited-partnership#update-general-partner-legal-entity"
+        })
+        void testFilingGenerationForUpdateGeneralPartnerContainsNullsForUnchangedData(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
+            var transaction = new TransactionBuilder().build();
+            var generalPartnerBuilder = new GeneralPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withGeneralPartnerKind(partnerKind)
+                    .withUpdateUsualResidentialAddressRequired(Boolean.FALSE)
+                    .withUpdatePrincipalOfficeAddressRequired(Boolean.FALSE)
+                    .withUpdateServiceAddressRequired(Boolean.FALSE);
+
+            GeneralPartnerDto generalPartner;
+            if (isPerson) {
+                generalPartner = generalPartnerBuilder.withForename(PREV_FORENAME)
+                        .withSurname(PREV_SURNAME)
+                        .withNationality1(Nationality.BRITISH)
+                        .withNationality2(Nationality.FRENCH)
+                        .personDto();
+            } else {
+                generalPartner = generalPartnerBuilder
+                    .withLegalEntityName(PREV_LEGAL_ENTITY_NAME)
+                    .withLegalForm(LEGAL_FORM)
+                    .withGoverningLaw(LEGAL_AUTHORITY)
+                    .withLegalEntityRegisterName(PLACE_REGISTERED)
+                    .withRegisteredCompanyNumber(REGISTRATION_NUMBER)
+                    .withLegalEntityRegistrationLocation(Country.fromDescription(REGISTRATION_LOCATION))
+                    .legalEntityDto();
+            }
+
+            when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
+            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
+
+            List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+            GeneralPartnerDataDto filingGeneralPartnerDataDto = generalPartners.getFirst();
+
+            assertNull(filingGeneralPartnerDataDto.getUsualResidentialAddress());
+            assertNull(filingGeneralPartnerDataDto.getPrincipalOfficeAddress());
+            assertNull(filingGeneralPartnerDataDto.getServiceAddress());
+
+            if (isPerson) {
+                assertThat(filingGeneralPartnerDataDto.getForename()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getSurname()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getNationality1()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getNationality2()).isNull();
+            } else {
+                assertThat(filingGeneralPartnerDataDto.getLegalEntityName()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getLegalForm()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getGoverningLaw()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getLegalEntityRegisterName()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getLegalEntityRegistrationLocation()).isNull();
+                assertThat(filingGeneralPartnerDataDto.getRegisteredCompanyNumber()).isNull();
+            }
+        }
+
+        @Nested
+        class UpdateNationalities {
+            final String noUpdate = "BRITISH,FRENCH,null,null";
+            final String updateNationality1 = "IRISH,FRENCH,IRISH,FRENCH";
+            final String removeNationality1NotAllowed = "null,FRENCH,null,null";
+            final String removeNationality1AndUpdateNationality2NotAllowed = "null,SPANISH,null,null";
+            final String updateNationality2 = "BRITISH,SPANISH,BRITISH,SPANISH";
+            final String removeNationality2 = "BRITISH,null,BRITISH,null";
+            final String updateNationality1AndNationality2 = "IRISH,SPANISH,IRISH,SPANISH";
+
+            @ParameterizedTest
+            @CsvSource({
+                noUpdate,
+                updateNationality1,
+                removeNationality1NotAllowed,
+                removeNationality1AndUpdateNationality2NotAllowed,
+                updateNationality2,
+                removeNationality2,
+                updateNationality1AndNationality2
+            })
+            void testFilingGenerationForGeneralPartnerNationalities(
+                String nationality1,
+                String nationality2,
+                String nationality1Expected,
+                String nationality2Expected) throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
+                Nationality generalPartnerNationality1 = "null".equalsIgnoreCase(nationality1) ? null : Nationality.valueOf(nationality1);
+                Nationality generalPartnerNationality2 = "null".equalsIgnoreCase(nationality2) ? null : Nationality.valueOf(nationality2);
+
+                final GeneralPartnerDataDto filingGeneralPartnerDataDto = getFilingGeneralPartnerDataDto(generalPartnerNationality1, generalPartnerNationality2);
+
+                String expected1Description = "null".equalsIgnoreCase(nationality1Expected) ? null : Nationality.valueOf(nationality1Expected).getDescription();
+                String expected2Description = "null".equalsIgnoreCase(nationality2Expected) ? null : Nationality.valueOf(nationality2Expected).getDescription();
+
+                assertEquals(expected1Description, filingGeneralPartnerDataDto.getNationality1());
+                assertEquals(expected2Description, filingGeneralPartnerDataDto.getNationality2());
+            }
+
+            private GeneralPartnerDataDto getFilingGeneralPartnerDataDto(Nationality nationality1, Nationality nationality2) throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
+                mockChsAppointmentApiData(true);
+                var transaction = new TransactionBuilder().build();
+                var generalPartner = new GeneralPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withGeneralPartnerKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription())
+                    .withNationality1(nationality1)
+                    .withNationality2(nationality2)
+                    .personDto();
+
+                when(generalPartnerService.getGeneralPartner(transaction, GENERAL_PARTNER_ID)).thenReturn(generalPartner);
+                when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(generalPartner.getData().getKind()))).thenReturn(true);
+
+                FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
+
+                List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+                
+                return generalPartners.getFirst();
             }
         }
 
@@ -324,11 +460,11 @@ class FilingsServiceTest {
             assertCommonPartnerData(generalPartnerData, filingGeneralPartnerDataDto, isPerson);
 
             if (isPerson) {
-                assertEquals("Prev forename", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
-                assertEquals("Prev surname", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(PREV_FORENAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals(PREV_SURNAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getSurname());
                 assertEquals(LocalDate.of(1980, 6, 15), filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
             } else {
-                assertEquals("Prev legal entity name", filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(PREV_LEGAL_ENTITY_NAME, filingGeneralPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
             }
 
             assertEquals(today, filingGeneralPartnerDataDto.getCeaseDate());
@@ -414,12 +550,12 @@ class FilingsServiceTest {
             assertEquals(limitedPartnerData.getServiceAddress(), filingLimitedPartnerDataDto.getServiceAddress());
 
             if (isPerson) {
-                assertEquals("Prev forename", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
-                assertEquals("Prev surname", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(PREV_FORENAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals(PREV_SURNAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
                 assertEquals(LocalDate.of(1980, 6, 15), filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
                 assertEquals(limitedPartnerData.getUsualResidentialAddress(), filingLimitedPartnerDataDto.getUsualResidentialAddress());
             } else {
-                assertEquals("Prev legal entity name", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(PREV_LEGAL_ENTITY_NAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
                 assertEquals(limitedPartnerData.getPrincipalOfficeAddress(), filingLimitedPartnerDataDto.getPrincipalOfficeAddress());
             }
 
@@ -461,16 +597,73 @@ class FilingsServiceTest {
             assertNull(filingLimitedPartnerDataDto.getUsualResidentialAddress());
 
             if (isPerson) {
-                assertEquals("Prev forename", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
-                assertEquals("Prev surname", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(PREV_FORENAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals(PREV_SURNAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
                 assertEquals(LocalDate.of(1980, 6, 15), filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
                 assertEquals(limitedPartnerData.getUsualResidentialAddress(), filingLimitedPartnerDataDto.getUsualResidentialAddress());
             } else {
-                assertEquals("Prev legal entity name", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(PREV_LEGAL_ENTITY_NAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
                 assertEquals(limitedPartnerData.getPrincipalOfficeAddress(), filingLimitedPartnerDataDto.getPrincipalOfficeAddress());
             }
 
             assertEquals(limitedPartnerData.getServiceAddress(), filingLimitedPartnerDataDto.getServiceAddress());
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "true, limited-partnership#update-limited-partner-person",
+                "false, limited-partnership#update-limited-partner-legal-entity"
+        })
+        void testFilingGenerationForUpdateLimitedPartnerContainsNullsForUnchangedData(
+                boolean isPerson,
+                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+            mockChsAppointmentApiData(isPerson);
+            var transaction = new TransactionBuilder().build();
+            var limitedPartnerBuilder = new LimitedPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withLimitedPartnerKind(partnerKind)
+                    .withUpdateUsualResidentialAddressRequired(Boolean.FALSE)
+                    .withUpdatePrincipalOfficeAddressRequired(Boolean.FALSE);
+
+            LimitedPartnerDto limitedPartner;
+            if (isPerson) {
+                limitedPartner = limitedPartnerBuilder.withForename(PREV_FORENAME)
+                        .withSurname(PREV_SURNAME)
+                        .withNationality1(Nationality.BRITISH)
+                        .withNationality2(Nationality.FRENCH)
+                        .personDto();
+            } else {
+                limitedPartner = limitedPartnerBuilder
+                    .withLegalEntityName(PREV_LEGAL_ENTITY_NAME)
+                    .withLegalForm(LEGAL_FORM)
+                    .withGoverningLaw(LEGAL_AUTHORITY)
+                    .withLegalEntityRegisterName(PLACE_REGISTERED)
+                    .withRegisteredCompanyNumber(REGISTRATION_NUMBER)
+                    .withLegalEntityRegistrationLocation(Country.fromDescription(REGISTRATION_LOCATION))
+                    .legalEntityDto();
+            }
+
+            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
+            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
+
+            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
+            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
+
+            if (isPerson) {
+                assertThat(filingLimitedPartnerDataDto.getForename()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getSurname()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getNationality1()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getNationality2()).isNull();
+            } else {
+                assertThat(filingLimitedPartnerDataDto.getLegalEntityName()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getLegalForm()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getGoverningLaw()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getLegalEntityRegisterName()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getLegalEntityRegistrationLocation()).isNull();
+                assertThat(filingLimitedPartnerDataDto.getRegisteredCompanyNumber()).isNull();
+            }
         }
 
         @ParameterizedTest
@@ -505,11 +698,11 @@ class FilingsServiceTest {
             assertCommonPartnerData(limitedPartnerData, filingLimitedPartnerDataDto, isPerson);
 
             if (isPerson) {
-                assertEquals("Prev forename", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
-                assertEquals("Prev surname", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
+                assertEquals(PREV_FORENAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getForename());
+                assertEquals(PREV_SURNAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getSurname());
                 assertEquals(LocalDate.of(1980, 6, 15), filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getDateOfBirth());
             } else {
-                assertEquals("Prev legal entity name", filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
+                assertEquals(PREV_LEGAL_ENTITY_NAME, filingLimitedPartnerDataDto.getAppointmentPreviousDetails().getLegalEntityName());
             }
 
             assertEquals(today, filingLimitedPartnerDataDto.getCeaseDate());
@@ -672,10 +865,18 @@ class FilingsServiceTest {
         appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
 
         if (isPerson) {
-            appointmentFullRecordAPI.setForename("Prev forename");
-            appointmentFullRecordAPI.setSurname("Prev surname");
+            appointmentFullRecordAPI.setForename(PREV_FORENAME);
+            appointmentFullRecordAPI.setSurname(PREV_SURNAME);
+            appointmentFullRecordAPI.setNationality(NATIONALITY);
         } else {
-            appointmentFullRecordAPI.setName("Prev legal entity name");
+            appointmentFullRecordAPI.setName(PREV_LEGAL_ENTITY_NAME);
+            IdentificationAPI identificationAPI = new IdentificationAPI();
+            identificationAPI.setLegalForm(LEGAL_FORM);
+            identificationAPI.setLegalAuthority(LEGAL_AUTHORITY);
+            identificationAPI.setPlaceRegistered(PLACE_REGISTERED);
+            identificationAPI.setRegistrationNumber(REGISTRATION_NUMBER);
+            identificationAPI.setRegisterLocation(REGISTRATION_LOCATION);
+            appointmentFullRecordAPI.setIdentification(identificationAPI);
         }
 
         return appointmentFullRecordAPI;

@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AppointmentPreviousDetailsDto;
@@ -146,7 +147,13 @@ public class FilingsService {
         GeneralPartnerDataDto generalPartnerDataDto = generalPartnerDto.getData();
 
         updatePartnerAddresses(generalPartnerDataDto);
-        setExtraData(generalPartnerDataDto, transaction);
+
+        String partnerKind = generalPartnerDataDto.getKind();
+        if (PartnerKind.isUpdatePartnerKind(partnerKind) || PartnerKind.isRemovePartnerKind(partnerKind)) {
+            AppointmentFullRecordAPI appointmentFullRecordAPI = getAppointmentFullRecordAPI(generalPartnerDataDto, transaction);
+            setExtraData(generalPartnerDataDto, appointmentFullRecordAPI);
+            setFieldValuesForUpdatePartnerChanges(generalPartnerDataDto, appointmentFullRecordAPI);
+        }
 
         String submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
         if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, generalPartnerDataDto.getKind())) {
@@ -174,7 +181,13 @@ public class FilingsService {
         LimitedPartnerDataDto limitedPartnerDataDto = limitedPartnerDto.getData();
 
         updatePartnerAddresses(limitedPartnerDataDto);
-        setExtraData(limitedPartnerDataDto, transaction);
+
+        String partnerKind = limitedPartnerDataDto.getKind();
+        if (PartnerKind.isUpdatePartnerKind(partnerKind) || PartnerKind.isRemovePartnerKind(partnerKind)) {
+            AppointmentFullRecordAPI appointmentFullRecordAPI = getAppointmentFullRecordAPI(limitedPartnerDataDto, transaction);
+            setExtraData(limitedPartnerDataDto, appointmentFullRecordAPI);
+            setFieldValuesForUpdatePartnerChanges(limitedPartnerDataDto, appointmentFullRecordAPI);
+        }
 
         String submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
         if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, limitedPartnerDataDto.getKind())) {
@@ -213,20 +226,13 @@ public class FilingsService {
         }
     }
 
-    private void setExtraData(PartnerDataDto partnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+    private void setExtraData(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
         String partnerKind = partnerDataDto.getKind();
 
         if (!PartnerKind.isUpdatePartnerKind(partnerKind) &&
                 !PartnerKind.isRemovePartnerKind(partnerKind)) {
             return;
         }
-
-        String companyNumber = transaction.getCompanyNumber();
-        String appointmentId = partnerDataDto.getAppointmentId();
-
-        String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
-        ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
-        AppointmentFullRecordAPI appointmentFullRecordAPI = response.getData();
 
         setSensitiveData(partnerDataDto, appointmentFullRecordAPI);
 
@@ -246,12 +252,118 @@ public class FilingsService {
         partnerDataDto.setAppointmentPreviousDetails(appointmentPreviousDetails);
     }
 
+    private AppointmentFullRecordAPI getAppointmentFullRecordAPI(PartnerDataDto partnerDataDto, Transaction transaction) throws URIValidationException, ApiErrorResponseException {
+        String companyNumber = transaction.getCompanyNumber();
+        String appointmentId = partnerDataDto.getAppointmentId();
+
+        String uri = String.format("/company/%s/appointments/%s/full_record", companyNumber, appointmentId);
+        ApiResponse<AppointmentFullRecordAPI> response = apiClientService.getInternalApiClient().privateDeltaResourceHandler().getAppointment(uri).execute();
+        return response.getData();
+    }
+
     private void setSensitiveData(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
         if (appointmentFullRecordAPI.getDateOfBirth() != null) {
             partnerDataDto.setDateOfBirth(LocalDate.of(
                     appointmentFullRecordAPI.getDateOfBirth().getYear(),
                     appointmentFullRecordAPI.getDateOfBirth().getMonth(),
                     appointmentFullRecordAPI.getDateOfBirth().getDay()));
+        }
+    }
+
+    private void setFieldValuesForUpdatePartnerChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        if (PartnerKind.isUpdatePartnerPersonKind(partnerDataDto.getKind())) {
+            setFieldValuesForUpdatePartnerPersonChanges(partnerDataDto, appointmentFullRecordAPI);
+        } else if (PartnerKind.isUpdatePartnerLegalEntityKind(partnerDataDto.getKind())) {
+            setFieldValuesForUpdatePartnerLegalEntityChanges(partnerDataDto, appointmentFullRecordAPI);
+        }
+    }
+
+    private void setFieldValuesForUpdatePartnerPersonChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        var partnerForename = StringUtils.trim(partnerDataDto.getForename());
+        var appointmentForename = StringUtils.trim(appointmentFullRecordAPI.getForename());
+        if (partnerForename != null && partnerForename.equalsIgnoreCase(appointmentForename)) {
+            partnerDataDto.setForename(null);
+        }
+
+        var partnerSurname = StringUtils.trim(partnerDataDto.getSurname());
+        var appointmentSurname = StringUtils.trim(appointmentFullRecordAPI.getSurname());
+        if (partnerSurname != null && partnerSurname.equalsIgnoreCase(appointmentSurname)) {
+            partnerDataDto.setSurname(null);
+        }
+        
+        setNationalitiesFields(partnerDataDto, appointmentFullRecordAPI);
+    }
+
+    private static void setNationalitiesFields(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        String[] appointmentNationalities = appointmentFullRecordAPI.getNationality() != null
+                ? appointmentFullRecordAPI.getNationality().split(",")
+                : new String[0];
+        String appointmentNationality1 = appointmentNationalities.length > 0 ? appointmentNationalities[0].trim() : null;
+        String appointmentNationality2 = appointmentNationalities.length > 1 ? appointmentNationalities[1].trim() : null;
+
+        var partnerNationality1 = StringUtils.trim(partnerDataDto.getNationality1());
+        var partnerNationality2 = StringUtils.trim(partnerDataDto.getNationality2());
+        Boolean nationality1Changed = partnerNationality1 != null && !partnerNationality1.equalsIgnoreCase(appointmentNationality1);
+        Boolean nationality2Changed = partnerNationality2 == null || !partnerNationality2.equalsIgnoreCase(appointmentNationality2);
+
+        if (nationality1Changed || nationality2Changed) {
+            if (partnerNationality1 == null) {
+                partnerDataDto.setNationality1(null);
+                partnerDataDto.setNationality2(null);
+                return;
+            }
+
+            partnerDataDto.setNationality1(Nationality.fromDescription(partnerNationality1));
+
+            Nationality nationality2FromDescription = Nationality.fromDescription(partnerNationality2);
+            Nationality nationality2 = nationality2FromDescription == Nationality.UNKNOWN ? null : nationality2FromDescription;
+            partnerDataDto.setNationality2(nationality2);
+        } else {
+            partnerDataDto.setNationality1(null);
+            partnerDataDto.setNationality2(null);
+        }
+    }
+
+    private void setFieldValuesForUpdatePartnerLegalEntityChanges(PartnerDataDto partnerDataDto, AppointmentFullRecordAPI appointmentFullRecordAPI) {
+        var partnerLegalEntityName = StringUtils.trim(partnerDataDto.getLegalEntityName());
+        var appointmentLegalEntityName = StringUtils.trim(appointmentFullRecordAPI.getName());
+        if (partnerLegalEntityName != null && partnerLegalEntityName.equalsIgnoreCase(appointmentLegalEntityName)) {
+            partnerDataDto.setLegalEntityName(null);
+        }
+
+        var identification = appointmentFullRecordAPI.getIdentification();
+        if (identification == null) {
+            return;
+        }
+
+        var partnerLegalForm = StringUtils.trim(partnerDataDto.getLegalForm());
+        var identificationLegalForm = StringUtils.trim(identification.getLegalForm());
+        if (partnerLegalForm != null && partnerLegalForm.equalsIgnoreCase(identificationLegalForm)) {
+            partnerDataDto.setLegalForm(null);
+        }
+
+        var partnerGoverningLaw = StringUtils.trim(partnerDataDto.getGoverningLaw());
+        var identificationGoverningLaw = StringUtils.trim(identification.getLegalAuthority());
+        if (partnerGoverningLaw != null && partnerGoverningLaw.equalsIgnoreCase(identificationGoverningLaw)) {
+            partnerDataDto.setGoverningLaw(null);
+        }
+
+        var partnerLegalEntityRegisterName = StringUtils.trim(partnerDataDto.getLegalEntityRegisterName());
+        var identificationPlaceRegistered = StringUtils.trim(identification.getPlaceRegistered());
+        if (partnerLegalEntityRegisterName != null && partnerLegalEntityRegisterName.equalsIgnoreCase(identificationPlaceRegistered)) {
+            partnerDataDto.setLegalEntityRegisterName(null);
+        }
+
+        var partnerLegalEntityRegistrationLocation = StringUtils.trim(partnerDataDto.getLegalEntityRegistrationLocation());
+        var identificationRegisterLocation = StringUtils.trim(identification.getRegisterLocation());
+        if (partnerLegalEntityRegistrationLocation != null && partnerLegalEntityRegistrationLocation.equalsIgnoreCase(identificationRegisterLocation)) {
+            partnerDataDto.setLegalEntityRegistrationLocation(null);
+        }
+
+        var partnerRegisteredCompanyNumber = StringUtils.trim(partnerDataDto.getRegisteredCompanyNumber());
+        var identificationRegistrationNumber = StringUtils.trim(identification.getRegistrationNumber());
+        if (partnerRegisteredCompanyNumber != null && partnerRegisteredCompanyNumber.equalsIgnoreCase(identificationRegistrationNumber)) {
+            partnerDataDto.setRegisteredCompanyNumber(null);
         }
     }
 
@@ -315,7 +427,7 @@ public class FilingsService {
      * @throws ServiceException if an error occurs while retrieving payment information
      */
     private void setPaymentData(Map<String, Object> data, Transaction transaction) throws ServiceException {
-        if (transaction.getLinks() == null || !StringUtils.hasText(transaction.getLinks().getPayment())) {
+        if (transaction.getLinks() == null || !StringUtils.isNotBlank(transaction.getLinks().getPayment())) {
             // Transaction has no payment link so no payment data to set
             return;
         }
