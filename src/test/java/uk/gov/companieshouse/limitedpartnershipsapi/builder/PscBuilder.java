@@ -36,7 +36,6 @@ public class PscBuilder {
     public static final String NATIONALITY1 = "British";
     public static final String NATIONALITY2 = "French";
     public static final String REGISTERED_COMPANY_NUMBER = "12345678";
-    public static final boolean LEGAL_PERSONALITY_STATEMENT_CHECKED = true;
     public static final boolean NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL = true;
     public static final String POA_PREFIX = "poa";
     public static final String SERVICE_PREFIX = "service";
@@ -62,7 +61,6 @@ public class PscBuilder {
             NatureOfControl.ORP_TRUST_CONTROL
     );
 
-
     public static class PscDaoBuilder {
 
         private final PscDao pscDao = new PscDao();
@@ -82,7 +80,6 @@ public class PscBuilder {
             pscDataDao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
             pscDataDao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
             pscDataDao.setLegalForm(LEGAL_FORM);
-            pscDataDao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
             pscDataDao.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDao.setNationality1(NATIONALITY1);
             pscDataDao.setNationality2(NATIONALITY2);
@@ -108,7 +105,6 @@ public class PscBuilder {
             pscDataDao.setForename(FORENAME);
             pscDataDao.setSurname(SURNAME);
             pscDataDao.setFormerNames(FORMER_NAMES);
-            pscDataDao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
             pscDataDao.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDao.setNationality1(NATIONALITY1);
             pscDataDao.setNationality2(NATIONALITY2);
@@ -134,7 +130,6 @@ public class PscBuilder {
             pscDataDao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
             pscDataDao.setLegalForm(LEGAL_FORM);
             pscDataDao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-            pscDataDao.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
             pscDataDao.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
             pscDataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
@@ -208,7 +203,6 @@ public class PscBuilder {
             pscDataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
             pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
             pscDataDto.setLegalForm(LEGAL_FORM);
-            pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
             pscDataDto.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDto.setNationality1(BRITISH);
             pscDataDto.setNationality2(FRENCH);
@@ -234,7 +228,6 @@ public class PscBuilder {
             pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
             pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
             pscDataDto.setLegalForm(LEGAL_FORM);
-            pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
             pscDataDto.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
             pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
@@ -252,7 +245,6 @@ public class PscBuilder {
             pscDataDto.setForename(FORENAME);
             pscDataDto.setSurname(SURNAME);
             pscDataDto.setFormerNames(FORMER_NAMES);
-            pscDataDto.setLegalPersonalityStatementChecked(LEGAL_PERSONALITY_STATEMENT_CHECKED);
             pscDataDto.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDto.setNationality1(BRITISH);
             pscDataDto.setNationality2(FRENCH);

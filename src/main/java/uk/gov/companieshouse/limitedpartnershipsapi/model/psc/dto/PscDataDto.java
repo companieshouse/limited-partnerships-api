@@ -35,10 +35,6 @@ public class PscDataDto implements HasNationality {
     private List<NatureOfControl> naturesOfControl;
 
     @JsonInclude(Include.NON_NULL)
-    @JsonProperty("legal_personality_statement_checked")
-    private Boolean legalPersonalityStatementChecked;
-
-    @JsonInclude(Include.NON_NULL)
     @JsonProperty("no_individual_or_entity_with_significant_control")
     private Boolean noIndividualOrEntityWithSignificantControl;
 
@@ -138,14 +134,6 @@ public class PscDataDto implements HasNationality {
 
     public void setNaturesOfControl(List<NatureOfControl> naturesOfControl) {
         this.naturesOfControl = naturesOfControl;
-    }
-
-    public Boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
-    }
-
-    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public Boolean getNoIndividualOrEntityWithSignificantControl() {

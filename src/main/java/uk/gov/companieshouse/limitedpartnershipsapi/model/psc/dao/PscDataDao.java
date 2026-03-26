@@ -29,9 +29,6 @@ public class PscDataDao {
     @Field("natures_of_control")
     private List<String> naturesOfControl;
 
-    @Field("legal_personality_statement_checked")
-    private Boolean legalPersonalityStatementChecked;
-
     @Field("no_individual_or_entity_with_significant_control")
     private Boolean noIndividualOrEntityWithSignificantControl;
 
@@ -138,14 +135,6 @@ public class PscDataDao {
 
     public void setNaturesOfControl(List<String> naturesOfControl) {
         this.naturesOfControl = naturesOfControl;
-    }
-
-    public Boolean getLegalPersonalityStatementChecked() {
-        return legalPersonalityStatementChecked;
-    }
-
-    public void setLegalPersonalityStatementChecked(Boolean legalPersonalityStatementChecked) {
-        this.legalPersonalityStatementChecked = legalPersonalityStatementChecked;
     }
 
     public Boolean getNoIndividualOrEntityWithSignificantControl() {
