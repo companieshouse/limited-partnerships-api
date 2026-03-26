@@ -423,6 +423,7 @@ class FilingsServiceTest {
                 FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
                 List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
+                
                 return generalPartners.getFirst();
             }
         }
