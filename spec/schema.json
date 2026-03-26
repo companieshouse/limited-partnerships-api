@@ -172,6 +172,7 @@
     "/transactions/{transaction_id}/incorporation/limited-partnership/{incorporation_id}/costs": {
       "get": {
         "tags": [
+          "Incorporation",
           "Costs"
         ],
         "summary": "Get payment costs for limited partnership",
@@ -402,6 +403,49 @@
                 "$ref": "#/definitions/GetFilingsResponse"
               },
               "type": "array"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}/costs": {
+      "get": {
+        "tags": [
+          "Partnerships",
+          "Costs"
+        ],
+        "summary": "Get payment costs for partnership",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of costs",
+            "schema": {
+              "$ref": "#/definitions/CostsResponse"
             }
           },
           "401": {
@@ -703,6 +747,49 @@
         }
       }
     },
+    "/transactions/{transaction_id}/limited-partnership/general-partner/{filing_resource_id}/costs": {
+      "get": {
+        "tags": [
+          "General Partners",
+          "Costs"
+        ],
+        "summary": "Get payment costs for general partner",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of costs",
+            "schema": {
+              "$ref": "#/definitions/CostsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/transactions/{transaction_id}/limited-partnership/limited-partner": {
       "post": {
         "tags": [
@@ -898,6 +985,135 @@
         }
       }
     },
+    "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/validation-status": {
+      "get": {
+        "tags": [
+          "Limited Partners",
+          "Validation Status"
+        ],
+        "summary": "Verify that the limited partner resource is valid",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/ValidationStatusResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/private/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/filings": {
+      "get": {
+        "tags": [
+          "Limited Partners",
+          "Filings"
+        ],
+        "summary": "Returns the limited partner filing data ready to send to CHIPS",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filing Data",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/GetFilingsResponse"
+              },
+              "type": "array"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/costs": {
+      "get": {
+        "tags": [
+          "Limited Partners",
+          "Costs"
+        ],
+        "summary": "Get payment costs for limited partner",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of costs",
+            "schema": {
+              "$ref": "#/definitions/CostsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/transactions/{transaction_id}/limited-partnership/persons-with-significant-control": {
       "post": {
         "tags": [
@@ -1050,92 +1266,6 @@
           },
           "401": {
             "description": "Unauthorised"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/validation-status": {
-      "get": {
-        "tags": [
-          "Limited Partners",
-          "Validation Status"
-        ],
-        "summary": "Verify that the limited partner resource is valid",
-        "parameters": [
-          {
-            "name": "transaction_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "filing_resource_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "schema": {
-              "$ref": "#/definitions/ValidationStatusResponse"
-            }
-          },
-          "401": {
-            "description": "Unauthorised"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/private/transactions/{transaction_id}/limited-partnership/limited-partner/{filing_resource_id}/filings": {
-      "get": {
-        "tags": [
-          "Limited Partners",
-          "Filings"
-        ],
-        "summary": "Returns the limited partner filing data ready to send to CHIPS",
-        "parameters": [
-          {
-            "name": "transaction_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "filing_resource_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Filing Data",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/GetFilingsResponse"
-              },
-              "type": "array"
-            }
-          },
-          "401": {
-            "description": "Unauthorised"
-          },
-          "403": {
-            "description": "Forbidden"
           },
           "404": {
             "description": "Not Found"
