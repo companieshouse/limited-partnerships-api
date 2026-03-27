@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
@@ -50,6 +51,7 @@ public class LimitedPartnershipValidator {
 
         checkCommonFields(dataDto, filingMode, errorsList);
         checkPartnershipTypeSpecificFields(dataDto, filingMode, errorsList);
+        validateHasPersonWithSignificantControl(dataDto, errorsList);
 
         return errorsList;
     }
@@ -81,6 +83,22 @@ public class LimitedPartnershipValidator {
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    protected void validateHasPersonWithSignificantControl(DataDto dataDto, List<ValidationStatusError> errorsList) {
+        var partnershipType = dataDto.getPartnershipType();
+
+        if (PartnershipType.SLP.equals(partnershipType)
+                || PartnershipType.SPFLP.equals(partnershipType)) {
+            if (Objects.isNull(dataDto.getHasPersonWithSignificantControl())) {
+                errorsList.add(validationStatus.createValidationStatusError("You must declare whether the partnership will or will not have a person with significant control", "data.hasPersonWithSignificantControl"));
+            }
+        }
+        if (PartnershipType.LP.equals(partnershipType) || PartnershipType.PFLP.equals(partnershipType)) {
+            if (Objects.nonNull(dataDto.getHasPersonWithSignificantControl())) {
+                errorsList.add(validationStatus.createValidationStatusError("This type of partnership can not have a person with significant control", "data.hasPersonWithSignificantControl"));
+            }
         }
     }
 
