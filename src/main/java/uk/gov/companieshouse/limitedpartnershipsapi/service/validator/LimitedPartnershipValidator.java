@@ -89,16 +89,19 @@ public class LimitedPartnershipValidator {
     protected void validateHasPersonWithSignificantControl(DataDto dataDto, List<ValidationStatusError> errorsList) {
         var partnershipType = dataDto.getPartnershipType();
 
-        if (PartnershipType.SLP.equals(partnershipType)
-                || PartnershipType.SPFLP.equals(partnershipType)) {
-            if (Objects.isNull(dataDto.getHasPersonWithSignificantControl())) {
-                errorsList.add(validationStatus.createValidationStatusError("You must declare whether the partnership will or will not have a person with significant control", "data.hasPersonWithSignificantControl"));
-            }
+        if ((PartnershipType.SLP.equals(partnershipType)
+                || PartnershipType.SPFLP.equals(partnershipType))
+                && Objects.isNull(dataDto.getHasPersonWithSignificantControl())) {
+            errorsList.add(validationStatus.createValidationStatusError(
+                    "You must declare whether the partnership will or will not have a person with significant control",
+                    "data.hasPersonWithSignificantControl"));
         }
-        if (PartnershipType.LP.equals(partnershipType) || PartnershipType.PFLP.equals(partnershipType)) {
-            if (Objects.nonNull(dataDto.getHasPersonWithSignificantControl())) {
-                errorsList.add(validationStatus.createValidationStatusError("This type of partnership can not have a person with significant control", "data.hasPersonWithSignificantControl"));
-            }
+        if ((PartnershipType.LP.equals(partnershipType)
+                || PartnershipType.PFLP.equals(partnershipType))
+                && Objects.nonNull(dataDto.getHasPersonWithSignificantControl())) {
+            errorsList.add(validationStatus.createValidationStatusError(
+                    "This type of partnership can not have a person with significant control",
+                    "data.hasPersonWithSignificantControl"));
         }
     }
 
