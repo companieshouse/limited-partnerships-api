@@ -42,7 +42,7 @@ public class PscController {
         this.pscService = pscService;
     }
 
-    @GetMapping("/persons-with-significant-control/{" + URL_PARAM_PSC_ID + "}")
+    @GetMapping("/person-with-significant-control/{" + URL_PARAM_PSC_ID + "}")
     public ResponseEntity<PscDto> getPsc(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                @PathVariable(URL_PARAM_PSC_ID) String pscId,
                                                                @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
@@ -57,7 +57,7 @@ public class PscController {
         return ResponseEntity.ok().body(dto);
     }
 
-    @PostMapping("/persons-with-significant-control")
+    @PostMapping("/person-with-significant-control")
     public ResponseEntity<PscSubmissionCreatedResponseDto> createPsc(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
                                                                      @RequestBody PscDto pscDto,
                                                                      @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
@@ -78,7 +78,7 @@ public class PscController {
         }
     }
 
-    @PatchMapping("/persons-with-significant-control/{" + URL_PARAM_PSC_ID + "}")
+    @PatchMapping("/person-with-significant-control/{" + URL_PARAM_PSC_ID + "}")
     public ResponseEntity<Object> updatePsc(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_PSC_ID) String pscId,
