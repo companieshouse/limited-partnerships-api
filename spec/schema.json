@@ -32,6 +32,9 @@
       "name": "Filings"
     },
     {
+      "name": "Costs"
+    },
+    {
       "name": "Healthcheck"
     }
   ],
@@ -123,6 +126,46 @@
         }
       }
     },
+    "/transactions/{transaction_id}/incorporation/limited-partnership/{filing_resource_id}/validation-status": {
+      "get": {
+        "tags": [
+          "Incorporation",
+          "Validation Status"
+        ],
+        "summary": "Verify that the limited partnership incorporation filing data is valid",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "$ref": "#/definitions/ValidationStatusResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/private/transactions/{transaction_id}/incorporation/limited-partnership/{filing_resource_id}/filings": {
       "get": {
         "tags": [
@@ -172,6 +215,7 @@
     "/transactions/{transaction_id}/incorporation/limited-partnership/{incorporation_id}/costs": {
       "get": {
         "tags": [
+          "Incorporation",
           "Costs"
         ],
         "summary": "Get payment costs for limited partnership",
@@ -419,6 +463,49 @@
         }
       }
     },
+    "/transactions/{transaction_id}/limited-partnership/partnership/{filing_resource_id}/costs": {
+      "get": {
+        "tags": [
+          "Partnerships",
+          "Costs"
+        ],
+        "summary": "Get payment costs for partnership",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of costs",
+            "schema": {
+              "$ref": "#/definitions/CostsResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/transactions/{transaction_id}/limited-partnership/general-partner": {
       "post": {
         "tags": [
@@ -528,6 +615,43 @@
         "responses": {
           "200": {
             "description": "General Partner has been successfully updated."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "General Partners"
+        ],
+        "summary": "Delete a General Partner",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "General Partner has been successfully deleted."
           },
           "400": {
             "description": "Bad Request"
@@ -789,6 +913,43 @@
             "description": "Internal Server Error"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Limited Partners"
+        ],
+        "summary": "Delete a Limited Partner",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Limited Partner has been successfully deleted."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
       }
     },
     "/transactions/{transaction_id}/limited-partnership/limited-partners": {
@@ -933,6 +1094,43 @@
         "responses": {
           "200": {
             "description": "Person with Significant Control has been successfully updated."
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorised"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Persons with Significant Control"
+        ],
+        "summary": "Delete a Person with Significant Control",
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filing_resource_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Person with Significant Control has been successfully deleted."
           },
           "400": {
             "description": "Bad Request"
