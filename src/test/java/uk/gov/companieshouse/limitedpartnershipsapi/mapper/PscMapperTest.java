@@ -23,7 +23,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.GO
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_NAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_REGISTER_NAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_FORM;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_PERSONALITY_STATEMENT_CHECKED;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LOCALITY_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY1;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY2;
@@ -57,7 +56,6 @@ class PscMapperTest {
     private static final String FN_LEGAL_ENTITY_REGISTER_NAME = "legalEntityRegisterName";
     private static final String FN_LEGAL_ENTITY_REGISTRATION_LOCATION = "legalEntityRegistrationLocation";
     private static final String FN_LEGAL_FORM = "legalForm";
-    private static final String FN_LEGAL_PERSONALITY_STATEMENT_CHECKED = "legalPersonalityStatementChecked";
     private static final String FN_NATIONALITY1 = "nationality1";
     private static final String FN_NATIONALITY2 = "nationality2";
     private static final String FN_REGISTERED_COMPANY_NUMBER = "registeredCompanyNumber";
@@ -94,7 +92,6 @@ class PscMapperTest {
                 FN_LEGAL_ENTITY_REGISTER_NAME,
                 FN_LEGAL_ENTITY_REGISTRATION_LOCATION,
                 FN_LEGAL_FORM,
-                FN_LEGAL_PERSONALITY_STATEMENT_CHECKED,
                 FN_NATIONALITY1,
                 FN_NATIONALITY2,
                 FN_REGISTERED_COMPANY_NUMBER,
@@ -114,7 +111,6 @@ class PscMapperTest {
                 LEGAL_ENTITY_REGISTER_NAME,
                 ENGLAND,
                 LEGAL_FORM,
-                LEGAL_PERSONALITY_STATEMENT_CHECKED,
                 Nationality.BRITISH.getDescription(),
                 Nationality.FRENCH.getDescription(),
                 REGISTERED_COMPANY_NUMBER,
@@ -156,7 +152,6 @@ class PscMapperTest {
                 FN_LEGAL_ENTITY_REGISTER_NAME,
                 FN_LEGAL_ENTITY_REGISTRATION_LOCATION,
                 FN_LEGAL_FORM,
-                FN_LEGAL_PERSONALITY_STATEMENT_CHECKED,
                 FN_NATIONALITY1,
                 FN_NATIONALITY2,
                 FN_REGISTERED_COMPANY_NUMBER,
@@ -176,7 +171,6 @@ class PscMapperTest {
                 LEGAL_ENTITY_REGISTER_NAME,
                 ENGLAND.getDescription(),
                 LEGAL_FORM,
-                true,
                 NATIONALITY1,
                 NATIONALITY2,
                 REGISTERED_COMPANY_NUMBER,

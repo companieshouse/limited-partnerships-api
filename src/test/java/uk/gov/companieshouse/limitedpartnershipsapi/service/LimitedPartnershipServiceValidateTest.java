@@ -31,7 +31,9 @@ import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.LP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.PFLP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.SLP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.SPFLP;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -50,10 +52,7 @@ class LimitedPartnershipServiceValidateTest {
     void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
-        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
-            limitedPartnershipSubmissionDao.getData().setTerm(null);
-            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
-        }
+        setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
 
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
@@ -69,10 +68,8 @@ class LimitedPartnershipServiceValidateTest {
     void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
-        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
-            limitedPartnershipSubmissionDao.getData().setTerm(null);
-            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
-        }
+        setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
+
         limitedPartnershipSubmissionDao.getData().setPartnershipName(null);
         limitedPartnershipSubmissionDao.getData().setEmail("invalid-email-address-format");
         limitedPartnershipSubmissionDao.getData().getRegisteredOfficeAddress().setAddressLine1(null);
@@ -107,6 +104,7 @@ class LimitedPartnershipServiceValidateTest {
         limitedPartnershipSubmissionDao.getData().setRegisteredOfficeAddress(null);
         limitedPartnershipSubmissionDao.getData().setPrincipalPlaceOfBusinessAddress(null);
         limitedPartnershipSubmissionDao.getData().setLawfulPurposeStatementChecked(null);
+        limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(null);
 
         var errorMessageAddition = "";
         if (LP.equals(type) || SLP.equals(type)) {
@@ -116,6 +114,10 @@ class LimitedPartnershipServiceValidateTest {
             limitedPartnershipSubmissionDao.getData().setTerm(Term.BY_AGREEMENT);
             limitedPartnershipSubmissionDao.getData().setSicCodes(List.of("12345", "88222", "12334", "45457"));
             errorMessageAddition = "not ";
+        }
+
+        if (SLP.equals(type) || SPFLP.equals(type)) {
+            limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(true);
         }
 
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
@@ -136,13 +138,42 @@ class LimitedPartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorWhen(PartnershipType partnershipType) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
-        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(partnershipType);
+
+        var errorMessage = "";
+        if (LP.equals(partnershipType) || PFLP.equals(partnershipType)) {
+            limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(true);
+            errorMessage = "This type of partnership can not have a person with significant control";
+        }
+        if (SLP.equals(partnershipType) || SPFLP.equals(partnershipType)) {
+            limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(null);
+            errorMessage = "You must declare whether the partnership will or will not have a person with significant control";
+        }
+
+        if (PFLP.equals(partnershipType) || SPFLP.equals(partnershipType)) {
             limitedPartnershipSubmissionDao.getData().setTerm(null);
             limitedPartnershipSubmissionDao.getData().setSicCodes(null);
         }
+
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+
+        // then
+        checkForError(results, errorMessage, "data.hasPersonWithSignificantControl");
+        assertEquals(1, results.size());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
+
         limitedPartnershipSubmissionDao.getData().setPartnershipName("");
         limitedPartnershipSubmissionDao.getData().setEmail(null);
 
@@ -162,10 +193,8 @@ class LimitedPartnershipServiceValidateTest {
     void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
-        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
-            limitedPartnershipSubmissionDao.getData().setTerm(null);
-            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
-        }
+        setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
+
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
 
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
@@ -183,10 +212,8 @@ class LimitedPartnershipServiceValidateTest {
     void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
-        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
-            limitedPartnershipSubmissionDao.getData().setTerm(null);
-            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
-        }
+        setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
+
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
         limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LP123456");
 
@@ -206,10 +233,8 @@ class LimitedPartnershipServiceValidateTest {
     void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
-        if (type == PartnershipType.PFLP || type == PartnershipType.SPFLP) {
-            limitedPartnershipSubmissionDao.getData().setTerm(null);
-            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
-        }
+        setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
+
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
         limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LX123456");
 
@@ -245,5 +270,15 @@ class LimitedPartnershipServiceValidateTest {
         assertThat(results, hasItem(allOf(
                 hasProperty("error", is(errorMessage)),
                 hasProperty("location", is(location)))));
+    }
+
+    private void setupPartnershipTypeSpecificFields(LimitedPartnershipDao limitedPartnershipSubmissionDao, PartnershipType partnershipType){
+        if (partnershipType == PFLP || partnershipType == PartnershipType.SPFLP) {
+            limitedPartnershipSubmissionDao.getData().setTerm(null);
+            limitedPartnershipSubmissionDao.getData().setSicCodes(null);
+        }
+        if (PartnershipType.SLP.equals(partnershipType) || PartnershipType.SPFLP.equals(partnershipType)) {
+            limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(false);
+        }
     }
 }

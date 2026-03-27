@@ -68,6 +68,9 @@ public class LimitedPartnershipPatchDto {
     @JsonProperty("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
 
+    @JsonProperty("has_person_with_significant_control")
+    private Boolean hasPersonWithSignificantControl;
+
     @JsonProperty("date_of_update")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @PastOrPresent(message = "Date of update must not be in the future")
@@ -151,6 +154,14 @@ public class LimitedPartnershipPatchDto {
 
     public Boolean getLawfulPurposeStatementChecked() {
         return lawfulPurposeStatementChecked;
+    }
+
+    public Boolean getHasPersonWithSignificantControl() {
+        return hasPersonWithSignificantControl;
+    }
+
+    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
+        this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
     }
 
     public LocalDate getDateOfUpdate() {

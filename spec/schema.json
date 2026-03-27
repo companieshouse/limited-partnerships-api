@@ -985,7 +985,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/persons-with-significant-control": {
+    "/transactions/{transaction_id}/limited-partnership/person-with-significant-control": {
       "post": {
         "tags": [
           "Persons with Significant Control"
@@ -1026,7 +1026,7 @@
         }
       }
     },
-    "/transactions/{transaction_id}/limited-partnership/persons-with-significant-control/{filing_resource_id}": {
+    "/transactions/{transaction_id}/limited-partnership/person-with-significant-control/{filing_resource_id}": {
       "get": {
         "tags": [
           "Persons with Significant Control"
