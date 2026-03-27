@@ -154,20 +154,20 @@ public class DataDao {
         this.sicCodes = sicCodes;
     }
 
-    public Boolean getLawfulPurposeStatementChecked() {
-        return lawfulPurposeStatementChecked;
-    }
-
-    public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
-        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
-    }
-
     public Boolean getHasPersonWithSignificantControl() {
         return hasPersonWithSignificantControl;
     }
 
     public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
         this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
+    }
+
+    public Boolean getLawfulPurposeStatementChecked() {
+        return lawfulPurposeStatementChecked;
+    }
+
+    public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
+        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
     }
 
     public String getKind() {

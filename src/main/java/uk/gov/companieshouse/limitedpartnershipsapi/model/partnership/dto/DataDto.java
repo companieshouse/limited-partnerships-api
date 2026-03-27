@@ -193,6 +193,14 @@ public class DataDto {
         this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
     }
 
+    public Boolean getHasPersonWithSignificantControl() {
+        return hasPersonWithSignificantControl;
+    }
+
+    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
+        this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
+    }
+
     public List<String> getSicCodes() {
         return sicCodes;
     }
@@ -207,14 +215,6 @@ public class DataDto {
 
     public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
         this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
-    }
-
-    public Boolean getHasPersonWithSignificantControl() {
-        return hasPersonWithSignificantControl;
-    }
-
-    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
-        this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
     }
 
     public String getKind() {
