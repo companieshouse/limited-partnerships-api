@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -18,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
@@ -67,6 +69,9 @@ public class LimitedPartnershipPatchDto {
 
     @JsonProperty("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
+
+    @JsonProperty("has_person_with_significant_control")
+    private Boolean hasPersonWithSignificantControl;
 
     @JsonProperty("date_of_update")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -151,6 +156,14 @@ public class LimitedPartnershipPatchDto {
 
     public Boolean getLawfulPurposeStatementChecked() {
         return lawfulPurposeStatementChecked;
+    }
+
+    public Boolean getHasPersonWithSignificantControl() {
+        return hasPersonWithSignificantControl;
+    }
+
+    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
+        this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
     }
 
     public LocalDate getDateOfUpdate() {

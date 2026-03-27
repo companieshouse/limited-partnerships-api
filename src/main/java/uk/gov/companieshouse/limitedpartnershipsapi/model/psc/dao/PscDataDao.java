@@ -29,9 +29,6 @@ public class PscDataDao {
     @Field("natures_of_control")
     private List<String> naturesOfControl;
 
-    @Field("no_individual_or_entity_with_significant_control")
-    private Boolean noIndividualOrEntityWithSignificantControl;
-
     @Field("service_address")
     private AddressDao serviceAddress;
 
@@ -135,14 +132,6 @@ public class PscDataDao {
 
     public void setNaturesOfControl(List<String> naturesOfControl) {
         this.naturesOfControl = naturesOfControl;
-    }
-
-    public Boolean getNoIndividualOrEntityWithSignificantControl() {
-        return noIndividualOrEntityWithSignificantControl;
-    }
-
-    public void setNoIndividualOrEntityWithSignificantControl(Boolean noIndividualOrEntityWithSignificantControl) {
-        this.noIndividualOrEntityWithSignificantControl = noIndividualOrEntityWithSignificantControl;
     }
 
     public AddressDao getServiceAddress() {

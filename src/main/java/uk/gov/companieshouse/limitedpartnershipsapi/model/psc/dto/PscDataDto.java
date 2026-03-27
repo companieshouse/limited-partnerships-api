@@ -34,10 +34,6 @@ public class PscDataDto implements HasNationality {
     @JsonProperty("natures_of_control")
     private List<NatureOfControl> naturesOfControl;
 
-    @JsonInclude(Include.NON_NULL)
-    @JsonProperty("no_individual_or_entity_with_significant_control")
-    private Boolean noIndividualOrEntityWithSignificantControl;
-
     @JsonProperty("service_address")
     private AddressDto serviceAddress;
 
@@ -134,14 +130,6 @@ public class PscDataDto implements HasNationality {
 
     public void setNaturesOfControl(List<NatureOfControl> naturesOfControl) {
         this.naturesOfControl = naturesOfControl;
-    }
-
-    public Boolean getNoIndividualOrEntityWithSignificantControl() {
-        return noIndividualOrEntityWithSignificantControl;
-    }
-
-    public void setNoIndividualOrEntityWithSignificantControl(Boolean noIndividualOrEntityWithSignificantControl) {
-        this.noIndividualOrEntityWithSignificantControl = noIndividualOrEntityWithSignificantControl;
     }
 
     public AddressDto getServiceAddress() {

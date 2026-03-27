@@ -36,7 +36,6 @@ public class PscBuilder {
     public static final String NATIONALITY1 = "British";
     public static final String NATIONALITY2 = "French";
     public static final String REGISTERED_COMPANY_NUMBER = "12345678";
-    public static final boolean NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL = true;
     public static final String POA_PREFIX = "poa";
     public static final String SERVICE_PREFIX = "service";
     public static final String URA_PREFIX = "ura";
@@ -80,7 +79,6 @@ public class PscBuilder {
             pscDataDao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
             pscDataDao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
             pscDataDao.setLegalForm(LEGAL_FORM);
-            pscDataDao.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDao.setNationality1(NATIONALITY1);
             pscDataDao.setNationality2(NATIONALITY2);
             pscDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
@@ -105,7 +103,6 @@ public class PscBuilder {
             pscDataDao.setForename(FORENAME);
             pscDataDao.setSurname(SURNAME);
             pscDataDao.setFormerNames(FORMER_NAMES);
-            pscDataDao.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDao.setNationality1(NATIONALITY1);
             pscDataDao.setNationality2(NATIONALITY2);
             pscDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
@@ -130,7 +127,6 @@ public class PscBuilder {
             pscDataDao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
             pscDataDao.setLegalForm(LEGAL_FORM);
             pscDataDao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-            pscDataDao.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
             pscDataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
             pscDataDao.setResignationDate(RESIGNATION_DATE);
@@ -203,7 +199,6 @@ public class PscBuilder {
             pscDataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
             pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
             pscDataDto.setLegalForm(LEGAL_FORM);
-            pscDataDto.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDto.setNationality1(BRITISH);
             pscDataDto.setNationality2(FRENCH);
             pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
@@ -228,7 +223,6 @@ public class PscBuilder {
             pscDataDto.setLegalEntityRegistrationLocation(ENGLAND);
             pscDataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
             pscDataDto.setLegalForm(LEGAL_FORM);
-            pscDataDto.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
             pscDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
             pscDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
@@ -245,7 +239,6 @@ public class PscBuilder {
             pscDataDto.setForename(FORENAME);
             pscDataDto.setSurname(SURNAME);
             pscDataDto.setFormerNames(FORMER_NAMES);
-            pscDataDto.setNoIndividualOrEntityWithSignificantControl(NO_INDIVIDUAL_OR_ENTITY_WITH_SIGNIFICANT_CONTROL);
             pscDataDto.setNationality1(BRITISH);
             pscDataDto.setNationality2(FRENCH);
             pscDataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
