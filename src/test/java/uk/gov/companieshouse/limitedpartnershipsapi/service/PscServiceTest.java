@@ -231,4 +231,44 @@ class PscServiceTest {
                 () -> pscService.updatePsc(TRANSACTION, PSC_ID, new PscDataDto(), REQUEST_ID, USER_ID));
         assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", TRANSACTION.getId(), PSC_ID), resourceNotFoundException.getMessage());
     }
+
+    @Test
+    void testDeletePscSuccess() throws ServiceException {
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(true);
+
+        pscService.deletePsc(TRANSACTION, PSC_ID, REQUEST_ID);
+
+        verify(repository, times(1)).findById(PSC_ID);
+        verify(transactionService, times(1)).isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC);
+        verify(transactionService, times(1)).deleteTransactionResource(TRANSACTION.getId(), pscUri, REQUEST_ID);
+        verify(repository, times(1)).deleteById(PSC_ID);
+    }
+
+    @Test
+    void testDeletePscNotFound() {
+        when(repository.findById(PSC_ID)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(
+                ResourceNotFoundException.class,
+                () -> pscService.deletePsc(TRANSACTION, PSC_ID, REQUEST_ID));
+        assertEquals("Person with significant control with id " + PSC_ID + " not found", resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testDeletePscTransactionNotLinked() {
+        PscDao existingDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        var pscUri = String.format(URL_GET_PSC, TRANSACTION.getId(), PSC_ID);
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PSC)).thenReturn(false);
+
+        ResourceNotFoundException resourceNotFoundException = assertThrows(
+                ResourceNotFoundException.class,
+                () -> pscService.deletePsc(TRANSACTION, PSC_ID, REQUEST_ID));
+        assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", TRANSACTION.getId(), PSC_ID), resourceNotFoundException.getMessage());
+    }
 }

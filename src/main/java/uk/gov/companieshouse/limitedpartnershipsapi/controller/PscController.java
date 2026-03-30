@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscSubmissionCreatedResponseDto;
@@ -95,5 +97,23 @@ public class PscController {
         pscService.updatePsc(transaction, pscId, pscDataDto, requestId, userId);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/persons-with-significant-control/{" +URL_PARAM_PSC_ID + "}")
+    public ResponseEntity<Object> deletePsc(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                            @PathVariable(URL_PARAM_PSC_ID) String pscId,
+                                            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId)
+            throws ServiceException {
+
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        logMap.put(URL_PARAM_PSC_ID, pscId);
+
+        ApiLogger.infoContext(requestId, "Delete a person with significant control", logMap);
+
+        pscService.deletePsc(transaction, pscId, requestId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

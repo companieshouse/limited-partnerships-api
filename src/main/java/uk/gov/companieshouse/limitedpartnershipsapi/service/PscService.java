@@ -80,6 +80,22 @@ public class PscService {
         repository.save(pscDaoAfterPatch);
     }
 
+    public void deletePsc(Transaction transaction, String pscId, String requestId) throws ServiceException {
+        PscDao pscDao = repository.findById(pscId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Person with significant control with id %s not found", pscId)));
+
+        String kind = requireNonNullElse(pscDao.getData().getKind(), FILING_KIND_PSC);
+
+        checkPscIsLinkedToTransaction(transaction, pscId, kind);
+
+        var pscUri = String.format(URL_GET_PSC, transaction.getId(), pscId);
+
+        transactionService.deleteTransactionResource(transaction.getId(), pscUri, requestId);
+        repository.deleteById(pscDao.getId());
+
+        ApiLogger.infoContext(requestId, String.format("Person with significant control deleted with id: %s", pscId));
+    }
+
     private PscDao insertDaoWithMetadata(
             String requestId, Transaction transaction, String userId, PscDao dao) {
         if (dao.getData().getKind() == null) {
