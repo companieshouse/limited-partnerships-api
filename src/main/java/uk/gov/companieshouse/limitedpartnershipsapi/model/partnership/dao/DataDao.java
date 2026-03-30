@@ -49,6 +49,9 @@ public class DataDao {
     @Field("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
 
+    @Field("has_person_with_significant_control")
+    private Boolean hasPersonWithSignificantControl;
+
     @Field("kind")
     private String kind;
 
@@ -149,6 +152,14 @@ public class DataDao {
 
     public void setSicCodes(List<String> sicCodes) {
         this.sicCodes = sicCodes;
+    }
+
+    public Boolean getHasPersonWithSignificantControl() {
+        return hasPersonWithSignificantControl;
+    }
+
+    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
+        this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
     }
 
     public Boolean getLawfulPurposeStatementChecked() {

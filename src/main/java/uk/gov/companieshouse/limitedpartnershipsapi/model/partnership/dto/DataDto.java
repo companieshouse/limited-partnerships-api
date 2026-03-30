@@ -91,6 +91,9 @@ public class DataDto {
     @JsonProperty("lawful_purpose_statement_checked")
     private Boolean lawfulPurposeStatementChecked;
 
+    @JsonProperty("has_person_with_significant_control")
+    private Boolean hasPersonWithSignificantControl;
+
     @JsonProperty("kind")
     private String kind;
 
@@ -188,6 +191,14 @@ public class DataDto {
 
     public void setPrincipalPlaceOfBusinessAddress(AddressDto principalPlaceOfBusinessAddress) {
         this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
+    }
+
+    public Boolean getHasPersonWithSignificantControl() {
+        return hasPersonWithSignificantControl;
+    }
+
+    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
+        this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
     }
 
     public List<String> getSicCodes() {
