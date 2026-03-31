@@ -25,7 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.PscService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.nio.charset.StandardCharsets;
@@ -75,7 +75,7 @@ class ControllerEndpointInterceptorTest {
     private LimitedPartnerService limitedPartnerService;
 
     @MockitoBean
-    private PscService pscService;
+    private PersonWithSignificantControlService personWithSignificantControlService;
 
     @MockitoBean
     private TransactionService transactionService;

@@ -1,16 +1,16 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
-public class PscDto {
+public class PersonWithSignificantControlDto {
     protected String id;
 
     @JsonInclude(NON_NULL)
     @JsonProperty("data")
-    private PscDataDto data;
+    private PersonWithSignificantControlDataDto data;
 
     public String getId() {
         return id;
@@ -20,11 +20,11 @@ public class PscDto {
         this.id = id;
     }
 
-    public PscDataDto getData() {
+    public PersonWithSignificantControlDataDto getData() {
         return data;
     }
 
-    public void setData(PscDataDto data) {
+    public void setData(PersonWithSignificantControlDataDto data) {
         this.data = data;
     }
 }

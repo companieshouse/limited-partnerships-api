@@ -1,88 +1,90 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
+import org.springframework.data.mongodb.core.mapping.Field;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public class PscDataDto implements HasNationality {
+public class PersonWithSignificantControlDataDao {
 
-    @JsonProperty("kind")
+    @Field("etag")
+    private String etag;
+
+    @Field("kind")
     private String kind;
 
-    @JsonProperty("appointment_id")
+    @Field("appointment_id")
     private String appointmentId;
 
-    @JsonProperty("country")
-    private Country country;
+    @Field("country")
+    private String country;
 
-    @JsonProperty("date_effective_from")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Field("date_effective_from")
     private LocalDate dateEffectiveFrom;
 
-    @JsonProperty("resignation_date")
+    @Field("resignation_date")
     private LocalDate resignationDate;
 
-    @JsonProperty("natures_of_control")
-    private List<NatureOfControl> naturesOfControl;
+    @Field("natures_of_control")
+    private List<String> naturesOfControl;
 
-    @JsonProperty("service_address")
-    private AddressDto serviceAddress;
+    @Field("service_address")
+    private AddressDao serviceAddress;
 
     // PERSON
 
-    @JsonProperty("forename")
+    @Field("forename")
     private String forename;
 
-    @JsonProperty("former_names")
+    @Field("former_names")
     private String formerNames;
 
-    @JsonProperty("surname")
+    @Field("surname")
     private String surname;
 
-    @JsonProperty("date_of_birth")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Field("date_of_birth")
     private LocalDate dateOfBirth;
 
-    @JsonProperty("nationality1")
-    private Nationality nationality1;
+    @Field("nationality1")
+    private String nationality1;
 
-    @JsonProperty("nationality2")
-    private Nationality nationality2;
+    @Field("nationality2")
+    private String nationality2;
 
-    @JsonProperty("usual_residential_address")
-    private AddressDto usualResidentialAddress;
+    @Field("usual_residential_address")
+    private AddressDao usualResidentialAddress;
 
     // LEGAL ENTITY
 
-    @JsonProperty("governing_law")
-    private String governingLaw;
-
-    @JsonProperty("legal_entity_name")
+    @Field("legal_entity_name")
     private String legalEntityName;
 
-    @JsonProperty("legal_entity_register_name")
-    private String legalEntityRegisterName;
-
-    @JsonProperty("legal_entity_registration_location")
-    private Country legalEntityRegistrationLocation;
-
-    @JsonProperty("legal_form")
+    @Field("legal_form")
     private String legalForm;
 
-    @JsonProperty("registered_company_number")
+    @Field("governing_law")
+    private String governingLaw;
+
+    @Field("legal_entity_register_name")
+    private String legalEntityRegisterName;
+
+    @Field("legal_entity_registration_location")
+    private String legalEntityRegistrationLocation;
+
+    @Field("registered_company_number")
     private String registeredCompanyNumber;
 
-    @JsonProperty("principal_office_address")
-    private AddressDto principalOfficeAddress;
+    @Field("principal_office_address")
+    private AddressDao principalOfficeAddress;
+
+    public String getEtag() {
+        return etag;
+    }
+
+    public void setEtag(String etag) {
+        this.etag = etag;
+    }
 
     public String getKind() {
         return kind;
@@ -100,11 +102,11 @@ public class PscDataDto implements HasNationality {
         this.appointmentId = appointmentId;
     }
 
-    public Country getCountry() {
+    public String getCountry() {
         return country;
     }
 
-    public void setCountry(Country country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 
@@ -124,19 +126,19 @@ public class PscDataDto implements HasNationality {
         this.resignationDate = resignationDate;
     }
 
-    public List<NatureOfControl> getNaturesOfControl() {
+    public List<String> getNaturesOfControl() {
         return naturesOfControl;
     }
 
-    public void setNaturesOfControl(List<NatureOfControl> naturesOfControl) {
+    public void setNaturesOfControl(List<String> naturesOfControl) {
         this.naturesOfControl = naturesOfControl;
     }
 
-    public AddressDto getServiceAddress() {
+    public AddressDao getServiceAddress() {
         return serviceAddress;
     }
 
-    public void setServiceAddress(AddressDto serviceAddress) {
+    public void setServiceAddress(AddressDao serviceAddress) {
         this.serviceAddress = serviceAddress;
     }
 
@@ -173,26 +175,26 @@ public class PscDataDto implements HasNationality {
     }
 
     public String getNationality1() {
-        return nationality1 != null ? nationality1.getDescription() : null;
+        return nationality1;
     }
 
-    public void setNationality1(Nationality nationality1) {
+    public void setNationality1(String nationality1) {
         this.nationality1 = nationality1;
     }
 
     public String getNationality2() {
-        return nationality2 != null ? nationality2.getDescription() : null;
+        return nationality2;
     }
 
-    public void setNationality2(Nationality nationality2) {
+    public void setNationality2(String nationality2) {
         this.nationality2 = nationality2;
     }
 
-    public AddressDto getUsualResidentialAddress() {
+    public AddressDao getUsualResidentialAddress() {
         return usualResidentialAddress;
     }
 
-    public void setUsualResidentialAddress(AddressDto usualResidentialAddress) {
+    public void setUsualResidentialAddress(AddressDao usualResidentialAddress) {
         this.usualResidentialAddress = usualResidentialAddress;
     }
 
@@ -228,11 +230,11 @@ public class PscDataDto implements HasNationality {
         this.legalEntityRegisterName = legalEntityRegisterName;
     }
 
-    public Country getLegalEntityRegistrationLocation() {
+    public String getLegalEntityRegistrationLocation() {
         return legalEntityRegistrationLocation;
     }
 
-    public void setLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
+    public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
         this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
     }
 
@@ -244,12 +246,11 @@ public class PscDataDto implements HasNationality {
         this.registeredCompanyNumber = registeredCompanyNumber;
     }
 
-    public AddressDto getPrincipalOfficeAddress() {
+    public AddressDao getPrincipalOfficeAddress() {
         return principalOfficeAddress;
     }
 
-    public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
+    public void setPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
     }
 }
-

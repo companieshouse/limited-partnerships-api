@@ -1,20 +1,20 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao;
+package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.BaseDao;
 
 @Document(collection = "limited_partnership_pscs")
-public class PscDao extends BaseDao {
+public class PersonWithSignificantControlDao extends BaseDao {
 
     @Field("data")
-    private PscDataDao data;
+    private PersonWithSignificantControlDataDao data;
 
-    public PscDataDao getData() {
+    public PersonWithSignificantControlDataDao getData() {
         return data;
     }
 
-    public void setData(PscDataDao data) {
+    public void setData(PersonWithSignificantControlDataDao data) {
         this.data = data;
     }
 }

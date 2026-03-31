@@ -2,46 +2,46 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ADDRESS_LINE1_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.ADDRESS_LINE2_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.APPOINTMENT_ID;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.COUNTRY_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.DATE_EFFECTIVE_FROM;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.DATE_OF_BIRTH;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.FORENAME;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.FORMER_NAMES;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.GOVERNING_LAW;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_NAME;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_ENTITY_REGISTER_NAME;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LEGAL_FORM;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.LOCALITY_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY1;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATIONALITY2;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.NATURES_OF_CONTROL_LIST_DESCRIPTIONS;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.POA_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.POSTAL_CODE_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.PREMISES_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.REGION_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.REGISTERED_COMPANY_NUMBER;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.RESIGNATION_DATE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SERVICE_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.SURNAME;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PscBuilder.URA_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.ADDRESS_LINE1_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.ADDRESS_LINE2_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.APPOINTMENT_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.COUNTRY_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.DATE_EFFECTIVE_FROM;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.DATE_OF_BIRTH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.FORENAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.FORMER_NAMES;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.GOVERNING_LAW;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_ENTITY_NAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_ENTITY_REGISTER_NAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_FORM;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LOCALITY_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATIONALITY1;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATIONALITY2;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATURES_OF_CONTROL_LIST_DESCRIPTIONS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POA_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POSTAL_CODE_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.PREMISES_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGION_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGISTERED_COMPANY_NUMBER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.RESIGNATION_DATE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SERVICE_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SURNAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.URA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 
-class PscMapperTest {
-    private static final PscMapper MAPPER = Mappers.getMapper(PscMapper.class);
+class PersonWithSignificantControlMapperTest {
+    private static final PersonWithSignificantControlMapper MAPPER = Mappers.getMapper(PersonWithSignificantControlMapper.class);
 
     // Field name constants for extracting()
     private static final String FN_APPOINTMENT_ID = "appointmentId";
@@ -71,11 +71,11 @@ class PscMapperTest {
     @Test
     void givenDao_whenMapsToDto_thenCorrect() {
         // given
-        PscDao pscDao = new PscBuilder.PscDaoBuilder().pscDao().build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
 
         // when
-        PscDto result = MAPPER.daoToDto(pscDao);
-        PscDataDto dataDto = result.getData();
+        PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
+        PersonWithSignificantControlDataDto dataDto = result.getData();
 
         // Grouped assertions for main fields
         assertThat(dataDto)
@@ -106,7 +106,7 @@ class PscMapperTest {
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                FILING_KIND_PSC,
+                    FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
                 ENGLAND,
@@ -131,11 +131,11 @@ class PscMapperTest {
     @Test
     void givenDto_whenMapsToDao_thenCorrect() {
         // given
-        PscDto pscDto = new PscBuilder.PscDtoBuilder().pscDto().build();
+        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
 
         // when
-        PscDao result = MAPPER.dtoToDao(pscDto);
-        PscDataDao daoData = result.getData();
+        PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);
+        PersonWithSignificantControlDataDao daoData = result.getData();
 
         // Grouped assertions for main fields
         assertThat(daoData)
@@ -166,7 +166,7 @@ class PscMapperTest {
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                FILING_KIND_PSC,
+                    FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
                 ENGLAND.getDescription(),
