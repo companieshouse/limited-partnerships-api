@@ -377,6 +377,54 @@ class LimitedPartnershipServiceUpdateTest {
                 assertTrue(retrievedDto.getData().getLawfulPurposeStatementChecked());
             }
         }
+
+        @Nested
+        class UpdateHasPersonWithSignificantControl {
+            @Test
+            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+                // given
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                limitedPartnershipDao.getData().setHasPersonWithSignificantControl(null);
+
+                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+                limitedPartnershipPatchDto.setHasPersonWithSignificantControl(Boolean.TRUE);
+
+                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+                // dao has person with significant control is null before mapping/update
+                assertNull(limitedPartnershipDao.getData().getHasPersonWithSignificantControl());
+
+                // when
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+                // then
+                verify(repository).findById(SUBMISSION_ID);
+                verify(repository).save(submissionCaptor.capture());
+
+                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+
+                assertTrue(sentSubmission.getData().getHasPersonWithSignificantControl());
+            }
+
+            @Test
+            void shouldReturnDtoContainingHasPersonWithSignificantControl() throws ResourceNotFoundException {
+                // given
+                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                limitedPartnershipDao.getData().setHasPersonWithSignificantControl(true);
+
+                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+                // when
+                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+
+                // then
+                verify(repository).findById(limitedPartnershipDao.getId());
+
+                assertTrue(retrievedDto.getData().getHasPersonWithSignificantControl());
+            }
+        }
     }
 
     private static AddressDao getAddressDao() {
