@@ -8,10 +8,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.NatureOfControl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dao.PscDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.psc.dto.PscDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 
 import java.util.List;
 
@@ -19,15 +19,15 @@ import java.util.List;
 @Mapper(uses = JsonNullableMapper.class,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring")
-public interface PscMapper {
-    PscDto daoToDto(PscDao dao);
+public interface PersonWithSignificantControlMapper {
+    PersonWithSignificantControlDto daoToDto(PersonWithSignificantControlDao dao);
 
-    PscDao dtoToDao(PscDto dto);
+    PersonWithSignificantControlDao dtoToDao(PersonWithSignificantControlDto dto);
 
-    PscDataDto map(PscDataDto dto);
+    PersonWithSignificantControlDataDto map(PersonWithSignificantControlDataDto dto);
 
     @InheritConfiguration
-    void update(PscDataDto update, @MappingTarget PscDataDto destination);
+    void update(PersonWithSignificantControlDataDto update, @MappingTarget PersonWithSignificantControlDataDto destination);
 
     // ENUMS
     default String mapNationalityToString(Nationality nationality) {
