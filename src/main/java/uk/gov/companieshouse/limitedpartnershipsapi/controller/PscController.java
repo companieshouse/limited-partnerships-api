@@ -112,10 +112,8 @@ public class PscController {
 
         ApiLogger.infoContext(requestId, "Delete a person with significant control", logMap);
 
-        Transaction badTransaction = new Transaction();
-        badTransaction.setId("bad-transaction-id");
-        pscService.deletePsc(badTransaction, "DANGEROUS PSC ID", "INCORRECT REQUEST ID");
+        pscService.deletePsc(transaction, pscId, requestId);
 
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder.TRANSACTION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PSC;
@@ -158,4 +159,14 @@ class PscControllerTest {
                 USER_ID));
     }
 
+    @Test
+    void testDeletePscReturnsSuccess() throws Exception {
+        var response = pscController.deletePsc(
+                transaction,
+                PSC_ID,
+                REQUEST_ID);
+
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
+        verify(pscService).deletePsc(transaction, PSC_ID, REQUEST_ID);
+    }
 }
