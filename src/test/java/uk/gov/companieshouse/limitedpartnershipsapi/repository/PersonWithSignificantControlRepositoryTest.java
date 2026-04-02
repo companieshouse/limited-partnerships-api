@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +49,8 @@ class PersonWithSignificantControlRepositoryTest {
 
         PersonWithSignificantControlDao foundLegalEntity = personWithSignificantControlRepository.findById(legalEntity.getId()).orElseThrow();
 
-        AssertionsForClassTypes.assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
-        AssertionsForClassTypes.assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+        assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
+        assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
     }
 
     @Test
@@ -62,8 +61,8 @@ class PersonWithSignificantControlRepositoryTest {
 
         PersonWithSignificantControlDao foundPerson = personWithSignificantControlRepository.findById(person.getId()).orElseThrow();
 
-        AssertionsForClassTypes.assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
-        AssertionsForClassTypes.assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+        assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
+        assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
     }
 
     @Test
@@ -85,12 +84,12 @@ class PersonWithSignificantControlRepositoryTest {
                 .hasSize(2)
                 .satisfiesExactly(
                         foundLegalEntity -> {
-                            AssertionsForClassTypes.assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
-                            AssertionsForClassTypes.assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+                            assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
+                            assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
                         },
                         foundPerson -> {
-                            AssertionsForClassTypes.assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
-                            AssertionsForClassTypes.assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+                            assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
+                            assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
                         }
                 );
     }
