@@ -70,7 +70,9 @@ class PersonWithSignificantControlRepositoryTest {
     void testGetPersonWithSignificantControlListOrderedByUpdatedAtDesc() {
         PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personPersonWithSignificantControlDao().build();
         PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().legalEntityPersonWithSignificantControlDao().build();
-        legalEntity.setId("8014b46c-29f6-4f42-a2b9-9ba512e0be4b");
+        person.setId("782j836-922jl22-23123");
+        legalEntity.setId("8014b4-897pu76-9976");
+
         person.setTransactionId(TRANSACTION_ID);
         legalEntity.setTransactionId(TRANSACTION_ID);
 
@@ -82,13 +84,13 @@ class PersonWithSignificantControlRepositoryTest {
         assertThat(result)
                 .hasSize(2)
                 .satisfiesExactly(
-                        entity -> {
-                            AssertionsForClassTypes.assertThat(entity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
-                            AssertionsForClassTypes.assertThat(entity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+                        foundLegalEntity -> {
+                            AssertionsForClassTypes.assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
+                            AssertionsForClassTypes.assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
                         },
-                        p -> {
-                            AssertionsForClassTypes.assertThat(p.getData().getForename()).isEqualTo(person.getData().getForename());
-                            AssertionsForClassTypes.assertThat(p.getData().getSurname()).isEqualTo(person.getData().getSurname());
+                        foundPerson -> {
+                            AssertionsForClassTypes.assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
+                            AssertionsForClassTypes.assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
                         }
                 );
     }
