@@ -1,0 +1,106 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.repository;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
+@Testcontainers
+@SpringBootTest
+class PersonWithSignificantControlRepositoryTest {
+
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+
+    @Container
+    private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+    }
+
+    @Autowired
+    private PersonWithSignificantControlRepository personWithSignificantControlRepository;
+
+    @AfterEach
+    public void tearDown() {
+        personWithSignificantControlRepository.deleteAll();
+    }
+
+    @Test
+    void testInsertAndRetrieveLegalEntityPersonWithSignificantControlList() {
+        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().legalEntityPersonWithSignificantControlDao().build();
+
+        personWithSignificantControlRepository.insert(legalEntity);
+
+        PersonWithSignificantControlDao foundLegalEntity = personWithSignificantControlRepository.findById(legalEntity.getId()).orElseThrow();
+
+        assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
+        assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+    }
+
+    @Test
+    void testInsertAndRetrievePersonPersonWithSignificantControlList() {
+        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personPersonWithSignificantControlDao().build();
+
+        personWithSignificantControlRepository.insert(person);
+
+        PersonWithSignificantControlDao foundPerson = personWithSignificantControlRepository.findById(person.getId()).orElseThrow();
+
+        assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
+        assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+    }
+
+    @Test
+    void testGetPersonWithSignificantControlListOrderedByUpdatedAtDesc() {
+        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().legalEntityPersonWithSignificantControlDao().build();
+        person.setId("782j836-922jl22-23123");
+        legalEntity.setId("8014b4-897pu76-9976");
+
+        person.setTransactionId(TRANSACTION_ID);
+        legalEntity.setTransactionId(TRANSACTION_ID);
+
+        personWithSignificantControlRepository.insert(person);
+        personWithSignificantControlRepository.insert(legalEntity);
+
+        List<PersonWithSignificantControlDao> result = personWithSignificantControlRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+
+        assertThat(result)
+                .hasSize(2)
+                .satisfiesExactly(
+                        foundLegalEntity -> {
+                            assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
+                            assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+                        },
+                        foundPerson -> {
+                            assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
+                            assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+                        }
+                );
+    }
+
+    @Test
+    void testAuditFieldsArePopulated() {
+        LocalDateTime startOfTest = LocalDateTime.now();
+        PersonWithSignificantControlDao dao = new PersonWithSignificantControlDao();
+        personWithSignificantControlRepository.insert(dao);
+
+        assertThat(dao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
+        assertThat(dao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
+    }
+}
