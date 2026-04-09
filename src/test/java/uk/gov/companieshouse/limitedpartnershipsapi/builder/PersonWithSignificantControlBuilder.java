@@ -6,6 +6,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
@@ -59,6 +60,7 @@ public class PersonWithSignificantControlBuilder {
             NatureOfControl.INDIVIDUAL_FIRM_CONTROL,
             NatureOfControl.ORP_TRUST_CONTROL
     );
+    public static final PersonWithSignificantControlType PSC_TYPE_INDIVIDUAL_PERSON = PersonWithSignificantControlType.INDIVIDUAL_PERSON;
 
     public static class PersonWithSignificantControlDaoBuilder {
 
@@ -88,6 +90,7 @@ public class PersonWithSignificantControlBuilder {
             personWithSignificantControlDataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
             personWithSignificantControlDataDao.setSurname(SURNAME);
             personWithSignificantControlDataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+            personWithSignificantControlDataDao.setType(PSC_TYPE_INDIVIDUAL_PERSON);
 
             personWithSignificantControlDao.setId(ID);
             personWithSignificantControlDao.setData(personWithSignificantControlDataDao);
@@ -109,6 +112,7 @@ public class PersonWithSignificantControlBuilder {
             personWithSignificantControlDataDao.setResignationDate(RESIGNATION_DATE);
             personWithSignificantControlDataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
             personWithSignificantControlDataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+            personWithSignificantControlDataDao.setType(PSC_TYPE_INDIVIDUAL_PERSON);
 
             personWithSignificantControlDao.setId(ID);
             personWithSignificantControlDao.setData(personWithSignificantControlDataDao);
@@ -132,6 +136,7 @@ public class PersonWithSignificantControlBuilder {
             personWithSignificantControlDataDao.setResignationDate(RESIGNATION_DATE);
             personWithSignificantControlDataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
             personWithSignificantControlDataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
+            personWithSignificantControlDataDao.setType(PSC_TYPE_INDIVIDUAL_PERSON);
 
             personWithSignificantControlDao.setId(ID);
             personWithSignificantControlDao.setData(personWithSignificantControlDataDao);
@@ -208,6 +213,7 @@ public class PersonWithSignificantControlBuilder {
             personWithSignificantControlDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
             personWithSignificantControlDataDto.setSurname(SURNAME);
             personWithSignificantControlDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
+            personWithSignificantControlDataDto.setType(PSC_TYPE_INDIVIDUAL_PERSON);
 
             return this;
         }
@@ -227,6 +233,7 @@ public class PersonWithSignificantControlBuilder {
             personWithSignificantControlDataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
             personWithSignificantControlDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
             personWithSignificantControlDataDto.setResignationDate(RESIGNATION_DATE);
+            personWithSignificantControlDataDto.setType(PSC_TYPE_INDIVIDUAL_PERSON);
 
             return this;
         }
@@ -245,6 +252,7 @@ public class PersonWithSignificantControlBuilder {
             personWithSignificantControlDataDto.setResignationDate(RESIGNATION_DATE);
             personWithSignificantControlDataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
             personWithSignificantControlDataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
+            personWithSignificantControlDataDto.setType(PSC_TYPE_INDIVIDUAL_PERSON);
 
             return this;
         }

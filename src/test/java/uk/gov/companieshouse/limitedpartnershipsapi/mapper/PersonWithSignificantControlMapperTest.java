@@ -30,6 +30,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POSTAL_CODE_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.PREMISES_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.PSC_TYPE_INDIVIDUAL_PERSON;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGION_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGISTERED_COMPANY_NUMBER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.RESIGNATION_DATE;
@@ -67,6 +68,7 @@ class PersonWithSignificantControlMapperTest {
     private static final String FN_POSTAL_CODE = "postalCode";
     private static final String FN_PREMISES = "premises";
     private static final String FN_REGION = "region";
+    private static final String FN_TYPE = "type";
 
     @Test
     void givenDao_whenMapsToDto_thenCorrect() {
@@ -96,7 +98,8 @@ class PersonWithSignificantControlMapperTest {
                 FN_NATIONALITY2,
                 FN_REGISTERED_COMPANY_NUMBER,
                 FN_RESIGNATION_DATE,
-                FN_SURNAME
+                FN_SURNAME,
+                FN_TYPE
             )
             .containsExactly(
                 APPOINTMENT_ID,
@@ -106,7 +109,7 @@ class PersonWithSignificantControlMapperTest {
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                    FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
                 ENGLAND,
@@ -115,7 +118,8 @@ class PersonWithSignificantControlMapperTest {
                 Nationality.FRENCH.getDescription(),
                 REGISTERED_COMPANY_NUMBER,
                 RESIGNATION_DATE,
-                SURNAME
+                SURNAME,
+                PSC_TYPE_INDIVIDUAL_PERSON
             );
 
         // Assert naturesOfControl
@@ -156,7 +160,8 @@ class PersonWithSignificantControlMapperTest {
                 FN_NATIONALITY2,
                 FN_REGISTERED_COMPANY_NUMBER,
                 FN_RESIGNATION_DATE,
-                FN_SURNAME
+                FN_SURNAME,
+                FN_TYPE
             )
             .containsExactly(
                 APPOINTMENT_ID,
@@ -166,7 +171,7 @@ class PersonWithSignificantControlMapperTest {
                 FORENAME,
                 FORMER_NAMES,
                 GOVERNING_LAW,
-                    FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
                 LEGAL_ENTITY_NAME,
                 LEGAL_ENTITY_REGISTER_NAME,
                 ENGLAND.getDescription(),
@@ -175,7 +180,8 @@ class PersonWithSignificantControlMapperTest {
                 NATIONALITY2,
                 REGISTERED_COMPANY_NUMBER,
                 RESIGNATION_DATE,
-                SURNAME
+                SURNAME,
+                PSC_TYPE_INDIVIDUAL_PERSON
             );
 
         // Assert naturesOfControl

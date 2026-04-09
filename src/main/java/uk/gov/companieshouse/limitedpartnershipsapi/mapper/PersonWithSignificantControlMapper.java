@@ -55,7 +55,7 @@ public interface PersonWithSignificantControlMapper {
         return natureOfControl != null ? NatureOfControl.fromDescription(natureOfControl) : null;
     }
 
-    // Java
+    // List
     default List<String> mapNatureOfControlListToStringList(List<NatureOfControl> natures) {
         return natures == null ? null : Lists.newArrayList(
                 natures.stream()

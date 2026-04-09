@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificant
 
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,6 +32,9 @@ public class PersonWithSignificantControlDataDao {
 
     @Field("service_address")
     private AddressDao serviceAddress;
+
+    @Field("type")
+    private PersonWithSignificantControlType type;
 
     // PERSON
 
@@ -252,5 +256,13 @@ public class PersonWithSignificantControlDataDao {
 
     public void setPrincipalOfficeAddress(AddressDao principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public PersonWithSignificantControlType getType() {
+        return type;
+    }
+
+    public void setType(PersonWithSignificantControlType type) {
+        this.type = type;
     }
 }
