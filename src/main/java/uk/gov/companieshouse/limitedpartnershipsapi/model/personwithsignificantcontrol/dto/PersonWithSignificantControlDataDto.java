@@ -7,6 +7,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,6 +35,9 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     @JsonProperty("service_address")
     private AddressDto serviceAddress;
+
+    @JsonProperty("type")
+    private PersonWithSignificantControlType type;
 
     // PERSON
 
@@ -248,6 +252,14 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     public void setPrincipalOfficeAddress(AddressDto principalOfficeAddress) {
         this.principalOfficeAddress = principalOfficeAddress;
+    }
+
+    public PersonWithSignificantControlType getType() {
+        return type;
+    }
+
+    public void setType(PersonWithSignificantControlType type) {
+        this.type = type;
     }
 }
 
