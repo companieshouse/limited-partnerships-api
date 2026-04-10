@@ -423,7 +423,7 @@ class FilingsServiceTest {
                 FilingApi filing = filingsService.generateGeneralPartnerFiling(transaction, GENERAL_PARTNER_ID);
 
                 List<GeneralPartnerDataDto> generalPartners = (List<GeneralPartnerDataDto>) filing.getData().get(GENERAL_PARTNER_FIELD);
-                
+
                 return generalPartners.getFirst();
             }
         }
@@ -713,19 +713,21 @@ class FilingsServiceTest {
     class FilingLimitedPartnershipTest {
         @ParameterizedTest
         @CsvSource({
-                "true, limited-partnership#update-partnership-name, 50.00",
-                "true, limited-partnership#update-partnership-redesignate-to-pflp, 1.00",
-                "false, limited-partnership#update-partnership-term, 50.00",
-                "false, limited-partnership#update-partnership-registered-office-address, 50.00"
+            "true, limited-partnership#update-partnership-name, 50.00, Update the name of a limited partnership",
+            "true, limited-partnership#update-partnership-redesignate-to-pflp, 1.00, Designate a limited partnership as a private fund limited partnership",
+            "false, limited-partnership#update-partnership-term, 50.00, Update the term of a limited partnership",
+            "false, limited-partnership#update-partnership-registered-office-address, 50.00, Update a limited partnership's registered office address"
         })
         void testFilingGenerationSuccessfulForUpdateLimitedPartnershipName(
                 boolean hasCostLink,
                 String partnerKind,
-                String cost) throws ServiceException {
+                String cost,
+                String filingType) throws ServiceException {
             String currentCompanyName = "Current Company Name Ltd";
             LocalDate today = LocalDate.now();
             TransactionBuilder transactionBuilder = new TransactionBuilder()
-                    .withFilingMode(FilingMode.DEFAULT.getDescription());
+                .withFilingMode(FilingMode.DEFAULT.getDescription())
+                .withDescription(filingType);
 
             if (hasCostLink) {
                 transactionBuilder.withCostLink(String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID) + COSTS_URI_SUFFIX);
@@ -770,6 +772,8 @@ class FilingsServiceTest {
             assertEquals(limitedPartnership.getData().getPartnershipNumber(), filingLimitedPartnershipData.getPartnershipNumber());
             assertEquals(limitedPartnership.getData().getPartnershipType(), filingLimitedPartnershipData.getPartnershipType());
             assertEquals(limitedPartnership.getData().getDateOfUpdate(), filingLimitedPartnershipData.getDateOfUpdate());
+
+            assertEquals(filingType, filing.getDescription());
         }
     }
 

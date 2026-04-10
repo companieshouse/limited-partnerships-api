@@ -19,6 +19,7 @@ public class TransactionBuilder {
 
     private FilingMode filingMode = FilingMode.REGISTRATION;
     private String kind = FILING_KIND_LIMITED_PARTNERSHIP;
+    private String description;
 
     String transactionUri = String.format("/transactions/%s", TRANSACTION_ID);
     String transactionPaymentUri = null;
@@ -45,6 +46,11 @@ public class TransactionBuilder {
         return this;
     }
 
+    public TransactionBuilder withDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
     public TransactionBuilder withPayment() {
         this.transactionPaymentUri = String.format("%s/payment", transactionUri);
         return this;
@@ -66,6 +72,7 @@ public class TransactionBuilder {
         transaction.setCompanyName("Test Partnership");
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setFilingMode(filingMode.getDescription());
+        transaction.setFilingMode(description);
 
         TransactionLinks transactionLinks = new TransactionLinks();
         transactionLinks.setSelf(transactionUri);
