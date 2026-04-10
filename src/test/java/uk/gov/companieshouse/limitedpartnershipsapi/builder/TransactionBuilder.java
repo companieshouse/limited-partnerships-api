@@ -8,6 +8,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import java.util.HashMap;
 import java.util.Map;
 
+import static uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService.LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
@@ -19,6 +20,7 @@ public class TransactionBuilder {
 
     private FilingMode filingMode = FilingMode.REGISTRATION;
     private String kind = FILING_KIND_LIMITED_PARTNERSHIP;
+    private String description = LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION;
 
     String transactionUri = String.format("/transactions/%s", TRANSACTION_ID);
     String transactionPaymentUri = null;
@@ -45,6 +47,11 @@ public class TransactionBuilder {
         return this;
     }
 
+    public TransactionBuilder withDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
     public TransactionBuilder withPayment() {
         this.transactionPaymentUri = String.format("%s/payment", transactionUri);
         return this;
@@ -66,6 +73,7 @@ public class TransactionBuilder {
         transaction.setCompanyName("Test Partnership");
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setFilingMode(filingMode.getDescription());
+        transaction.setDescription(description);
 
         TransactionLinks transactionLinks = new TransactionLinks();
         transactionLinks.setSelf(transactionUri);

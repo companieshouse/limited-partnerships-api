@@ -116,7 +116,7 @@ public class FilingsService {
         setPaymentData(data, transaction);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
-        setDescriptionFields(filing, transaction.getFilingMode());
+        setDescriptionFields(filing, transaction);
     }
 
     private void setSubmissionData(Map<String, Object> data,
@@ -131,13 +131,14 @@ public class FilingsService {
         ApiLogger.info("Submission data has been set on filing", logMap);
     }
 
-    private void setDescriptionFields(FilingApi filing, String transactionFilingMode) {
+    private void setDescriptionFields(FilingApi filing, Transaction transaction) {
+        String transactionFilingMode = transaction.getFilingMode();
         if (transactionFilingMode.equals(FilingMode.REGISTRATION.getDescription())) {
             filing.setDescription(LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION);
         } else if (transactionFilingMode.equals(FilingMode.TRANSITION.getDescription())) {
             filing.setDescription(LIMITED_PARTNERSHIP_TRANSITION_FILING_DESCRIPTION);
         } else {
-            filing.setDescription(LIMITED_PARTNERSHIP_POST_TRANSITION_FILING_DESCRIPTION);
+            filing.setDescription(transaction.getDescription());
         }
         filing.setDescriptionValues(new HashMap<>());
     }
@@ -170,7 +171,7 @@ public class FilingsService {
 
         String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), generalPartnerDataDto.getKind());
         filing.setKind(kind);
-        setDescriptionFields(filing, transaction.getFilingMode());
+        setDescriptionFields(filing, transaction);
         filing.setData(data);
 
         return filing;
@@ -204,7 +205,7 @@ public class FilingsService {
 
         String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), limitedPartnerDataDto.getKind());
         filing.setKind(kind);
-        setDescriptionFields(filing, transaction.getFilingMode());
+        setDescriptionFields(filing, transaction);
         filing.setData(data);
 
         return filing;
@@ -290,7 +291,7 @@ public class FilingsService {
         if (partnerSurname != null && partnerSurname.equalsIgnoreCase(appointmentSurname)) {
             partnerDataDto.setSurname(null);
         }
-        
+
         setNationalitiesFields(partnerDataDto, appointmentFullRecordAPI);
     }
 
@@ -393,7 +394,7 @@ public class FilingsService {
 
         String kind = filingKind.addSubKind(FilingMode.POST_TRANSITION.getDescription(), limitedPartnershipDataDto.getKind());
         filing.setKind(kind);
-        setDescriptionFields(filing, transaction.getFilingMode());
+        setDescriptionFields(filing, transaction);
         setPaymentData(data, transaction);
         filing.setData(data);
 
