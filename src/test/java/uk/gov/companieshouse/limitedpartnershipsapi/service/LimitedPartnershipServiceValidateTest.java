@@ -168,6 +168,52 @@ class LimitedPartnershipServiceValidateTest {
     }
 
     @ParameterizedTest
+    @EnumSource(value = FilingMode.class, names = {"UNKNOWN", "DEFAULT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldOnlyValidateHasPscWhenFilingModeIsRegistration(FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
+        transaction.setFilingMode(filingMode.getDescription());
+        limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(null);
+
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+
+        // then
+        if (FilingMode.REGISTRATION.equals(filingMode)) {
+            var errorMessage = "You must declare whether the partnership will or will not have a person with significant control";
+            checkForError(results, errorMessage, "data.hasPersonWithSignificantControl");
+            assertEquals(1, results.size());
+        } else {
+            assertEquals(0, results.size());
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FilingMode.class, names = {"UNKNOWN", "DEFAULT"}, mode = EnumSource.Mode.EXCLUDE)
+    void shouldReturnErrorWhenHasPscNotNullAndIsNotRegistration(FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
+        transaction.setFilingMode(filingMode.getDescription());
+        limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(true);
+
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
+
+        // when
+        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+
+        // then
+        if (!FilingMode.REGISTRATION.equals(filingMode)) {
+            var errorMessage = "You can only declare whether the partnership will or will not have a person with significant control during registration";
+            checkForError(results, errorMessage, "data.hasPersonWithSignificantControl");
+            assertEquals(1, results.size());
+        } else {
+            assertEquals(0, results.size());
+        }
+    }
+
+    @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
@@ -216,6 +262,7 @@ class LimitedPartnershipServiceValidateTest {
 
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
         limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LP123456");
+        limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(null);
 
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
@@ -237,6 +284,7 @@ class LimitedPartnershipServiceValidateTest {
 
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
         limitedPartnershipSubmissionDao.getData().setPartnershipNumber("LX123456");
+        limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(null);
 
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
