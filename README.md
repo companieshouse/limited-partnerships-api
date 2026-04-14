@@ -17,6 +17,7 @@ To check out and build the service:
 4. Run docker using "chs-dev up" in the docker-chs-development directory.
 5. If you are using the api directly, then use this url: http://api.chs.local/limited-partnership
 
+
 ### Endpoints
 The full path for each public endpoint begins with the url:
 `${API_URL}/limited-partnership`
