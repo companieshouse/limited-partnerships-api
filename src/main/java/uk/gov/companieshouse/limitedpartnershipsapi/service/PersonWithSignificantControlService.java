@@ -13,7 +13,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignifi
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
@@ -47,6 +49,12 @@ public class PersonWithSignificantControlService {
         checkPersonWithSignificantControlIsLinkedToTransaction(transaction, personWithSignificantControlId, kind);
 
         return mapper.daoToDto(personWithSignificantControlDao);
+    }
+
+    public List<PersonWithSignificantControlDto> getPersonWithSignificantControlList(Transaction transaction) {
+        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .toList();
     }
 
     public String createPersonWithSignificantControl(Transaction transaction, PersonWithSignificantControlDto personWithSignificantControlDto, String requestId, String userId) throws ServiceException {
