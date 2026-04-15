@@ -18,8 +18,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -270,5 +273,35 @@ class PersonWithSignificantControlServiceTest {
                 ResourceNotFoundException.class,
                 () -> personWithSignificantControlService.deletePersonWithSignificantControl(TRANSACTION, PSC_ID, REQUEST_ID));
         assertEquals(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", TRANSACTION.getId(), PSC_ID), resourceNotFoundException.getMessage());
+    }
+
+    @Test
+    void testGetPersonWithSignificantControlList() {
+        PersonWithSignificantControlDao personWithSignificantControlDao1 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
+        personWithSignificantControlDao1.setTransactionId(TRANSACTION.getId());
+        PersonWithSignificantControlDao personWithSignificantControlDao2 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
+        personWithSignificantControlDao2.setTransactionId(TRANSACTION.getId());
+        List<PersonWithSignificantControlDao> personWithSignificantControlDaoList = List.of(personWithSignificantControlDao1, personWithSignificantControlDao2);
+
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION.getId())).thenReturn(personWithSignificantControlDaoList);
+
+        PersonWithSignificantControlDto personWithSignificantControlDto1 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
+        PersonWithSignificantControlDto personWithSignificantControlDto2 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
+
+        when(mapper.daoToDto(personWithSignificantControlDao1)).thenReturn(personWithSignificantControlDto1);
+        when(mapper.daoToDto(personWithSignificantControlDao2)).thenReturn(personWithSignificantControlDto2);
+
+        List<PersonWithSignificantControlDto> personWithSignificantControlDtoList = personWithSignificantControlService.getPersonWithSignificantControlList(TRANSACTION);
+
+        assertThat(personWithSignificantControlDtoList).containsExactly(personWithSignificantControlDto1, personWithSignificantControlDto2);
+    }
+
+    @Test
+    void testGetPersonWithSignificantControlList_Empty() {
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION.getId())).thenReturn(new ArrayList<>());
+
+        List<PersonWithSignificantControlDto> personWithSignificantControlDtoList = personWithSignificantControlService.getPersonWithSignificantControlList(TRANSACTION);
+
+        assertEquals(0, personWithSignificantControlDtoList.size());
     }
 }

@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -168,5 +169,16 @@ class PersonWithSignificantControlControllerTest {
 
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
         verify(personWithSignificantControlService).deletePersonWithSignificantControl(transaction, PERSON_WITH_SIGNIFICANT_CONTROL_ID, REQUEST_ID);
+    }
+
+    @Test
+    void testGetPersonsWithSignificantControlReturnsList() {
+        List<PersonWithSignificantControlDto> personWithSignificantControlDtoList = List.of(new PersonWithSignificantControlDto(), new PersonWithSignificantControlDto());
+        when(personWithSignificantControlService.getPersonWithSignificantControlList(transaction)).thenReturn(personWithSignificantControlDtoList);
+
+        var response = personWithSignificantControlController.getPersonsWithSignificantControl(transaction, REQUEST_ID);
+
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertEquals(personWithSignificantControlDtoList, response.getBody());
     }
 }
