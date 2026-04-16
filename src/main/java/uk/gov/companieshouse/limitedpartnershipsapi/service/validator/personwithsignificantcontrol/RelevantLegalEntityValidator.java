@@ -50,11 +50,6 @@ public class RelevantLegalEntityValidator extends PersonWithSignificantControlVa
     }
 
     @Override
-    public void validateUpdate(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        validatePartial(personWithSignificantControlDto, transaction);
-    }
-
-    @Override
     public List<ValidationStatusError> validateFull(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 

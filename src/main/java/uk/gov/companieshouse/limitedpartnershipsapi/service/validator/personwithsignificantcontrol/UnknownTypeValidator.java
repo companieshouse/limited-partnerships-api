@@ -43,9 +43,4 @@ public class UnknownTypeValidator extends PersonWithSignificantControlValidator 
         var methodParameter = new MethodParameter(PersonWithSignificantControlDataDto.class.getConstructor(), -1);
         throw new MethodArgumentNotValidException(methodParameter, bindingResult);
     }
-
-    @Override
-    public void validateUpdate(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        validatePartial(personWithSignificantControlDto, transaction);
-    }
 }

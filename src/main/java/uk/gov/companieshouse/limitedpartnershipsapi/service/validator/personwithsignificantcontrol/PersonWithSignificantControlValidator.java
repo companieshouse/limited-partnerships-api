@@ -21,7 +21,6 @@ public abstract class PersonWithSignificantControlValidator {
 
     public abstract List<ValidationStatusError> validateFull(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws ServiceException;
     public abstract void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException;
-    public abstract void validateUpdate(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException;
 
     protected void performAnnotationValidation(PersonWithSignificantControlDto personWithSignificantControlDto, Validator validator, BindingResult bindingResult) {
         Set<ConstraintViolation<PersonWithSignificantControlDto>> violations = validator.validate(

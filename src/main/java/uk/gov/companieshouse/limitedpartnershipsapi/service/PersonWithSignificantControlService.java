@@ -81,7 +81,7 @@ public class PersonWithSignificantControlService {
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
 
         var validator = validatorFactory.getValidator(dto.getData().getType());
-        validator.validateUpdate(dto, transaction);
+        validator.validatePartial(dto, transaction);
 
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
         handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());

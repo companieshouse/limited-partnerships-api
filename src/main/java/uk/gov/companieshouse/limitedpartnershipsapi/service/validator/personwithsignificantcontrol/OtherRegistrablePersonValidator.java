@@ -20,9 +20,4 @@ public class OtherRegistrablePersonValidator extends PersonWithSignificantContro
     public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         // TODO
     }
-
-    @Override
-    public void validateUpdate(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        validatePartial(personWithSignificantControlDto, transaction);
-    }
 }
