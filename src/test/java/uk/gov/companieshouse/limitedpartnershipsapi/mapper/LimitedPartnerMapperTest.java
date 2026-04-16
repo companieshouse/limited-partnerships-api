@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 
@@ -41,7 +42,7 @@ class LimitedPartnerMapperTest {
     }
 
     @Test
-    void limitedPartnerCountryStringToEnum() {
+    void limitedPartnerCountryStringToEnum() throws ServiceException {
 
         String sourceData = Country.ENGLAND.getDescription();
 

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
+package uk.gov.companieshouse.limitedpartnershipsapi.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.openapitools.jackson.nullable.JsonNullableModule;

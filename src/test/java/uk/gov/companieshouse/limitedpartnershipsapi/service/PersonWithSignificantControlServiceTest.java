@@ -7,16 +7,20 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PersonWithSignificantControlMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorFactory;
 
 import java.util.Optional;
 
@@ -58,6 +62,12 @@ class PersonWithSignificantControlServiceTest {
 
     @Mock
     private TransactionService transactionService;
+    
+    @Mock
+    private PersonWithSignificantControlValidatorFactory personWithSignificantControlValidatorFactory;
+    
+    @Mock
+    private PersonWithSignificantControlValidator personWithSignificantControlValidator;
 
     @Captor
     private ArgumentCaptor<PersonWithSignificantControlDao> pscDaoArgumentCaptor;
@@ -104,11 +114,12 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testCreatePersonWithSignificantControlReturnsSuccess() throws ServiceException {
+    void testCreatePersonWithSignificantControlReturnsSuccess() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var submissionUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
         PersonWithSignificantControlDto dto =  new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
         PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
 
+        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
 
@@ -130,10 +141,11 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testCreatePscWithNullKindDefaultsToPersonWithSignificantControl() throws ServiceException {
+    void testCreatePscWithNullKindDefaultsToPersonWithSignificantControl() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PersonWithSignificantControlDto dto =  new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
         PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().withKind(null).build();
 
+        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
 
@@ -148,7 +160,7 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testUpdatePersonWithSignificantControlPersistsUpdatedFieldsSuccessfully() throws ServiceException {
+    void testUpdatePersonWithSignificantControlPersistsUpdatedFieldsSuccessfully() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var pscUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
 
         PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
@@ -156,6 +168,7 @@ class PersonWithSignificantControlServiceTest {
         PersonWithSignificantControlDataDto changesDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDtoForPatch().build().getData();
         PersonWithSignificantControlDao afterPatchDao = new PersonWithSignificantControlDao();
 
+        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
         when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL)).thenReturn(true);
         when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
@@ -184,7 +197,7 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testUpdatePersonWithSignificantControlRemovesSecondNationalityWhenPatchedToNull() throws ResourceNotFoundException {
+    void testUpdatePersonWithSignificantControlRemovesSecondNationalityWhenPatchedToNull() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var pscUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
 
         PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
@@ -192,6 +205,7 @@ class PersonWithSignificantControlServiceTest {
         PersonWithSignificantControlDataDto changesDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDtoForPatch().build().getData();
         PersonWithSignificantControlDao afterPatchDao = new PersonWithSignificantControlDao();
 
+        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
         when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL)).thenReturn(true);
         when(mapper.daoToDto(existingDao)).thenReturn(existingDto);

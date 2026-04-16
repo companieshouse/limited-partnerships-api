@@ -25,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRep
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -88,6 +89,9 @@ class IncorporationControllerValidationTest {
 
     @MockitoBean
     private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+
+    @MockitoBean
+    private PersonWithSignificantControlRepository personWithSignificantControlRepository;
 
     @MockitoBean
     private TransactionService transactionService;

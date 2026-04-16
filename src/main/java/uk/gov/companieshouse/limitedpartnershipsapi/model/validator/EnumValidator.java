@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdicti
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 
 public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
 
@@ -38,7 +39,7 @@ public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
     }
 
     private boolean isValidEnum(Enum<?> enumeration) {
-        return switch (enumeration) {
+         return switch (enumeration) {
             case null -> true;
             case Jurisdiction jurisdiction -> !Jurisdiction.UNKNOWN.equals(jurisdiction);
             case Term term -> !Term.UNKNOWN.equals(term);
@@ -51,6 +52,8 @@ public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
                     !PartnershipNameEnding.UNKNOWN.equals(partnershipNameEnding);
             case ContributionSubTypes contributionSubTypes ->
                     !ContributionSubTypes.UNKNOWN.equals(contributionSubTypes);
+            case PersonWithSignificantControlType personWithSignificantControlType ->
+                    !PersonWithSignificantControlType.UNKNOWN.equals(personWithSignificantControlType);
             default -> false;
         };
     }

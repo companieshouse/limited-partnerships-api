@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -79,7 +80,7 @@ class PersonWithSignificantControlServiceUpdateTest {
     }
 
     @Test
-    void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException {
+    void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder()
                 .legalEntityPersonWithSignificantControlDao()
                 .withPrincipalOfficeAddress(null)
@@ -109,7 +110,7 @@ class PersonWithSignificantControlServiceUpdateTest {
     }
 
     @Test
-    void shouldUpdateTheDaoWithUsualResidentialAddress() throws ServiceException {
+    void shouldUpdateTheDaoWithUsualResidentialAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder()
                 .personPersonWithSignificantControlDao()
                 .withNationality2(Nationality.GREENLANDIC.getDescription())
@@ -146,7 +147,7 @@ class PersonWithSignificantControlServiceUpdateTest {
     }
 
     @Test
-    void shouldUpdateTheDaoWithServiceAddress() throws ServiceException {
+    void shouldUpdateTheDaoWithServiceAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder()
                 .personPersonWithSignificantControlDao()
                 .withNationality2(Nationality.GREENLANDIC.getDescription())
