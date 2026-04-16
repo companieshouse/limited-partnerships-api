@@ -50,7 +50,8 @@ public class LimitedPartnershipIncorporationService {
             LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
-            TransactionService transactionService, PersonWithSignificantControlService personWithSignificantControlService) {
+            TransactionService transactionService,
+            PersonWithSignificantControlService personWithSignificantControlService) {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.limitedPartnershipService = limitedPartnershipService;
