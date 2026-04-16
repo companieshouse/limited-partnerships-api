@@ -40,8 +40,8 @@ public abstract class PersonWithSignificantControlValidator {
     /**
      * Checks if the given value is null or empty and adds an error to the binding result if so.
      */
-    protected void checkNotNullOrEmpty(PersonWithSignificantControlDataDto data, String value, String fieldName, String errorMessage, BindingResult bindingResult) {
-        if (data == null || !StringUtils.hasText(value)) {
+    protected void checkNotNullOrEmpty(String value, String fieldName, String errorMessage, BindingResult bindingResult) {
+        if (!StringUtils.hasText(value)) {
             addError(fieldName, errorMessage, bindingResult);
         }
     }

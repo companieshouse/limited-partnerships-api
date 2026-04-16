@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,6 +104,30 @@ class PersonWithSignificantControlServiceValidateTest {
                 .isEqualTo(new ValidationStatusError("Principal office address is required", "data.principalOfficeAddress", null, null));
         }
 
+        @Test
+        void shouldReturnErrorsIfDataIsInvalid() throws ServiceException {
+            // given
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .legalEntityPersonWithSignificantControlDao()
+                            .build();
+            personWithSignificantControlDao.getData().setLegalEntityName("§§§§§§§");
+            personWithSignificantControlDao.getData().setType(PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY);
+            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results).hasSize(1);
+            assertThat(results.getFirst())
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Name " + INVALID_CHARACTERS_MESSAGE, "data.legalEntityName", null, null));
+        }
     }
 
 }
