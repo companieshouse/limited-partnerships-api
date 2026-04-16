@@ -38,9 +38,9 @@ public class RelevantLegalEntityValidator extends PersonWithSignificantControlVa
 
         // null checks for mandatory fields
         var data = personWithSignificantControlDto.getData();
-        checkNotNullOrEmpty(data != null ? data.getLegalEntityName() : null, "data.legalEntityName", "Name is required", bindingResult);
-        checkNotNullOrEmpty(data != null ? data.getLegalForm() : null, "data.legalForm", "Legal form is required", bindingResult);
-        checkNotNullOrEmpty(data != null ? data.getGoverningLaw() : null, "data.governingLaw", "Governing law is required", bindingResult);
+        checkNotNullOrEmpty(data.getLegalEntityName(), "data.legalEntityName", "Name is required", bindingResult);
+        checkNotNullOrEmpty(data.getLegalForm(), "data.legalForm", "Legal form is required", bindingResult);
+        checkNotNullOrEmpty(data.getGoverningLaw(), "data.governingLaw", "Governing law is required", bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(PersonWithSignificantControlDataDto.class.getConstructor(), -1);
