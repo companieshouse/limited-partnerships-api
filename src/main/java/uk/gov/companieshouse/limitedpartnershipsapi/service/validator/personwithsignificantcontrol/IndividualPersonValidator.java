@@ -20,7 +20,7 @@ public class IndividualPersonValidator extends PersonWithSignificantControlValid
 
     @Override
     public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
-
+        // TODO
     }
 
     @Override
