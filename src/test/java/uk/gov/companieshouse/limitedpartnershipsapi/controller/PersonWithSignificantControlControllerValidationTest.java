@@ -36,6 +36,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -119,20 +120,23 @@ class PersonWithSignificantControlControllerValidationTest {
                 }
             }""";
 
-    private static final String JSON_NAME_IS_REQUIRED_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_LEGAL_FORM_IS_REQUIRED_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_GOVERNING_LAW_IS_REQUIRED_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"ddds\", \"governing_law\": \"\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_NAME_INVALID_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"§§\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_LEGAL_FORM_INVALID_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"§§§\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_GOVERNING_LAW_INVALID_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"§§§\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_LEGAL_ENTITY_REGISTER_NAME_INVALID_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"aaa\", \"legal_entity_register_name\": \"§§§\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_REGISTERED_COMPANY_NUMBER_INVALID_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"aaa\", \"legal_entity_register_name\": \"aaa\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"§§\" }}";
-    private static final String JSON_INVALID_LEGAL_ENTITY_REGISTRATION_LOCATION_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"aaa\", \"legal_entity_register_name\": \"aaa\", \"legal_entity_registration_location\": \"BOB\", \"registered_company_number\": \"aa\" }}";
-    private static final String JSON_NAME_IS_ABOVE_MAX_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"" + TOO_MANY_CHARS + "\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_LEGAL_FORM_IS_ABOVE_MAX_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"" + TOO_MANY_CHARS + "\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"" + TOO_MANY_CHARS + "\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_LEGAL_ENTITY_REGISTER_NAME_IS_ABOVE_MAX_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"legal_entity_register_name\": \"" + TOO_MANY_CHARS + "\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }}";
-    private static final String JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE = "{ \"data\": { \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"legal_entity_register_name\": \"sss\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"" + TOO_MANY_CHARS + "\" }}";
+    private static final String JSON_NAME_IS_REQUIRED_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_NAME_IS_REQUIRED_NULL_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": null, \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_LEGAL_FORM_IS_REQUIRED_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_LEGAL_FORM_IS_REQUIRED_NULL_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"Smiths\", \"legal_form\": null, \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_GOVERNING_LAW_IS_REQUIRED_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"ddds\", \"governing_law\": \"\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_GOVERNING_LAW_IS_REQUIRED_NULL_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"ddds\", \"governing_law\": null, \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_NAME_INVALID_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"§§\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_LEGAL_FORM_INVALID_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"§§§\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_GOVERNING_LAW_INVALID_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"§§§\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_LEGAL_ENTITY_REGISTER_NAME_INVALID_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"aaa\", \"legal_entity_register_name\": \"§§§\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_REGISTERED_COMPANY_NUMBER_INVALID_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"aaa\", \"legal_entity_register_name\": \"aaa\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"§§\" }";
+    private static final String JSON_INVALID_LEGAL_ENTITY_REGISTRATION_LOCATION_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"aaa\", \"legal_entity_register_name\": \"aaa\", \"legal_entity_registration_location\": \"BOB\", \"registered_company_number\": \"aa\" }";
+    private static final String JSON_NAME_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"" + TOO_MANY_CHARS + "\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_LEGAL_FORM_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"" + TOO_MANY_CHARS + "\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"" + TOO_MANY_CHARS + "\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_LEGAL_ENTITY_REGISTER_NAME_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"legal_entity_register_name\": \"" + TOO_MANY_CHARS + "\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
+    private static final String JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"legal_entity_register_name\": \"sss\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"" + TOO_MANY_CHARS + "\" }";
 
     @BeforeEach
     void setUp() {
@@ -159,8 +163,11 @@ class PersonWithSignificantControlControllerValidationTest {
     @ParameterizedTest
     @CsvSource(value = {
             JSON_NAME_IS_REQUIRED_RLE + "$ data.legalEntityName $ Name is required",
+            JSON_NAME_IS_REQUIRED_NULL_RLE + "$ data.legalEntityName $ Name is required",
             JSON_LEGAL_FORM_IS_REQUIRED_RLE + "$ data.legalForm $ Legal form is required",
+            JSON_LEGAL_FORM_IS_REQUIRED_NULL_RLE + "$ data.legalForm $ Legal form is required",
             JSON_GOVERNING_LAW_IS_REQUIRED_RLE + "$ data.governingLaw $ Governing law is required",
+            JSON_GOVERNING_LAW_IS_REQUIRED_NULL_RLE + "$ data.governingLaw $ Governing law is required",
             JSON_NAME_INVALID_CHARS_RLE + "$ data.legalEntityName $ Name " + INVALID_CHARACTERS_MESSAGE,
             JSON_LEGAL_FORM_INVALID_CHARS_RLE + "$ data.legalForm $ Legal form " + INVALID_CHARACTERS_MESSAGE,
             JSON_GOVERNING_LAW_INVALID_CHARS_RLE + "$ data.governingLaw $ Governing law " + INVALID_CHARACTERS_MESSAGE,
@@ -173,9 +180,41 @@ class PersonWithSignificantControlControllerValidationTest {
             JSON_LEGAL_ENTITY_REGISTER_NAME_IS_ABOVE_MAX_CHARS_RLE + "$ data.legalEntityRegisterName $ Legal entity register name " + "must be less than 160",
             JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE + "$ data.registeredCompanyNumber $ Registered company number " + "must be less than 160"
     }, delimiter = '$')
-    void shouldReturn400_RLE(String body, String field, String errorMessage) throws Exception {
+    void shouldReturn400_create_RLE(String body, String field, String errorMessage) throws Exception {
         mocks();
         mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(String.format("{\"data\":%s}", body)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            JSON_NAME_IS_REQUIRED_RLE + "$ data.legalEntityName $ Name is required",
+            JSON_NAME_IS_REQUIRED_NULL_RLE + "$ data.legalEntityName $ Name is required",
+            JSON_LEGAL_FORM_IS_REQUIRED_RLE + "$ data.legalForm $ Legal form is required",
+            JSON_LEGAL_FORM_IS_REQUIRED_NULL_RLE + "$ data.legalForm $ Legal form is required",
+            JSON_GOVERNING_LAW_IS_REQUIRED_RLE + "$ data.governingLaw $ Governing law is required",
+            JSON_GOVERNING_LAW_IS_REQUIRED_NULL_RLE + "$ data.governingLaw $ Governing law is required",
+            JSON_NAME_INVALID_CHARS_RLE + "$ data.legalEntityName $ Name " + INVALID_CHARACTERS_MESSAGE,
+            JSON_LEGAL_FORM_INVALID_CHARS_RLE + "$ data.legalForm $ Legal form " + INVALID_CHARACTERS_MESSAGE,
+            JSON_GOVERNING_LAW_INVALID_CHARS_RLE + "$ data.governingLaw $ Governing law " + INVALID_CHARACTERS_MESSAGE,
+            JSON_LEGAL_ENTITY_REGISTER_NAME_INVALID_CHARS_RLE + "$ data.legalEntityRegisterName $ Legal entity register name " + INVALID_CHARACTERS_MESSAGE,
+            JSON_REGISTERED_COMPANY_NUMBER_INVALID_CHARS_RLE + "$ data.registeredCompanyNumber $ Registered company number " + INVALID_CHARACTERS_MESSAGE,
+            JSON_INVALID_LEGAL_ENTITY_REGISTRATION_LOCATION_RLE + "$ data.legalEntityRegistrationLocation $ Legal entity registration location must be valid",
+            JSON_NAME_IS_ABOVE_MAX_CHARS_RLE + "$ data.legalEntityName $ Name " + "must be less than 160",
+            JSON_LEGAL_FORM_IS_ABOVE_MAX_CHARS_RLE + "$ data.legalForm $ Legal form " + "must be less than 160",
+            JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_RLE + "$ data.governingLaw $ Governing law " + "must be less than 160",
+            JSON_LEGAL_ENTITY_REGISTER_NAME_IS_ABOVE_MAX_CHARS_RLE + "$ data.legalEntityRegisterName $ Legal entity register name " + "must be less than 160",
+            JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE + "$ data.registeredCompanyNumber $ Registered company number " + "must be less than 160"
+    }, delimiter = '$')
+    void shouldReturn400_update_RLE(String body, String field, String errorMessage) throws Exception {
+        mocks();
+        mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
