@@ -10,7 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -64,7 +63,7 @@ public class RelevantLegalEntityValidator extends PersonWithSignificantControlVa
         var dataDto = personWithSignificantControlDto.getData();
 
         if (dataDto.getPrincipalOfficeAddress() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
+            errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", "data.principalOfficeAddress"));
         }
 
         return errorsList;

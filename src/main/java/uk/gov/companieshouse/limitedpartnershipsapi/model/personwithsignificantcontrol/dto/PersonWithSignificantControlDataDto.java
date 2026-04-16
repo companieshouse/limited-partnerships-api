@@ -23,8 +23,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_E
 
 public class PersonWithSignificantControlDataDto implements HasNationality {
 
-    public static final String PRINCIPAL_OFFICE_ADDRESS_FIELD = "principal_office_address";
-
     @JsonProperty("kind")
     private String kind;
 
@@ -107,7 +105,7 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Registered company number " + INVALID_CHARACTERS_MESSAGE)
     private String registeredCompanyNumber;
 
-    @JsonProperty(PRINCIPAL_OFFICE_ADDRESS_FIELD)
+    @JsonProperty("principal_office_address")
     @Valid
     private AddressDto principalOfficeAddress;
 
