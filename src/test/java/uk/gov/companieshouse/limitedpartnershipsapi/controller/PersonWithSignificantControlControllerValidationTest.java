@@ -131,6 +131,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 }
             }""";
 
+        private static final String JSON_UNKNOWN_TYPE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"\", \"legal_entity_name\": \"\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
         private static final String JSON_NAME_IS_REQUIRED_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
         private static final String JSON_NAME_IS_REQUIRED_NULL_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": null, \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
         private static final String JSON_LEGAL_FORM_IS_REQUIRED_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
@@ -164,6 +165,7 @@ class PersonWithSignificantControlControllerValidationTest {
 
         @ParameterizedTest
         @CsvSource(value = {
+                JSON_UNKNOWN_TYPE + "$ data.type $ Invalid person with significant control type specified",
                 JSON_NAME_IS_REQUIRED_RLE + "$ data.legalEntityName $ Name is required",
                 JSON_NAME_IS_REQUIRED_NULL_RLE + "$ data.legalEntityName $ Name is required",
                 JSON_LEGAL_FORM_IS_REQUIRED_RLE + "$ data.legalForm $ Legal form is required",
