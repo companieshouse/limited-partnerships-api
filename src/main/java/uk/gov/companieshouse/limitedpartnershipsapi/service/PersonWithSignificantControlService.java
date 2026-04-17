@@ -33,17 +33,17 @@ public class PersonWithSignificantControlService {
     private final PersonWithSignificantControlRepository repository;
     private final PersonWithSignificantControlMapper mapper;
     private final TransactionService transactionService;
-    private final PersonWithSignificantControlValidator validatorFactory;
+    private final PersonWithSignificantControlValidator personWithSignificantControlValidator;
 
     public PersonWithSignificantControlService(PersonWithSignificantControlRepository repository,
                                                PersonWithSignificantControlMapper mapper,
                                                TransactionService transactionService,
-                                               PersonWithSignificantControlValidator validatorFactory
+                                               PersonWithSignificantControlValidator personWithSignificantControlValidator
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.transactionService = transactionService;
-        this.validatorFactory = validatorFactory;
+        this.personWithSignificantControlValidator = personWithSignificantControlValidator;
     }
 
     public PersonWithSignificantControlDto getPersonWithSignificantControl(Transaction transaction, String personWithSignificantControlId) throws ResourceNotFoundException {
@@ -58,7 +58,7 @@ public class PersonWithSignificantControlService {
     }
 
     public String createPersonWithSignificantControl(Transaction transaction, PersonWithSignificantControlDto personWithSignificantControlDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        var validator = validatorFactory.getValidatorByType(personWithSignificantControlDto.getData().getType());
+        var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
         validator.validatePartial(personWithSignificantControlDto, transaction);
 
         PersonWithSignificantControlDao dao = mapper.dtoToDao(personWithSignificantControlDto);
@@ -80,7 +80,7 @@ public class PersonWithSignificantControlService {
         var dto = mapper.daoToDto(daoBeforePatch);
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
 
-        var validator = validatorFactory.getValidatorByType(dto.getData().getType());
+        var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
         validator.validatePartial(dto, transaction);
 
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
@@ -124,7 +124,7 @@ public class PersonWithSignificantControlService {
         List<ValidationStatusError> errors = new ArrayList<>();
 
         for (PersonWithSignificantControlDto personWithSignificantControlDto: personsWithSignificantControl) {
-            var validator = validatorFactory.getValidatorByType(personWithSignificantControlDto.getData().getType());
+            var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
             errors.addAll(validator.validateFull(personWithSignificantControlDto, transaction));
         }
 
