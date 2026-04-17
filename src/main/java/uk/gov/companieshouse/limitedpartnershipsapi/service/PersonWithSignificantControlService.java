@@ -12,7 +12,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorFactory;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 
@@ -33,12 +33,12 @@ public class PersonWithSignificantControlService {
     private final PersonWithSignificantControlRepository repository;
     private final PersonWithSignificantControlMapper mapper;
     private final TransactionService transactionService;
-    private final PersonWithSignificantControlValidatorFactory validatorFactory;
+    private final PersonWithSignificantControlValidator validatorFactory;
 
     public PersonWithSignificantControlService(PersonWithSignificantControlRepository repository,
                                                PersonWithSignificantControlMapper mapper,
                                                TransactionService transactionService,
-                                               PersonWithSignificantControlValidatorFactory validatorFactory
+                                               PersonWithSignificantControlValidator validatorFactory
     ) {
         this.repository = repository;
         this.mapper = mapper;
@@ -58,7 +58,7 @@ public class PersonWithSignificantControlService {
     }
 
     public String createPersonWithSignificantControl(Transaction transaction, PersonWithSignificantControlDto personWithSignificantControlDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        var validator = validatorFactory.getValidator(personWithSignificantControlDto.getData().getType());
+        var validator = validatorFactory.getValidatorByType(personWithSignificantControlDto.getData().getType());
         validator.validatePartial(personWithSignificantControlDto, transaction);
 
         PersonWithSignificantControlDao dao = mapper.dtoToDao(personWithSignificantControlDto);
@@ -80,7 +80,7 @@ public class PersonWithSignificantControlService {
         var dto = mapper.daoToDto(daoBeforePatch);
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
 
-        var validator = validatorFactory.getValidator(dto.getData().getType());
+        var validator = validatorFactory.getValidatorByType(dto.getData().getType());
         validator.validatePartial(dto, transaction);
 
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
@@ -124,7 +124,7 @@ public class PersonWithSignificantControlService {
         List<ValidationStatusError> errors = new ArrayList<>();
 
         for (PersonWithSignificantControlDto personWithSignificantControlDto: personsWithSignificantControl) {
-            var validator = validatorFactory.getValidator(personWithSignificantControlDto.getData().getType());
+            var validator = validatorFactory.getValidatorByType(personWithSignificantControlDto.getData().getType());
             errors.addAll(validator.validateFull(personWithSignificantControlDto, transaction));
         }
 

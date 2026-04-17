@@ -10,7 +10,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import java.util.List;
 
 @Component
-public class OtherRegistrablePersonValidator extends PersonWithSignificantControlValidator {
+public class IndividualPersonValidatorStrategy extends PersonWithSignificantControlValidatorStrategy {
+
+
     @Override
     public List<ValidationStatusError> validateFull(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws ServiceException {
         return List.of();

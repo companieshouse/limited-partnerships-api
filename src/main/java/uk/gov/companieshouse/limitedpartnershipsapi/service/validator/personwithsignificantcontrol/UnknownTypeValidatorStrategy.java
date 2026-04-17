@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class UnknownTypeValidator extends PersonWithSignificantControlValidator {
+public class UnknownTypeValidatorStrategy extends PersonWithSignificantControlValidatorStrategy {
 
     private static final String ERROR_MESSAGE = "Invalid person with significant control type specified";
     private static final String TYPE_FIELD_NAME = "type";
@@ -25,7 +25,7 @@ public class UnknownTypeValidator extends PersonWithSignificantControlValidator 
     private final ValidationStatus validationStatus;
 
     @Autowired
-    public UnknownTypeValidator(ValidationStatus validationStatus) {
+    public UnknownTypeValidatorStrategy(ValidationStatus validationStatus) {
         this.validationStatus = validationStatus;
     }
 

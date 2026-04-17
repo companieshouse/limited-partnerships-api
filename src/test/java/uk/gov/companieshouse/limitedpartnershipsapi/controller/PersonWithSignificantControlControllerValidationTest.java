@@ -26,11 +26,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.IndividualPersonValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.OtherRegistrablePersonValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorFactory;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.RelevantLegalEntityValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.UnknownTypeValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.IndividualPersonValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.OtherRegistrablePersonValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.RelevantLegalEntityValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.UnknownTypeValidatorStrategy;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -51,11 +51,11 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
         ValidationStatus.class,
         PersonWithSignificantControlMapperImpl.class,
         GlobalExceptionHandler.class,
-        PersonWithSignificantControlValidatorFactory.class,
-        IndividualPersonValidator.class,
-        RelevantLegalEntityValidator.class,
-        OtherRegistrablePersonValidator.class,
-        UnknownTypeValidator.class}
+        PersonWithSignificantControlValidator.class,
+        IndividualPersonValidatorStrategy.class,
+        RelevantLegalEntityValidatorStrategy.class,
+        OtherRegistrablePersonValidatorStrategy.class,
+        UnknownTypeValidatorStrategy.class}
 )
 @WebMvcTest(controllers = {PersonWithSignificantControlController.class})
 class PersonWithSignificantControlControllerValidationTest {

@@ -20,7 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorFactory;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorStrategy;
 
 import java.util.Optional;
 
@@ -64,10 +64,10 @@ class PersonWithSignificantControlServiceTest {
     private TransactionService transactionService;
     
     @Mock
-    private PersonWithSignificantControlValidatorFactory personWithSignificantControlValidatorFactory;
+    private PersonWithSignificantControlValidator personWithSignificantControlValidator;
     
     @Mock
-    private PersonWithSignificantControlValidator personWithSignificantControlValidator;
+    private PersonWithSignificantControlValidatorStrategy personWithSignificantControlValidatorStrategy;
 
     @Captor
     private ArgumentCaptor<PersonWithSignificantControlDao> pscDaoArgumentCaptor;
@@ -119,7 +119,7 @@ class PersonWithSignificantControlServiceTest {
         PersonWithSignificantControlDto dto =  new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
         PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
 
-        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
+        when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
 
@@ -145,7 +145,7 @@ class PersonWithSignificantControlServiceTest {
         PersonWithSignificantControlDto dto =  new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
         PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().withKind(null).build();
 
-        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
+        when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
         when(mapper.dtoToDao(dto)).thenReturn(dao);
         when(repository.insert(dao)).thenReturn(dao);
 
@@ -168,7 +168,7 @@ class PersonWithSignificantControlServiceTest {
         PersonWithSignificantControlDataDto changesDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDtoForPatch().build().getData();
         PersonWithSignificantControlDao afterPatchDao = new PersonWithSignificantControlDao();
 
-        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
+        when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
         when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL)).thenReturn(true);
         when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
@@ -205,7 +205,7 @@ class PersonWithSignificantControlServiceTest {
         PersonWithSignificantControlDataDto changesDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDtoForPatch().build().getData();
         PersonWithSignificantControlDao afterPatchDao = new PersonWithSignificantControlDao();
 
-        when(personWithSignificantControlValidatorFactory.getValidator(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidator);
+        when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
         when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL)).thenReturn(true);
         when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
