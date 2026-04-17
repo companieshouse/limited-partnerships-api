@@ -20,7 +20,7 @@ import java.util.List;
 public class UnknownTypeValidatorStrategy extends PersonWithSignificantControlValidatorStrategy {
 
     private static final String ERROR_MESSAGE = "Invalid person with significant control type specified";
-    private static final String TYPE_FIELD_NAME = "type";
+    private static final String TYPE_FIELD_NAME = "data.type";
 
     private final ValidationStatus validationStatus;
 

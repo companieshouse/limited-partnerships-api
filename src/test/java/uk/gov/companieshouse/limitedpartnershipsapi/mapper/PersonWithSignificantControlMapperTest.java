@@ -5,6 +5,7 @@ import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
@@ -30,7 +31,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POSTAL_CODE_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.PREMISES_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.PSC_TYPE_INDIVIDUAL_PERSON;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGION_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGISTERED_COMPANY_NUMBER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.RESIGNATION_DATE;
@@ -119,7 +119,7 @@ class PersonWithSignificantControlMapperTest {
                 REGISTERED_COMPANY_NUMBER,
                 RESIGNATION_DATE,
                 SURNAME,
-                PSC_TYPE_INDIVIDUAL_PERSON
+                PersonWithSignificantControlType.INDIVIDUAL_PERSON
             );
 
         // Assert naturesOfControl
@@ -181,7 +181,7 @@ class PersonWithSignificantControlMapperTest {
                 REGISTERED_COMPANY_NUMBER,
                 RESIGNATION_DATE,
                 SURNAME,
-                PSC_TYPE_INDIVIDUAL_PERSON
+                PersonWithSignificantControlType.INDIVIDUAL_PERSON
             );
 
         // Assert naturesOfControl
