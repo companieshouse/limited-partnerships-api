@@ -118,6 +118,23 @@ class PersonWithSignificantControlServiceValidateTest {
         }
 
         @Test
+        void shouldReturnErrorsIfMandatoryDataIsMissing() throws ServiceException {
+            // given
+            rlePersonWithSignificantControlDao.getData().setLegalEntityName(null);
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(rlePersonWithSignificantControlDao));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results).hasSize(1);
+            assertThat(results.getFirst())
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Name is required", "data.legalEntityName", null, null));
+        }
+
+        @Test
         void shouldReturnErrorsIfDataIsInvalid() throws ServiceException {
             // given
             rlePersonWithSignificantControlDao.getData().setLegalEntityName("§§§§§§§");
