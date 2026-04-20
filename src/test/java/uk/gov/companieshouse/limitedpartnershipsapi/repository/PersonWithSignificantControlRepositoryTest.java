@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.repository;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,7 +11,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlDaoBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 
@@ -24,6 +25,8 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 class PersonWithSignificantControlRepositoryTest {
 
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+    private PersonWithSignificantControlDao legalEntityDao;
+    private PersonWithSignificantControlDao individualDao;
 
     @Container
     private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
@@ -36,6 +39,27 @@ class PersonWithSignificantControlRepositoryTest {
     @Autowired
     private PersonWithSignificantControlRepository personWithSignificantControlRepository;
 
+    @BeforeEach
+    void init() {
+        legalEntityDao = new PersonWithSignificantControlDaoBuilder()
+                .withId("legal-entity-id")
+                .withTransactionId(TRANSACTION_ID)
+                .withData(new PersonWithSignificantControlDaoBuilder.DataBuilder()
+                        .withLegalEntityName("Test Legal Entity")
+                        .withLegalForm("Test Legal Form")
+                        .build())
+                .build();
+
+        individualDao = new PersonWithSignificantControlDaoBuilder()
+                .withId("individual-id")
+                .withTransactionId(TRANSACTION_ID)
+                .withData(new PersonWithSignificantControlDaoBuilder.DataBuilder()
+                        .withForename("John")
+                        .withSurname("Doe")
+                        .build())
+                .build();
+    }
+
     @AfterEach
     public void tearDown() {
         personWithSignificantControlRepository.deleteAll();
@@ -43,40 +67,28 @@ class PersonWithSignificantControlRepositoryTest {
 
     @Test
     void testInsertAndRetrieveLegalEntityPersonWithSignificantControlList() {
-        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().legalEntityPersonWithSignificantControlDao().build();
+        personWithSignificantControlRepository.insert(legalEntityDao);
 
-        personWithSignificantControlRepository.insert(legalEntity);
+        PersonWithSignificantControlDao foundLegalEntity = personWithSignificantControlRepository.findById(legalEntityDao.getId()).orElseThrow();
 
-        PersonWithSignificantControlDao foundLegalEntity = personWithSignificantControlRepository.findById(legalEntity.getId()).orElseThrow();
-
-        assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
-        assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+        assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntityDao.getData().getLegalEntityName());
+        assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntityDao.getData().getLegalForm());
     }
 
     @Test
     void testInsertAndRetrievePersonPersonWithSignificantControlList() {
-        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personPersonWithSignificantControlDao().build();
+        personWithSignificantControlRepository.insert(individualDao);
 
-        personWithSignificantControlRepository.insert(person);
+        PersonWithSignificantControlDao foundPerson = personWithSignificantControlRepository.findById(individualDao.getId()).orElseThrow();
 
-        PersonWithSignificantControlDao foundPerson = personWithSignificantControlRepository.findById(person.getId()).orElseThrow();
-
-        assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
-        assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+        assertThat(foundPerson.getData().getForename()).isEqualTo(individualDao.getData().getForename());
+        assertThat(foundPerson.getData().getSurname()).isEqualTo(individualDao.getData().getSurname());
     }
 
     @Test
     void testGetPersonWithSignificantControlListOrderedByUpdatedAtDesc() {
-        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personPersonWithSignificantControlDao().build();
-        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().legalEntityPersonWithSignificantControlDao().build();
-        person.setId("782j836-922jl22-23123");
-        legalEntity.setId("8014b4-897pu76-9976");
-
-        person.setTransactionId(TRANSACTION_ID);
-        legalEntity.setTransactionId(TRANSACTION_ID);
-
-        personWithSignificantControlRepository.insert(person);
-        personWithSignificantControlRepository.insert(legalEntity);
+        personWithSignificantControlRepository.insert(individualDao);
+        personWithSignificantControlRepository.insert(legalEntityDao);
 
         List<PersonWithSignificantControlDao> result = personWithSignificantControlRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
 
@@ -84,12 +96,12 @@ class PersonWithSignificantControlRepositoryTest {
                 .hasSize(2)
                 .satisfiesExactly(
                         foundLegalEntity -> {
-                            assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
-                            assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+                            assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntityDao.getData().getLegalEntityName());
+                            assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntityDao.getData().getLegalForm());
                         },
-                        foundPerson -> {
-                            assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
-                            assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+                        foundIndividual -> {
+                            assertThat(foundIndividual.getData().getForename()).isEqualTo(individualDao.getData().getForename());
+                            assertThat(foundIndividual.getData().getSurname()).isEqualTo(individualDao.getData().getSurname());
                         }
                 );
     }
