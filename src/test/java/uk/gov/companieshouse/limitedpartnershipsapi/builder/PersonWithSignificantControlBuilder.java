@@ -142,6 +142,24 @@ public class PersonWithSignificantControlBuilder {
             return this;
         }
 
+        public PersonWithSignificantControlDaoBuilder otherRegistrablePersonPersonWithSignificantControlDao() {
+            personWithSignificantControlDataDao.setAppointmentId(APPOINTMENT_ID);
+            personWithSignificantControlDataDao.setKind(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
+            personWithSignificantControlDataDao.setCountry(ENGLAND.getDescription());
+            personWithSignificantControlDataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+            personWithSignificantControlDataDao.setEtag(ETAG);
+            personWithSignificantControlDataDao.setGoverningLaw(GOVERNING_LAW);
+            personWithSignificantControlDataDao.setLegalEntityName(LEGAL_ENTITY_NAME);
+            personWithSignificantControlDataDao.setLegalForm(LEGAL_FORM);
+            personWithSignificantControlDataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
+            personWithSignificantControlDataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
+            personWithSignificantControlDataDao.setType(PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON);
+
+            personWithSignificantControlDao.setId(ID);
+            personWithSignificantControlDao.setData(personWithSignificantControlDataDao);
+            return this;
+        }
+
         public PersonWithSignificantControlDaoBuilder withKind(String kind) {
             this.personWithSignificantControlDataDao.setKind(kind);
             return this;

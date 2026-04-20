@@ -129,6 +129,77 @@ class PersonWithSignificantControlServiceValidateTest {
     }
 
     @Nested
+    class OtherRegistrablePerson {
+        @Test
+        void shouldReturnNoErrorsWhenPSCDataIsValid() throws ServiceException {
+            // given
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .otherRegistrablePersonPersonWithSignificantControlDao()
+                            .build();
+            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertEquals(0, results.size());
+        }
+
+        @Test
+        void shouldReturnErrorIfPOANotSupplied() throws ServiceException {
+            // given
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .otherRegistrablePersonPersonWithSignificantControlDao()
+                            .withPrincipalOfficeAddress(null)
+                            .build();
+            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results).hasSize(1);
+            assertThat(results.getFirst())
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Principal office address is required", "data.principalOfficeAddress", null, null));
+        }
+
+        @Test
+        void shouldReturnErrorsIfDataIsInvalid() throws ServiceException {
+            // given
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .otherRegistrablePersonPersonWithSignificantControlDao()
+                            .build();
+            personWithSignificantControlDao.getData().setLegalEntityName("§§§§§§§");
+            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results).hasSize(1);
+            assertThat(results.getFirst())
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Name " + INVALID_CHARACTERS_MESSAGE, "data.legalEntityName", null, null));
+        }
+    }
+
+    @Nested
     class UnknownType {
         @Test
         void shouldReturnErrorOnPartialValidation() {

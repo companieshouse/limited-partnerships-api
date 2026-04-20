@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -215,6 +216,100 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_RLE + "$ data.governingLaw $ Governing law " + "must be less than 160",
                 JSON_LEGAL_ENTITY_REGISTER_NAME_IS_ABOVE_MAX_CHARS_RLE + "$ data.legalEntityRegisterName $ Legal entity register name " + "must be less than 160",
                 JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE + "$ data.registeredCompanyNumber $ Registered company number " + "must be less than 160"
+        }, delimiter = '$')
+        void shouldReturn400_update_RLE(String body, String field, String errorMessage) throws Exception {
+            mocks();
+            mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+        }
+    }
+
+    // ORP
+    @Nested
+    class OtherRegistrablePerson {
+        private static final String JSON_CORRECT_ORP = """
+            {
+                "data": {
+                    "kind": "limited-partnership#person-with-significant-control",
+                    "type": "OTHER_REGISTRABLE_PERSON",
+                    "legal_entity_name": "asasd",
+                    "legal_form": "dsfs",
+                    "governing_law": "sadsad"
+                }
+            }""";
+
+        private static final String JSON_NAME_IS_REQUIRED_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\"}";
+        private static final String JSON_NAME_IS_REQUIRED_NULL_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": null, \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\"}";
+        private static final String JSON_LEGAL_FORM_IS_REQUIRED_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"\", \"governing_law\": \"sadsad\"}";
+        private static final String JSON_LEGAL_FORM_IS_REQUIRED_NULL_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"Smiths\", \"legal_form\": null, \"governing_law\": \"sadsad\" }";
+        private static final String JSON_GOVERNING_LAW_IS_REQUIRED_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"ddds\", \"governing_law\": \"\" }";
+        private static final String JSON_GOVERNING_LAW_IS_REQUIRED_NULL_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"Smiths\", \"legal_form\": \"ddds\", \"governing_law\": null }";
+        private static final String JSON_NAME_INVALID_CHARS_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"§§\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\"}";
+        private static final String JSON_LEGAL_FORM_INVALID_CHARS_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"§§§\", \"governing_law\": \"sadsad\"}";
+        private static final String JSON_GOVERNING_LAW_INVALID_CHARS_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"aaa\", \"legal_form\": \"aaa\", \"governing_law\": \"§§§\"}";
+        private static final String JSON_NAME_IS_ABOVE_MAX_CHARS_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"" + TOO_MANY_CHARS + "\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\" }";
+        private static final String JSON_LEGAL_FORM_IS_ABOVE_MAX_CHARS_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"" + TOO_MANY_CHARS + "\", \"governing_law\": \"sadsad\" }";
+        private static final String JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_ORP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"OTHER_REGISTRABLE_PERSON\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"" + TOO_MANY_CHARS + "\" }";
+
+        @Test
+        void shouldReturn201_RLE() throws Exception {
+            mocks();
+            mockMvc.perform(post(BASE_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(JSON_CORRECT_ORP))
+                    .andExpect(status().isCreated());
+        }
+
+        @ParameterizedTest
+        @CsvSource(value = {
+                JSON_NAME_IS_REQUIRED_ORP + "$ data.legalEntityName $ Name is required",
+                JSON_NAME_IS_REQUIRED_NULL_ORP + "$ data.legalEntityName $ Name is required",
+                JSON_LEGAL_FORM_IS_REQUIRED_ORP + "$ data.legalForm $ Legal form is required",
+                JSON_LEGAL_FORM_IS_REQUIRED_NULL_ORP + "$ data.legalForm $ Legal form is required",
+                JSON_GOVERNING_LAW_IS_REQUIRED_ORP + "$ data.governingLaw $ Governing law is required",
+                JSON_GOVERNING_LAW_IS_REQUIRED_NULL_ORP + "$ data.governingLaw $ Governing law is required",
+                JSON_NAME_INVALID_CHARS_ORP + "$ data.legalEntityName $ Name " + INVALID_CHARACTERS_MESSAGE,
+                JSON_LEGAL_FORM_INVALID_CHARS_ORP + "$ data.legalForm $ Legal form " + INVALID_CHARACTERS_MESSAGE,
+                JSON_GOVERNING_LAW_INVALID_CHARS_ORP + "$ data.governingLaw $ Governing law " + INVALID_CHARACTERS_MESSAGE,
+                JSON_NAME_IS_ABOVE_MAX_CHARS_ORP + "$ data.legalEntityName $ Name " + "must be less than 160",
+                JSON_LEGAL_FORM_IS_ABOVE_MAX_CHARS_ORP + "$ data.legalForm $ Legal form " + "must be less than 160",
+                JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_ORP + "$ data.governingLaw $ Governing law " + "must be less than 160"
+        }, delimiter = '$')
+        void shouldReturn400_create_RLE(String body, String field, String errorMessage) throws Exception {
+            mocks();
+            mockMvc.perform(post(BASE_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(String.format("{\"data\":%s}", body)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+        }
+
+        @ParameterizedTest
+        @CsvSource(value = {
+                JSON_NAME_IS_REQUIRED_ORP + "$ data.legalEntityName $ Name is required",
+                JSON_NAME_IS_REQUIRED_NULL_ORP + "$ data.legalEntityName $ Name is required",
+                JSON_LEGAL_FORM_IS_REQUIRED_ORP + "$ data.legalForm $ Legal form is required",
+                JSON_LEGAL_FORM_IS_REQUIRED_NULL_ORP + "$ data.legalForm $ Legal form is required",
+                JSON_GOVERNING_LAW_IS_REQUIRED_ORP + "$ data.governingLaw $ Governing law is required",
+                JSON_GOVERNING_LAW_IS_REQUIRED_NULL_ORP + "$ data.governingLaw $ Governing law is required",
+                JSON_NAME_INVALID_CHARS_ORP + "$ data.legalEntityName $ Name " + INVALID_CHARACTERS_MESSAGE,
+                JSON_LEGAL_FORM_INVALID_CHARS_ORP + "$ data.legalForm $ Legal form " + INVALID_CHARACTERS_MESSAGE,
+                JSON_GOVERNING_LAW_INVALID_CHARS_ORP + "$ data.governingLaw $ Governing law " + INVALID_CHARACTERS_MESSAGE,
+                JSON_NAME_IS_ABOVE_MAX_CHARS_ORP + "$ data.legalEntityName $ Name " + "must be less than 160",
+                JSON_LEGAL_FORM_IS_ABOVE_MAX_CHARS_ORP + "$ data.legalForm $ Legal form " + "must be less than 160",
+                JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_ORP + "$ data.governingLaw $ Governing law " + "must be less than 160"
         }, delimiter = '$')
         void shouldReturn400_update_RLE(String body, String field, String errorMessage) throws Exception {
             mocks();

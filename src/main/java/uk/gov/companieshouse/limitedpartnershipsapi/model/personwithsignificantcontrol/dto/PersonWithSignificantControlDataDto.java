@@ -74,7 +74,7 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     @JsonProperty("usual_residential_address")
     private AddressDto usualResidentialAddress;
 
-    // LEGAL ENTITY
+    // LEGAL ENTITY && ORP
 
     @JsonProperty("legal_entity_name")
     @Size(max = LONG_MAX_SIZE, message = "Name " + MAX_SIZE_MESSAGE)

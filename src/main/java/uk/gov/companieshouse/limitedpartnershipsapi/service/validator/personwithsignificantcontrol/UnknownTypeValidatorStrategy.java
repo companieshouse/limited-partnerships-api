@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
@@ -30,14 +29,14 @@ public class UnknownTypeValidatorStrategy extends PersonWithSignificantControlVa
     }
 
     @Override
-    public List<ValidationStatusError> validateFull(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws ServiceException {
+    public List<ValidationStatusError> validateFull(PersonWithSignificantControlDto personWithSignificantControlDto) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
         errorsList.add(validationStatus.createValidationStatusError(ERROR_MESSAGE, TYPE_FIELD_NAME));
         return errorsList;
     }
 
     @Override
-    public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
+    public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
         addError(TYPE_FIELD_NAME, ERROR_MESSAGE, bindingResult);
         var methodParameter = new MethodParameter(PersonWithSignificantControlDataDto.class.getConstructor(), -1);

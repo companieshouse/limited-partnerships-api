@@ -59,7 +59,7 @@ public class PersonWithSignificantControlService {
 
     public String createPersonWithSignificantControl(Transaction transaction, PersonWithSignificantControlDto personWithSignificantControlDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
-        validator.validatePartial(personWithSignificantControlDto, transaction);
+        validator.validatePartial(personWithSignificantControlDto);
 
         PersonWithSignificantControlDao dao = mapper.dtoToDao(personWithSignificantControlDto);
         PersonWithSignificantControlDao insertedResource = insertDaoWithMetadata(requestId, transaction, userId, dao);
@@ -81,7 +81,7 @@ public class PersonWithSignificantControlService {
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
 
         var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
-        validator.validatePartial(dto, transaction);
+        validator.validatePartial(dto);
 
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
         handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
@@ -121,11 +121,14 @@ public class PersonWithSignificantControlService {
         List<PersonWithSignificantControlDto> personsWithSignificantControl = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
                 transaction.getId()).stream().map(mapper::daoToDto).toList();
 
+        // TODO check if list is not empty when not doing a Registration?
+        // TODO check statement?
+
         List<ValidationStatusError> errors = new ArrayList<>();
 
         for (PersonWithSignificantControlDto personWithSignificantControlDto: personsWithSignificantControl) {
             var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
-            errors.addAll(validator.validateFull(personWithSignificantControlDto, transaction));
+            errors.addAll(validator.validateFull(personWithSignificantControlDto));
         }
 
         return errors;
