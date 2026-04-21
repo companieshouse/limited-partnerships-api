@@ -65,7 +65,7 @@ class PersonWithSignificantControlServiceValidateTest {
             PersonWithSignificantControlDao personWithSignificantControlDao =
                     new PersonWithSignificantControlBuilder
                             .PersonWithSignificantControlDaoBuilder()
-                            .legalEntityPersonWithSignificantControlDao()
+                            .relevantLegalEntityPersonWithSignificantControlDao()
                             .build();
             personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
 
@@ -85,7 +85,7 @@ class PersonWithSignificantControlServiceValidateTest {
             PersonWithSignificantControlDao personWithSignificantControlDao =
                     new PersonWithSignificantControlBuilder
                             .PersonWithSignificantControlDaoBuilder()
-                            .legalEntityPersonWithSignificantControlDao()
+                            .relevantLegalEntityPersonWithSignificantControlDao()
                             .withPrincipalOfficeAddress(null)
                             .build();
             personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
@@ -106,8 +106,13 @@ class PersonWithSignificantControlServiceValidateTest {
         @Test
         void shouldReturnErrorsIfMandatoryDataIsMissing() throws ServiceException {
             // given
-            rlePersonWithSignificantControlDao.getData().setLegalEntityName(null);
-            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(rlePersonWithSignificantControlDao));
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .relevantLegalEntityPersonWithSignificantControlDao()
+                            .withLegalEntityName(null)
+                            .build();
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
             // when
             List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
@@ -126,7 +131,7 @@ class PersonWithSignificantControlServiceValidateTest {
             PersonWithSignificantControlDao personWithSignificantControlDao =
                     new PersonWithSignificantControlBuilder
                             .PersonWithSignificantControlDaoBuilder()
-                            .legalEntityPersonWithSignificantControlDao()
+                            .relevantLegalEntityPersonWithSignificantControlDao()
                             .build();
             personWithSignificantControlDao.getData().setLegalEntityName("§§§§§§§");
             personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
@@ -150,7 +155,7 @@ class PersonWithSignificantControlServiceValidateTest {
         @Test
         void shouldReturnErrorOnPartialValidation() {
             var pscDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder()
-                    .legalEntityPersonWithSignificantControlDto()
+                    .relevantLegalEntityPersonWithSignificantControlDto()
                     .withType(PersonWithSignificantControlType.UNKNOWN)
                     .build();
 
@@ -169,7 +174,7 @@ class PersonWithSignificantControlServiceValidateTest {
             PersonWithSignificantControlDao personWithSignificantControlDao =
                     new PersonWithSignificantControlBuilder
                             .PersonWithSignificantControlDaoBuilder()
-                            .legalEntityPersonWithSignificantControlDao()
+                            .relevantLegalEntityPersonWithSignificantControlDao()
                             .withType(PersonWithSignificantControlType.UNKNOWN)
                             .build();
 

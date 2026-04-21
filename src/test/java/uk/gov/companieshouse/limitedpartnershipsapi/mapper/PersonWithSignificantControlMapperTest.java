@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
@@ -70,129 +71,205 @@ class PersonWithSignificantControlMapperTest {
     private static final String FN_REGION = "region";
     private static final String FN_TYPE = "type";
 
-    @Test
-    void givenDao_whenMapsToDto_thenCorrect() {
-        // given
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
+    @Nested
+    class IndividualPersonMapperTests {
+        @Test
+        void givenDao_whenMapsToDto_thenCorrect() {
+            // given
+            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
 
-        // when
-        PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
-        PersonWithSignificantControlDataDto dataDto = result.getData();
+            // when
+            PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
+            PersonWithSignificantControlDataDto dataDto = result.getData();
 
-        // Grouped assertions for main fields
-        assertThat(dataDto)
-            .extracting(
-                FN_APPOINTMENT_ID,
-                FN_COUNTRY,
-                FN_DATE_EFFECTIVE_FROM,
-                FN_DATE_OF_BIRTH,
-                FN_FORENAME,
-                FN_FORMER_NAMES,
-                FN_GOVERNING_LAW,
-                FN_KIND,
-                FN_LEGAL_ENTITY_NAME,
-                FN_LEGAL_ENTITY_REGISTER_NAME,
-                FN_LEGAL_ENTITY_REGISTRATION_LOCATION,
-                FN_LEGAL_FORM,
-                FN_NATIONALITY1,
-                FN_NATIONALITY2,
-                FN_REGISTERED_COMPANY_NUMBER,
-                FN_RESIGNATION_DATE,
-                FN_SURNAME,
-                FN_TYPE
-            )
-            .containsExactly(
-                APPOINTMENT_ID,
-                ENGLAND,
-                DATE_EFFECTIVE_FROM,
-                DATE_OF_BIRTH,
-                FORENAME,
-                FORMER_NAMES,
-                GOVERNING_LAW,
-                FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
-                LEGAL_ENTITY_NAME,
-                LEGAL_ENTITY_REGISTER_NAME,
-                ENGLAND,
-                LEGAL_FORM,
-                Nationality.BRITISH.getDescription(),
-                Nationality.FRENCH.getDescription(),
-                REGISTERED_COMPANY_NUMBER,
-                RESIGNATION_DATE,
-                SURNAME,
-                PersonWithSignificantControlType.INDIVIDUAL_PERSON
-            );
+            // Grouped assertions for main fields
+            assertThat(dataDto)
+                    .extracting(
+                            FN_APPOINTMENT_ID,
+                            FN_DATE_EFFECTIVE_FROM,
+                            FN_DATE_OF_BIRTH,
+                            FN_FORENAME,
+                            FN_FORMER_NAMES,
+                            FN_KIND,
+                            FN_NATIONALITY1,
+                            FN_NATIONALITY2,
+                            FN_RESIGNATION_DATE,
+                            FN_SURNAME,
+                            FN_TYPE
+                    )
+                    .containsExactly(
+                            APPOINTMENT_ID,
+                            DATE_EFFECTIVE_FROM,
+                            DATE_OF_BIRTH,
+                            FORENAME,
+                            FORMER_NAMES,
+                            FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                            Nationality.BRITISH.getDescription(),
+                            Nationality.FRENCH.getDescription(),
+                            RESIGNATION_DATE,
+                            SURNAME,
+                            PersonWithSignificantControlType.INDIVIDUAL_PERSON
+                    );
 
-        // Assert naturesOfControl
-        assertThat(dataDto.getNaturesOfControl())
-            .hasSize(3)
-            .containsExactlyInAnyOrder(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL);
+            // Assert naturesOfControl
+            assertThat(dataDto.getNaturesOfControl())
+                    .hasSize(3)
+                    .containsExactlyInAnyOrder(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL);
 
-        assertAddress(dataDto.getPrincipalOfficeAddress(), POA_PREFIX);
-        assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
-        assertAddress(dataDto.getUsualResidentialAddress(), URA_PREFIX);
+            assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
+            assertAddress(dataDto.getUsualResidentialAddress(), URA_PREFIX);
+        }
+
+        @Test
+        void givenDto_whenMapsToDao_thenCorrect() {
+            // given
+            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build();
+
+            // when
+            PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);
+            PersonWithSignificantControlDataDao daoData = result.getData();
+
+            // Grouped assertions for main fields
+            assertThat(daoData)
+                    .extracting(
+                            FN_APPOINTMENT_ID,
+                            FN_DATE_EFFECTIVE_FROM,
+                            FN_DATE_OF_BIRTH,
+                            FN_FORENAME,
+                            FN_FORMER_NAMES,
+                            FN_KIND,
+                            FN_NATIONALITY1,
+                            FN_NATIONALITY2,
+                            FN_RESIGNATION_DATE,
+                            FN_SURNAME,
+                            FN_TYPE
+                    )
+                    .containsExactly(
+                            APPOINTMENT_ID,
+                            DATE_EFFECTIVE_FROM,
+                            DATE_OF_BIRTH,
+                            FORENAME,
+                            FORMER_NAMES,
+                            FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                            NATIONALITY1,
+                            NATIONALITY2,
+                            RESIGNATION_DATE,
+                            SURNAME,
+                            PersonWithSignificantControlType.INDIVIDUAL_PERSON
+                    );
+
+            // Assert naturesOfControl
+            assertThat(daoData.getNaturesOfControl())
+                    .hasSize(3)
+                    .allMatch(NATURES_OF_CONTROL_LIST_DESCRIPTIONS::contains);
+
+            assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);
+            assertAddress(daoData.getUsualResidentialAddress(), URA_PREFIX);
+        }
     }
 
-    @Test
-    void givenDto_whenMapsToDao_thenCorrect() {
-        // given
-        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
+    @Nested
+    class RelevantLegalEntityMapperTests {
+        @Test
+        void givenDao_whenMapsToDto_thenCorrect() {
+            // given
+            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
 
-        // when
-        PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);
-        PersonWithSignificantControlDataDao daoData = result.getData();
+            // when
+            PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
+            PersonWithSignificantControlDataDto dataDto = result.getData();
 
-        // Grouped assertions for main fields
-        assertThat(daoData)
-            .extracting(
-                FN_APPOINTMENT_ID,
-                FN_COUNTRY,
-                FN_DATE_EFFECTIVE_FROM,
-                FN_DATE_OF_BIRTH,
-                FN_FORENAME,
-                FN_FORMER_NAMES,
-                FN_GOVERNING_LAW,
-                FN_KIND,
-                FN_LEGAL_ENTITY_NAME,
-                FN_LEGAL_ENTITY_REGISTER_NAME,
-                FN_LEGAL_ENTITY_REGISTRATION_LOCATION,
-                FN_LEGAL_FORM,
-                FN_NATIONALITY1,
-                FN_NATIONALITY2,
-                FN_REGISTERED_COMPANY_NUMBER,
-                FN_RESIGNATION_DATE,
-                FN_SURNAME,
-                FN_TYPE
-            )
-            .containsExactly(
-                APPOINTMENT_ID,
-                ENGLAND.getDescription(),
-                DATE_EFFECTIVE_FROM,
-                DATE_OF_BIRTH,
-                FORENAME,
-                FORMER_NAMES,
-                GOVERNING_LAW,
-                FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
-                LEGAL_ENTITY_NAME,
-                LEGAL_ENTITY_REGISTER_NAME,
-                ENGLAND.getDescription(),
-                LEGAL_FORM,
-                NATIONALITY1,
-                NATIONALITY2,
-                REGISTERED_COMPANY_NUMBER,
-                RESIGNATION_DATE,
-                SURNAME,
-                PersonWithSignificantControlType.INDIVIDUAL_PERSON
-            );
+            // Grouped assertions for main fields
+            assertThat(dataDto)
+                    .extracting(
+                            FN_APPOINTMENT_ID,
+                            FN_COUNTRY,
+                            FN_DATE_EFFECTIVE_FROM,
+                            FN_GOVERNING_LAW,
+                            FN_KIND,
+                            FN_LEGAL_ENTITY_NAME,
+                            FN_LEGAL_ENTITY_REGISTER_NAME,
+                            FN_LEGAL_ENTITY_REGISTRATION_LOCATION,
+                            FN_LEGAL_FORM,
+                            FN_REGISTERED_COMPANY_NUMBER,
+                            FN_RESIGNATION_DATE,
+                            FN_TYPE
+                    )
+                    .containsExactly(
+                            APPOINTMENT_ID,
+                            ENGLAND,
+                            DATE_EFFECTIVE_FROM,
+                            GOVERNING_LAW,
+                            FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                            LEGAL_ENTITY_NAME,
+                            LEGAL_ENTITY_REGISTER_NAME,
+                            ENGLAND,
+                            LEGAL_FORM,
+                            REGISTERED_COMPANY_NUMBER,
+                            RESIGNATION_DATE,
+                            PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY
+                    );
 
-        // Assert naturesOfControl
-        assertThat(daoData.getNaturesOfControl())
-            .hasSize(3)
-            .allMatch(NATURES_OF_CONTROL_LIST_DESCRIPTIONS::contains);
+            // Assert naturesOfControl
+            assertThat(dataDto.getNaturesOfControl())
+                    .hasSize(3)
+                    .containsExactlyInAnyOrder(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL);
 
-        assertAddress(daoData.getPrincipalOfficeAddress(), POA_PREFIX);
-        assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);
-        assertAddress(daoData.getUsualResidentialAddress(), URA_PREFIX);
+            assertAddress(dataDto.getPrincipalOfficeAddress(), POA_PREFIX);
+            assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
+            assertAddress(dataDto.getUsualResidentialAddress(), URA_PREFIX);
+        }
+
+        @Test
+        void givenDto_whenMapsToDao_thenCorrect() {
+            // given
+            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().relevantLegalEntityPersonWithSignificantControlDto().build();
+
+            // when
+            PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);
+            PersonWithSignificantControlDataDao daoData = result.getData();
+
+            // Grouped assertions for main fields
+            assertThat(daoData)
+                    .extracting(
+                            FN_APPOINTMENT_ID,
+                            FN_COUNTRY,
+                            FN_DATE_EFFECTIVE_FROM,
+                            FN_GOVERNING_LAW,
+                            FN_KIND,
+                            FN_LEGAL_ENTITY_NAME,
+                            FN_LEGAL_ENTITY_REGISTER_NAME,
+                            FN_LEGAL_ENTITY_REGISTRATION_LOCATION,
+                            FN_LEGAL_FORM,
+                            FN_REGISTERED_COMPANY_NUMBER,
+                            FN_RESIGNATION_DATE,
+                            FN_TYPE
+                    )
+                    .containsExactly(
+                            APPOINTMENT_ID,
+                            ENGLAND.getDescription(),
+                            DATE_EFFECTIVE_FROM,
+                            GOVERNING_LAW,
+                            FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                            LEGAL_ENTITY_NAME,
+                            LEGAL_ENTITY_REGISTER_NAME,
+                            ENGLAND.getDescription(),
+                            LEGAL_FORM,
+                            REGISTERED_COMPANY_NUMBER,
+                            RESIGNATION_DATE,
+                            PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY
+                    );
+
+            // Assert naturesOfControl
+            assertThat(daoData.getNaturesOfControl())
+                    .hasSize(3)
+                    .allMatch(NATURES_OF_CONTROL_LIST_DESCRIPTIONS::contains);
+
+            assertAddress(daoData.getPrincipalOfficeAddress(), POA_PREFIX);
+            assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);
+        }
     }
+
 
     private void assertAddress(Object address, String prefix) {
         assertThat(address)

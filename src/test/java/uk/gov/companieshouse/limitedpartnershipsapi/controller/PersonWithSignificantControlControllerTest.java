@@ -60,7 +60,7 @@ class PersonWithSignificantControlControllerTest {
 
     @BeforeEach
     void init() {
-        personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
+        personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build();
     }
 
     @Test
@@ -129,7 +129,7 @@ class PersonWithSignificantControlControllerTest {
         var response = personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build().getData(),
+                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
                 REQUEST_ID,
                 USER_ID);
 
@@ -143,7 +143,7 @@ class PersonWithSignificantControlControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build().getData(),
+                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
                 REQUEST_ID,
                 USER_ID));
     }
