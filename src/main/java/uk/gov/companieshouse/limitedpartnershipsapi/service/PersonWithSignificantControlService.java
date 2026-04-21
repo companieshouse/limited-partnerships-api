@@ -64,7 +64,7 @@ public class PersonWithSignificantControlService {
 
         for (PersonWithSignificantControlDto personWithSignificantControlDto : personWithSignificantControlDtos) {
             boolean isCompleted = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType())
-                    .validateFull(personWithSignificantControlDto, transaction)
+                    .validateFull(personWithSignificantControlDto)
                     .isEmpty();
             personWithSignificantControlDto.getData().setCompleted(isCompleted);
         }

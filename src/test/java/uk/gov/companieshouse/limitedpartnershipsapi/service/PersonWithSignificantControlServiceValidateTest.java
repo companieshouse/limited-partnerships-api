@@ -175,7 +175,7 @@ class PersonWithSignificantControlServiceValidateTest {
 
             // then
             verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
-            assertEquals(0, results.size());
+            assertThat(results).isEmpty();
         }
 
         @Test
@@ -190,8 +190,9 @@ class PersonWithSignificantControlServiceValidateTest {
 
             // then
             verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
-            assertThat(results).hasSize(1);
-            assertThat(results.getFirst())
+
+            assertThat(results)
+                    .singleElement()
                     .usingRecursiveComparison()
                     .isEqualTo(new ValidationStatusError("Principal office address is required", "data.principalOfficeAddress", null, null));
         }
