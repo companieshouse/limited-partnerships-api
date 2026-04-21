@@ -2,15 +2,24 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificant
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 
 public class PersonWithSignificantControlDataDto implements HasNationality {
 
@@ -34,9 +43,11 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     private List<NatureOfControl> naturesOfControl;
 
     @JsonProperty("service_address")
+    @Valid
     private AddressDto serviceAddress;
 
     @JsonProperty("type")
+    @EnumValid(message = "Type must be valid")
     private PersonWithSignificantControlType type;
 
     // PERSON
@@ -65,25 +76,37 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     // LEGAL ENTITY
 
-    @JsonProperty("governing_law")
-    private String governingLaw;
-
     @JsonProperty("legal_entity_name")
+    @Size(max = LONG_MAX_SIZE, message = "Name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Name " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityName;
 
     @JsonProperty("legal_entity_register_name")
+    @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityRegisterName;
 
+    @JsonProperty("governing_law")
+    @Size(max = LONG_MAX_SIZE, message = "Governing law " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
+    private String governingLaw;
+
     @JsonProperty("legal_entity_registration_location")
+    @EnumValid(message = "Legal entity registration location must be valid")
     private Country legalEntityRegistrationLocation;
 
     @JsonProperty("legal_form")
+    @Size(max = LONG_MAX_SIZE, message = "Legal form " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal form " + INVALID_CHARACTERS_MESSAGE)
     private String legalForm;
 
     @JsonProperty("registered_company_number")
+    @Size(max = LONG_MAX_SIZE, message = "Registered company number " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Registered company number " + INVALID_CHARACTERS_MESSAGE)
     private String registeredCompanyNumber;
 
     @JsonProperty("principal_office_address")
+    @Valid
     private AddressDto principalOfficeAddress;
 
     public String getKind() {

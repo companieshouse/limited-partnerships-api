@@ -6,11 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -20,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
-import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.util.Objects;
 
@@ -51,17 +49,19 @@ class PersonWithSignificantControlControllerTest {
     private PersonWithSignificantControlService personWithSignificantControlService;
 
     private final Transaction transaction = new TransactionBuilder()
-        .withKindAndUri(
-                FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
-                URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL,
-                PERSON_WITH_SIGNIFICANT_CONTROL_ID
-        )
-        .build();
+            .withKindAndUri(
+                    FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                    URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL,
+                    PERSON_WITH_SIGNIFICANT_CONTROL_ID
+            )
+            .build();
 
     private PersonWithSignificantControlDto personWithSignificantControlDto;
 
     @BeforeEach
-    void init() { personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build(); }
+    void init() {
+        personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build();
+    }
 
     @Test
     void testGetPersonWithSignificantControlReturnsDto() throws ServiceException {
@@ -109,30 +109,19 @@ class PersonWithSignificantControlControllerTest {
     }
 
     @Test
-    void testCreatePersonWithSignificantControlThrowsServiceException() throws ServiceException {
+    void testCreatePersonWithSignificantControlThrowsServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         ServiceException exception = new ServiceException("Test");
-        try (MockedStatic<ApiLogger> mockedLogger = Mockito.mockStatic(ApiLogger.class)) {
-            doThrow(exception).when(personWithSignificantControlService).createPersonWithSignificantControl(
-                    eq(transaction),
-                    any(PersonWithSignificantControlDto.class),
-                    eq(REQUEST_ID),
-                    eq(USER_ID));
+        doThrow(exception).when(personWithSignificantControlService).createPersonWithSignificantControl(
+                eq(transaction),
+                any(PersonWithSignificantControlDto.class),
+                eq(REQUEST_ID),
+                eq(USER_ID));
 
-            var response = personWithSignificantControlController.createPersonWithSignificantControl(
-                    transaction,
-                    personWithSignificantControlDto,
-                    REQUEST_ID,
-                    USER_ID);
-
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
-
-            mockedLogger.verify(() -> ApiLogger.errorContext(
-                    eq(REQUEST_ID),
-                    eq("Error creating the person with significant control"),
-                    eq(exception),
-                    any()
-            ));
-        }
+        assertThrows(ServiceException.class, () -> personWithSignificantControlController.createPersonWithSignificantControl(
+                transaction,
+                personWithSignificantControlDto,
+                REQUEST_ID,
+                USER_ID));
     }
 
     @Test
@@ -140,7 +129,7 @@ class PersonWithSignificantControlControllerTest {
         var response = personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build().getData(),
+                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
                 REQUEST_ID,
                 USER_ID);
 
@@ -148,13 +137,13 @@ class PersonWithSignificantControlControllerTest {
     }
 
     @Test
-    void testUpdatePersonWithSignificantControlThrowsResourceNotFoundException() throws ServiceException {
+    void testUpdatePersonWithSignificantControlThrowsResourceNotFoundException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         doThrow(ResourceNotFoundException.class).when(personWithSignificantControlService).updatePersonWithSignificantControl(any(Transaction.class), anyString(), any(PersonWithSignificantControlDataDto.class), anyString(), anyString() );
 
         assertThrows(ResourceNotFoundException.class, () -> personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build().getData(),
+                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
                 REQUEST_ID,
                 USER_ID));
     }

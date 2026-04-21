@@ -315,7 +315,7 @@ class FilingsServiceTest {
         })
         void testFilingGenerationForUpdateGeneralPartnerContainsNullsForUnchangedData(
                 boolean isPerson,
-                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+                String partnerKind) throws ServiceException, ApiErrorResponseException, URIValidationException {
             mockChsAppointmentApiData(isPerson);
             var transaction = new TransactionBuilder().build();
             var generalPartnerBuilder = new GeneralPartnerBuilder()
@@ -616,7 +616,7 @@ class FilingsServiceTest {
         })
         void testFilingGenerationForUpdateLimitedPartnerContainsNullsForUnchangedData(
                 boolean isPerson,
-                String partnerKind) throws ResourceNotFoundException, ApiErrorResponseException, URIValidationException {
+                String partnerKind) throws ServiceException, ApiErrorResponseException, URIValidationException {
             mockChsAppointmentApiData(isPerson);
             var transaction = new TransactionBuilder().build();
             var limitedPartnerBuilder = new LimitedPartnerBuilder()

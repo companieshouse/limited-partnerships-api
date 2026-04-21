@@ -39,7 +39,6 @@ public interface PersonWithSignificantControlMapper {
     }
 
     default String mapCountryToString(Country country) {
-
         return country != null ? country.getDescription() : null;
     }
 
