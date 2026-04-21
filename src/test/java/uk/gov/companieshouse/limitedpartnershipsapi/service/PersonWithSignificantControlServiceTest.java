@@ -290,20 +290,21 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testGetPersonWithSignificantControlList() {
-        PersonWithSignificantControlDao personWithSignificantControlDao1 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
+    void testGetPersonWithSignificantControlList() throws ServiceException{
+        PersonWithSignificantControlDao personWithSignificantControlDao1 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
         personWithSignificantControlDao1.setTransactionId(TRANSACTION.getId());
-        PersonWithSignificantControlDao personWithSignificantControlDao2 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personWithSignificantControlDao().build();
+        PersonWithSignificantControlDao personWithSignificantControlDao2 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
         personWithSignificantControlDao2.setTransactionId(TRANSACTION.getId());
         List<PersonWithSignificantControlDao> personWithSignificantControlDaoList = List.of(personWithSignificantControlDao1, personWithSignificantControlDao2);
 
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION.getId())).thenReturn(personWithSignificantControlDaoList);
 
-        PersonWithSignificantControlDto personWithSignificantControlDto1 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
-        PersonWithSignificantControlDto personWithSignificantControlDto2 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().personWithSignificantControlDto().build();
+        PersonWithSignificantControlDto personWithSignificantControlDto1 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().relevantLegalEntityPersonWithSignificantControlDto().build();
+        PersonWithSignificantControlDto personWithSignificantControlDto2 = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().relevantLegalEntityPersonWithSignificantControlDto().build();
 
         when(mapper.daoToDto(personWithSignificantControlDao1)).thenReturn(personWithSignificantControlDto1);
         when(mapper.daoToDto(personWithSignificantControlDao2)).thenReturn(personWithSignificantControlDto2);
+        when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
 
         List<PersonWithSignificantControlDto> personWithSignificantControlDtoList = personWithSignificantControlService.getPersonWithSignificantControlList(TRANSACTION);
 
@@ -311,7 +312,7 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testGetPersonWithSignificantControlList_Empty() {
+    void testGetPersonWithSignificantControlList_Empty() throws ServiceException{
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION.getId())).thenReturn(new ArrayList<>());
 
         List<PersonWithSignificantControlDto> personWithSignificantControlDtoList = personWithSignificantControlService.getPersonWithSignificantControlList(TRANSACTION);

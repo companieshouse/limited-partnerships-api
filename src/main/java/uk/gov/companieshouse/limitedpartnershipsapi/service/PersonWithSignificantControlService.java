@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.List;
 
 import static java.util.Objects.requireNonNullElse;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
@@ -58,10 +57,19 @@ public class PersonWithSignificantControlService {
         return mapper.daoToDto(personWithSignificantControlDao);
     }
 
-    public List<PersonWithSignificantControlDto> getPersonWithSignificantControlList(Transaction transaction) {
-        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+    public List<PersonWithSignificantControlDto> getPersonWithSignificantControlList(Transaction transaction) throws ServiceException {
+        List<PersonWithSignificantControlDto> personWithSignificantControlDtos = repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
                 .map(mapper::daoToDto)
                 .toList();
+
+        for (PersonWithSignificantControlDto personWithSignificantControlDto : personWithSignificantControlDtos) {
+            boolean isCompleted = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType())
+                    .validateFull(personWithSignificantControlDto, transaction)
+                    .isEmpty();
+            personWithSignificantControlDto.getData().setCompleted(isCompleted);
+        }
+
+        return personWithSignificantControlDtos;
     }
 
     public String createPersonWithSignificantControl(Transaction transaction, PersonWithSignificantControlDto personWithSignificantControlDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {

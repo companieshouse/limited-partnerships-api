@@ -161,7 +161,7 @@ class PersonWithSignificantControlControllerTest {
     }
 
     @Test
-    void testGetPersonsWithSignificantControlReturnsList() {
+    void testGetPersonsWithSignificantControlReturnsList() throws ServiceException {
         List<PersonWithSignificantControlDto> personWithSignificantControlDtoList = List.of(new PersonWithSignificantControlDto(), new PersonWithSignificantControlDto());
         when(personWithSignificantControlService.getPersonWithSignificantControlList(transaction)).thenReturn(personWithSignificantControlDtoList);
 

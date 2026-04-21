@@ -62,7 +62,7 @@ public class PersonWithSignificantControlController {
 
     @GetMapping("/persons-with-significant-control")
     public ResponseEntity<List<PersonWithSignificantControlDto>> getPersonsWithSignificantControl(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-                                                                                                  @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) {
+                                                                                                  @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
         String transactionId = transaction.getId();
         HashMap<String, Object> logMap = new HashMap<>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
