@@ -25,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 
 import static uk.gov.companieshouse.api.util.security.EricConstants.ERIC_IDENTITY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ERIC_REQUEST_ID_KEY;
@@ -57,6 +58,17 @@ public class PersonWithSignificantControlController {
         ApiLogger.infoContext(requestId, String.format("Retrieving a person with significant control %s", personWithSignificantControlId), logMap);
         var dto = personWithSignificantControlService.getPersonWithSignificantControl(transaction, personWithSignificantControlId);
         return ResponseEntity.ok().body(dto);
+    }
+
+    @GetMapping("/persons-with-significant-control")
+    public ResponseEntity<List<PersonWithSignificantControlDto>> getPersonsWithSignificantControl(@RequestAttribute(TRANSACTION_KEY) Transaction transaction,
+                                                                                                  @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
+        String transactionId = transaction.getId();
+        HashMap<String, Object> logMap = new HashMap<>();
+        logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
+        ApiLogger.infoContext(requestId, "Retrieving list of persons with significant control", logMap);
+
+        return ResponseEntity.ok().body(personWithSignificantControlService.getPersonWithSignificantControlList(transaction));
     }
 
     @PostMapping("/person-with-significant-control")

@@ -57,6 +57,21 @@ public class PersonWithSignificantControlService {
         return mapper.daoToDto(personWithSignificantControlDao);
     }
 
+    public List<PersonWithSignificantControlDto> getPersonWithSignificantControlList(Transaction transaction) throws ServiceException {
+        List<PersonWithSignificantControlDto> personWithSignificantControlDtos = repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .toList();
+
+        for (PersonWithSignificantControlDto personWithSignificantControlDto : personWithSignificantControlDtos) {
+            boolean isCompleted = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType())
+                    .validateFull(personWithSignificantControlDto, transaction)
+                    .isEmpty();
+            personWithSignificantControlDto.getData().setCompleted(isCompleted);
+        }
+
+        return personWithSignificantControlDtos;
+    }
+
     public String createPersonWithSignificantControl(Transaction transaction, PersonWithSignificantControlDto personWithSignificantControlDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
         validator.validatePartial(personWithSignificantControlDto);
