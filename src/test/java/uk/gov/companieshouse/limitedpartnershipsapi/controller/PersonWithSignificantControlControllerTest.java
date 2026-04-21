@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlDtoBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -40,7 +40,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class PersonWithSignificantControlControllerTest {
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
-    private static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = "psc123";
+    private static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = PersonWithSignificantControlBuilder.ID;
 
     @InjectMocks
     private PersonWithSignificantControlController personWithSignificantControlController;
@@ -57,18 +57,10 @@ class PersonWithSignificantControlControllerTest {
             .build();
 
     private PersonWithSignificantControlDto personWithSignificantControlDto;
-    private PersonWithSignificantControlDataDto personWithSignificantControlDataDto;
 
     @BeforeEach
     void init() {
-        personWithSignificantControlDataDto = new PersonWithSignificantControlDtoBuilder.DataBuilder()
-                .withAppointmentId("7363637")
-                .withForename("John")
-                .withSurname("Smith")
-                .build();
-        personWithSignificantControlDto = new PersonWithSignificantControlDtoBuilder()
-                .withData(personWithSignificantControlDataDto)
-                .build();
+        personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build();
     }
 
     @Test
@@ -137,7 +129,7 @@ class PersonWithSignificantControlControllerTest {
         var response = personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                personWithSignificantControlDataDto,
+                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
                 REQUEST_ID,
                 USER_ID);
 
@@ -151,7 +143,7 @@ class PersonWithSignificantControlControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                personWithSignificantControlDataDto,
+                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
                 REQUEST_ID,
                 USER_ID));
     }
