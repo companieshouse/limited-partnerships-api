@@ -50,6 +50,8 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     @EnumValid(message = "Type must be valid")
     private PersonWithSignificantControlType type;
 
+    private boolean completed;
+
     // PERSON
 
     @JsonProperty("forename")
@@ -283,6 +285,14 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     public void setType(PersonWithSignificantControlType type) {
         this.type = type;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }
 

@@ -29,7 +29,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
             "/transactions/*/limited-partnership/general-partners",
             "/transactions/*/limited-partnership/limited-partner/**",
             "/transactions/*/limited-partnership/limited-partners",
-            "/transactions/*/limited-partnership/person-with-significant-control/**"
+            "/transactions/*/limited-partnership/person-with-significant-control/**",
+            "/transactions/*/limited-partnership/persons-with-significant-control"
     };
 
     private static final String[] COST_ENDPOINTS = {
