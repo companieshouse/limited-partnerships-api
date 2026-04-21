@@ -43,7 +43,7 @@ class PersonWithSignificantControlRepositoryTest {
 
     @Test
     void testInsertAndRetrieveLegalEntityPersonWithSignificantControlList() {
-        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().legalEntityPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
 
         personWithSignificantControlRepository.insert(legalEntity);
 
@@ -55,7 +55,7 @@ class PersonWithSignificantControlRepositoryTest {
 
     @Test
     void testInsertAndRetrievePersonPersonWithSignificantControlList() {
-        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
 
         personWithSignificantControlRepository.insert(person);
 
@@ -67,8 +67,8 @@ class PersonWithSignificantControlRepositoryTest {
 
     @Test
     void testGetPersonWithSignificantControlListOrderedByUpdatedAtDesc() {
-        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().personPersonWithSignificantControlDao().build();
-        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().legalEntityPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
         person.setId("782j836-922jl22-23123");
         legalEntity.setId("8014b4-897pu76-9976");
 

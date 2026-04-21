@@ -42,6 +42,7 @@ public class LimitedPartnershipIncorporationService {
     private final TransactionService transactionService;
 
     private final LimitedPartnershipIncorporationMapper mapper;
+    private final PersonWithSignificantControlService personWithSignificantControlService;
 
     public LimitedPartnershipIncorporationService(
             GeneralPartnerService generalPartnerService,
@@ -49,13 +50,15 @@ public class LimitedPartnershipIncorporationService {
             LimitedPartnershipService limitedPartnershipService,
             LimitedPartnershipIncorporationRepository repository,
             LimitedPartnershipIncorporationMapper mapper,
-            TransactionService transactionService) {
+            TransactionService transactionService,
+            PersonWithSignificantControlService personWithSignificantControlService) {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.limitedPartnershipService = limitedPartnershipService;
         this.repository = repository;
         this.mapper = mapper;
         this.transactionService = transactionService;
+        this.personWithSignificantControlService = personWithSignificantControlService;
     }
 
     public String createIncorporation(Transaction transaction, IncorporationDto incorporationDto, String requestId, String userId)
@@ -138,6 +141,7 @@ public class LimitedPartnershipIncorporationService {
         errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction));
         errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
         errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
+        errors.addAll(personWithSignificantControlService.validatePersonsWithSignificantControl(transaction));
 
         return errors;
     }
