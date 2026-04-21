@@ -121,9 +121,6 @@ public class PersonWithSignificantControlService {
         List<PersonWithSignificantControlDto> personsWithSignificantControl = repository.findAllByTransactionIdOrderByUpdatedAtDesc(
                 transaction.getId()).stream().map(mapper::daoToDto).toList();
 
-        // TODO check if list is not empty when not doing a Registration?
-        // TODO check statement?
-
         List<ValidationStatusError> errors = new ArrayList<>();
 
         for (PersonWithSignificantControlDto personWithSignificantControlDto: personsWithSignificantControl) {
