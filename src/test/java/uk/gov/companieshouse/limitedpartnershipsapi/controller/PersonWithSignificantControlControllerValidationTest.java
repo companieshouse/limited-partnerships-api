@@ -15,12 +15,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlDaoBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PersonWithSignificantControlMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -240,14 +239,7 @@ class PersonWithSignificantControlControllerValidationTest {
     }
 
     private void mocks() {
-        PersonWithSignificantControlDataDao personWithSignificantControlDataDao = new PersonWithSignificantControlDaoBuilder.DataBuilder()
-                .withForename("John")
-                .withSurname("Smith")
-                .build();
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlDaoBuilder()
-                .withData(personWithSignificantControlDataDao)
-                .build();
-
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().build();
         mocks(personWithSignificantControlDao);
     }
 }

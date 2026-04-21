@@ -11,15 +11,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.AddressDaoBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlDaoBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlDtoBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 
 import java.util.List;
@@ -37,7 +34,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @SpringBootTest
 class PersonWithSignificantControlServiceValidateTest {
 
-    private static final String PSC_ID = "psc123";
+    private static final String PSC_ID = PersonWithSignificantControlBuilder.ID;
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     private final Transaction transaction = new TransactionBuilder().withKindAndUri(
@@ -55,41 +52,24 @@ class PersonWithSignificantControlServiceValidateTest {
     @MockitoBean
     private TransactionService transactionService;
 
-    private PersonWithSignificantControlDao rlePersonWithSignificantControlDao;
-
     @BeforeEach
     void setUp() {
         transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
-
-        rlePersonWithSignificantControlDao = new PersonWithSignificantControlDaoBuilder()
-                .withId(PSC_ID)
-                .withTransactionId(TRANSACTION_ID)
-                .withData(new PersonWithSignificantControlDaoBuilder.DataBuilder()
-                        .withLegalEntityName("Test Legal Entity")
-                        .withLegalForm("Test Legal Form")
-                        .withGoverningLaw("Test Governing Law")
-                        .withType(PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY)
-                        .withPrincipalOfficeAddress(new AddressDaoBuilder()
-                                .withAddressLine1("123 Test Street")
-                                .withAddressLine2("Test District")
-                                .withPremises("Test Premises")
-                                .withCountry("Test Country")
-                                .withLocality("Test Locality")
-                                .withRegion("Test Region")
-                                .withPostalCode("TE5 7ST")
-                                .build()
-                        )
-                        .build())
-                .build();
     }
 
     @Nested
     class RelevantLegalEntity {
-
         @Test
         void shouldReturnNoErrorsWhenPSCDataIsValid() throws ServiceException {
             // given
-            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(rlePersonWithSignificantControlDao));
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .legalEntityPersonWithSignificantControlDao()
+                            .build();
+            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
             // when
             List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
@@ -102,9 +82,15 @@ class PersonWithSignificantControlServiceValidateTest {
         @Test
         void shouldReturnErrorIfPOANotSupplied() throws ServiceException {
             // given
-            rlePersonWithSignificantControlDao.getData().setPrincipalOfficeAddress(null);
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .legalEntityPersonWithSignificantControlDao()
+                            .withPrincipalOfficeAddress(null)
+                            .build();
+            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
 
-            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(rlePersonWithSignificantControlDao));
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
             // when
             List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
@@ -137,8 +123,15 @@ class PersonWithSignificantControlServiceValidateTest {
         @Test
         void shouldReturnErrorsIfDataIsInvalid() throws ServiceException {
             // given
-            rlePersonWithSignificantControlDao.getData().setLegalEntityName("§§§§§§§");
-            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(rlePersonWithSignificantControlDao));
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .legalEntityPersonWithSignificantControlDao()
+                            .build();
+            personWithSignificantControlDao.getData().setLegalEntityName("§§§§§§§");
+            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
             // when
             List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
@@ -154,29 +147,16 @@ class PersonWithSignificantControlServiceValidateTest {
 
     @Nested
     class UnknownType {
-        private PersonWithSignificantControlDto rlePersonWithSignificantControlDto;
-
-
-        @BeforeEach
-        void setup() {
-            rlePersonWithSignificantControlDto = new PersonWithSignificantControlDtoBuilder()
-                    .withId(PSC_ID)
-                    .withData(new PersonWithSignificantControlDtoBuilder.DataBuilder()
-                            .withLegalEntityName("Test Legal Entity")
-                            .withLegalForm("Test Legal Form")
-                            .withGoverningLaw("Test Governing Law")
-                            .withType(PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY)
-                            .build())
-                    .build();
-        }
-
         @Test
         void shouldReturnErrorOnPartialValidation() {
-            rlePersonWithSignificantControlDto.getData().setType(PersonWithSignificantControlType.UNKNOWN);
+            var pscDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder()
+                    .legalEntityPersonWithSignificantControlDto()
+                    .withType(PersonWithSignificantControlType.UNKNOWN)
+                    .build();
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () -> service.createPersonWithSignificantControl(
                     transaction,
-                    rlePersonWithSignificantControlDto,
+                    pscDto,
                     "2121232",
                     "24234234"
             ));
@@ -186,9 +166,14 @@ class PersonWithSignificantControlServiceValidateTest {
 
         @Test
         void shouldReturnErrorOnFullValidation() throws ServiceException {
-            rlePersonWithSignificantControlDao.getData().setType(PersonWithSignificantControlType.UNKNOWN);
+            PersonWithSignificantControlDao personWithSignificantControlDao =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .legalEntityPersonWithSignificantControlDao()
+                            .withType(PersonWithSignificantControlType.UNKNOWN)
+                            .build();
 
-            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(rlePersonWithSignificantControlDao));
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
             List<ValidationStatusError> errors = service.validatePersonsWithSignificantControl(transaction);
 
