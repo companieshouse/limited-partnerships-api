@@ -68,7 +68,17 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
 
     protected List<ValidationStatusError> validateFullRleOrOrp(PersonWithSignificantControlDto personWithSignificantControlDto, ValidationStatus validationStatus) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
+        getPartialValidationErrors(personWithSignificantControlDto, validationStatus, errorsList);
 
+        var dataDto = personWithSignificantControlDto.getData();
+        if (dataDto.getPrincipalOfficeAddress() == null) {
+            errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", "data.principalOfficeAddress"));
+        }
+
+        return errorsList;
+    }
+
+    protected void getPartialValidationErrors(PersonWithSignificantControlDto personWithSignificantControlDto, ValidationStatus validationStatus, List<ValidationStatusError> errorsList) throws ServiceException {
         try {
             validatePartial(personWithSignificantControlDto);
         } catch (MethodArgumentNotValidException e) {
@@ -76,13 +86,5 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
         }
-
-        var dataDto = personWithSignificantControlDto.getData();
-
-        if (dataDto.getPrincipalOfficeAddress() == null) {
-            errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", "data.principalOfficeAddress"));
-        }
-
-        return errorsList;
     }
 }
