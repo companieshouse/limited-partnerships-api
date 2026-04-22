@@ -147,6 +147,11 @@ public class PersonWithSignificantControlBuilder {
             return this;
         }
 
+        public PersonWithSignificantControlDaoBuilder withTransactionId(String transactionId) {
+            this.personWithSignificantControlDao.setTransactionId(transactionId);
+            return this;
+        }
+
 
         public PersonWithSignificantControlDao build() {
             personWithSignificantControlDao.setData(personWithSignificantControlDataDao);

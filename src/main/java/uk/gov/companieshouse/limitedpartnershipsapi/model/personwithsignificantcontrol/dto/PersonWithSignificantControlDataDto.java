@@ -76,32 +76,35 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     @JsonProperty("usual_residential_address")
     private AddressDto usualResidentialAddress;
 
-    // LEGAL ENTITY
+    // RELEVANT LEGAL ENTITY (RLE) && OTHER REGISTRABLE PERSON (ORP)
 
     @JsonProperty("legal_entity_name")
     @Size(max = LONG_MAX_SIZE, message = "Name " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Name " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityName;
 
-    @JsonProperty("legal_entity_register_name")
-    @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
-    private String legalEntityRegisterName;
+    @JsonProperty("legal_form")
+    @Size(max = LONG_MAX_SIZE, message = "Legal form " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal form " + INVALID_CHARACTERS_MESSAGE)
+    private String legalForm;
 
     @JsonProperty("governing_law")
     @Size(max = LONG_MAX_SIZE, message = "Governing law " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
     private String governingLaw;
 
+    // RELEVANT LEGAL ENTITY (RLE) ONLY
+    @JsonProperty("legal_entity_register_name")
+    @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
+    private String legalEntityRegisterName;
+
+    // RELEVANT LEGAL ENTITY (RLE) ONLY
     @JsonProperty("legal_entity_registration_location")
     @EnumValid(message = "Legal entity registration location must be valid")
     private Country legalEntityRegistrationLocation;
 
-    @JsonProperty("legal_form")
-    @Size(max = LONG_MAX_SIZE, message = "Legal form " + MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal form " + INVALID_CHARACTERS_MESSAGE)
-    private String legalForm;
-
+    // RELEVANT LEGAL ENTITY (RLE) ONLY
     @JsonProperty("registered_company_number")
     @Size(max = LONG_MAX_SIZE, message = "Registered company number " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Registered company number " + INVALID_CHARACTERS_MESSAGE)

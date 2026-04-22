@@ -22,7 +22,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignifi
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +33,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @SpringBootTest
 class PersonWithSignificantControlServiceValidateTest {
 
-    private static final String PSC_ID = PersonWithSignificantControlBuilder.ID;
+    private static final String PSC_ID = "psc123";
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     private final Transaction transaction = new TransactionBuilder().withKindAndUri(
@@ -76,7 +75,7 @@ class PersonWithSignificantControlServiceValidateTest {
 
             // then
             verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
-            assertEquals(0, results.size());
+            assertThat(results).isEmpty();
         }
 
         @Test
@@ -97,10 +96,10 @@ class PersonWithSignificantControlServiceValidateTest {
 
             // then
             verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
-            assertThat(results).hasSize(1);
-            assertThat(results.getFirst())
-                .usingRecursiveComparison()
-                .isEqualTo(new ValidationStatusError("Principal office address is required", "data.principalOfficeAddress", null, null));
+            assertThat(results)
+                    .singleElement()
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Principal office address is required", "data.principalOfficeAddress", null, null));
         }
 
         @Test
@@ -119,8 +118,8 @@ class PersonWithSignificantControlServiceValidateTest {
 
             // then
             verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
-            assertThat(results).hasSize(1);
-            assertThat(results.getFirst())
+            assertThat(results)
+                    .singleElement()
                     .usingRecursiveComparison()
                     .isEqualTo(new ValidationStatusError("Name is required", "data.legalEntityName", null, null));
         }
@@ -143,8 +142,74 @@ class PersonWithSignificantControlServiceValidateTest {
 
             // then
             verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
-            assertThat(results).hasSize(1);
-            assertThat(results.getFirst())
+            assertThat(results)
+                    .singleElement()
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Name " + INVALID_CHARACTERS_MESSAGE, "data.legalEntityName", null, null));
+        }
+    }
+
+    @Nested
+    class OtherRegistrablePerson {
+
+        private PersonWithSignificantControlDao otherRegistrablePersonPersonWithSignificantControl;
+
+        @BeforeEach
+        void setUp() {
+            otherRegistrablePersonPersonWithSignificantControl =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .relevantLegalEntityPersonWithSignificantControlDao()
+                            .withTransactionId(TRANSACTION_ID)
+                            .build();
+        }
+
+        @Test
+        void shouldReturnNoErrorsWhenPSCDataIsValid() throws ServiceException {
+            // given
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(otherRegistrablePersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results).isEmpty();
+        }
+
+        @Test
+        void shouldReturnErrorIfPOANotSupplied() throws ServiceException {
+            // given
+            otherRegistrablePersonPersonWithSignificantControl.getData().setPrincipalOfficeAddress(null);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(otherRegistrablePersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+
+            assertThat(results)
+                    .singleElement()
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Principal office address is required", "data.principalOfficeAddress", null, null));
+        }
+
+        @Test
+        void shouldReturnErrorsIfDataIsInvalid() throws ServiceException {
+            // given
+            otherRegistrablePersonPersonWithSignificantControl.getData().setLegalEntityName("§§§§§§§");
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(otherRegistrablePersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results)
+                    .singleElement()
                     .usingRecursiveComparison()
                     .isEqualTo(new ValidationStatusError("Name " + INVALID_CHARACTERS_MESSAGE, "data.legalEntityName", null, null));
         }
@@ -183,8 +248,8 @@ class PersonWithSignificantControlServiceValidateTest {
             List<ValidationStatusError> errors = service.validatePersonsWithSignificantControl(transaction);
 
             verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
-            assertThat(errors).hasSize(1);
-            assertThat(errors.getFirst())
+            assertThat(errors)
+                    .singleElement()
                     .usingRecursiveComparison()
                     .isEqualTo(new ValidationStatusError("Invalid person with significant control type specified", "data.type", null, null));
         }
