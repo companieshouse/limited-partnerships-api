@@ -367,7 +367,7 @@ class PersonWithSignificantControlControllerValidationTest {
 
         @ParameterizedTest
         @ValueSource(strings = {JSON_CORRECT_IP, JSON_CORRECT_MANDATORY_ONLY_IP})
-        void shouldReturn201_RLE(String jsonPayload) throws Exception {
+        void shouldReturn201_IP(String jsonPayload) throws Exception {
             mocks();
             mockMvc.perform(post(BASE_URL)
                             .contentType(MediaType.APPLICATION_JSON)
