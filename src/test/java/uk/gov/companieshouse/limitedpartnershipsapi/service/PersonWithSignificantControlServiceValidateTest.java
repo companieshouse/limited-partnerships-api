@@ -159,7 +159,7 @@ class PersonWithSignificantControlServiceValidateTest {
             otherRegistrablePersonPersonWithSignificantControl =
                     new PersonWithSignificantControlBuilder
                             .PersonWithSignificantControlDaoBuilder()
-                            .relevantLegalEntityPersonWithSignificantControlDao()
+                            .otherRegistrablePersonWithSignificantControlDao()
                             .withTransactionId(TRANSACTION_ID)
                             .build();
         }
@@ -212,6 +212,91 @@ class PersonWithSignificantControlServiceValidateTest {
                     .singleElement()
                     .usingRecursiveComparison()
                     .isEqualTo(new ValidationStatusError("Name " + INVALID_CHARACTERS_MESSAGE, "data.legalEntityName", null, null));
+        }
+    }
+
+    @Nested
+    class IndividualPerson {
+
+        private PersonWithSignificantControlDao individualPersonPersonWithSignificantControl;
+
+        @BeforeEach
+        void setUp() {
+            individualPersonPersonWithSignificantControl =
+                    new PersonWithSignificantControlBuilder
+                            .PersonWithSignificantControlDaoBuilder()
+                            .individualPersonPersonWithSignificantControlDao()
+                            .withTransactionId(TRANSACTION_ID)
+                            .build();
+        }
+
+        @Test
+        void shouldReturnNoErrorsWhenPSCDataIsValid() throws ServiceException {
+            // given
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(individualPersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results).isEmpty();
+        }
+
+        @Test
+        void shouldReturnErrorIfPOANotSupplied() throws ServiceException {
+            // given
+            individualPersonPersonWithSignificantControl.getData().setUsualResidentialAddress(null);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(individualPersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+
+            assertThat(results)
+                    .singleElement()
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Usual residential address is required", "data.usualResidentialAddress", null, null));
+        }
+
+        @Test
+        void shouldReturnErrorIfServiceAddressNotSupplied() throws ServiceException {
+            // given
+            individualPersonPersonWithSignificantControl.getData().setServiceAddress(null);
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(individualPersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+
+            assertThat(results)
+                    .singleElement()
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Service address is required", "data.serviceAddress", null, null));
+        }
+
+        @Test
+        void shouldReturnErrorsIfDataIsInvalid() throws ServiceException {
+            // given
+            individualPersonPersonWithSignificantControl.getData().setForename("§§§§§§§");
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(individualPersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results)
+                    .singleElement()
+                    .usingRecursiveComparison()
+                    .isEqualTo(new ValidationStatusError("Forename " + INVALID_CHARACTERS_MESSAGE, "data.forename", null, null));
         }
     }
 
