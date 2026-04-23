@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -199,12 +200,15 @@ class PersonWithSignificantControlMapperTest {
 
     @Test
     void givenSparsePatchSource_whenUpdate_thenNonPatchedFieldsArePreserved() {
-        // given — destination is a fully-populated legal-entity PSC DTO (as loaded from Mongo)
+        // given — destination is a fully-populated legal-entity PSC DTO (as loaded from Mongo).
+        // The list field is rebuilt into a fresh ArrayList so MapStruct's update (which does
+        // clear/addAll on list targets) doesn't mutate the shared static list in the builder.
         PersonWithSignificantControlDataDto destination =
                 new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder()
                         .legalEntityPersonWithSignificantControlDto()
                         .build()
                         .getData();
+        destination.setNaturesOfControl(new ArrayList<>(destination.getNaturesOfControl()));
 
         // given — source is a narrow patch body carrying only type and naturesOfControl
         PersonWithSignificantControlDataDto source = new PersonWithSignificantControlDataDto();
