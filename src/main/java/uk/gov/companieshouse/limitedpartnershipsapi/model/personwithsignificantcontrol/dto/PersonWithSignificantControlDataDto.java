@@ -55,12 +55,18 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     // PERSON
 
     @JsonProperty("forename")
+    @Size(max = LONG_MAX_SIZE, message = "Forename " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Forename " + INVALID_CHARACTERS_MESSAGE)
     private String forename;
 
     @JsonProperty("former_names")
+    @Size(max = LONG_MAX_SIZE, message = "Former names " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Former names " + INVALID_CHARACTERS_MESSAGE)
     private String formerNames;
 
     @JsonProperty("surname")
+    @Size(max = LONG_MAX_SIZE, message = "Surname " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Surname " + INVALID_CHARACTERS_MESSAGE)
     private String surname;
 
     @JsonProperty("date_of_birth")
@@ -68,12 +74,15 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     private LocalDate dateOfBirth;
 
     @JsonProperty("nationality1")
+    @EnumValid(message = "Nationality 1 must be valid")
     private Nationality nationality1;
 
     @JsonProperty("nationality2")
+    @EnumValid(message = "Nationality 2 must be valid")
     private Nationality nationality2;
 
     @JsonProperty("usual_residential_address")
+    @Valid
     private AddressDto usualResidentialAddress;
 
     // RELEVANT LEGAL ENTITY (RLE) && OTHER REGISTRABLE PERSON (ORP)

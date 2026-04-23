@@ -111,8 +111,15 @@ public class PersonWithSignificantControlService {
     }
 
     private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto personWithSignificantControlChangesDataDto, PersonWithSignificantControlDataDto data) {
-        if (personWithSignificantControlChangesDataDto.getLegalEntityRegistrationLocation() == null) {
-            data.setLegalEntityRegistrationLocation(null);
+        // Check RLE mandatory fields are present before setting legalEntityRegistrationLocation to null as this
+        // field is only needed when the person with significant control is a RLE.
+        // This is to avoid deleting the legalEntityRegistrationLocation when patching where
+        // legalEntityRegistrationLocation is not included in the patch.
+        if (personWithSignificantControlChangesDataDto.getLegalEntityName() != null
+            && personWithSignificantControlChangesDataDto.getLegalForm() != null
+            && personWithSignificantControlChangesDataDto.getGoverningLaw() != null
+            && personWithSignificantControlChangesDataDto.getLegalEntityRegistrationLocation() == null) {
+                data.setLegalEntityRegistrationLocation(null);
         }
     }
 
