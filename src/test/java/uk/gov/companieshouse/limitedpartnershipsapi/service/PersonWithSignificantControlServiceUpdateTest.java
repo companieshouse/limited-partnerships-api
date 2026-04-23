@@ -20,10 +20,12 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -202,6 +204,49 @@ class PersonWithSignificantControlServiceUpdateTest {
 
         assertThat(savedPersonWithSignificantControlDao.getData().getNationality1()).isEqualTo(Nationality.AMERICAN.getDescription());
         assertThat(savedPersonWithSignificantControlDao.getData().getNationality2()).isNull();
+    }
+
+    @Test
+    void shouldHandleLegalEntityRegistrationLocationOptionality_shouldNotDelete() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+
+        var preChangeLegalEntityRegistrationLocation = personWithSignificantControlDao.getData().getLegalEntityRegistrationLocation();
+        assertThat(preChangeLegalEntityRegistrationLocation).isNotEmpty();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
+        changesDto.setNaturesOfControl(List.of(NatureOfControl.INDIVIDUAL_TRUST_CONTROL));
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID);
+
+        verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+        PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+        assertThat(savedPersonWithSignificantControlDao.getData().getLegalEntityRegistrationLocation()).isEqualTo(preChangeLegalEntityRegistrationLocation);
+    }
+
+    @Test
+    void shouldHandleLegalEntityRegistrationLocationOptionality_shouldDelete() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+
+        var preChangeLegalEntityRegistrationLocation = personWithSignificantControlDao.getData().getLegalEntityRegistrationLocation();
+        assertThat(preChangeLegalEntityRegistrationLocation).isNotEmpty();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
+        changesDto.setLegalEntityName("Test Legal Entity");
+        changesDto.setLegalForm("Test Legal Form");
+        changesDto.setGoverningLaw("Test Governing Law");
+        changesDto.setLegalEntityRegistrationLocation(null);
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID);
+
+        verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+        PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+        assertThat(savedPersonWithSignificantControlDao.getData().getLegalEntityRegistrationLocation()).isNull();
     }
 
     @Test
