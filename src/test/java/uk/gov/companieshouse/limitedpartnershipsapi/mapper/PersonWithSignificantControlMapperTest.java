@@ -5,10 +5,13 @@ import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.ADDRESS_LINE1_SUFFIX;
@@ -192,6 +195,47 @@ class PersonWithSignificantControlMapperTest {
         assertAddress(daoData.getPrincipalOfficeAddress(), POA_PREFIX);
         assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);
         assertAddress(daoData.getUsualResidentialAddress(), URA_PREFIX);
+    }
+
+    @Test
+    void givenSparsePatchSource_whenUpdate_thenNonPatchedFieldsArePreserved() {
+        // given — destination is a fully-populated legal-entity PSC DTO (as loaded from Mongo)
+        PersonWithSignificantControlDataDto destination =
+                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder()
+                        .legalEntityPersonWithSignificantControlDto()
+                        .build()
+                        .getData();
+
+        // given — source is a narrow patch body carrying only type and naturesOfControl
+        PersonWithSignificantControlDataDto source = new PersonWithSignificantControlDataDto();
+        source.setType(PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY);
+        source.setNaturesOfControl(List.of(NatureOfControl.INDIVIDUAL_FIRM_CONTROL));
+
+        // when
+        MAPPER.update(source, destination);
+
+        // then — patch fields are applied
+        assertThat(destination.getType()).isEqualTo(PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY);
+        assertThat(destination.getNaturesOfControl()).containsExactly(NatureOfControl.INDIVIDUAL_FIRM_CONTROL);
+
+        // then — legal-entity fields absent from the patch must still be populated
+        assertThat(destination.getLegalEntityName()).isEqualTo(LEGAL_ENTITY_NAME);
+        assertThat(destination.getLegalEntityRegisterName()).isEqualTo(LEGAL_ENTITY_REGISTER_NAME);
+        assertThat(destination.getLegalEntityRegistrationLocation()).isEqualTo(ENGLAND);
+        assertThat(destination.getRegisteredCompanyNumber()).isEqualTo(REGISTERED_COMPANY_NUMBER);
+        assertThat(destination.getGoverningLaw()).isEqualTo(GOVERNING_LAW);
+        assertThat(destination.getLegalForm()).isEqualTo(LEGAL_FORM);
+
+        // then — other fields absent from the patch must still be populated
+        assertThat(destination.getAppointmentId()).isEqualTo(APPOINTMENT_ID);
+        assertThat(destination.getKind()).isEqualTo(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
+        assertThat(destination.getCountry()).isEqualTo(ENGLAND);
+        assertThat(destination.getDateEffectiveFrom()).isEqualTo(DATE_EFFECTIVE_FROM);
+        assertThat(destination.getResignationDate()).isEqualTo(RESIGNATION_DATE);
+        assertThat(destination.getPrincipalOfficeAddress()).isNotNull();
+        assertThat(destination.getPrincipalOfficeAddress().getAddressLine1()).isEqualTo(POA_PREFIX + ADDRESS_LINE1_SUFFIX);
+        assertThat(destination.getServiceAddress()).isNotNull();
+        assertThat(destination.getServiceAddress().getAddressLine1()).isEqualTo(SERVICE_PREFIX + ADDRESS_LINE1_SUFFIX);
     }
 
     private void assertAddress(Object address, String prefix) {
