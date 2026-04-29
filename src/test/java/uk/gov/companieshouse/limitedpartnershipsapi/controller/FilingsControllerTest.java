@@ -24,6 +24,7 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -33,7 +34,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
@@ -41,11 +44,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerServic
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PaymentService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
-import java.util.ArrayList;
+import java.util.Collections;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -79,6 +84,9 @@ class FilingsControllerTest {
 
     @MockitoBean
     private LimitedPartnerService limitedPartnerService;
+
+    @MockitoBean
+    private PersonWithSignificantControlService personWithSignificantControlService;
 
     @MockitoBean
     private TransactionService transactionService;
@@ -127,8 +135,10 @@ class FilingsControllerTest {
     }
 
     LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+    LimitedPartnershipDto scottishLimitedPartnershipDto = new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto();
     GeneralPartnerDto generalPartner = new GeneralPartnerBuilder().personDto();
     LimitedPartnerDto limitedPartner = new LimitedPartnerBuilder().personDto();
+    PersonWithSignificantControlDto personWithSignificantControl = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
 
     @Nested
     class IncorporationFiling {
@@ -156,7 +166,37 @@ class FilingsControllerTest {
                     .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
                     .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
                     .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
-                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
+                    .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.limited_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.persons_with_significant_control").doesNotExist());
+        }
+
+        @Test
+        void shouldReturn200ForScottishLP() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().withFilingMode(FilingMode.REGISTRATION.getDescription()).build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mockScottishLP(transactionWithPayment);
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishLimitedPartnershipDto.getData().getPartnershipName()))
+                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishLimitedPartnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
+                    .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.limited_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.persons_with_significant_control").value(hasSize(1)));
         }
 
         @Test
@@ -190,11 +230,18 @@ class FilingsControllerTest {
         }
 
         private void mock(Transaction transaction) throws ServiceException {
-
             when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
             when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
-            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
-            when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
+            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(generalPartner.getData()));
+            when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(limitedPartner.getData()));
+        }
+
+        private void mockScottishLP(Transaction transaction)  throws ServiceException {
+            when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(scottishLimitedPartnershipDto);
+            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(generalPartner.getData()));
+            when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(limitedPartner.getData()));
+            when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(Collections.singletonList(personWithSignificantControl.getData()));
         }
     }
 

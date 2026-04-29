@@ -26,6 +26,7 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -52,6 +53,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -70,6 +72,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENERAL_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.PERSON_WITH_SIGNIFICANT_CONTROL_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
@@ -98,6 +101,8 @@ class FilingsServiceTest {
     private GeneralPartnerService generalPartnerService;
     @MockitoBean
     private LimitedPartnerService limitedPartnerService;
+    @MockitoBean
+    private PersonWithSignificantControlService personWithSignificantControlService;
     @MockitoBean
     private TransactionService transactionService;
     @MockitoBean
@@ -139,6 +144,36 @@ class FilingsServiceTest {
         assertTrue(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
         assertTrue(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
         assertTrue(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
+        assertFalse(filing.getData().containsKey(PERSON_WITH_SIGNIFICANT_CONTROL_FIELD));
+        assertTrue(filing.getData().containsKey(FILING_PAYMENT_METHOD));
+        assertTrue(filing.getData().containsKey(FILING_PAYMENT_REFERENCE));
+        assertEquals("Register a Limited Partnership", filing.getDescription());
+    }
+
+    @Test
+    void testFilingGenerationSuccessForScottishPartnership() throws ServiceException {
+        var transaction = new TransactionBuilder().withPayment().build();
+        PaymentApi payment = new PaymentApi();
+        payment.setPaymentMethod(PAYMENT_METHOD);
+
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
+        when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
+        when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
+        when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
+        when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction))
+                .thenReturn(Collections.singletonList(new PersonWithSignificantControlBuilder().relevantLegalEntityDto().getData()));
+        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+
+        FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
+
+        assertNotNull(filing);
+        assertNotNull(filing.getData());
+        assertTrue(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
+        assertTrue(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
+        assertTrue(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
+        assertTrue(filing.getData().containsKey(PERSON_WITH_SIGNIFICANT_CONTROL_FIELD));
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_METHOD));
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_REFERENCE));
         assertEquals("Register a Limited Partnership", filing.getDescription());
