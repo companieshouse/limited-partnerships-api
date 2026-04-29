@@ -151,7 +151,7 @@ class FilingsServiceTest {
     }
 
     @Test
-    void testFilingGenerationSuccessForScottishPartnership() throws ServiceException {
+    void testFilingGenerationSuccessForScottishPartnershipWithPSCs() throws ServiceException {
         var transaction = new TransactionBuilder().withPayment().build();
         PaymentApi payment = new PaymentApi();
         payment.setPaymentMethod(PAYMENT_METHOD);
@@ -159,7 +159,7 @@ class FilingsServiceTest {
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
         when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).withHasPersonWithSignificantControl(true).buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
         when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction))
@@ -174,6 +174,34 @@ class FilingsServiceTest {
         assertTrue(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
         assertTrue(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
         assertTrue(filing.getData().containsKey(PERSON_WITH_SIGNIFICANT_CONTROL_FIELD));
+        assertTrue(filing.getData().containsKey(FILING_PAYMENT_METHOD));
+        assertTrue(filing.getData().containsKey(FILING_PAYMENT_REFERENCE));
+        assertEquals("Register a Limited Partnership", filing.getDescription());
+    }
+
+    @Test
+    void testFilingGenerationSuccessForScottishPartnershipWithoutPSCs() throws ServiceException {
+        var transaction = new TransactionBuilder().withPayment().build();
+        PaymentApi payment = new PaymentApi();
+        payment.setPaymentMethod(PAYMENT_METHOD);
+
+        when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+        when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
+        when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
+        when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
+        when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
+        when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(new ArrayList<>());
+        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+
+        FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
+
+        assertNotNull(filing);
+        assertNotNull(filing.getData());
+        assertTrue(filing.getData().containsKey(LIMITED_PARTNERSHIP_FIELD));
+        assertTrue(filing.getData().containsKey(GENERAL_PARTNER_FIELD));
+        assertTrue(filing.getData().containsKey(LIMITED_PARTNER_FIELD));
+        assertFalse(filing.getData().containsKey(PERSON_WITH_SIGNIFICANT_CONTROL_FIELD));
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_METHOD));
         assertTrue(filing.getData().containsKey(FILING_PAYMENT_REFERENCE));
         assertEquals("Register a Limited Partnership", filing.getDescription());

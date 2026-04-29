@@ -48,6 +48,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignifican
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -135,7 +136,10 @@ class FilingsControllerTest {
     }
 
     LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
-    LimitedPartnershipDto scottishLimitedPartnershipDto = new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto();
+    LimitedPartnershipDto scottishLimitedPartnershipDto = new LimitedPartnershipBuilder()
+            .withPartnershipType(PartnershipType.SLP)
+            .withHasPersonWithSignificantControl(true)
+            .buildDto();
     GeneralPartnerDto generalPartner = new GeneralPartnerBuilder().personDto();
     LimitedPartnerDto limitedPartner = new LimitedPartnerBuilder().personDto();
     PersonWithSignificantControlDto personWithSignificantControl = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
@@ -173,7 +177,7 @@ class FilingsControllerTest {
         }
 
         @Test
-        void shouldReturn200ForScottishLP() throws Exception {
+        void shouldReturn200ForScottishLPWithPSCs() throws Exception {
             Transaction transactionWithPayment = new TransactionBuilder().withPayment().withFilingMode(FilingMode.REGISTRATION.getDescription()).build();
 
             PaymentApi paymentApi = new PaymentApi();
@@ -197,6 +201,35 @@ class FilingsControllerTest {
                     .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
                     .andExpect(jsonPath("[0].data.limited_partners").value(hasSize(1)))
                     .andExpect(jsonPath("[0].data.persons_with_significant_control").value(hasSize(1)));
+        }
+
+        @Test
+        void shouldReturn200ForScottishLPWithoutPSCs() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().withFilingMode(FilingMode.REGISTRATION.getDescription()).build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mock(transactionWithPayment);
+            when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(new ArrayList<>());
+
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishLimitedPartnershipDto.getData().getPartnershipName()))
+                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishLimitedPartnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
+                    .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.limited_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.persons_with_significant_control").doesNotExist());
         }
 
         @Test

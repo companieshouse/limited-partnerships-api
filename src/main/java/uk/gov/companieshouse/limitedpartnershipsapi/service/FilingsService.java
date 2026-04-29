@@ -118,12 +118,7 @@ public class FilingsService {
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
         List<PersonWithSignificantControlDataDto> personsWithSignificantControlDataList = personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction);
 
-        if (SCOTTISH_PARTNERSHIP_TYPES.contains(limitedPartnershipDto.getData().getPartnershipType())
-                && FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
-            setSubmissionDataScottishPartnership(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, personsWithSignificantControlDataList, logMap);
-        } else {
-            setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
-        }
+        setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, personsWithSignificantControlDataList, transaction, logMap);
 
         setPaymentData(data, transaction);
         filing.setData(data);
@@ -135,25 +130,19 @@ public class FilingsService {
                                    LimitedPartnershipDto limitedPartnershipDto,
                                    List<GeneralPartnerDataDto> generalPartnersDataList,
                                    List<LimitedPartnerDataDto> limitedPartnersDataList,
+                                   List<PersonWithSignificantControlDataDto> personsWithSignificantControlDataList,
+                                   Transaction transaction,
                                    Map<String, Object> logMap) {
+        boolean isScottishPartnershipAndRegistrationFilingMode = SCOTTISH_PARTNERSHIP_TYPES.contains(limitedPartnershipDto.getData().getPartnershipType())
+                && FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode());
 
         data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
         data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
         data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
-        ApiLogger.info("Submission data has been set on filing", logMap);
-    }
+        if (isScottishPartnershipAndRegistrationFilingMode && !personsWithSignificantControlDataList.isEmpty()) {
+            data.put(PERSON_WITH_SIGNIFICANT_CONTROL_FIELD, personsWithSignificantControlDataList);
+        }
 
-    private void setSubmissionDataScottishPartnership(Map<String, Object> data,
-                                                      LimitedPartnershipDto limitedPartnershipDto,
-                                                      List<GeneralPartnerDataDto> generalPartnersDataList,
-                                                      List<LimitedPartnerDataDto> limitedPartnersDataList,
-                                                      List<PersonWithSignificantControlDataDto> personsWithSignificantControlDataList,
-                                                      Map<String, Object> logMap) {
-
-        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
-        data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
-        data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
-        data.put(PERSON_WITH_SIGNIFICANT_CONTROL_FIELD, personsWithSignificantControlDataList);
         ApiLogger.info("Submission data has been set on filing", logMap);
     }
 
