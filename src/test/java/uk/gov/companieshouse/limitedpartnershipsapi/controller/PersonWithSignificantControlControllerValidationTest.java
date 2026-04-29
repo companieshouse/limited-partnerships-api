@@ -40,7 +40,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
@@ -314,7 +313,6 @@ class PersonWithSignificantControlControllerValidationTest {
                             .headers(httpHeaders)
                             .requestAttr("transaction", transaction)
                             .content(body))
-                    .andDo(print())
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
         }
