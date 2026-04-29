@@ -159,7 +159,7 @@ class FilingsServiceTest {
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
         when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).withHasPersonWithSignificantControl(true).buildDto());
+        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
         when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction))

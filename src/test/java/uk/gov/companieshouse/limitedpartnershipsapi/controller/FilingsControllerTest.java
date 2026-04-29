@@ -138,7 +138,6 @@ class FilingsControllerTest {
     LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
     LimitedPartnershipDto scottishLimitedPartnershipDto = new LimitedPartnershipBuilder()
             .withPartnershipType(PartnershipType.SLP)
-            .withHasPersonWithSignificantControl(true)
             .buildDto();
     GeneralPartnerDto generalPartner = new GeneralPartnerBuilder().personDto();
     LimitedPartnerDto limitedPartner = new LimitedPartnerBuilder().personDto();
