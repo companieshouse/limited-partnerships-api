@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.BaseDao;
 
-@Document(collection = "persons_with_significant_control")
+@Document(collection = "limited_partnership_pscs")
 public class PersonWithSignificantControlDao extends BaseDao {
 
     @Field("data")

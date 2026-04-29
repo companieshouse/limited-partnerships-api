@@ -15,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignifican
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
@@ -167,9 +166,10 @@ class PersonWithSignificantControlServiceUpdateTest {
     void shouldClearSecondNationalityIfBeingReset() throws Exception {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
-        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder().individualPersonDto().getData();
-        personWithSignificantControlDataDto.setNationality1(Nationality.AMERICAN);
-        personWithSignificantControlDataDto.setNationality2(null);
+        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder()
+                .withNationality1(Nationality.AMERICAN)
+                .withNationality2(null)
+                .individualPersonDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -211,11 +211,9 @@ class PersonWithSignificantControlServiceUpdateTest {
         var preChangeLegalEntityRegistrationLocation = personWithSignificantControlDao.getData().getLegalEntityRegistrationLocation();
         assertThat(preChangeLegalEntityRegistrationLocation).isNotEmpty();
 
-        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
-        changesDto.setLegalEntityName("Test Legal Entity");
-        changesDto.setLegalForm("Test Legal Form");
-        changesDto.setGoverningLaw("Test Governing Law");
-        changesDto.setLegalEntityRegistrationLocation(null);
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlBuilder()
+                .withLegalEntityRegistrationLocation(null)
+                .relevantLegalEntityDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -232,7 +230,6 @@ class PersonWithSignificantControlServiceUpdateTest {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
         PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder().individualPersonDto().getData();
-        personWithSignificantControlDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
         when(personWithSignificantControlRepository.findById(PSC_ID)).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(false);

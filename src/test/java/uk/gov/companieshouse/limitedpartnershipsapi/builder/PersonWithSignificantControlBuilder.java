@@ -2,6 +2,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 
 import com.google.common.collect.Lists;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
@@ -23,16 +25,10 @@ public class PersonWithSignificantControlBuilder {
     public static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = "1234";
     public static final String ETAG = "eTag";
     public static final String APPOINTMENT_ID = "1234";
-    public static final String FORENAME = "John";
-    public static final String FORMER_NAMES = "Doe";
     public static final String SURNAME = "Smith";
     public static final String GOVERNING_LAW = "law of england";
-    public static final String LEGAL_ENTITY_NAME = "Legal Entity Name";
     public static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
-    public static final String LEGAL_ENTITY_REGISTRATION_LOCATION = "England";
     public static final String LEGAL_FORM = "Legal Form";
-    public static final String NATIONALITY1 = "British";
-    public static final String NATIONALITY2 = "French";
     public static final String REGISTERED_COMPANY_NUMBER = "12345678";
     public static final String POA_PREFIX = "poa";
     public static final String SERVICE_PREFIX = "service";
@@ -58,21 +54,73 @@ public class PersonWithSignificantControlBuilder {
             NatureOfControl.ORP_TRUST_CONTROL
     );
 
+    private String kind = FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
+
+    private String legalEntityName = "Legal Entity Name";
+    private Country legalEntityRegistrationLocation = Country.ENGLAND;
+
+    private Country country = ENGLAND;
+    private String forename = "John";
+    private String formerNames = "Johnny";
+    private Nationality nationality1 = BRITISH;
+    private Nationality nationality2 = FRENCH;
+
+    public PersonWithSignificantControlBuilder withKind(String kind) {
+        this.kind = kind;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withLegalEntityName(String legalEntityName) {
+        this.legalEntityName = legalEntityName;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
+        this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withCountry(Country country) {
+        this.country = country;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withForename(String forename) {
+        this.forename = forename;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withFormerNames(String formerNames) {
+        this.formerNames = formerNames;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withNationality1(Nationality nationality1) {
+        this.nationality1 = nationality1;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withNationality2(Nationality nationality2) {
+        this.nationality2 = nationality2;
+        return this;
+    }
+
+
     public PersonWithSignificantControlDto individualPersonDto () {
         PersonWithSignificantControlDto dto = new PersonWithSignificantControlDto();
         dto.setId(PERSON_WITH_SIGNIFICANT_CONTROL_ID);
 
         PersonWithSignificantControlDataDto dataDto = new PersonWithSignificantControlDataDto();
         dataDto.setAppointmentId(APPOINTMENT_ID);
-        dataDto.setCountry(ENGLAND);
-        dataDto.setKind(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
+        dataDto.setCountry(country);
+        dataDto.setKind(kind);
         dataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDto.setDateOfBirth(DATE_OF_BIRTH);
-        dataDto.setForename(FORENAME);
+        dataDto.setForename(forename);
         dataDto.setSurname(SURNAME);
-        dataDto.setFormerNames(FORMER_NAMES);
-        dataDto.setNationality1(BRITISH);
-        dataDto.setNationality2(FRENCH);
+        dataDto.setFormerNames(formerNames);
+        dataDto.setNationality1(nationality1);
+        dataDto.setNationality2(nationality2);
         dataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
         dataDto.setResignationDate(RESIGNATION_DATE);
         dataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
@@ -89,13 +137,13 @@ public class PersonWithSignificantControlBuilder {
 
         PersonWithSignificantControlDataDto dataDto = new PersonWithSignificantControlDataDto();
         dataDto.setAppointmentId(APPOINTMENT_ID);
-        dataDto.setKind(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
-        dataDto.setCountry(ENGLAND);
+        dataDto.setKind(kind);
+        dataDto.setCountry(country);
         dataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDto.setGoverningLaw(GOVERNING_LAW);
-        dataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
+        dataDto.setLegalEntityName(legalEntityName);
         dataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        dataDto.setLegalEntityRegistrationLocation(ENGLAND);
+        dataDto.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation);
         dataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         dataDto.setLegalForm(LEGAL_FORM);
         dataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
@@ -114,11 +162,11 @@ public class PersonWithSignificantControlBuilder {
 
         PersonWithSignificantControlDataDto dataDto = new PersonWithSignificantControlDataDto();
         dataDto.setAppointmentId(APPOINTMENT_ID);
-        dataDto.setKind(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
-        dataDto.setCountry(ENGLAND);
+        dataDto.setKind(kind);
+        dataDto.setCountry(country);
         dataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDto.setGoverningLaw(GOVERNING_LAW);
-        dataDto.setLegalEntityName(LEGAL_ENTITY_NAME);
+        dataDto.setLegalEntityName(legalEntityName);
         dataDto.setLegalForm(LEGAL_FORM);
         dataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
         dataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
@@ -148,15 +196,15 @@ public class PersonWithSignificantControlBuilder {
 
         PersonWithSignificantControlDataDao dataDao = new PersonWithSignificantControlDataDao();
         dataDao.setAppointmentId(APPOINTMENT_ID);
-        dataDao.setKind(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
+        dataDao.setKind(kind);
         dataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDao.setDateOfBirth(DATE_OF_BIRTH);
         dataDao.setEtag(ETAG);
-        dataDao.setForename(FORENAME);
+        dataDao.setForename(forename);
         dataDao.setSurname(SURNAME);
-        dataDao.setFormerNames(FORMER_NAMES);
-        dataDao.setNationality1(NATIONALITY1);
-        dataDao.setNationality2(NATIONALITY2);
+        dataDao.setFormerNames(formerNames);
+        dataDao.setNationality1(nationality1.getDescription());
+        dataDao.setNationality2(nationality2.getDescription());
         dataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
         dataDao.setResignationDate(RESIGNATION_DATE);
         dataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
@@ -174,14 +222,14 @@ public class PersonWithSignificantControlBuilder {
 
         PersonWithSignificantControlDataDao dataDao = new PersonWithSignificantControlDataDao();
         dataDao.setAppointmentId(APPOINTMENT_ID);
-        dataDao.setKind(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
-        dataDao.setCountry(ENGLAND.getDescription());
+        dataDao.setKind(kind);
+        dataDao.setCountry(country.getDescription());
         dataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDao.setEtag(ETAG);
         dataDao.setGoverningLaw(GOVERNING_LAW);
-        dataDao.setLegalEntityName(LEGAL_ENTITY_NAME);
+        dataDao.setLegalEntityName(legalEntityName);
         dataDao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
-        dataDao.setLegalEntityRegistrationLocation(LEGAL_ENTITY_REGISTRATION_LOCATION);
+        dataDao.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation.getDescription());
         dataDao.setLegalForm(LEGAL_FORM);
         dataDao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         dataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
@@ -202,11 +250,11 @@ public class PersonWithSignificantControlBuilder {
 
         PersonWithSignificantControlDataDao dataDao = new PersonWithSignificantControlDataDao();
         dataDao.setAppointmentId(APPOINTMENT_ID);
-        dataDao.setKind(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
-        dataDao.setCountry(ENGLAND.getDescription());
+        dataDao.setKind(kind);
+        dataDao.setCountry(country.getDescription());
         dataDao.setEtag(ETAG);
         dataDao.setGoverningLaw(GOVERNING_LAW);
-        dataDao.setLegalEntityName(LEGAL_ENTITY_NAME);
+        dataDao.setLegalEntityName(legalEntityName);
         dataDao.setLegalForm(LEGAL_FORM);
         dataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
         dataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));

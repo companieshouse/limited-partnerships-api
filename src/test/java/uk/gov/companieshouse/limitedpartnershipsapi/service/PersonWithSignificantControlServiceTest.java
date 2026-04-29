@@ -149,8 +149,8 @@ class PersonWithSignificantControlServiceTest {
     @Test
     void testCreatePscWithNullKindDefaultsToPersonWithSignificantControl() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PersonWithSignificantControlDto dto =  new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
-        PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
-        dao.getData().setKind(null);
+        PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().withKind(null).relevantLegalEntityDao();
+
 
         when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
         when(mapper.dtoToDao(dto)).thenReturn(dao);
@@ -172,11 +172,12 @@ class PersonWithSignificantControlServiceTest {
 
         PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder().individualPersonDao();
         PersonWithSignificantControlDto existingDto = new PersonWithSignificantControlBuilder().individualPersonDto();
-        PersonWithSignificantControlDataDto changesDataDto = new PersonWithSignificantControlBuilder().individualPersonDto().getData();
-        changesDataDto.setCountry(FRANCE);
-        changesDataDto.setForename("Bob");
-        changesDataDto.setFormerNames("Former");
-        changesDataDto.setNationality1(SPANISH);
+        PersonWithSignificantControlDataDto changesDataDto = new PersonWithSignificantControlBuilder()
+                .withCountry(FRANCE)
+                .withForename("Bob")
+                .withFormerNames("Former")
+                .withNationality1(SPANISH)
+                .individualPersonDto().getData();
 
         PersonWithSignificantControlDao afterPatchDao = new PersonWithSignificantControlDao();
 

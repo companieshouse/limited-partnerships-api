@@ -99,8 +99,7 @@ class PersonWithSignificantControlServiceValidateTest {
         void shouldReturnErrorsIfMandatoryDataIsMissing() throws ServiceException {
             // given
             PersonWithSignificantControlDao personWithSignificantControlDao =
-                    new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
-            personWithSignificantControlDao.getData().setLegalEntityName(null);
+                    new PersonWithSignificantControlBuilder().withLegalEntityName(null).relevantLegalEntityDao();
 
             when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
