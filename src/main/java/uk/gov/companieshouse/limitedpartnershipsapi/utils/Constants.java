@@ -4,8 +4,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class Constants {
@@ -87,7 +87,7 @@ public class Constants {
 
     public static final List<String> UK_POSTCODE_LETTERS_NOT_MAINLAND = List.of("JE", "GY", "IM");
 
-    public static final EnumSet<PartnershipType> SCOTTISH_PARTNERSHIP_TYPES = EnumSet.of(PartnershipType.SLP, PartnershipType.SPFLP);
+    public static final Set<PartnershipType> SCOTTISH_PARTNERSHIP_TYPES = Set.of(PartnershipType.SLP, PartnershipType.SPFLP);
 
     private Constants() {
     }
