@@ -27,6 +27,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
@@ -41,6 +42,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.GENER
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNERSHIP_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LIMITED_PARTNER_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.PERSON_WITH_SIGNIFICANT_CONTROL_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SCOTTISH_PARTNERSHIP_TYPES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTION_KEY;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
@@ -56,6 +59,7 @@ public class FilingsService {
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
+    private final PersonWithSignificantControlService personWithSignificantControlService;
     private final TransactionService transactionService;
     private final PaymentService paymentService;
     private final ApiClientService apiClientService;
@@ -66,6 +70,7 @@ public class FilingsService {
     public FilingsService(LimitedPartnershipService limitedPartnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
+                          PersonWithSignificantControlService personWithSignificantControlService,
                           TransactionService transactionService,
                           PaymentService paymentService,
                           FilingKind filingKind,
@@ -77,6 +82,7 @@ public class FilingsService {
         this.limitedPartnershipService = limitedPartnershipService;
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
+        this.personWithSignificantControlService = personWithSignificantControlService;
         this.transactionService = transactionService;
         this.paymentService = paymentService;
         this.filingKind = filingKind;
@@ -102,7 +108,6 @@ public class FilingsService {
     }
 
     private void setFilingApiData(FilingApi filing, Transaction transaction) throws ServiceException {
-
         var logMap = new HashMap<String, Object>();
         logMap.put(TRANSACTION_KEY, transaction.getId());
 
@@ -111,8 +116,15 @@ public class FilingsService {
         var limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
         List<GeneralPartnerDataDto> generalPartnerDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
+        List<PersonWithSignificantControlDataDto> personsWithSignificantControlDataList = personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction);
 
-        setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
+        if (SCOTTISH_PARTNERSHIP_TYPES.contains(limitedPartnershipDto.getData().getPartnershipType())
+                && FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
+            setSubmissionDataScottishPartnership(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, personsWithSignificantControlDataList, logMap);
+        } else {
+            setSubmissionData(data, limitedPartnershipDto, generalPartnerDataList, limitedPartnerDataList, logMap);
+        }
+
         setPaymentData(data, transaction);
         filing.setData(data);
         filing.setKind(transaction.getFilingMode());
@@ -128,6 +140,20 @@ public class FilingsService {
         data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
         data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
         data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
+        ApiLogger.info("Submission data has been set on filing", logMap);
+    }
+
+    private void setSubmissionDataScottishPartnership(Map<String, Object> data,
+                                                      LimitedPartnershipDto limitedPartnershipDto,
+                                                      List<GeneralPartnerDataDto> generalPartnersDataList,
+                                                      List<LimitedPartnerDataDto> limitedPartnersDataList,
+                                                      List<PersonWithSignificantControlDataDto> personsWithSignificantControlDataList,
+                                                      Map<String, Object> logMap) {
+
+        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
+        data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
+        data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
+        data.put(PERSON_WITH_SIGNIFICANT_CONTROL_FIELD, personsWithSignificantControlDataList);
         ApiLogger.info("Submission data has been set on filing", logMap);
     }
 
