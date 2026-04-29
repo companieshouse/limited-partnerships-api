@@ -72,6 +72,13 @@ public class PersonWithSignificantControlService {
         return personWithSignificantControlDtos;
     }
 
+    public List<PersonWithSignificantControlDataDto> getPersonWithSignificantControlDataList(Transaction transaction) {
+        return repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId()).stream()
+                .map(mapper::daoToDto)
+                .map(PersonWithSignificantControlDto::getData)
+                .toList();
+    }
+
     public String createPersonWithSignificantControl(Transaction transaction, PersonWithSignificantControlDto personWithSignificantControlDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
         validator.validatePartial(personWithSignificantControlDto);
