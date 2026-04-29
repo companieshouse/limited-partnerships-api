@@ -19,7 +19,6 @@ public class LimitedPartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
     private static final String PARTNERSHIP_NAME = "Test Partnership";
-    private static final PartnershipType PARTNERSHIP_TYPE = PartnershipType.LP;
     private static final String PARTNERSHIP_NUMBER = "LP123456";
     private static final String EMAIL = "test@test.com";
     private static final Jurisdiction JURISDICTION = Jurisdiction.ENGLAND_AND_WALES;
@@ -29,6 +28,7 @@ public class LimitedPartnershipBuilder {
     private static final Country COUNTRY = Country.ENGLAND;
     private static final String POSTAL_CODE = "BM1 2EH";
 
+    private PartnershipType partnershipType = PartnershipType.LP;
     private PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
     private boolean lawfulPurposeStatementChecked = true;
     private LocalDate dateOfUpdate = null;
@@ -134,6 +134,11 @@ public class LimitedPartnershipBuilder {
         return this;
     }
 
+    public LimitedPartnershipBuilder withPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
+        return this;
+    }
+
     public LimitedPartnershipBuilder withTerm(Term term) {
         this.term = term;
         return this;
@@ -171,7 +176,7 @@ public class LimitedPartnershipBuilder {
         dataDto.setKind(partnershipKind);
         dataDto.setPartnershipName(PARTNERSHIP_NAME);
         dataDto.setNameEnding(this.partnershipNameEnding);
-        dataDto.setPartnershipType(PARTNERSHIP_TYPE);
+        dataDto.setPartnershipType(partnershipType);
         dataDto.setPartnershipNumber(PARTNERSHIP_NUMBER);
         dataDto.setEmail(EMAIL);
         dataDto.setJurisdiction(JURISDICTION);
@@ -196,7 +201,7 @@ public class LimitedPartnershipBuilder {
         dataDao.setKind(partnershipKind);
         dataDao.setPartnershipName(PARTNERSHIP_NAME);
         dataDao.setNameEnding(this.partnershipNameEnding.getDescription());
-        dataDao.setPartnershipType(PARTNERSHIP_TYPE);
+        dataDao.setPartnershipType(partnershipType);
         dataDao.setPartnershipNumber(PARTNERSHIP_NUMBER);
         dataDao.setEmail(EMAIL);
         dataDao.setJurisdiction(JURISDICTION.getApiKey());
