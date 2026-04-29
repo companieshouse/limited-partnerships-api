@@ -9,12 +9,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PersonWithSignificantControlMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
@@ -38,9 +42,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder.LIMITED_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.FRANCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.SPANISH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 @ExtendWith(MockitoExtension.class)
@@ -330,5 +337,19 @@ class PersonWithSignificantControlServiceTest {
         List<PersonWithSignificantControlDto> personWithSignificantControlDtoList = personWithSignificantControlService.getPersonWithSignificantControlList(TRANSACTION);
 
         assertEquals(0, personWithSignificantControlDtoList.size());
+    }
+
+    @Test
+    void testGetPersonWithSignficantControlDataList() {
+        Transaction transaction = new TransactionBuilder().build();
+
+        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+
+        when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TransactionBuilder.TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
+        when(mapper.daoToDto(any(PersonWithSignificantControlDao.class))).thenReturn(personWithSignificantControlDto);
+
+        List<PersonWithSignificantControlDataDto> personWithSignificantControlDataList = personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction);
+        assertEquals(1, personWithSignificantControlDataList.size());
     }
 }
