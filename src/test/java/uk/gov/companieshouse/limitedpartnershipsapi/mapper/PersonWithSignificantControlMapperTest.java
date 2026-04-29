@@ -76,7 +76,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDao_whenMapsToDto_thenCorrect() {
             // given
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
+            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
             // when
             PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
@@ -123,7 +123,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDto_whenMapsToDao_thenCorrect() {
             // given
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build();
+            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().individualPersonDto();
 
             // when
             PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);
@@ -173,7 +173,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDao_whenMapsToDto_thenCorrect() {
             // given
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
 
             // when
             PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
@@ -223,7 +223,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDto_whenMapsToDao_thenCorrect() {
             // given
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().relevantLegalEntityPersonWithSignificantControlDto().build();
+            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
 
             // when
             PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);

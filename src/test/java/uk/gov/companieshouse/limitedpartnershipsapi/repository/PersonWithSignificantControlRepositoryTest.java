@@ -43,32 +43,34 @@ class PersonWithSignificantControlRepositoryTest {
 
     @Test
     void testInsertAndRetrieveLegalEntityPersonWithSignificantControlList() {
-        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
 
         personWithSignificantControlRepository.insert(legalEntity);
 
         PersonWithSignificantControlDao foundLegalEntity = personWithSignificantControlRepository.findById(legalEntity.getId()).orElseThrow();
 
-        assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
-        assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+        assertThat(foundLegalEntity.getData().getLegalEntityName()).isNotNull();
+        assertThat(foundLegalEntity.getData().getLegalForm()).isNotNull();
+        assertThat(foundLegalEntity.getData()).usingRecursiveComparison().isEqualTo(legalEntity.getData());
     }
 
     @Test
     void testInsertAndRetrievePersonPersonWithSignificantControlList() {
-        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder().individualPersonDao();
 
         personWithSignificantControlRepository.insert(person);
 
         PersonWithSignificantControlDao foundPerson = personWithSignificantControlRepository.findById(person.getId()).orElseThrow();
 
-        assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
-        assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+        assertThat(foundPerson.getData().getForename()).isNotNull();
+        assertThat(foundPerson.getData().getSurname()).isNotNull();
+        assertThat(foundPerson.getData()).usingRecursiveComparison().isEqualTo(person.getData());
     }
 
     @Test
     void testGetPersonWithSignificantControlListOrderedByUpdatedAtDesc() {
-        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
-        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao person = new PersonWithSignificantControlBuilder().individualPersonDao();
+        PersonWithSignificantControlDao legalEntity = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
         person.setId("782j836-922jl22-23123");
         legalEntity.setId("8014b4-897pu76-9976");
 
@@ -84,12 +86,14 @@ class PersonWithSignificantControlRepositoryTest {
                 .hasSize(2)
                 .satisfiesExactly(
                         foundLegalEntity -> {
-                            assertThat(foundLegalEntity.getData().getLegalEntityName()).isEqualTo(legalEntity.getData().getLegalEntityName());
-                            assertThat(foundLegalEntity.getData().getLegalForm()).isEqualTo(legalEntity.getData().getLegalForm());
+                            assertThat(foundLegalEntity.getData().getLegalEntityName()).isNotNull();
+                            assertThat(foundLegalEntity.getData().getLegalForm()).isNotNull();
+                            assertThat(foundLegalEntity.getData()).usingRecursiveComparison().isEqualTo(legalEntity.getData());
                         },
                         foundPerson -> {
-                            assertThat(foundPerson.getData().getForename()).isEqualTo(person.getData().getForename());
-                            assertThat(foundPerson.getData().getSurname()).isEqualTo(person.getData().getSurname());
+                            assertThat(foundPerson.getData().getForename()).isNotNull();
+                            assertThat(foundPerson.getData().getSurname()).isNotNull();
+                            assertThat(foundPerson.getData()).usingRecursiveComparison().isEqualTo(person.getData());
                         }
                 );
     }
