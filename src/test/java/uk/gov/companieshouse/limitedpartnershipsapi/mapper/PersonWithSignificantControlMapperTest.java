@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
@@ -19,15 +18,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.COUNTRY_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.DATE_EFFECTIVE_FROM;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.DATE_OF_BIRTH;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.FORENAME;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.FORMER_NAMES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.GOVERNING_LAW;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_ENTITY_NAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_ENTITY_REGISTER_NAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_FORM;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LOCALITY_SUFFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATIONALITY1;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATIONALITY2;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATURES_OF_CONTROL_LIST_DESCRIPTIONS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POSTAL_CODE_SUFFIX;
@@ -39,6 +33,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SURNAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.URA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.BRITISH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.FRENCH;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 
@@ -76,7 +72,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDao_whenMapsToDto_thenCorrect() {
             // given
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
+            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
             // when
             PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
@@ -101,11 +97,11 @@ class PersonWithSignificantControlMapperTest {
                             APPOINTMENT_ID,
                             DATE_EFFECTIVE_FROM,
                             DATE_OF_BIRTH,
-                            FORENAME,
-                            FORMER_NAMES,
+                            "John",
+                            "Johnny",
                             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
-                            Nationality.BRITISH.getDescription(),
-                            Nationality.FRENCH.getDescription(),
+                            BRITISH.getDescription(),
+                            FRENCH.getDescription(),
                             RESIGNATION_DATE,
                             SURNAME,
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
@@ -123,7 +119,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDto_whenMapsToDao_thenCorrect() {
             // given
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build();
+            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().individualPersonDto();
 
             // when
             PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);
@@ -148,11 +144,11 @@ class PersonWithSignificantControlMapperTest {
                             APPOINTMENT_ID,
                             DATE_EFFECTIVE_FROM,
                             DATE_OF_BIRTH,
-                            FORENAME,
-                            FORMER_NAMES,
+                            "John",
+                            "Johnny",
                             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
-                            NATIONALITY1,
-                            NATIONALITY2,
+                            BRITISH.getDescription(),
+                            FRENCH.getDescription(),
                             RESIGNATION_DATE,
                             SURNAME,
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
@@ -173,7 +169,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDao_whenMapsToDto_thenCorrect() {
             // given
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
 
             // when
             PersonWithSignificantControlDto result = MAPPER.daoToDto(personWithSignificantControlDao);
@@ -201,7 +197,7 @@ class PersonWithSignificantControlMapperTest {
                             DATE_EFFECTIVE_FROM,
                             GOVERNING_LAW,
                             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
-                            LEGAL_ENTITY_NAME,
+                            "Legal Entity Name",
                             LEGAL_ENTITY_REGISTER_NAME,
                             ENGLAND,
                             LEGAL_FORM,
@@ -223,7 +219,7 @@ class PersonWithSignificantControlMapperTest {
         @Test
         void givenDto_whenMapsToDao_thenCorrect() {
             // given
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().relevantLegalEntityPersonWithSignificantControlDto().build();
+            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
 
             // when
             PersonWithSignificantControlDao result = MAPPER.dtoToDao(personWithSignificantControlDto);
@@ -251,7 +247,7 @@ class PersonWithSignificantControlMapperTest {
                             DATE_EFFECTIVE_FROM,
                             GOVERNING_LAW,
                             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
-                            LEGAL_ENTITY_NAME,
+                            "Legal Entity Name",
                             LEGAL_ENTITY_REGISTER_NAME,
                             ENGLAND.getDescription(),
                             LEGAL_FORM,

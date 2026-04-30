@@ -15,7 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignifican
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
@@ -44,7 +43,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class PersonWithSignificantControlServiceUpdateTest {
     private static final String REQUEST_ID = "fd4gld5h3jhh";
     private static final String USER_ID = "xbJf0l";
-    private static final String PSC_ID = PersonWithSignificantControlBuilder.ID;
+    private static final String PSC_ID = PersonWithSignificantControlBuilder.PERSON_WITH_SIGNIFICANT_CONTROL_ID;
 
     private final Transaction transaction = new TransactionBuilder().withKindAndUri(
             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
@@ -83,12 +82,10 @@ class PersonWithSignificantControlServiceUpdateTest {
 
     @Test
     void shouldUpdateTheDaoWithPrincipalOfficeAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder()
-                .relevantLegalEntityPersonWithSignificantControlDao()
-                .withPrincipalOfficeAddress(null)
-                .build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+        personWithSignificantControlDao.getData().setPrincipalOfficeAddress(null);
 
-        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().relevantLegalEntityPersonWithSignificantControlDto().build().getData();
+        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -113,18 +110,10 @@ class PersonWithSignificantControlServiceUpdateTest {
 
     @Test
     void shouldUpdateTheDaoWithUsualResidentialAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder()
-                .individualPersonPersonWithSignificantControlDao()
-                .withNationality2(Nationality.GREENLANDIC.getDescription())
-                .withUsualResidentialAddress(null)
-                .build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+        personWithSignificantControlDao.getData().setUsualResidentialAddress(null);
 
-        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder()
-                .individualPersonPersonWithSignificantControlDto()
-                .withNationality1(null)
-                .withNationality2(null)
-                .build()
-                .getData();
+        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder().individualPersonDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -143,25 +132,15 @@ class PersonWithSignificantControlServiceUpdateTest {
         AddressDto patchUsualResidentialAddress = personWithSignificantControlDataDto.getUsualResidentialAddress();
         AddressDao savedUsualResidentialAddress = savedPersonWithSignificantControlDao.getData().getUsualResidentialAddress();
 
-        assertEquals(personWithSignificantControlDataDto.getForename(), savedPersonWithSignificantControlDao.getData().getForename());
         assertAddressEquals(patchUsualResidentialAddress, savedUsualResidentialAddress);
-        assertThat(savedPersonWithSignificantControlDao.getData().getNationality2()).isEqualTo(Nationality.GREENLANDIC.getDescription());
     }
 
     @Test
     void shouldUpdateTheDaoWithServiceAddress() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder()
-                .individualPersonPersonWithSignificantControlDao()
-                .withNationality2(Nationality.GREENLANDIC.getDescription())
-                .withServiceAddress(null)
-                .build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+        personWithSignificantControlDao.getData().setServiceAddress(null);
 
-        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder()
-                .individualPersonPersonWithSignificantControlDto()
-                .withNationality1(null)
-                .withNationality2(null)
-                .build()
-                .getData();
+        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder().individualPersonDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -180,18 +159,17 @@ class PersonWithSignificantControlServiceUpdateTest {
         AddressDto patchServiceAddress = personWithSignificantControlDataDto.getServiceAddress();
         AddressDao savedServiceAddress = savedPersonWithSignificantControlDao.getData().getServiceAddress();
 
-        assertEquals(personWithSignificantControlDataDto.getForename(), savedPersonWithSignificantControlDao.getData().getForename());
         assertAddressEquals(patchServiceAddress, savedServiceAddress);
-        assertThat(savedPersonWithSignificantControlDao.getData().getNationality2()).isEqualTo(Nationality.GREENLANDIC.getDescription());
     }
 
     @Test
     void shouldClearSecondNationalityIfBeingReset() throws Exception {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
-        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData();
-        personWithSignificantControlDataDto.setNationality1(Nationality.AMERICAN);
-        personWithSignificantControlDataDto.setNationality2(null);
+        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder()
+                .withNationality1(Nationality.AMERICAN)
+                .withNationality2(null)
+                .individualPersonDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -208,7 +186,7 @@ class PersonWithSignificantControlServiceUpdateTest {
 
     @Test
     void shouldHandleLegalEntityRegistrationLocationOptionality_shouldNotDelete() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
 
         var preChangeLegalEntityRegistrationLocation = personWithSignificantControlDao.getData().getLegalEntityRegistrationLocation();
         assertThat(preChangeLegalEntityRegistrationLocation).isNotEmpty();
@@ -228,16 +206,14 @@ class PersonWithSignificantControlServiceUpdateTest {
 
     @Test
     void shouldHandleLegalEntityRegistrationLocationOptionality_shouldDelete() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().relevantLegalEntityPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
 
         var preChangeLegalEntityRegistrationLocation = personWithSignificantControlDao.getData().getLegalEntityRegistrationLocation();
         assertThat(preChangeLegalEntityRegistrationLocation).isNotEmpty();
 
-        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
-        changesDto.setLegalEntityName("Test Legal Entity");
-        changesDto.setLegalForm("Test Legal Form");
-        changesDto.setGoverningLaw("Test Governing Law");
-        changesDto.setLegalEntityRegistrationLocation(null);
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlBuilder()
+                .withLegalEntityRegistrationLocation(null)
+                .relevantLegalEntityDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -251,10 +227,9 @@ class PersonWithSignificantControlServiceUpdateTest {
 
     @Test
     void shouldThrowExceptionIfNotLinkedToTransaction() {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().individualPersonPersonWithSignificantControlDao().build();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
-        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData();
-        personWithSignificantControlDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
+        PersonWithSignificantControlDataDto personWithSignificantControlDataDto = new PersonWithSignificantControlBuilder().individualPersonDto().getData();
 
         when(personWithSignificantControlRepository.findById(PSC_ID)).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(false);

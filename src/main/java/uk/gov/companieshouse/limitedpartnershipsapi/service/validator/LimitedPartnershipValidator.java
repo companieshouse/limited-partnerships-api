@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SCOTTISH_PARTNERSHIP_TYPES;
 
 @Component
 public class LimitedPartnershipValidator {
@@ -102,8 +103,7 @@ public class LimitedPartnershipValidator {
 
         var partnershipType = dataDto.getPartnershipType();
 
-        if ((PartnershipType.SLP.equals(partnershipType)
-                || PartnershipType.SPFLP.equals(partnershipType))
+        if (SCOTTISH_PARTNERSHIP_TYPES.contains(partnershipType)
                 && Objects.isNull(dataDto.getHasPersonWithSignificantControl())) {
             errorsList.add(validationStatus.createValidationStatusError(
                     "You must declare whether the partnership will or will not have a person with significant control",

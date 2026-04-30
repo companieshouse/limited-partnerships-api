@@ -62,10 +62,7 @@ class PersonWithSignificantControlServiceValidateTest {
         void shouldReturnNoErrorsWhenPSCDataIsValid() throws ServiceException {
             // given
             PersonWithSignificantControlDao personWithSignificantControlDao =
-                    new PersonWithSignificantControlBuilder
-                            .PersonWithSignificantControlDaoBuilder()
-                            .relevantLegalEntityPersonWithSignificantControlDao()
-                            .build();
+                    new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
             personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
 
             when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
@@ -82,12 +79,8 @@ class PersonWithSignificantControlServiceValidateTest {
         void shouldReturnErrorIfPOANotSupplied() throws ServiceException {
             // given
             PersonWithSignificantControlDao personWithSignificantControlDao =
-                    new PersonWithSignificantControlBuilder
-                            .PersonWithSignificantControlDaoBuilder()
-                            .relevantLegalEntityPersonWithSignificantControlDao()
-                            .withPrincipalOfficeAddress(null)
-                            .build();
-            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
+                    new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+            personWithSignificantControlDao.getData().setPrincipalOfficeAddress(null);
 
             when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
@@ -106,11 +99,8 @@ class PersonWithSignificantControlServiceValidateTest {
         void shouldReturnErrorsIfMandatoryDataIsMissing() throws ServiceException {
             // given
             PersonWithSignificantControlDao personWithSignificantControlDao =
-                    new PersonWithSignificantControlBuilder
-                            .PersonWithSignificantControlDaoBuilder()
-                            .relevantLegalEntityPersonWithSignificantControlDao()
-                            .withLegalEntityName(null)
-                            .build();
+                    new PersonWithSignificantControlBuilder().withLegalEntityName(null).relevantLegalEntityDao();
+
             when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
             // when
@@ -128,12 +118,8 @@ class PersonWithSignificantControlServiceValidateTest {
         void shouldReturnErrorsIfDataIsInvalid() throws ServiceException {
             // given
             PersonWithSignificantControlDao personWithSignificantControlDao =
-                    new PersonWithSignificantControlBuilder
-                            .PersonWithSignificantControlDaoBuilder()
-                            .relevantLegalEntityPersonWithSignificantControlDao()
-                            .build();
+                    new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
             personWithSignificantControlDao.getData().setLegalEntityName("§§§§§§§");
-            personWithSignificantControlDao.setTransactionId(TRANSACTION_ID);
 
             when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 
@@ -157,11 +143,7 @@ class PersonWithSignificantControlServiceValidateTest {
         @BeforeEach
         void setUp() {
             otherRegistrablePersonPersonWithSignificantControl =
-                    new PersonWithSignificantControlBuilder
-                            .PersonWithSignificantControlDaoBuilder()
-                            .otherRegistrablePersonWithSignificantControlDao()
-                            .withTransactionId(TRANSACTION_ID)
-                            .build();
+                    new PersonWithSignificantControlBuilder().otherRegistrablePersonDao();
         }
 
         @Test
@@ -223,11 +205,7 @@ class PersonWithSignificantControlServiceValidateTest {
         @BeforeEach
         void setUp() {
             individualPersonPersonWithSignificantControl =
-                    new PersonWithSignificantControlBuilder
-                            .PersonWithSignificantControlDaoBuilder()
-                            .individualPersonPersonWithSignificantControlDao()
-                            .withTransactionId(TRANSACTION_ID)
-                            .build();
+                    new PersonWithSignificantControlBuilder().individualPersonDao();
         }
 
         @Test
@@ -304,10 +282,8 @@ class PersonWithSignificantControlServiceValidateTest {
     class UnknownType {
         @Test
         void shouldReturnErrorOnPartialValidation() {
-            var pscDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder()
-                    .relevantLegalEntityPersonWithSignificantControlDto()
-                    .withType(PersonWithSignificantControlType.UNKNOWN)
-                    .build();
+            var pscDto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
+            pscDto.getData().setType(PersonWithSignificantControlType.UNKNOWN);
 
             MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () -> service.createPersonWithSignificantControl(
                     transaction,
@@ -322,11 +298,8 @@ class PersonWithSignificantControlServiceValidateTest {
         @Test
         void shouldReturnErrorOnFullValidation() throws ServiceException {
             PersonWithSignificantControlDao personWithSignificantControlDao =
-                    new PersonWithSignificantControlBuilder
-                            .PersonWithSignificantControlDaoBuilder()
-                            .relevantLegalEntityPersonWithSignificantControlDao()
-                            .withType(PersonWithSignificantControlType.UNKNOWN)
-                            .build();
+                    new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+            personWithSignificantControlDao.getData().setType(PersonWithSignificantControlType.UNKNOWN);
 
             when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(personWithSignificantControlDao));
 

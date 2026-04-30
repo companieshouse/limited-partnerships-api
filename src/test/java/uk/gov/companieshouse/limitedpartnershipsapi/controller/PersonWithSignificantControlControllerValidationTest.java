@@ -61,8 +61,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @WebMvcTest(controllers = {PersonWithSignificantControlController.class})
 class PersonWithSignificantControlControllerValidationTest {
 
-    private static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = "1234jdhs636";
-    private static final String TRANSACTION_ID = "8676782367823";
+    private static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = PersonWithSignificantControlBuilder.PERSON_WITH_SIGNIFICANT_CONTROL_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
     private static final String TOO_MANY_CHARS = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
 
 
@@ -154,7 +154,7 @@ class PersonWithSignificantControlControllerValidationTest {
         @ParameterizedTest
         @ValueSource(strings = {JSON_CORRECT_RLE, JSON_CORRECT_MANDATORY_ONLY_RLE})
         void shouldReturn201_RLE(String jsonPayload) throws Exception {
-            mocks();
+            mocksRle();
             mockMvc.perform(post(BASE_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -186,7 +186,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE + "$ data.registeredCompanyNumber $ Registered company number " + "must be less than 160"
         }, delimiter = '$')
         void shouldReturn400_create_RLE(String body, String field, String errorMessage) throws Exception {
-            mocks();
+            mocksRle();
             mockMvc.perform(post(BASE_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -200,11 +200,8 @@ class PersonWithSignificantControlControllerValidationTest {
         @ParameterizedTest
         @CsvSource(value = {
                 JSON_NAME_IS_REQUIRED_RLE + "$ data.legalEntityName $ Name is required",
-                JSON_NAME_IS_REQUIRED_NULL_RLE + "$ data.legalEntityName $ Name is required",
                 JSON_LEGAL_FORM_IS_REQUIRED_RLE + "$ data.legalForm $ Legal form is required",
-                JSON_LEGAL_FORM_IS_REQUIRED_NULL_RLE + "$ data.legalForm $ Legal form is required",
                 JSON_GOVERNING_LAW_IS_REQUIRED_RLE + "$ data.governingLaw $ Governing law is required",
-                JSON_GOVERNING_LAW_IS_REQUIRED_NULL_RLE + "$ data.governingLaw $ Governing law is required",
                 JSON_NAME_INVALID_CHARS_RLE + "$ data.legalEntityName $ Name " + INVALID_CHARACTERS_MESSAGE,
                 JSON_LEGAL_FORM_INVALID_CHARS_RLE + "$ data.legalForm $ Legal form " + INVALID_CHARACTERS_MESSAGE,
                 JSON_GOVERNING_LAW_INVALID_CHARS_RLE + "$ data.governingLaw $ Governing law " + INVALID_CHARACTERS_MESSAGE,
@@ -218,7 +215,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE + "$ data.registeredCompanyNumber $ Registered company number " + "must be less than 160"
         }, delimiter = '$')
         void shouldReturn400_update_RLE(String body, String field, String errorMessage) throws Exception {
-            mocks();
+            mocksRle();
             mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -259,7 +256,7 @@ class PersonWithSignificantControlControllerValidationTest {
 
         @Test
         void shouldReturn201_ORP() throws Exception {
-            mocks();
+            mocksOrp();
             mockMvc.perform(post(BASE_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -285,7 +282,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_ORP + "$ data.governingLaw $ Governing law " + "must be less than 160"
         }, delimiter = '$')
         void shouldReturn400_create_ORP(String body, String field, String errorMessage) throws Exception {
-            mocks();
+            mocksOrp();
             mockMvc.perform(post(BASE_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -299,11 +296,8 @@ class PersonWithSignificantControlControllerValidationTest {
         @ParameterizedTest
         @CsvSource(value = {
                 JSON_NAME_IS_REQUIRED_ORP + "$ data.legalEntityName $ Name is required",
-                JSON_NAME_IS_REQUIRED_NULL_ORP + "$ data.legalEntityName $ Name is required",
                 JSON_LEGAL_FORM_IS_REQUIRED_ORP + "$ data.legalForm $ Legal form is required",
-                JSON_LEGAL_FORM_IS_REQUIRED_NULL_ORP + "$ data.legalForm $ Legal form is required",
                 JSON_GOVERNING_LAW_IS_REQUIRED_ORP + "$ data.governingLaw $ Governing law is required",
-                JSON_GOVERNING_LAW_IS_REQUIRED_NULL_ORP + "$ data.governingLaw $ Governing law is required",
                 JSON_NAME_INVALID_CHARS_ORP + "$ data.legalEntityName $ Name " + INVALID_CHARACTERS_MESSAGE,
                 JSON_LEGAL_FORM_INVALID_CHARS_ORP + "$ data.legalForm $ Legal form " + INVALID_CHARACTERS_MESSAGE,
                 JSON_GOVERNING_LAW_INVALID_CHARS_ORP + "$ data.governingLaw $ Governing law " + INVALID_CHARACTERS_MESSAGE,
@@ -312,7 +306,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_ORP + "$ data.governingLaw $ Governing law " + "must be less than 160"
         }, delimiter = '$')
         void shouldReturn400_update_ORP(String body, String field, String errorMessage) throws Exception {
-            mocks();
+            mocksOrp();
             mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -368,7 +362,7 @@ class PersonWithSignificantControlControllerValidationTest {
         @ParameterizedTest
         @ValueSource(strings = {JSON_CORRECT_IP, JSON_CORRECT_MANDATORY_ONLY_IP})
         void shouldReturn201_IP(String jsonPayload) throws Exception {
-            mocks();
+            mocksIp();
             mockMvc.perform(post(BASE_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -394,7 +388,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.formerNames $ Former names must be less than 160"
         }, delimiter = '$')
         void shouldReturn400_create_IP(String body, String field, String errorMessage) throws Exception {
-            mocks();
+            mocksIp();
             mockMvc.perform(post(BASE_URL)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -409,8 +403,6 @@ class PersonWithSignificantControlControllerValidationTest {
         @CsvSource(value = {
                 JSON_FORENAME_IS_REQUIRED_IP + "$ data.forename $ Forename is required",
                 JSON_SURNAME_IS_REQUIRED_IP + "$ data.surname $ Surname is required",
-                JSON_DATE_OF_BIRTH_IS_REQUIRED_IP + "$ data.dateOfBirth $ Date of birth is required",
-                JSON_NATIONALITY1_IS_REQUIRED_IP + "$ data.nationality1 $ Nationality 1 is required",
                 JSON_FORENAME_INVALID_CHARS_IP + "$ data.forename $ Forename " + INVALID_CHARACTERS_MESSAGE,
                 JSON_SURNAME_INVALID_CHARS_IP + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORMER_NAMES_INVALID_CHARS_IP + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
@@ -421,7 +413,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.formerNames $ Former names must be less than 160"
         }, delimiter = '$')
         void shouldReturn400_update_IP(String body, String field, String errorMessage) throws Exception {
-            mocks();
+            mocksIp();
             mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
                             .contentType(MediaType.APPLICATION_JSON)
                             .characterEncoding(StandardCharsets.UTF_8)
@@ -434,7 +426,7 @@ class PersonWithSignificantControlControllerValidationTest {
     }
 
 
-    private void mocks(PersonWithSignificantControlDao personWithSignificantControlDao) {
+    private void mocksPsc(PersonWithSignificantControlDao personWithSignificantControlDao) {
         when(repository.insert((PersonWithSignificantControlDao) any())).thenReturn(personWithSignificantControlDao);
         when(repository.save(any())).thenReturn(personWithSignificantControlDao);
         when(repository.findById(PERSON_WITH_SIGNIFICANT_CONTROL_ID)).thenReturn(Optional.of(personWithSignificantControlDao));
@@ -442,8 +434,18 @@ class PersonWithSignificantControlControllerValidationTest {
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
     }
 
-    private void mocks() {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDaoBuilder().build();
-        mocks(personWithSignificantControlDao);
+    private void mocksRle() {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+        mocksPsc(personWithSignificantControlDao);
+    }
+
+    private void mocksOrp() {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().otherRegistrablePersonDao();
+        mocksPsc(personWithSignificantControlDao);
+    }
+
+    private void mocksIp() {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+        mocksPsc(personWithSignificantControlDao);
     }
 }

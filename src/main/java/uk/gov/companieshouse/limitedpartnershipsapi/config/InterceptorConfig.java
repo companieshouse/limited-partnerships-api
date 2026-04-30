@@ -41,7 +41,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
             "/private/transactions/*/incorporation/limited-partnership/*/filings",
             "/private/transactions/*/limited-partnership/general-partner/*/filings",
             "/private/transactions/*/limited-partnership/limited-partner/*/filings",
-            "/private/transactions/*/limited-partnership/partnership/*/filings"
+            "/private/transactions/*/limited-partnership/partnership/*/filings",
     };
 
     private static final String[] TRANSACTION_ENDPOINTS = Stream.concat(

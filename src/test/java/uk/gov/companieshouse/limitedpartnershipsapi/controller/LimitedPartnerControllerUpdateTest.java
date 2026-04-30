@@ -600,7 +600,6 @@ class LimitedPartnerControllerUpdateTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.[0].data.completed").value(true))
                 .andExpect(jsonPath("$.[1].data.completed").value(false));

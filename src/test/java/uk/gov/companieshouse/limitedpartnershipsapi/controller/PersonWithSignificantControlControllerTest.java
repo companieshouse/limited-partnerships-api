@@ -41,7 +41,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 class PersonWithSignificantControlControllerTest {
     private static final String REQUEST_ID = "request123";
     private static final String USER_ID = "user123";
-    private static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = PersonWithSignificantControlBuilder.ID;
+    private static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = PersonWithSignificantControlBuilder.PERSON_WITH_SIGNIFICANT_CONTROL_ID;
 
     @InjectMocks
     private PersonWithSignificantControlController personWithSignificantControlController;
@@ -61,7 +61,7 @@ class PersonWithSignificantControlControllerTest {
 
     @BeforeEach
     void init() {
-        personWithSignificantControlDto = new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build();
+        personWithSignificantControlDto = new PersonWithSignificantControlBuilder().individualPersonDto();
     }
 
     @Test
@@ -130,7 +130,7 @@ class PersonWithSignificantControlControllerTest {
         var response = personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
+                new PersonWithSignificantControlBuilder().individualPersonDto().getData(),
                 REQUEST_ID,
                 USER_ID);
 
@@ -144,7 +144,7 @@ class PersonWithSignificantControlControllerTest {
         assertThrows(ResourceNotFoundException.class, () -> personWithSignificantControlController.updatePersonWithSignificantControl(
                 transaction,
                 PERSON_WITH_SIGNIFICANT_CONTROL_ID,
-                new PersonWithSignificantControlBuilder.PersonWithSignificantControlDtoBuilder().individualPersonPersonWithSignificantControlDto().build().getData(),
+                new PersonWithSignificantControlBuilder().individualPersonDto().getData(),
                 REQUEST_ID,
                 USER_ID));
     }
