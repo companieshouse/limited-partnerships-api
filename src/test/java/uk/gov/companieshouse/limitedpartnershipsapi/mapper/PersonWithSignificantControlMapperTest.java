@@ -30,7 +30,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGISTERED_COMPANY_NUMBER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.RESIGNATION_DATE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SERVICE_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SURNAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.URA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.BRITISH;
@@ -103,7 +102,7 @@ class PersonWithSignificantControlMapperTest {
                             BRITISH.getDescription(),
                             FRENCH.getDescription(),
                             RESIGNATION_DATE,
-                            SURNAME,
+                            "Smith",
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
                     );
 
@@ -150,7 +149,7 @@ class PersonWithSignificantControlMapperTest {
                             BRITISH.getDescription(),
                             FRENCH.getDescription(),
                             RESIGNATION_DATE,
-                            SURNAME,
+                            "Smith",
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
                     );
 

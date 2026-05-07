@@ -25,9 +25,6 @@ public class PersonWithSignificantControlBuilder {
     public static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = "1234";
     public static final String ETAG = "eTag";
     public static final String APPOINTMENT_ID = "1234";
-    public static final String SURNAME = "Smith";
-    public static final String MIDDLE_NAMES = "John Jack";
-    public static final String TITLE = "Mr";
     public static final String GOVERNING_LAW = "law of england";
     public static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
     public static final String LEGAL_FORM = "Legal Form";
@@ -62,7 +59,10 @@ public class PersonWithSignificantControlBuilder {
     private Country legalEntityRegistrationLocation = Country.ENGLAND;
 
     private Country country = ENGLAND;
+    private String title = "Mr";
     private String forename = "John";
+    private String middleNames = "John Jack";
+    private String surname = "Smith";
     private String formerNames = "Johnny";
     private Nationality nationality1 = BRITISH;
     private Nationality nationality2 = FRENCH;
@@ -89,6 +89,21 @@ public class PersonWithSignificantControlBuilder {
 
     public PersonWithSignificantControlBuilder withForename(String forename) {
         this.forename = forename;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withSurname(String surname) {
+        this.surname = surname;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withMiddleNames(String middleNames) {
+        this.middleNames = middleNames;
         return this;
     }
 
@@ -119,10 +134,10 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDto.setConsentChecked(true);
         dataDto.setDateOfBirth(DATE_OF_BIRTH);
-        dataDto.setTitle(TITLE);
-        dataDto.setMiddleNames(MIDDLE_NAMES);
+        dataDto.setTitle(title);
+        dataDto.setMiddleNames(middleNames);
         dataDto.setForename(forename);
-        dataDto.setSurname(SURNAME);
+        dataDto.setSurname(surname);
         dataDto.setFormerNames(formerNames);
         dataDto.setNationality1(nationality1);
         dataDto.setNationality2(nationality2);
@@ -206,10 +221,10 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setDateOfBirth(DATE_OF_BIRTH);
         dataDao.setEtag(ETAG);
         dataDao.setConsentChecked(true);
-        dataDao.setTitle(TITLE);
+        dataDao.setTitle(title);
         dataDao.setForename(forename);
-        dataDao.setMiddleNames(MIDDLE_NAMES);
-        dataDao.setSurname(SURNAME);
+        dataDao.setMiddleNames(middleNames);
+        dataDao.setSurname(surname);
         dataDao.setFormerNames(formerNames);
         dataDao.setNationality1(nationality1.getDescription());
         dataDao.setNationality2(nationality2.getDescription());

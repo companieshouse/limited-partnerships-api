@@ -226,6 +226,58 @@ class PersonWithSignificantControlServiceUpdateTest {
     }
 
     @Test
+    void shouldHandleIndividualPersonOptionalFields_shouldNotDelete() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+
+        var preChangeTitle = personWithSignificantControlDao.getData().getTitle();
+        assertThat(preChangeTitle).isNotEmpty();
+
+        var preChangeMiddleNames = personWithSignificantControlDao.getData().getMiddleNames();
+        assertThat(preChangeMiddleNames).isNotEmpty();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
+        changesDto.setNaturesOfControl(List.of(NatureOfControl.INDIVIDUAL_TRUST_CONTROL));
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID);
+
+        verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+        PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+        assertThat(savedPersonWithSignificantControlDao.getData().getTitle()).isEqualTo(preChangeTitle);
+        assertThat(savedPersonWithSignificantControlDao.getData().getMiddleNames()).isEqualTo(preChangeMiddleNames);
+    }
+
+    @Test
+    void shouldHandleIndividualPersonOptionalFields_shouldDelete() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+
+        var preChangeTitle = personWithSignificantControlDao.getData().getTitle();
+        assertThat(preChangeTitle).isNotEmpty();
+
+        var preChangeMiddleNames = personWithSignificantControlDao.getData().getMiddleNames();
+        assertThat(preChangeMiddleNames).isNotEmpty();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlBuilder()
+                .withForename("John")
+                .withSurname("Doe")
+                .withTitle(null)
+                .withMiddleNames(null)
+                .individualPersonDto().getData();
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID);
+
+        verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+        PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+        assertThat(savedPersonWithSignificantControlDao.getData().getTitle()).isNull();
+        assertThat(savedPersonWithSignificantControlDao.getData().getMiddleNames()).isNull();
+    }
+
+    @Test
     void shouldThrowExceptionIfNotLinkedToTransaction() {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
