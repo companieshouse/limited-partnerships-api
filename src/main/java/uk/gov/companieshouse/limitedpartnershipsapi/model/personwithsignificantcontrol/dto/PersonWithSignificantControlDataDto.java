@@ -320,13 +320,7 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
         this.completed = completed;
     }
 
-    public Boolean getConsentChecked() {
-        return consentChecked;
-    }
 
-    public void setConsentChecked(Boolean consentChecked) {
-        this.consentChecked = consentChecked;
-    }
 
     public String getTitle() {
         return title;
@@ -334,6 +328,14 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Boolean getConsentChecked() {
+        return consentChecked;
+    }
+
+    public void setConsentChecked(Boolean consentChecked) {
+        this.consentChecked = consentChecked;
     }
 
     public String getMiddleNames() {
