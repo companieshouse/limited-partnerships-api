@@ -25,6 +25,7 @@ public class PersonWithSignificantControlBuilder {
     public static final String PERSON_WITH_SIGNIFICANT_CONTROL_ID = "1234";
     public static final String ETAG = "eTag";
     public static final String APPOINTMENT_ID = "1234";
+    public static final String TITLE_MR = "Mr";
     public static final String GOVERNING_LAW = "law of england";
     public static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
     public static final String LEGAL_FORM = "Legal Form";
@@ -52,6 +53,7 @@ public class PersonWithSignificantControlBuilder {
             NatureOfControl.INDIVIDUAL_FIRM_CONTROL,
             NatureOfControl.ORP_TRUST_CONTROL
     );
+    public static final String MIDDLE_NAMES = "John Jack";
 
     private String kind = FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
 
@@ -59,9 +61,9 @@ public class PersonWithSignificantControlBuilder {
     private Country legalEntityRegistrationLocation = Country.ENGLAND;
 
     private Country country = ENGLAND;
-    private String title = "Mr";
+    private String title = TITLE_MR;
     private String forename = "John";
-    private String middleNames = "John Jack";
+    private String middleNames = MIDDLE_NAMES;
     private String surname = "Smith";
     private String formerNames = "Johnny";
     private Nationality nationality1 = BRITISH;
