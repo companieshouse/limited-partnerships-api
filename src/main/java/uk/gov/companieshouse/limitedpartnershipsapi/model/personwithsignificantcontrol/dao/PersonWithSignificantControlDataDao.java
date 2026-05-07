@@ -38,8 +38,17 @@ public class PersonWithSignificantControlDataDao {
 
     // PERSON
 
+    @Field("consent_checked")
+    private Boolean consentChecked;
+
+    @Field("title")
+    private String title;
+
     @Field("forename")
     private String forename;
+
+    @Field("middle_names")
+    private String middleNames;
 
     @Field("former_names")
     private String formerNames;
@@ -264,5 +273,29 @@ public class PersonWithSignificantControlDataDao {
 
     public void setType(PersonWithSignificantControlType type) {
         this.type = type;
+    }
+
+    public Boolean getConsentChecked() {
+        return consentChecked;
+    }
+
+    public void setConsentChecked(Boolean consentChecked) {
+        this.consentChecked = consentChecked;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getMiddleNames() {
+        return middleNames;
+    }
+
+    public void setMiddleNames(String middleNames) {
+        this.middleNames = middleNames;
     }
 }

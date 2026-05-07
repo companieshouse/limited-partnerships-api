@@ -54,10 +54,23 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     // PERSON
 
+    @JsonProperty("consent_checked")
+    private Boolean consentChecked;
+
+    @JsonProperty("title")
+    @Size(max = LONG_MAX_SIZE, message = "Title " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Title " + INVALID_CHARACTERS_MESSAGE)
+    private String title;
+
     @JsonProperty("forename")
     @Size(max = LONG_MAX_SIZE, message = "Forename " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Forename " + INVALID_CHARACTERS_MESSAGE)
     private String forename;
+
+    @JsonProperty("middle_names")
+    @Size(max = LONG_MAX_SIZE, message = "Middle names " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Middle names " + INVALID_CHARACTERS_MESSAGE)
+    private String middleNames;
 
     @JsonProperty("former_names")
     @Size(max = LONG_MAX_SIZE, message = "Former names " + MAX_SIZE_MESSAGE)
@@ -305,6 +318,30 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public Boolean getConsentChecked() {
+        return consentChecked;
+    }
+
+    public void setConsentChecked(Boolean consentChecked) {
+        this.consentChecked = consentChecked;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getMiddleNames() {
+        return middleNames;
+    }
+
+    public void setMiddleNames(String middleNames) {
+        this.middleNames = middleNames;
     }
 }
 

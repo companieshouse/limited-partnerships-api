@@ -26,6 +26,8 @@ public class PersonWithSignificantControlBuilder {
     public static final String ETAG = "eTag";
     public static final String APPOINTMENT_ID = "1234";
     public static final String SURNAME = "Smith";
+    public static final String MIDDLE_NAMES = "John Jack";
+    public static final String TITLE = "Mr";
     public static final String GOVERNING_LAW = "law of england";
     public static final String LEGAL_ENTITY_REGISTER_NAME = "Legal Entity Register Name";
     public static final String LEGAL_FORM = "Legal Form";
@@ -115,7 +117,10 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setCountry(country);
         dataDto.setKind(kind);
         dataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
+        dataDto.setConsentChecked(true);
         dataDto.setDateOfBirth(DATE_OF_BIRTH);
+        dataDto.setTitle(TITLE);
+        dataDto.setMiddleNames(MIDDLE_NAMES);
         dataDto.setForename(forename);
         dataDto.setSurname(SURNAME);
         dataDto.setFormerNames(formerNames);
@@ -200,7 +205,10 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDao.setDateOfBirth(DATE_OF_BIRTH);
         dataDao.setEtag(ETAG);
+        dataDao.setConsentChecked(true);
+        dataDao.setTitle(TITLE);
         dataDao.setForename(forename);
+        dataDao.setMiddleNames(MIDDLE_NAMES);
         dataDao.setSurname(SURNAME);
         dataDao.setFormerNames(formerNames);
         dataDao.setNationality1(nationality1.getDescription());

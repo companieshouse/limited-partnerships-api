@@ -239,6 +239,39 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
+    void testUpdatePersonWithSignificantControlRemovesOptionalFieldsWhenPatchedToNull() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        var pscUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
+
+        PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+        PersonWithSignificantControlDto existingDto = new PersonWithSignificantControlBuilder().individualPersonDto();
+        PersonWithSignificantControlDataDto changesDataDto = new PersonWithSignificantControlDataDto();
+        changesDataDto.setForename("Bob");
+        changesDataDto.setSurname("Smith");
+        changesDataDto.setTitle(null);
+        changesDataDto.setMiddleNames(null);
+
+        PersonWithSignificantControlDao afterPatchDao = new PersonWithSignificantControlDao();
+
+        when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL)).thenReturn(true);
+        when(mapper.daoToDto(existingDao)).thenReturn(existingDto);
+        when(mapper.dtoToDao(existingDto)).thenReturn(afterPatchDao);
+
+        assertNotNull(existingDto.getData().getTitle());
+        assertNotNull(existingDto.getData().getMiddleNames());
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(TRANSACTION, PSC_ID, changesDataDto, REQUEST_ID, USER_ID);
+
+        verify(mapper, times(1)).update(changesDataDto, existingDto.getData());
+        verify(mapper, times(1)).dtoToDao(pscDtoCaptor.capture());
+
+        var capturedDto = pscDtoCaptor.getValue();
+        assertNull(capturedDto.getData().getTitle());
+        assertNull(capturedDto.getData().getMiddleNames());
+    }
+
+    @Test
     void testUpdatePersonWithSignificantControlNotFound() {
         when(repository.findById(PSC_ID)).thenReturn(Optional.empty());
 
