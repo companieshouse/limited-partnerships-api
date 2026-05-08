@@ -58,17 +58,17 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     private Boolean consentChecked;
 
     @JsonProperty("title")
-    @Size(max = LONG_MAX_SIZE, message = "Title " + MAX_SIZE_MESSAGE)
+    @Size(max = 50, message = "Title " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Title " + INVALID_CHARACTERS_MESSAGE)
     private String title;
 
     @JsonProperty("forename")
-    @Size(max = LONG_MAX_SIZE, message = "Forename " + MAX_SIZE_MESSAGE)
+    @Size(max = 50, message = "Forename " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Forename " + INVALID_CHARACTERS_MESSAGE)
     private String forename;
 
     @JsonProperty("middle_names")
-    @Size(max = LONG_MAX_SIZE, message = "Middle names " + MAX_SIZE_MESSAGE)
+    @Size(max = 50, message = "Middle names " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Middle names " + INVALID_CHARACTERS_MESSAGE)
     private String middleNames;
 

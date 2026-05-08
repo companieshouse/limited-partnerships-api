@@ -391,9 +391,9 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_FORMER_NAMES_INVALID_CHARS_IP + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ Nationality 1 must be valid",
                 JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Nationality 2 must be valid",
-                JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 160",
-                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 160",
-                JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 160",
+                JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 50",
+                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 50",
+                JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 50",
                 JSON_SURNAME_IS_ABOVE_MAX_CHARS_IP + "$ data.surname $ Surname must be less than 160",
                 JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.formerNames $ Former names must be less than 160"
         }, delimiter = '$')
@@ -421,9 +421,9 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_FORMER_NAMES_INVALID_CHARS_IP + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ Nationality 1 must be valid",
                 JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Nationality 2 must be valid",
-                JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 160",
-                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 160",
-                JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 160",
+                JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 50",
+                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 50",
+                JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 50",
                 JSON_SURNAME_IS_ABOVE_MAX_CHARS_IP + "$ data.surname $ Surname must be less than 160",
                 JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.formerNames $ Former names must be less than 160"
         }, delimiter = '$')
