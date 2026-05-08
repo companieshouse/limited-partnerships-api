@@ -107,6 +107,7 @@ public class PersonWithSignificantControlService {
 
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
         handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
+        handlePersonOptionalFields(personWithSignificantControlChangesDataDto, dto.getData());
 
         var daoAfterPatch = mapper.dtoToDao(dto);
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
@@ -129,6 +130,18 @@ public class PersonWithSignificantControlService {
                 data.setLegalEntityRegistrationLocation(null);
         }
     }
+
+    private void handlePersonOptionalFields(PersonWithSignificantControlDataDto changesDto, PersonWithSignificantControlDataDto data) {
+        if (changesDto.getForename() != null && changesDto.getSurname() != null) {
+            if (changesDto.getMiddleNames() == null) {
+                data.setMiddleNames(null);
+            }
+            if (changesDto.getTitle() == null) {
+                data.setTitle(null);
+            }
+        }
+    }
+
 
     public void deletePersonWithSignificantControl(Transaction transaction, String personWithSignificantControlId, String requestId) throws ServiceException {
         PersonWithSignificantControlDao personWithSignificantControlDao = repository.findById(personWithSignificantControlId)

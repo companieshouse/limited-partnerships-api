@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -77,9 +76,6 @@ class PersonWithSignificantControlControllerValidationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private PersonWithSignificantControlRepository repository;
@@ -325,6 +321,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 "data": {
                     "kind": "limited-partnership#person-with-significant-control",
                     "type": "INDIVIDUAL_PERSON",
+                    "consent_checked" : "true",
                     "forename": "asasd",
                     "surname": "dsfs",
                     "date_of_birth": "1956-05-05",
@@ -338,6 +335,7 @@ class PersonWithSignificantControlControllerValidationTest {
                 "data": {
                     "kind": "limited-partnership#person-with-significant-control",
                     "type": "INDIVIDUAL_PERSON",
+                    "consent_checked" : "true",
                     "forename": "asasd",
                     "surname": "dsfs",
                     "date_of_birth": "1956-05-05",
@@ -345,18 +343,24 @@ class PersonWithSignificantControlControllerValidationTest {
                 }
             }""";
 
-        private static final String JSON_FORENAME_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
-        private static final String JSON_SURNAME_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"surname\": \"\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
-        private static final String JSON_DATE_OF_BIRTH_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": null, \"nationality1\": \"English\" }";
-        private static final String JSON_NATIONALITY1_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": null }";
-        private static final String JSON_FORENAME_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"§§§\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
-        private static final String JSON_FORMER_NAMES_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"former_names\": \"§§§\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
-        private static final String JSON_SURNAME_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"surname\": \"§§§\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
-        private static final String JSON_NATIONALITY1_INVALID_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"§§§\" }";
-        private static final String JSON_NATIONALITY2_INVALID_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\", \"nationality2\": \"§§§\" }";
-        private static final String JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"" + TOO_MANY_CHARS + "\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
-        private static final String JSON_SURNAME_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"surname\": \"" + TOO_MANY_CHARS + "\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
-        private static final String JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"forename\": \"Bob\", \"former_names\": \"" + TOO_MANY_CHARS + "\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_CONSENT_IS_REQUIRED_FALSE_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"false\", \"title\": \"Mr\", \"forename\": \"Fred\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_CONSENT_IS_REQUIRED_NULL_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : null, \"title\": \"Mr\", \"forename\": \"Fred\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_FORENAME_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_SURNAME_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_DATE_OF_BIRTH_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": null, \"nationality1\": \"English\" }";
+        private static final String JSON_NATIONALITY1_IS_REQUIRED_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": null }";
+        private static final String JSON_TITLE_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"§§§§\", \"forename\": \"Fred\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_FORENAME_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"§§§\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_FORMER_NAMES_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"former_names\": \"§§§\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_MIDDLE_NAMES_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Fred\", \"middle_names\": \"§§§\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_SURNAME_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"§§§\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_NATIONALITY1_INVALID_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"§§§\" }";
+        private static final String JSON_NATIONALITY2_INVALID_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\", \"nationality2\": \"§§§\" }";
+        private static final String JSON_TITLE_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"" + TOO_MANY_CHARS + "\", \"forename\": \"Fred\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"" + TOO_MANY_CHARS + "\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Fred\", \"middle_names\": \"" + TOO_MANY_CHARS + "\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_SURNAME_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"" + TOO_MANY_CHARS + "\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
+        private static final String JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"former_names\": \"" + TOO_MANY_CHARS + "\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
 
 
         @ParameterizedTest
@@ -374,16 +378,22 @@ class PersonWithSignificantControlControllerValidationTest {
 
         @ParameterizedTest
         @CsvSource(value = {
+                JSON_CONSENT_IS_REQUIRED_FALSE_IP + "$ data.consentChecked $ Consent must be checked",
+                JSON_CONSENT_IS_REQUIRED_NULL_IP + "$ data.consentChecked $ Consent must be checked",
                 JSON_FORENAME_IS_REQUIRED_IP + "$ data.forename $ Forename is required",
                 JSON_SURNAME_IS_REQUIRED_IP + "$ data.surname $ Surname is required",
                 JSON_DATE_OF_BIRTH_IS_REQUIRED_IP + "$ data.dateOfBirth $ Date of birth is required",
                 JSON_NATIONALITY1_IS_REQUIRED_IP + "$ data.nationality1 $ Nationality 1 is required",
+                JSON_TITLE_INVALID_CHARS_IP + "$ data.title $ Title " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORENAME_INVALID_CHARS_IP + "$ data.forename $ Forename " + INVALID_CHARACTERS_MESSAGE,
+                JSON_MIDDLE_NAMES_INVALID_CHARS_IP + "$ data.middleNames $ Middle names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_SURNAME_INVALID_CHARS_IP + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORMER_NAMES_INVALID_CHARS_IP + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ Nationality 1 must be valid",
                 JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Nationality 2 must be valid",
-                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 160",
+                JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 50",
+                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 50",
+                JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 50",
                 JSON_SURNAME_IS_ABOVE_MAX_CHARS_IP + "$ data.surname $ Surname must be less than 160",
                 JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.formerNames $ Former names must be less than 160"
         }, delimiter = '$')
@@ -401,14 +411,19 @@ class PersonWithSignificantControlControllerValidationTest {
 
         @ParameterizedTest
         @CsvSource(value = {
+                JSON_CONSENT_IS_REQUIRED_FALSE_IP + "$ data.consentChecked $ Consent must be checked",
                 JSON_FORENAME_IS_REQUIRED_IP + "$ data.forename $ Forename is required",
                 JSON_SURNAME_IS_REQUIRED_IP + "$ data.surname $ Surname is required",
+                JSON_TITLE_INVALID_CHARS_IP + "$ data.title $ Title " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORENAME_INVALID_CHARS_IP + "$ data.forename $ Forename " + INVALID_CHARACTERS_MESSAGE,
+                JSON_MIDDLE_NAMES_INVALID_CHARS_IP + "$ data.middleNames $ Middle names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_SURNAME_INVALID_CHARS_IP + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORMER_NAMES_INVALID_CHARS_IP + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ Nationality 1 must be valid",
                 JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Nationality 2 must be valid",
-                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 160",
+                JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 50",
+                JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 50",
+                JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 50",
                 JSON_SURNAME_IS_ABOVE_MAX_CHARS_IP + "$ data.surname $ Surname must be less than 160",
                 JSON_FORMER_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.formerNames $ Former names must be less than 160"
         }, delimiter = '$')
@@ -424,7 +439,6 @@ class PersonWithSignificantControlControllerValidationTest {
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
         }
     }
-
 
     private void mocksPsc(PersonWithSignificantControlDao personWithSignificantControlDao) {
         when(repository.insert((PersonWithSignificantControlDao) any())).thenReturn(personWithSignificantControlDao);

@@ -37,6 +37,9 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
 
         // null checks for mandatory fields
         var data = personWithSignificantControlDto.getData();
+        if (data.getConsentChecked() == null || Boolean.FALSE.equals(data.getConsentChecked())) {
+            addError("data.consentChecked", "Consent must be checked", bindingResult);
+        }
         checkNotNullOrEmpty(data.getForename(), "data.forename", "Forename is required", bindingResult);
         checkNotNullOrEmpty(data.getSurname(), "data.surname", "Surname is required", bindingResult);
         if (data.getDateOfBirth() == null) {

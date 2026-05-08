@@ -22,6 +22,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_ENTITY_REGISTER_NAME;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_FORM;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LOCALITY_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.MIDDLE_NAMES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATURES_OF_CONTROL_LIST_DESCRIPTIONS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POSTAL_CODE_SUFFIX;
@@ -30,7 +31,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.REGISTERED_COMPANY_NUMBER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.RESIGNATION_DATE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SERVICE_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SURNAME;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.TITLE_MR;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.URA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.BRITISH;
@@ -43,11 +44,14 @@ class PersonWithSignificantControlMapperTest {
 
     // Field name constants for extracting()
     private static final String FN_APPOINTMENT_ID = "appointmentId";
+    private static final String FN_CONSENT_CHECKED = "consentChecked";
     private static final String FN_COUNTRY = "country";
     private static final String FN_DATE_EFFECTIVE_FROM = "dateEffectiveFrom";
     private static final String FN_DATE_OF_BIRTH = "dateOfBirth";
+    private static final String FN_TITLE = "title";
     private static final String FN_FORENAME = "forename";
     private static final String FN_FORMER_NAMES = "formerNames";
+    private static final String FN_MIDDLE_NAMES = "middleNames";
     private static final String FN_GOVERNING_LAW = "governingLaw";
     private static final String FN_KIND = "kind";
     private static final String FN_LEGAL_ENTITY_NAME = "legalEntityName";
@@ -82,28 +86,34 @@ class PersonWithSignificantControlMapperTest {
             assertThat(dataDto)
                     .extracting(
                             FN_APPOINTMENT_ID,
+                            FN_CONSENT_CHECKED,
                             FN_DATE_EFFECTIVE_FROM,
                             FN_DATE_OF_BIRTH,
                             FN_FORENAME,
                             FN_FORMER_NAMES,
                             FN_KIND,
+                            FN_MIDDLE_NAMES,
                             FN_NATIONALITY1,
                             FN_NATIONALITY2,
                             FN_RESIGNATION_DATE,
                             FN_SURNAME,
+                            FN_TITLE,
                             FN_TYPE
                     )
                     .containsExactly(
                             APPOINTMENT_ID,
+                            true,
                             DATE_EFFECTIVE_FROM,
                             DATE_OF_BIRTH,
                             "John",
                             "Johnny",
                             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                            MIDDLE_NAMES,
                             BRITISH.getDescription(),
                             FRENCH.getDescription(),
                             RESIGNATION_DATE,
-                            SURNAME,
+                            "Smith",
+                            TITLE_MR,
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
                     );
 
@@ -129,28 +139,34 @@ class PersonWithSignificantControlMapperTest {
             assertThat(daoData)
                     .extracting(
                             FN_APPOINTMENT_ID,
+                            FN_CONSENT_CHECKED,
                             FN_DATE_EFFECTIVE_FROM,
                             FN_DATE_OF_BIRTH,
                             FN_FORENAME,
                             FN_FORMER_NAMES,
                             FN_KIND,
+                            FN_MIDDLE_NAMES,
                             FN_NATIONALITY1,
                             FN_NATIONALITY2,
                             FN_RESIGNATION_DATE,
                             FN_SURNAME,
+                            FN_TITLE,
                             FN_TYPE
                     )
                     .containsExactly(
                             APPOINTMENT_ID,
+                            true,
                             DATE_EFFECTIVE_FROM,
                             DATE_OF_BIRTH,
                             "John",
                             "Johnny",
                             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
+                            MIDDLE_NAMES,
                             BRITISH.getDescription(),
                             FRENCH.getDescription(),
                             RESIGNATION_DATE,
-                            SURNAME,
+                            "Smith",
+                            TITLE_MR,
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
                     );
 
