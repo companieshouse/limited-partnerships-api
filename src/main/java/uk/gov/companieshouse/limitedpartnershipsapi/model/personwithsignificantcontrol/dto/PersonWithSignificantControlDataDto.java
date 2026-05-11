@@ -87,11 +87,11 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     private LocalDate dateOfBirth;
 
     @JsonProperty("nationality1")
-    @EnumValid(message = "Nationality 1 must be valid")
+    @EnumValid(message = "First nationality must be valid")
     private Nationality nationality1;
 
     @JsonProperty("nationality2")
-    @EnumValid(message = "Nationality 2 must be valid")
+    @EnumValid(message = "Second nationality must be valid")
     private Nationality nationality2;
 
     @JsonProperty("usual_residential_address")
