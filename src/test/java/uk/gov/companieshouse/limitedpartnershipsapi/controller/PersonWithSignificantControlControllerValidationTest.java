@@ -356,6 +356,7 @@ class PersonWithSignificantControlControllerValidationTest {
         private static final String JSON_SURNAME_INVALID_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"§§§\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
         private static final String JSON_NATIONALITY1_INVALID_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"§§§\" }";
         private static final String JSON_NATIONALITY2_INVALID_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\", \"nationality2\": \"§§§\" }";
+        private static final String JSON_NATIONALITIES_SAME_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Bob\", \"surname\": \"Smith\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\", \"nationality2\": \"English\" }";
         private static final String JSON_TITLE_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"" + TOO_MANY_CHARS + "\", \"forename\": \"Fred\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
         private static final String JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"" + TOO_MANY_CHARS + "\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
         private static final String JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"INDIVIDUAL_PERSON\", \"consent_checked\" : \"true\", \"title\": \"Mr\", \"forename\": \"Fred\", \"middle_names\": \"" + TOO_MANY_CHARS + "\", \"surname\": \"dsfs\", \"date_of_birth\": \"1956-05-05\", \"nationality1\": \"English\" }";
@@ -383,14 +384,15 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_FORENAME_IS_REQUIRED_IP + "$ data.forename $ Forename is required",
                 JSON_SURNAME_IS_REQUIRED_IP + "$ data.surname $ Surname is required",
                 JSON_DATE_OF_BIRTH_IS_REQUIRED_IP + "$ data.dateOfBirth $ Date of birth is required",
-                JSON_NATIONALITY1_IS_REQUIRED_IP + "$ data.nationality1 $ Nationality 1 is required",
+                JSON_NATIONALITY1_IS_REQUIRED_IP + "$ data.nationality1 $ First nationality is required",
                 JSON_TITLE_INVALID_CHARS_IP + "$ data.title $ Title " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORENAME_INVALID_CHARS_IP + "$ data.forename $ Forename " + INVALID_CHARACTERS_MESSAGE,
                 JSON_MIDDLE_NAMES_INVALID_CHARS_IP + "$ data.middleNames $ Middle names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_SURNAME_INVALID_CHARS_IP + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORMER_NAMES_INVALID_CHARS_IP + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
-                JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ Nationality 1 must be valid",
-                JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Nationality 2 must be valid",
+                JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ First nationality must be valid",
+                JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Second nationality must be valid",
+                JSON_NATIONALITIES_SAME_IP + "$ data.nationality2 $ Second nationality must be different from the first",
                 JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 50",
                 JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 50",
                 JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 50",
@@ -419,8 +421,9 @@ class PersonWithSignificantControlControllerValidationTest {
                 JSON_MIDDLE_NAMES_INVALID_CHARS_IP + "$ data.middleNames $ Middle names " + INVALID_CHARACTERS_MESSAGE,
                 JSON_SURNAME_INVALID_CHARS_IP + "$ data.surname $ Surname " + INVALID_CHARACTERS_MESSAGE,
                 JSON_FORMER_NAMES_INVALID_CHARS_IP + "$ data.formerNames $ Former names " + INVALID_CHARACTERS_MESSAGE,
-                JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ Nationality 1 must be valid",
-                JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Nationality 2 must be valid",
+                JSON_NATIONALITY1_INVALID_IP + "$ data.nationality1 $ First nationality must be valid",
+                JSON_NATIONALITY2_INVALID_IP + "$ data.nationality2 $ Second nationality must be valid",
+                JSON_NATIONALITIES_SAME_IP + "$ data.nationality2 $ Second nationality must be different from the first",
                 JSON_TITLE_IS_ABOVE_MAX_CHARS_IP + "$ data.title $ Title must be less than 50",
                 JSON_FORENAME_IS_ABOVE_MAX_CHARS_IP + "$ data.forename $ Forename must be less than 50",
                 JSON_MIDDLE_NAMES_IS_ABOVE_MAX_CHARS_IP + "$ data.middleNames $ Middle names must be less than 50",

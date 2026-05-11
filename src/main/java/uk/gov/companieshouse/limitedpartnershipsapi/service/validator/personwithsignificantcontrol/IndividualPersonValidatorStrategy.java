@@ -45,7 +45,11 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
         if (data.getDateOfBirth() == null) {
             addError("data.dateOfBirth", "Date of birth is required", bindingResult);
         }
-        checkNotNullOrEmpty(data.getNationality1(), "data.nationality1", "Nationality 1 is required", bindingResult);
+        checkNotNullOrEmpty(data.getNationality1(), "data.nationality1", "First nationality is required", bindingResult);
+
+        if (data.getNationality1() != null && data.getNationality1().equals(data.getNationality2())) {
+            addError("data.nationality2", "Second nationality must be different from the first", bindingResult);
+        }
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(PersonWithSignificantControlDataDto.class.getConstructor(), -1);
