@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -34,6 +35,7 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
         BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
 
         performAnnotationValidation(personWithSignificantControlDto, validator, bindingResult);
+        super.checkPersonWithSignificantControlTypeAlreadySet(personWithSignificantControlDto.getData(), PersonWithSignificantControlType.INDIVIDUAL_PERSON, bindingResult);
 
         // null checks for mandatory fields
         var data = personWithSignificantControlDto.getData();

@@ -3,6 +3,9 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,12 +23,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -36,6 +41,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 @ExtendWith(MockitoExtension.class)
@@ -289,5 +295,43 @@ class PersonWithSignificantControlServiceUpdateTest {
         assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, personWithSignificantControlDataDto, REQUEST_ID, USER_ID))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining(String.format("Transaction id: %s does not have a resource that matches person with significant control id: %s", transaction.getId(), PSC_ID));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIncorrectTypeUpdateCases")
+    void shouldReturnErrorIfUpdateAttemptedWithIncorrectType(
+            PersonWithSignificantControlDao existingDao,
+            PersonWithSignificantControlDataDto dto,
+            PersonWithSignificantControlType incorrectType
+    ) {
+        dto.setType(incorrectType);
+
+        when(personWithSignificantControlRepository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(
+                transaction, PSC_ID, dto, REQUEST_ID, USER_ID))
+                .isInstanceOf(MethodArgumentNotValidException.class)
+                .hasMessageContaining("Person with significant control type cannot be changed");
+    }
+
+    private static Stream<Arguments> provideIncorrectTypeUpdateCases() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of(
+                        new PersonWithSignificantControlBuilder().individualPersonDao(),
+                        new PersonWithSignificantControlBuilder().individualPersonDto().getData(),
+                        PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY
+                ),
+                org.junit.jupiter.params.provider.Arguments.of(
+                        new PersonWithSignificantControlBuilder().relevantLegalEntityDao(),
+                        new PersonWithSignificantControlBuilder().relevantLegalEntityDto().getData(),
+                        PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON
+                ),
+                org.junit.jupiter.params.provider.Arguments.of(
+                        new PersonWithSignificantControlBuilder().otherRegistrablePersonDao(),
+                        new PersonWithSignificantControlBuilder().otherRegistrablePersonDto().getData(),
+                        PersonWithSignificantControlType.INDIVIDUAL_PERSON
+                )
+        );
     }
 }

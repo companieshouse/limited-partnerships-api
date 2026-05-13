@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
@@ -26,7 +27,7 @@ public class RelevantLegalEntityValidatorStrategy extends PersonWithSignificantC
 
     @Override
     public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
-       super.validatePartialRleOrOrp(personWithSignificantControlDto, validator);
+        super.validatePartialRleOrOrp(personWithSignificantControlDto, validator, PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY);
     }
 
     @Override
