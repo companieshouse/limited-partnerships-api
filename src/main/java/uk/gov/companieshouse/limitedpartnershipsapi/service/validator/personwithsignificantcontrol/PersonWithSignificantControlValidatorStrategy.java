@@ -91,7 +91,7 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
     }
 
 
-    protected void checkPersonWithSignificantControlTypeAlreadySet(PersonWithSignificantControlDataDto dataDto, PersonWithSignificantControlType expectedType, BindingResult bindingResult) throws NoSuchMethodException, MethodArgumentNotValidException {
+    protected void checkPersonWithSignificantControlTypeAlreadySet(PersonWithSignificantControlDataDto dataDto, PersonWithSignificantControlType expectedType, BindingResult bindingResult) {
         var type = dataDto.getType();
         if (type != null && type != expectedType) {
             addError("data.type", "Person with significant control type cannot be changed", bindingResult);
