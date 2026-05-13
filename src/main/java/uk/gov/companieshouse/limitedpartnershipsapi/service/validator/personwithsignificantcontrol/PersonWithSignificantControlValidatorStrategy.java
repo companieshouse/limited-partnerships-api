@@ -54,7 +54,7 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
         BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
 
         performAnnotationValidation(personWithSignificantControlDto, validator, bindingResult);
-        checkPersonWithSignificantControlTypeAlreadySet(personWithSignificantControlDto.getData(), expectedType, bindingResult);
+        checkPersonWithSignificantControlTypeUnchanged(personWithSignificantControlDto.getData(), expectedType, bindingResult);
 
         // null checks for mandatory fields
         var data = personWithSignificantControlDto.getData();
@@ -91,7 +91,7 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
     }
 
 
-    protected void checkPersonWithSignificantControlTypeAlreadySet(PersonWithSignificantControlDataDto dataDto, PersonWithSignificantControlType expectedType, BindingResult bindingResult) {
+    protected void checkPersonWithSignificantControlTypeUnchanged(PersonWithSignificantControlDataDto dataDto, PersonWithSignificantControlType expectedType, BindingResult bindingResult) {
         var type = dataDto.getType();
         if (type != null && type != expectedType) {
             addError("data.type", "Person with significant control type cannot be changed", bindingResult);

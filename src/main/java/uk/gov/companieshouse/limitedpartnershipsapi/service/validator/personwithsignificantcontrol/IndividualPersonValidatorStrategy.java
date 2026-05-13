@@ -35,7 +35,7 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
         BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
 
         performAnnotationValidation(personWithSignificantControlDto, validator, bindingResult);
-        super.checkPersonWithSignificantControlTypeAlreadySet(personWithSignificantControlDto.getData(), PersonWithSignificantControlType.INDIVIDUAL_PERSON, bindingResult);
+        super.checkPersonWithSignificantControlTypeUnchanged(personWithSignificantControlDto.getData(), PersonWithSignificantControlType.INDIVIDUAL_PERSON, bindingResult);
 
         // null checks for mandatory fields
         var data = personWithSignificantControlDto.getData();
