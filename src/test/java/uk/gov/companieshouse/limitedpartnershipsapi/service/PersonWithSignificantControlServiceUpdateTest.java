@@ -316,17 +316,17 @@ class PersonWithSignificantControlServiceUpdateTest {
 
     private static Stream<Arguments> provideIncorrectTypeUpdateCases() {
         return Stream.of(
-                org.junit.jupiter.params.provider.Arguments.of(
+                Arguments.of(
                         new PersonWithSignificantControlBuilder().individualPersonDao(),
                         new PersonWithSignificantControlBuilder().individualPersonDto().getData(),
                         PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY
                 ),
-                org.junit.jupiter.params.provider.Arguments.of(
+                Arguments.of(
                         new PersonWithSignificantControlBuilder().relevantLegalEntityDao(),
                         new PersonWithSignificantControlBuilder().relevantLegalEntityDto().getData(),
                         PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON
                 ),
-                org.junit.jupiter.params.provider.Arguments.of(
+                Arguments.of(
                         new PersonWithSignificantControlBuilder().otherRegistrablePersonDao(),
                         new PersonWithSignificantControlBuilder().otherRegistrablePersonDto().getData(),
                         PersonWithSignificantControlType.INDIVIDUAL_PERSON
