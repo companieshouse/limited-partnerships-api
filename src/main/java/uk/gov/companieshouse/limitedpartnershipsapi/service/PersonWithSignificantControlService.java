@@ -100,9 +100,9 @@ public class PersonWithSignificantControlService {
         checkPersonWithSignificantControlIsLinkedToTransaction(transaction, personWithSignificantControlId, kind);
 
         var dto = mapper.daoToDto(daoBeforePatch);
+        var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
 
-        var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
         validator.validatePartial(dto);
 
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());

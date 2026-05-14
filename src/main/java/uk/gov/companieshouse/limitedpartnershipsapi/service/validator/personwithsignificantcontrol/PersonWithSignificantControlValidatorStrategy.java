@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -49,10 +50,11 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
         }
     }
 
-    protected void validatePartialRleOrOrp(PersonWithSignificantControlDto personWithSignificantControlDto, Validator validator) throws NoSuchMethodException, MethodArgumentNotValidException {
+    protected void validatePartialRleOrOrp(PersonWithSignificantControlDto personWithSignificantControlDto, Validator validator, PersonWithSignificantControlType expectedType) throws NoSuchMethodException, MethodArgumentNotValidException {
         BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
 
         performAnnotationValidation(personWithSignificantControlDto, validator, bindingResult);
+        checkPersonWithSignificantControlTypeUnchanged(personWithSignificantControlDto.getData(), expectedType, bindingResult);
 
         // null checks for mandatory fields
         var data = personWithSignificantControlDto.getData();
@@ -85,6 +87,14 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {
             throw new ServiceException(e.getMessage());
+        }
+    }
+
+
+    protected void checkPersonWithSignificantControlTypeUnchanged(PersonWithSignificantControlDataDto dataDto, PersonWithSignificantControlType expectedType, BindingResult bindingResult) {
+        var type = dataDto.getType();
+        if (type != null && type != expectedType) {
+            addError("data.type", "Person with significant control type cannot be changed", bindingResult);
         }
     }
 }
