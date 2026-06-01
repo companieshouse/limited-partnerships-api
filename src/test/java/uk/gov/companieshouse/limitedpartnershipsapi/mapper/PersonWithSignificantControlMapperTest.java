@@ -215,7 +215,7 @@ class PersonWithSignificantControlMapperTest {
                             FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL,
                             "Legal Entity Name",
                             LEGAL_ENTITY_REGISTER_NAME,
-                            ENGLAND,
+                            ENGLAND.getDescription(),
                             LEGAL_FORM,
                             REGISTERED_COMPANY_NUMBER,
                             RESIGNATION_DATE,
