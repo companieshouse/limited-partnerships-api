@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,6 +21,7 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.config.JacksonConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
@@ -68,7 +69,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
         LimitedPartnershipMapperImpl.class,
         LimitedPartnershipPatchMapperImpl.class,
         CostsService.class,
-        GlobalExceptionHandler.class
+        GlobalExceptionHandler.class,
+        JacksonConfig.class
 })
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {

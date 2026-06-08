@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * In many of these tests, it's only necessary to test with one of the JsonNullable fields in the Patch class changing
  * as the behaviour should be the same for all of them.
  */
+
 @SpringBootTest
 class LimitedPartnershipPatchMapperTest {
 

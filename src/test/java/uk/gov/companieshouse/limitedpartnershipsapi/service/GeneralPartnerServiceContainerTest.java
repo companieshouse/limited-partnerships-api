@@ -25,7 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_GENERAL_PARTNER;
