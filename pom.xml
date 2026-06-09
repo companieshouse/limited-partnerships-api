@@ -42,6 +42,7 @@
         <!--  Sonar -->
         <sonar.projectName>limited-partnerships-api</sonar.projectName>
         <sonar.projectKey>uk.gov.companieshouse:limited-partnerships-api</sonar.projectKey>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
         <sonar.login></sonar.login>
         <sonar.password></sonar.password>
