@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * In many of these tests, it's only necessary to test with one of the JsonNullable fields in the Patch class changing
  * as the behaviour should be the same for all of them.
  */
+
 @SpringBootTest
 class LimitedPartnershipPatchMapperTest {
 
