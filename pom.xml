@@ -43,6 +43,8 @@
         <sonar.projectName>limited-partnerships-api</sonar.projectName>
         <sonar.projectKey>uk.gov.companieshouse:limited-partnerships-api</sonar.projectKey>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
+        <plexus-utils.version>4.0.3</plexus-utils.version>
+        <bouncycastle.version>1.84</bouncycastle.version>
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
         <sonar.login></sonar.login>
         <sonar.password></sonar.password>
@@ -181,6 +183,18 @@
             <artifactId>sonar-maven-plugin</artifactId>
             <version>${sonar-maven-plugin.version}</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Fixes vulnerabilities for sonar plugins -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>${plexus-utils.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bouncycastle.version}</version>
         </dependency>
 
         <dependency>
