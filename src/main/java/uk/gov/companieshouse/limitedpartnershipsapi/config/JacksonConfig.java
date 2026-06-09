@@ -12,7 +12,7 @@ public class JacksonConfig {
     @Bean
     ObjectMapper objectMapper() {
         var mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS)
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.ALWAYS)
                 .registerModule(new JsonNullableModule());
         return mapper;
     }
