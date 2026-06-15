@@ -66,6 +66,34 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- override -->
+            <!-- fix CVE-2026-41841(5.9), CVE-2026-41840(5.9), CVE-2026-41851(7.5), CVE-2026-41850(7.5), CVE-2026-41843(5.9), CVE-2026-41842(7.5) -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>7.0.8</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- override tomcat-embed-core to fix CWE-20 - transitive dependency from spring-boot-starter-web 4.0.6 -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <!-- override tomcat-embed-websocket to fix CWE-20 - transitive dependency from spring-boot-starter-web 4.0.6 -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat.version}</version>
+            </dependency>
+            <!-- override transitive opentelemetry-api to fix CVE-2026-45292 -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-api</artifactId>
+                <version>${io.opentelemetry.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-bom</artifactId>
@@ -86,25 +114,6 @@
                 <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <!-- override -->
-            <!-- override tomcat-embed-core to fix CWE-20 - transitive dependency from spring-boot-starter-web 4.0.6 -->
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-core</artifactId>
-                <version>${tomcat.version}</version>
-            </dependency>
-            <!-- override tomcat-embed-websocket to fix CWE-20 - transitive dependency from spring-boot-starter-web 4.0.6 -->
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-websocket</artifactId>
-                <version>${tomcat.version}</version>
-            </dependency>
-            <!-- override transitive opentelemetry-api to fix CVE-2026-45292 -->
-            <dependency>
-                <groupId>io.opentelemetry</groupId>
-                <artifactId>opentelemetry-api</artifactId>
-                <version>${io.opentelemetry.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
