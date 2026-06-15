@@ -138,6 +138,7 @@ public enum Country {
     LITHUANIA("Lithuania"),
     LUXEMBOURG("Luxembourg"),
     MACAO("Macao"),
+    MACEDONIA("Macedonia"),
     MADAGASCAR("Madagascar"),
     MALAWI("Malawi"),
     MALAYSIA("Malaysia"),
