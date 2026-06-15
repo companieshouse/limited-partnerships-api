@@ -22,7 +22,6 @@
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot-dependencies.version>4.0.6</spring-boot-dependencies.version>
         <spring-boot-maven-plugin.version>4.0.6</spring-boot-maven-plugin.version>
         <api-sdk-java.version>6.6.11</api-sdk-java.version>
         <structured-logging.version>3.0.37</structured-logging.version>
@@ -34,12 +33,8 @@
         <api-sdk-manager-java-library.version>3.0.18</api-sdk-manager-java-library.version>
         <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
         <encoder.version>1.3.1</encoder.version>
-        <io.opentelemetry.version>1.62.0</io.opentelemetry.version>
         <tomcat.version>11.0.22</tomcat.version>
         <skip.unit.tests>false</skip.unit.tests>
-
-        <!-- Testcontainers -->
-        <testcontainers.version>1.20.1</testcontainers.version>
 
         <!--  Sonar -->
         <sonar.projectName>limited-partnerships-api</sonar.projectName>
@@ -66,28 +61,15 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-bom</artifactId>
-                <version>${log4j.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers-bom</artifactId>
-                <version>${testcontainers.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <!-- override -->
+            <!-- fix CVE-2026-41841(5.9), CVE-2026-41840(5.9), CVE-2026-41851(7.5), CVE-2026-41850(7.5), CVE-2026-41843(5.9), CVE-2026-41842(7.5) -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>7.0.8</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- override tomcat-embed-core to fix CWE-20 - transitive dependency from spring-boot-starter-web 4.0.6 -->
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
@@ -104,7 +86,22 @@
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-api</artifactId>
-                <version>${io.opentelemetry.version}</version>
+                <version>1.62.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>4.0.6</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>1.20.1</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
