@@ -7,6 +7,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
@@ -69,6 +70,8 @@ public class PersonWithSignificantControlBuilder {
     private Nationality nationality1 = BRITISH;
     private Nationality nationality2 = FRENCH;
 
+    private List<NatureOfControlType> natureOfControlTypes = List.of(NatureOfControlType.INDIVIDUAL, NatureOfControlType.FIRM, NatureOfControlType.TRUST);
+
     public PersonWithSignificantControlBuilder withKind(String kind) {
         this.kind = kind;
         return this;
@@ -124,6 +127,11 @@ public class PersonWithSignificantControlBuilder {
         return this;
     }
 
+    public PersonWithSignificantControlBuilder withNatureOfControlTypes(List<NatureOfControlType> natureOfControlTypes) {
+        this.natureOfControlTypes = natureOfControlTypes;
+        return this;
+    }
+
 
     public PersonWithSignificantControlDto individualPersonDto () {
         PersonWithSignificantControlDto dto = new PersonWithSignificantControlDto();
@@ -148,6 +156,7 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         dataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
         dataDto.setType(PersonWithSignificantControlType.INDIVIDUAL_PERSON);
+        dataDto.setNatureOfControlTypes(natureOfControlTypes);
 
         dto.setData(dataDto);
         return dto;
@@ -173,6 +182,7 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         dataDto.setResignationDate(RESIGNATION_DATE);
         dataDto.setType(PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY);
+        dataDto.setNatureOfControlTypes(natureOfControlTypes);
 
         dto.setData(dataDto);
         return dto;
@@ -194,6 +204,7 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
         dataDto.setResignationDate(RESIGNATION_DATE);
         dataDto.setType(PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON);
+        dataDto.setNatureOfControlTypes(natureOfControlTypes);
 
         dto.setData(dataDto);
         return dto;
@@ -235,6 +246,7 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
         dataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
         dataDao.setType(PersonWithSignificantControlType.INDIVIDUAL_PERSON);
+        dataDao.setNatureOfControlTypes(natureOfControlTypes.stream().map(NatureOfControlType::toString).toList());
 
         dao.setData(dataDao);
         return dao;
@@ -263,6 +275,7 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
         dataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
         dataDao.setType(PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY);
+        dataDao.setNatureOfControlTypes(natureOfControlTypes.stream().map(NatureOfControlType::toString).toList());
 
         dao.setData(dataDao);
         return dao;
@@ -284,6 +297,7 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
         dataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
         dataDao.setType(PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON);
+        dataDao.setNatureOfControlTypes(natureOfControlTypes.stream().map(NatureOfControlType::toString).toList());
 
         dao.setData(dataDao);
         return dao;

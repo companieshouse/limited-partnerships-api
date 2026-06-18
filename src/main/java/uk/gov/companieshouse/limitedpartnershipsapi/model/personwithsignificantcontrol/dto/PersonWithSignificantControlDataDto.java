@@ -15,7 +15,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
@@ -63,7 +65,7 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     public void setNatureOfControlTypes(List<NatureOfControlType> natureOfControlTypes) {
         if (natureOfControlTypes != null) {
-            this.natureOfControlTypes = natureOfControlTypes.stream().sorted().toList();
+            this.natureOfControlTypes = natureOfControlTypes.stream().sorted().collect(Collectors.toCollection(ArrayList::new));
         }
     }
 
