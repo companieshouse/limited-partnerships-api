@@ -10,6 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
@@ -50,7 +51,21 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     @EnumValid(message = "Type must be valid")
     private PersonWithSignificantControlType type;
 
+    @JsonProperty("nature_of_control_types")
+    @EnumValid(message = "Nature of control types must be valid")
+    private List<NatureOfControlType> natureOfControlTypes;
+
     private boolean completed;
+
+    public List<NatureOfControlType> getNatureOfControlTypes() {
+        return natureOfControlTypes;
+    }
+
+    public void setNatureOfControlTypes(List<NatureOfControlType> natureOfControlTypes) {
+        if (natureOfControlTypes != null) {
+            this.natureOfControlTypes = natureOfControlTypes.stream().sorted().toList();
+        }
+    }
 
     // PERSON
 
