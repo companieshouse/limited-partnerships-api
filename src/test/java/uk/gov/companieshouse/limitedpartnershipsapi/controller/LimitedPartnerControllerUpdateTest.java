@@ -271,6 +271,7 @@ class LimitedPartnerControllerUpdateTest {
         private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_MANY_DECIMAL_PLACES = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"0.123456789\", \"contribution_sub_types\": \"SHARES\" }";
         private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NO_DECIMAL_PLACES = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"12345\", \"contribution_sub_types\": \"SHARES\" }";
         private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_TOO_MANY_NUMBERS = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"5000000000000.00\", \"contribution_sub_types\": \"SHARES\" }";
+        private static final String JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NINE_DIGITS = "{ \"forename\": \"Joe\", \"former_names\": \"\", \"surname\": \"Bloggs\", \"date_of_birth\": \"2001-01-01\", \"nationality1\": \"BRITISH\", \"nationality2\": null, \"contribution_currency_type\":  \"GBP\", \"contribution_currency_value\": \"100000000.00\", \"contribution_sub_types\": \"SHARES\" }";
 
         @ParameterizedTest
         @ValueSource(strings = {
@@ -301,7 +302,8 @@ class LimitedPartnerControllerUpdateTest {
             JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_CHARACTER + "$ data.contributionCurrencyValue $ Contribution currency value must be a valid decimal number",
             JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_MANY_DECIMAL_PLACES + "$ data.contributionCurrencyValue $ Contribution currency value must be a valid decimal number",
             JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NO_DECIMAL_PLACES + "$ data.contributionCurrencyValue $ Contribution currency value must be a valid decimal number",
-            JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_TOO_MANY_NUMBERS + "$ data.contributionCurrencyValue $ The capital contribution value cannot have more than 12 digits before the decimal",
+            JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_TOO_MANY_NUMBERS + "$ data.contributionCurrencyValue $ The capital contribution value cannot have more than 8 digits before the decimal",
+            JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_AMOUNT_NINE_DIGITS + "$ data.contributionCurrencyValue $ The capital contribution value cannot have more than 8 digits before the decimal",
             JSON_PERSON_INVALID_CAPITAL_CONTRIBUTION_TYPE + "$ data.contributionSubTypes $ Capital contribution type must be valid"}, delimiter = '$')
         void shouldReturn400(String body, String field, String errorMessage) throws Exception {
             mocks();
