@@ -383,10 +383,10 @@ class PersonWithSignificantControlServiceTest {
 
     @Test
     void shouldRetrievePersonWithSignificantControlWithNatureOfControlTypes() throws ResourceNotFoundException {
-        PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().withNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL)).individualPersonDao();
-        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL)).individualPersonDto();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().withNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL)).individualPersonDao();
+        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNatureOfControlTypes(List.of(NatureOfControlType.fromString("INDIVIDUAL"))).individualPersonDto();
 
-        when(repository.findById(PSC_ID)).thenReturn(Optional.of(dao));
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), anyString(), anyString())).thenReturn(true);
         when(mapper.daoToDto(any(PersonWithSignificantControlDao.class))).thenReturn(personWithSignificantControlDto);
 
