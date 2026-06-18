@@ -15,6 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundEx
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PersonWithSignificantControlMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
@@ -68,10 +69,10 @@ class PersonWithSignificantControlServiceTest {
 
     @Mock
     private TransactionService transactionService;
-    
+
     @Mock
     private PersonWithSignificantControlValidator personWithSignificantControlValidator;
-    
+
     @Mock
     private PersonWithSignificantControlValidatorStrategy personWithSignificantControlValidatorStrategy;
 
@@ -378,5 +379,18 @@ class PersonWithSignificantControlServiceTest {
 
         List<PersonWithSignificantControlDataDto> personWithSignificantControlDataList = personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction);
         assertEquals(1, personWithSignificantControlDataList.size());
+    }
+
+    @Test
+    void shouldRetrievePersonWithSignificantControlWithNatureOfControlTypes() throws ResourceNotFoundException {
+        PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().withNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL)).individualPersonDao();
+        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL)).individualPersonDto();
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(dao));
+        when(transactionService.isTransactionLinkedToResource(any(), anyString(), anyString())).thenReturn(true);
+        when(mapper.daoToDto(any(PersonWithSignificantControlDao.class))).thenReturn(personWithSignificantControlDto);
+
+        var dto = personWithSignificantControlService.getPersonWithSignificantControl(TRANSACTION, PSC_ID);
+        assertEquals(List.of(NatureOfControlType.INDIVIDUAL), dto.getData().getNatureOfControlTypes());
     }
 }
