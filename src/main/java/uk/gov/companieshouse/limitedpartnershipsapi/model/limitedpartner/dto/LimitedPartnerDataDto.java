@@ -24,7 +24,7 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
 
     @JsonProperty(CONTRIBUTION_CURRENCY_VALUE_FIELD)
     @Pattern(regexp = "^\\d+(\\.\\d{2})$", message = "Contribution currency value must be a valid decimal number")
-    @Size(max = 15, message = "The capital contribution value cannot have more than 12 digits before the decimal")
+    @Size(max = 11, message = "The capital contribution value cannot have more than 8 digits before the decimal")
     private String contributionCurrencyValue;
 
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
