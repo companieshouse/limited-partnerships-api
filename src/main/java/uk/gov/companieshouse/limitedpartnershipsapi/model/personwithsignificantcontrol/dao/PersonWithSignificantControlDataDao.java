@@ -36,6 +36,17 @@ public class PersonWithSignificantControlDataDao {
     @Field("type")
     private PersonWithSignificantControlType type;
 
+    @Field("nature_of_control_types")
+    private List<String> natureOfControlTypes;
+
+    public List<String> getNatureOfControlTypes() {
+        return natureOfControlTypes;
+    }
+
+    public void setNatureOfControlTypes(List<String> natureOfControlTypes) {
+        this.natureOfControlTypes = natureOfControlTypes;
+    }
+
     // PERSON
 
     @Field("consent_checked")

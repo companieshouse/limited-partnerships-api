@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdicti
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 
 public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
@@ -54,6 +55,7 @@ public class EnumValidator implements ConstraintValidator<EnumValid, Object> {
                     !ContributionSubTypes.UNKNOWN.equals(contributionSubTypes);
             case PersonWithSignificantControlType personWithSignificantControlType ->
                     !PersonWithSignificantControlType.UNKNOWN.equals(personWithSignificantControlType);
+            case NatureOfControlType natureOfControlType -> !NatureOfControlType.UNKNOWN.equals(natureOfControlType);
             default -> false;
         };
     }

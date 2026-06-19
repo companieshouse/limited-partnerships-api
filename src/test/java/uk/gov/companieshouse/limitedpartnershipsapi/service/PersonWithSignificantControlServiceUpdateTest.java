@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
@@ -332,5 +333,37 @@ class PersonWithSignificantControlServiceUpdateTest {
                         PersonWithSignificantControlType.INDIVIDUAL_PERSON
                 )
         );
+    }
+
+    @Test
+    void shouldUpdateTheDaoWithNatureOfControlTypesInOrder() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
+        changesDto.setNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL, NatureOfControlType.TRUST, NatureOfControlType.FIRM));
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID);
+
+        verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+        PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+        assertThat(savedPersonWithSignificantControlDao.getData().getNatureOfControlTypes()).isEqualTo(List.of(NatureOfControlType.INDIVIDUAL.toString(), NatureOfControlType.FIRM.toString(), NatureOfControlType.TRUST.toString()));
+    }
+
+    @Test
+    void shouldNotUpdateTheDaoWithAWrongValueForNatureOfControlTypes() {
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
+        changesDto.setNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL, NatureOfControlType.FIRM, NatureOfControlType.UNKNOWN));
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID))
+                .isInstanceOf(MethodArgumentNotValidException.class)
+                .hasMessageContaining("Nature of control types must be valid");
     }
 }

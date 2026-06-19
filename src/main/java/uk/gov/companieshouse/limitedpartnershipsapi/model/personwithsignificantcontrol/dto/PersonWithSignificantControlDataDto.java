@@ -10,11 +10,14 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
@@ -50,7 +53,21 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     @EnumValid(message = "Type must be valid")
     private PersonWithSignificantControlType type;
 
+    @JsonProperty("nature_of_control_types")
+    @EnumValid(message = "Nature of control types must be valid")
+    private List<NatureOfControlType> natureOfControlTypes;
+
     private boolean completed;
+
+    public List<NatureOfControlType> getNatureOfControlTypes() {
+        return natureOfControlTypes;
+    }
+
+    public void setNatureOfControlTypes(List<NatureOfControlType> natureOfControlTypes) {
+        if (natureOfControlTypes != null) {
+            this.natureOfControlTypes = natureOfControlTypes.stream().sorted().collect(Collectors.toCollection(ArrayList::new));
+        }
+    }
 
     // PERSON
 
