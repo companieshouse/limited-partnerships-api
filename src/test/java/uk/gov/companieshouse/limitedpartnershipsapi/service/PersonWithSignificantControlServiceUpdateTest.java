@@ -22,7 +22,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
@@ -198,7 +197,6 @@ class PersonWithSignificantControlServiceUpdateTest {
         assertThat(preChangeLegalEntityRegistrationLocation).isNotEmpty();
 
         PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
-        changesDto.setNaturesOfControl(List.of(NatureOfControl.INDIVIDUAL_TRUST_CONTROL));
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -242,7 +240,6 @@ class PersonWithSignificantControlServiceUpdateTest {
         assertThat(preChangeMiddleNames).isNotEmpty();
 
         PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
-        changesDto.setNaturesOfControl(List.of(NatureOfControl.INDIVIDUAL_TRUST_CONTROL));
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);

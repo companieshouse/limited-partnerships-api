@@ -9,7 +9,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
@@ -43,7 +42,7 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     private LocalDate resignationDate;
 
     @JsonProperty("natures_of_control")
-    private List<NatureOfControl> naturesOfControl;
+    private List<NatureOfControlDto> naturesOfControl;
 
     @JsonProperty("service_address")
     @Valid
@@ -193,11 +192,11 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
         this.resignationDate = resignationDate;
     }
 
-    public List<NatureOfControl> getNaturesOfControl() {
+    public List<NatureOfControlDto> getNaturesOfControl() {
         return naturesOfControl;
     }
 
-    public void setNaturesOfControl(List<NatureOfControl> naturesOfControl) {
+    public void setNaturesOfControl(List<NatureOfControlDto> naturesOfControl) {
         this.naturesOfControl = naturesOfControl;
     }
 

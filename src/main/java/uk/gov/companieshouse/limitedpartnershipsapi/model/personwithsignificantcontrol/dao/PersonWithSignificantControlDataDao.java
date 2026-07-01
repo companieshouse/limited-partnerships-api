@@ -28,7 +28,7 @@ public class PersonWithSignificantControlDataDao {
     private LocalDate resignationDate;
 
     @Field("natures_of_control")
-    private List<String> naturesOfControl;
+    private List<NatureOfControlDao> naturesOfControl;
 
     @Field("service_address")
     private AddressDao serviceAddress;
@@ -150,11 +150,11 @@ public class PersonWithSignificantControlDataDao {
         this.resignationDate = resignationDate;
     }
 
-    public List<String> getNaturesOfControl() {
+    public List<NatureOfControlDao> getNaturesOfControl() {
         return naturesOfControl;
     }
 
-    public void setNaturesOfControl(List<String> naturesOfControl) {
+    public void setNaturesOfControl(List<NatureOfControlDao> naturesOfControl) {
         this.naturesOfControl = naturesOfControl;
     }
 

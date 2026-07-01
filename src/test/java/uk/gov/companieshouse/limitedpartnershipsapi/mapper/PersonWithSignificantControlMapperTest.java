@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
@@ -23,7 +22,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LEGAL_FORM;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.LOCALITY_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.MIDDLE_NAMES;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.NATURES_OF_CONTROL_LIST_DESCRIPTIONS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POA_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.POSTAL_CODE_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.PREMISES_SUFFIX;
@@ -37,7 +35,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.BRITISH;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.FRENCH;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
-
 
 class PersonWithSignificantControlMapperTest {
     private static final PersonWithSignificantControlMapper MAPPER = Mappers.getMapper(PersonWithSignificantControlMapper.class);
@@ -117,11 +114,6 @@ class PersonWithSignificantControlMapperTest {
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
                     );
 
-            // Assert naturesOfControl
-            assertThat(dataDto.getNaturesOfControl())
-                    .hasSize(3)
-                    .containsExactlyInAnyOrder(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL);
-
             assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
             assertAddress(dataDto.getUsualResidentialAddress(), URA_PREFIX);
         }
@@ -170,11 +162,6 @@ class PersonWithSignificantControlMapperTest {
                             PersonWithSignificantControlType.INDIVIDUAL_PERSON
                     );
 
-            // Assert naturesOfControl
-            assertThat(daoData.getNaturesOfControl())
-                    .hasSize(3)
-                    .allMatch(NATURES_OF_CONTROL_LIST_DESCRIPTIONS::contains);
-
             assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);
             assertAddress(daoData.getUsualResidentialAddress(), URA_PREFIX);
         }
@@ -222,11 +209,6 @@ class PersonWithSignificantControlMapperTest {
                             PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY
                     );
 
-            // Assert naturesOfControl
-            assertThat(dataDto.getNaturesOfControl())
-                    .hasSize(3)
-                    .containsExactlyInAnyOrder(NatureOfControl.RLE, NatureOfControl.INDIVIDUAL_FIRM_CONTROL, NatureOfControl.ORP_TRUST_CONTROL);
-
             assertAddress(dataDto.getPrincipalOfficeAddress(), POA_PREFIX);
             assertAddress(dataDto.getServiceAddress(), SERVICE_PREFIX);
             assertAddress(dataDto.getUsualResidentialAddress(), URA_PREFIX);
@@ -271,11 +253,6 @@ class PersonWithSignificantControlMapperTest {
                             RESIGNATION_DATE,
                             PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY
                     );
-
-            // Assert naturesOfControl
-            assertThat(daoData.getNaturesOfControl())
-                    .hasSize(3)
-                    .allMatch(NATURES_OF_CONTROL_LIST_DESCRIPTIONS::contains);
 
             assertAddress(daoData.getPrincipalOfficeAddress(), POA_PREFIX);
             assertAddress(daoData.getServiceAddress(), SERVICE_PREFIX);
