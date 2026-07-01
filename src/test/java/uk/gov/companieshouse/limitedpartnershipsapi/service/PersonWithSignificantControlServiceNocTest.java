@@ -1,8 +1,10 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,11 +25,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignifi
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,15 +67,72 @@ class PersonWithSignificantControlServiceNocTest {
     }
 
 
-    @Test
-    void shouldUpdateTheDaoWithNoc() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    static Stream<Arguments> provideNaturesOfControlIndividual() {
+        return Stream.of(
+                Arguments.of(
+                    true, null, null, null,
+                    null, null, null, true,
+                    false, false),
+                Arguments.of(
+                    null, null, null, true,
+                    null, null, null, true,
+                    false, false),
+                Arguments.of(
+                    null, true, null, null,
+                    true, null, null, null,
+                    false,  false),
+                Arguments.of(
+                    null, null, null, true,
+                    null, null, null, true,
+                    true, false),
+                Arguments.of(
+                    null, null, null, true,
+                    null, null, null, true,
+                    false, true),
+                Arguments.of(
+                    null, null, true, null,
+                    null, null, null, true,
+                    true, false),
+                Arguments.of(
+                    null, null, null, true,
+                    null, true, null, null,
+                    true, false),
+                Arguments.of(
+                    null, null, true, null,
+                    null, null, true, null,
+                    true, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNaturesOfControlIndividual")
+    void shouldUpdateTheDaoWithNocIndividual(
+            Boolean partRightToShareSurplusAssets25To50Percent,
+            Boolean partRightToShareSurplusAssets50To75Percent,
+            Boolean partRightToShareSurplusAssets75To100Percent,
+            Boolean partRightToShareSurplusAssetsDoesNotApply,
+
+            Boolean votingRights25To50Percent,
+            Boolean votingRights50To75Percent,
+            Boolean votingRights75To100Percent,
+            Boolean votingRightsDoesNotApply,
+
+            Boolean rightToAppointmentAndRemovePersons,
+            Boolean sigInfluenceControl
+    ) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
 
         NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
-        natureOfControlDto.setPartRightToShareSurplusAssets25To50Percent(true);
-        natureOfControlDto.setVotingRightsDoesNotApply(true);
-        natureOfControlDto.setRightToAppointmentAndRemovePersons(false);
-        natureOfControlDto.setSigInfluenceControl(false);
+        natureOfControlDto.setPartRightToShareSurplusAssets25To50Percent(partRightToShareSurplusAssets25To50Percent);
+        natureOfControlDto.setPartRightToShareSurplusAssets50To75Percent(partRightToShareSurplusAssets50To75Percent);
+        natureOfControlDto.setPartRightToShareSurplusAssets75To100Percent(partRightToShareSurplusAssets75To100Percent);
+        natureOfControlDto.setPartRightToShareSurplusAssetsDoesNotApply(partRightToShareSurplusAssetsDoesNotApply);
+        natureOfControlDto.setVotingRights25To50Percent(votingRights25To50Percent);
+        natureOfControlDto.setVotingRights50To75Percent(votingRights50To75Percent);
+        natureOfControlDto.setVotingRights75To100Percent(votingRights75To100Percent);
+        natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
+        natureOfControlDto.setRightToAppointmentAndRemovePersons(rightToAppointmentAndRemovePersons);
+        natureOfControlDto.setSigInfluenceControl(sigInfluenceControl);
         PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).relevantLegalEntityDto();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
@@ -94,10 +152,15 @@ class PersonWithSignificantControlServiceNocTest {
         assertEquals(1, savedNaturesOfControl.size());
         NatureOfControlDao savedNatureOfControl = savedNaturesOfControl.getFirst();
 
-        assertTrue(savedNatureOfControl.getPartRightToShareSurplusAssets25To50Percent());
-        assertNull(savedNatureOfControl.getPartRightToShareSurplusAssetsDoesNotApply());
-        assertTrue(savedNatureOfControl.getVotingRightsDoesNotApply());
-        assertFalse(savedNatureOfControl.getRightToAppointmentAndRemovePersons());
-        assertFalse(savedNatureOfControl.getSigInfluenceControl());
+        assertEquals(partRightToShareSurplusAssets25To50Percent, savedNatureOfControl.getPartRightToShareSurplusAssets25To50Percent());
+        assertEquals(partRightToShareSurplusAssets50To75Percent, savedNatureOfControl.getPartRightToShareSurplusAssets50To75Percent());
+        assertEquals(partRightToShareSurplusAssets75To100Percent, savedNatureOfControl.getPartRightToShareSurplusAssets75To100Percent());
+        assertEquals(partRightToShareSurplusAssetsDoesNotApply, savedNatureOfControl.getPartRightToShareSurplusAssetsDoesNotApply());
+        assertEquals(votingRights25To50Percent, savedNatureOfControl.getVotingRights25To50Percent());
+        assertEquals(votingRights50To75Percent, savedNatureOfControl.getVotingRights50To75Percent());
+        assertEquals(votingRights75To100Percent, savedNatureOfControl.getVotingRights75To100Percent());
+        assertEquals(votingRightsDoesNotApply, savedNatureOfControl.getVotingRightsDoesNotApply());
+        assertEquals(rightToAppointmentAndRemovePersons, savedNatureOfControl.getRightToAppointmentAndRemovePersons());
+        assertEquals(sigInfluenceControl, savedNatureOfControl.getSigInfluenceControl());
     }
 }
