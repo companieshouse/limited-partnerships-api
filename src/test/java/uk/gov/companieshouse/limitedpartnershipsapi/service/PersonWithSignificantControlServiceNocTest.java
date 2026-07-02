@@ -68,7 +68,6 @@ class PersonWithSignificantControlServiceNocTest {
         transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
     }
 
-
     static Stream<Arguments> provideNaturesOfControlIndividual() {
         return Stream.of(
                 Arguments.of(
@@ -77,7 +76,7 @@ class PersonWithSignificantControlServiceNocTest {
                     false, false),
                 Arguments.of(
                     null, null, null, true,
-                    null, null, null, true,
+                    true, null, null, null,
                     false, false),
                 Arguments.of(
                     null, true, null, null,
@@ -137,7 +136,7 @@ class PersonWithSignificantControlServiceNocTest {
         natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
         natureOfControlDto.setRightToAppointmentAndRemovePersons(rightToAppointmentAndRemovePersons);
         natureOfControlDto.setSigInfluenceControl(sigInfluenceControl);
-        
+
         PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
@@ -174,7 +173,83 @@ class PersonWithSignificantControlServiceNocTest {
             Arguments.of(
                 null, null, null, null,
                 null, null, null, null,
-                false, false)
+                false, false),
+            Arguments.of(
+                true, null, null, null,
+                true, null, null, null,
+                true, true),
+            Arguments.of(
+                null, null, null, true,
+                null, true, null, null,
+                true, true),
+            Arguments.of(
+                null, null, null, null,
+                null, null, null, null,
+                true, true),
+            Arguments.of(
+                null, null, null, null,
+                null, null, true, null,
+                true, true),
+            Arguments.of(
+                null, true, null, null,
+                null, null, null, null,
+                true, true),
+            Arguments.of(
+                null, null, true, null,
+                null, null, true, null,
+                false, true),
+            Arguments.of(
+                true, null, null, null,
+                null, null, null, true,
+                false, true),
+            Arguments.of(
+                null, null, null, true,
+                true, null, null, null,
+                false, true),
+            Arguments.of(
+                null, null, null, null,
+                null, null, null, true,
+                false, true),
+            Arguments.of(
+                null, true, null, null,
+                null, null, null, null,
+                false, true),
+            Arguments.of(
+                null, null, null, true,
+                null, null, null, null,
+                false, false),
+            Arguments.of(
+                null, null, null, null,
+                null, null, null, true,
+                false, false),
+            Arguments.of(
+                null, null, null, null,
+                null, null, null, null,
+                false, true),
+            Arguments.of(
+                null, null, null, null,
+                null, null, null, null,
+                true, false),
+            Arguments.of(
+                null, null, null, true,
+                null, null, null, true,
+                false, false),
+            Arguments.of(
+                null, null, null, true,
+                null, null, null, null,
+                false, true),
+            Arguments.of(
+                null, null, null, null,
+                null, null, null, true,
+                false, true),
+            Arguments.of(
+                null, null, null, true,
+                null, null, null, null,
+                true, false),
+            Arguments.of(
+                null, null, null, null,
+                null, null, null, true,
+                true, false)
         );
     }
 
