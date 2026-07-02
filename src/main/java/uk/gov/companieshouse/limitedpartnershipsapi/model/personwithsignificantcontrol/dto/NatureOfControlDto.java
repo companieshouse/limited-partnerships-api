@@ -60,7 +60,7 @@ public class NatureOfControlDto {
 	public void setPartRightToShareSurplusAssets50To75Percent(Boolean partRightToShareSurplusAssets50To75Percent) {
 		this.partRightToShareSurplusAssets50To75Percent = partRightToShareSurplusAssets50To75Percent;
 	}
-
+	
 	public Boolean getPartRightToShareSurplusAssets75To100Percent() {
 		return partRightToShareSurplusAssets75To100Percent;
 	}
