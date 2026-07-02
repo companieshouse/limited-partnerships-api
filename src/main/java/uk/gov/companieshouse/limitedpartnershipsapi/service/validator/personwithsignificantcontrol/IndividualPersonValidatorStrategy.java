@@ -13,6 +13,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,15 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
 
     private final Validator validator;
     private final ValidationStatus validationStatus;
+    private final NatureOfControlValidator natureOfControlValidator;
 
     @Autowired
     public IndividualPersonValidatorStrategy(Validator validator,
-                                                ValidationStatus validationStatus) {
+                                             ValidationStatus validationStatus,
+                                             NatureOfControlValidator natureOfControlValidator) {
         this.validator = validator;
         this.validationStatus = validationStatus;
+        this.natureOfControlValidator = natureOfControlValidator;
     }
 
     @Override
@@ -51,6 +55,16 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
 
         if (data.getNationality1() != null && data.getNationality1().equals(data.getNationality2())) {
             addError("data.nationality2", "Second nationality must be different from the first", bindingResult);
+        }
+
+        for (var natureOfControlDto : data.getNaturesOfControl()) {
+            if (natureOfControlDto.getNatureOfControlType() != null) {
+                boolean isValid = natureOfControlValidator.isValid(natureOfControlDto);
+
+                if (!isValid) {
+                    addError("data.natures_of_control", "Invalid nature of control combination", bindingResult);
+                }
+            }
         }
 
         if (bindingResult.hasErrors()) {

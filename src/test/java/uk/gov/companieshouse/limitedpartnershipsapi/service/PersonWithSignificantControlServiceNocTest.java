@@ -122,7 +122,7 @@ class PersonWithSignificantControlServiceNocTest {
             Boolean rightToAppointmentAndRemovePersons,
             Boolean sigInfluenceControl
     ) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
         NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
         natureOfControlDto.setNatureOfControlType(NatureOfControlType.INDIVIDUAL);
@@ -137,7 +137,8 @@ class PersonWithSignificantControlServiceNocTest {
         natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
         natureOfControlDto.setRightToAppointmentAndRemovePersons(rightToAppointmentAndRemovePersons);
         natureOfControlDto.setSigInfluenceControl(sigInfluenceControl);
-        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).relevantLegalEntityDto();
+        
+        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -193,7 +194,7 @@ class PersonWithSignificantControlServiceNocTest {
         Boolean rightToAppointmentAndRemovePersons,
         Boolean sigInfluenceControl
     ) {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
         NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
         natureOfControlDto.setNatureOfControlType(NatureOfControlType.INDIVIDUAL);
@@ -208,7 +209,8 @@ class PersonWithSignificantControlServiceNocTest {
         natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
         natureOfControlDto.setRightToAppointmentAndRemovePersons(rightToAppointmentAndRemovePersons);
         natureOfControlDto.setSigInfluenceControl(sigInfluenceControl);
-        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).relevantLegalEntityDto();
+
+        PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
