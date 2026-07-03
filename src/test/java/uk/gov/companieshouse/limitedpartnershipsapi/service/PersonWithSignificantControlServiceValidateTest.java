@@ -283,7 +283,7 @@ class PersonWithSignificantControlServiceValidateTest {
         void shouldReturnErrorsIfNocIsInvalid() throws ServiceException {
             // given
             NatureOfControlDao natureOfControlDao = new NatureOfControlDao();
-            natureOfControlDao.setNatureOfControlType(NatureOfControlType.INDIVIDUAL);
+            natureOfControlDao.setType(NatureOfControlType.INDIVIDUAL);
 
             natureOfControlDao.setPartRightToShareSurplusAssets25To50Percent(true);
             natureOfControlDao.setRightToAppointmentAndRemovePersons(false);

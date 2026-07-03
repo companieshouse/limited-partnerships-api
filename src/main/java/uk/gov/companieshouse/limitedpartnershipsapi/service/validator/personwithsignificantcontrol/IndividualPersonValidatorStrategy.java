@@ -60,7 +60,7 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
 
         if(!CollectionUtils.isEmpty(data.getNaturesOfControl())) {
             for (var natureOfControlDto : data.getNaturesOfControl()) {
-                if (natureOfControlDto.getNatureOfControlType() != null && !natureOfControlValidator.isValid(natureOfControlDto)) {
+                if (natureOfControlDto.getType() != null && !natureOfControlValidator.isValid(natureOfControlDto)) {
                     addError("data.natures_of_control", "Invalid nature of control combination", bindingResult);
                 }
             }

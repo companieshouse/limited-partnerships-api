@@ -10,7 +10,7 @@ public class NatureOfControlIndividualValidator {
 			return false;
 		}
 
-		if (natureOfControlDto.getNatureOfControlType() == null) {
+		if (natureOfControlDto.getType() == null) {
 			return false;
 		}
 

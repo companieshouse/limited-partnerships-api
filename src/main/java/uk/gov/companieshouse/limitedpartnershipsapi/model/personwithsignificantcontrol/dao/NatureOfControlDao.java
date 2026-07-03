@@ -4,8 +4,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 
 public class NatureOfControlDao {
-	@Field("nature_of_control_type")
-	private NatureOfControlType natureOfControlType;
+	@Field("type")
+	private NatureOfControlType type;
 
 	@Field("part_righttosharesurplusassets_25to50percent")
 	private Boolean partRightToShareSurplusAssets25To50Percent;
@@ -37,12 +37,12 @@ public class NatureOfControlDao {
 	@Field("siginfluencecontrol")
 	private Boolean sigInfluenceControl;
 
-	public NatureOfControlType getNatureOfControlType() {
-		return natureOfControlType;
+	public NatureOfControlType getType() {
+		return type;
 	}
 
-	public void setNatureOfControlType(NatureOfControlType natureOfControlType) {
-		this.natureOfControlType = natureOfControlType;
+	public void setType(NatureOfControlType type) {
+		this.type = type;
 	}
 
 	public Boolean getPartRightToShareSurplusAssets25To50Percent() {

@@ -124,7 +124,7 @@ class PersonWithSignificantControlServiceNocTest {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
         NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
-        natureOfControlDto.setNatureOfControlType(NatureOfControlType.INDIVIDUAL);
+        natureOfControlDto.setType(NatureOfControlType.INDIVIDUAL);
 
         natureOfControlDto.setPartRightToShareSurplusAssets25To50Percent(partRightToShareSurplusAssets25To50Percent);
         natureOfControlDto.setPartRightToShareSurplusAssets50To75Percent(partRightToShareSurplusAssets50To75Percent);
@@ -272,7 +272,7 @@ class PersonWithSignificantControlServiceNocTest {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
 
         NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
-        natureOfControlDto.setNatureOfControlType(NatureOfControlType.INDIVIDUAL);
+        natureOfControlDto.setType(NatureOfControlType.INDIVIDUAL);
 
         natureOfControlDto.setPartRightToShareSurplusAssets25To50Percent(partRightToShareSurplusAssets25To50Percent);
         natureOfControlDto.setPartRightToShareSurplusAssets50To75Percent(partRightToShareSurplusAssets50To75Percent);

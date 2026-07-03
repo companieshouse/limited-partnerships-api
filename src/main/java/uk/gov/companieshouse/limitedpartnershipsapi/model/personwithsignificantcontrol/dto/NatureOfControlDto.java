@@ -2,10 +2,12 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificant
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 public class NatureOfControlDto {
-	@JsonProperty("nature_of_control_type")
-	private NatureOfControlType natureOfControlType;
+	@JsonProperty("type")
+	@EnumValid(message = "Nature of control types must be valid")
+	private NatureOfControlType type;
 
 	@JsonProperty("part_righttosharesurplusassets_25to50percent")
 	private Boolean partRightToShareSurplusAssets25To50Percent;
@@ -37,12 +39,12 @@ public class NatureOfControlDto {
 	@JsonProperty("siginfluencecontrol")
 	private Boolean sigInfluenceControl;
 
-	public NatureOfControlType getNatureOfControlType() {
-		return natureOfControlType;
+	public NatureOfControlType getType() {
+		return type;
 	}
 
-	public void setNatureOfControlType(NatureOfControlType natureOfControlType) {
-		this.natureOfControlType = natureOfControlType;
+	public void setType(NatureOfControlType type) {
+		this.type = type;
 	}
 
 	public Boolean getPartRightToShareSurplusAssets25To50Percent() {
@@ -60,7 +62,7 @@ public class NatureOfControlDto {
 	public void setPartRightToShareSurplusAssets50To75Percent(Boolean partRightToShareSurplusAssets50To75Percent) {
 		this.partRightToShareSurplusAssets50To75Percent = partRightToShareSurplusAssets50To75Percent;
 	}
-	
+
 	public Boolean getPartRightToShareSurplusAssets75To100Percent() {
 		return partRightToShareSurplusAssets75To100Percent;
 	}

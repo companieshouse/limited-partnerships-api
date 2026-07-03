@@ -14,7 +14,7 @@ public class NatureOfControlValidator {
 
 	public boolean isValid(NatureOfControlDto natureOfControlDto) {
 
-		if (natureOfControlDto.getNatureOfControlType() == NatureOfControlType.INDIVIDUAL) {
+		if (natureOfControlDto.getType() == NatureOfControlType.INDIVIDUAL) {
 			return natureOfControlIndividualValidator.isValid(natureOfControlDto);
 		}
 
