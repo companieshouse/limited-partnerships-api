@@ -285,8 +285,8 @@ class PersonWithSignificantControlServiceValidateTest {
             NatureOfControlDao natureOfControlDao = new NatureOfControlDao();
             natureOfControlDao.setType(NatureOfControlType.INDIVIDUAL);
 
-            natureOfControlDao.setPartRightToShareSurplusAssets25To50Percent(true);
-            natureOfControlDao.setRightToAppointmentAndRemovePersons(false);
+            natureOfControlDao.setShareOfAssets25To50(true);
+            natureOfControlDao.setRightToAppointmentAndRemove(false);
 
             individualPersonPersonWithSignificantControl.getData().setNaturesOfControl(List.of(natureOfControlDao));
 

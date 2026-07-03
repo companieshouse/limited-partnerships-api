@@ -2,42 +2,40 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificant
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 public class NatureOfControlDto {
 	@JsonProperty("type")
-	@EnumValid(message = "Nature of control types must be valid")
-	private NatureOfControlType type;
+	NatureOfControlType type;
 
-	@JsonProperty("part_righttosharesurplusassets_25to50percent")
-	private Boolean partRightToShareSurplusAssets25To50Percent;
+	@JsonProperty("share_of_assets_25_to_50")
+	Boolean shareOfAssets25To50;
 
-	@JsonProperty("part_righttosharesurplusassets_50to75percent")
-	private Boolean partRightToShareSurplusAssets50To75Percent;
+	@JsonProperty("share_of_assets_50_to_75")
+	Boolean shareOfAssets50To75;
 
-	@JsonProperty("part_righttosharesurplusassets_75to100percent")
-	private Boolean partRightToShareSurplusAssets75To100Percent;
+	@JsonProperty("share_of_assets_75_to_100")
+	Boolean shareOfAssets75To100;
 
-	@JsonProperty("part_righttosharesurplusassets_does_not_apply")
-	private Boolean partRightToShareSurplusAssetsDoesNotApply;
+	@JsonProperty("share_of_assets_does_not_apply")
+	Boolean shareOfAssetsDoesNotApply;
 
-	@JsonProperty("votingrights_25to50percent")
-	private Boolean votingRights25To50Percent;
+	@JsonProperty("voting_rights_25_to_50")
+	Boolean votingRights25To50;
 
-	@JsonProperty("votingrights_50to75percent")
-	private Boolean votingRights50To75Percent;
+	@JsonProperty("voting_rights_50_to_75")
+	Boolean votingRights50To75;
 
-	@JsonProperty("votingrights_75to100percent")
-	private Boolean votingRights75To100Percent;
+	@JsonProperty("voting_rights_75_to_100p")
+	Boolean votingRights75To100;
 
-	@JsonProperty("votingrights_does_not_apply")
-	private Boolean votingRightsDoesNotApply;
+	@JsonProperty("voting_rights_does_not_apply")
+	Boolean votingRightsDoesNotApply;
 
-	@JsonProperty("righttoappointmentandremovepersons")
-	private Boolean rightToAppointmentAndRemovePersons;
+	@JsonProperty("right_to_appointment_and_remove")
+	Boolean rightToAppointmentAndRemove;
 
-	@JsonProperty("siginfluencecontrol")
-	private Boolean sigInfluenceControl;
+	@JsonProperty("significant_influence_control")
+	Boolean significantInfluenceControl;
 
 	public NatureOfControlType getType() {
 		return type;
@@ -47,60 +45,60 @@ public class NatureOfControlDto {
 		this.type = type;
 	}
 
-	public Boolean getPartRightToShareSurplusAssets25To50Percent() {
-		return partRightToShareSurplusAssets25To50Percent;
+	public Boolean getShareOfAssets25To50() {
+		return shareOfAssets25To50;
 	}
 
-	public void setPartRightToShareSurplusAssets25To50Percent(Boolean partRightToShareSurplusAssets25To50Percent) {
-		this.partRightToShareSurplusAssets25To50Percent = partRightToShareSurplusAssets25To50Percent;
+	public void setShareOfAssets25To50(Boolean shareOfAssets25To50) {
+		this.shareOfAssets25To50 = shareOfAssets25To50;
 	}
 
-	public Boolean getPartRightToShareSurplusAssets50To75Percent() {
-		return partRightToShareSurplusAssets50To75Percent;
+	public Boolean getShareOfAssets50To75() {
+		return shareOfAssets50To75;
 	}
 
-	public void setPartRightToShareSurplusAssets50To75Percent(Boolean partRightToShareSurplusAssets50To75Percent) {
-		this.partRightToShareSurplusAssets50To75Percent = partRightToShareSurplusAssets50To75Percent;
+	public void setShareOfAssets50To75(Boolean shareOfAssets50To75) {
+		this.shareOfAssets50To75 = shareOfAssets50To75;
 	}
 
-	public Boolean getPartRightToShareSurplusAssets75To100Percent() {
-		return partRightToShareSurplusAssets75To100Percent;
+	public Boolean getShareOfAssets75To100() {
+		return shareOfAssets75To100;
 	}
 
-	public void setPartRightToShareSurplusAssets75To100Percent(Boolean partRightToShareSurplusAssets75To100Percent) {
-		this.partRightToShareSurplusAssets75To100Percent = partRightToShareSurplusAssets75To100Percent;
+	public void setShareOfAssets75To100(Boolean shareOfAssets75To100) {
+		this.shareOfAssets75To100 = shareOfAssets75To100;
 	}
 
-	public Boolean getPartRightToShareSurplusAssetsDoesNotApply() {
-		return partRightToShareSurplusAssetsDoesNotApply;
+	public Boolean getShareOfAssetsDoesNotApply() {
+		return shareOfAssetsDoesNotApply;
 	}
 
-	public void setPartRightToShareSurplusAssetsDoesNotApply(Boolean partRightToShareSurplusAssetsDoesNotApply) {
-		this.partRightToShareSurplusAssetsDoesNotApply = partRightToShareSurplusAssetsDoesNotApply;
+	public void setShareOfAssetsDoesNotApply(Boolean shareOfAssetsDoesNotApply) {
+		this.shareOfAssetsDoesNotApply = shareOfAssetsDoesNotApply;
 	}
 
-	public Boolean getVotingRights25To50Percent() {
-		return votingRights25To50Percent;
+	public Boolean getVotingRights25To50() {
+		return votingRights25To50;
 	}
 
-	public void setVotingRights25To50Percent(Boolean votingRights25To50Percent) {
-		this.votingRights25To50Percent = votingRights25To50Percent;
+	public void setVotingRights25To50(Boolean votingRights25To50) {
+		this.votingRights25To50 = votingRights25To50;
 	}
 
-	public Boolean getVotingRights50To75Percent() {
-		return votingRights50To75Percent;
+	public Boolean getVotingRights50To75() {
+		return votingRights50To75;
 	}
 
-	public void setVotingRights50To75Percent(Boolean votingRights50To75Percent) {
-		this.votingRights50To75Percent = votingRights50To75Percent;
+	public void setVotingRights50To75(Boolean votingRights50To75) {
+		this.votingRights50To75 = votingRights50To75;
 	}
 
-	public Boolean getVotingRights75To100Percent() {
-		return votingRights75To100Percent;
+	public Boolean getVotingRights75To100() {
+		return votingRights75To100;
 	}
 
-	public void setVotingRights75To100Percent(Boolean votingRights75To100Percent) {
-		this.votingRights75To100Percent = votingRights75To100Percent;
+	public void setVotingRights75To100(Boolean votingRights75To100) {
+		this.votingRights75To100 = votingRights75To100;
 	}
 
 	public Boolean getVotingRightsDoesNotApply() {
@@ -111,19 +109,19 @@ public class NatureOfControlDto {
 		this.votingRightsDoesNotApply = votingRightsDoesNotApply;
 	}
 
-	public Boolean getRightToAppointmentAndRemovePersons() {
-		return rightToAppointmentAndRemovePersons;
+	public Boolean getRightToAppointmentAndRemove() {
+		return rightToAppointmentAndRemove;
 	}
 
-	public void setRightToAppointmentAndRemovePersons(Boolean rightToAppointmentAndRemovePersons) {
-		this.rightToAppointmentAndRemovePersons = rightToAppointmentAndRemovePersons;
+	public void setRightToAppointmentAndRemove(Boolean rightToAppointmentAndRemove) {
+		this.rightToAppointmentAndRemove = rightToAppointmentAndRemove;
 	}
 
-	public Boolean getSigInfluenceControl() {
-		return sigInfluenceControl;
+	public Boolean getSignificantInfluenceControl() {
+		return significantInfluenceControl;
 	}
 
-	public void setSigInfluenceControl(Boolean sigInfluenceControl) {
-		this.sigInfluenceControl = sigInfluenceControl;
+	public void setSignificantInfluenceControl(Boolean significantInfluenceControl) {
+		this.significantInfluenceControl = significantInfluenceControl;
 	}
 }

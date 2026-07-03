@@ -126,16 +126,16 @@ class PersonWithSignificantControlServiceNocTest {
         NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
         natureOfControlDto.setType(NatureOfControlType.INDIVIDUAL);
 
-        natureOfControlDto.setPartRightToShareSurplusAssets25To50Percent(partRightToShareSurplusAssets25To50Percent);
-        natureOfControlDto.setPartRightToShareSurplusAssets50To75Percent(partRightToShareSurplusAssets50To75Percent);
-        natureOfControlDto.setPartRightToShareSurplusAssets75To100Percent(partRightToShareSurplusAssets75To100Percent);
-        natureOfControlDto.setPartRightToShareSurplusAssetsDoesNotApply(partRightToShareSurplusAssetsDoesNotApply);
-        natureOfControlDto.setVotingRights25To50Percent(votingRights25To50Percent);
-        natureOfControlDto.setVotingRights50To75Percent(votingRights50To75Percent);
-        natureOfControlDto.setVotingRights75To100Percent(votingRights75To100Percent);
+        natureOfControlDto.setShareOfAssets25To50(partRightToShareSurplusAssets25To50Percent);
+        natureOfControlDto.setShareOfAssets50To75(partRightToShareSurplusAssets50To75Percent);
+        natureOfControlDto.setShareOfAssets75To100(partRightToShareSurplusAssets75To100Percent);
+        natureOfControlDto.setShareOfAssetsDoesNotApply(partRightToShareSurplusAssetsDoesNotApply);
+        natureOfControlDto.setVotingRights25To50(votingRights25To50Percent);
+        natureOfControlDto.setVotingRights50To75(votingRights50To75Percent);
+        natureOfControlDto.setVotingRights75To100(votingRights75To100Percent);
         natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
-        natureOfControlDto.setRightToAppointmentAndRemovePersons(rightToAppointmentAndRemovePersons);
-        natureOfControlDto.setSigInfluenceControl(sigInfluenceControl);
+        natureOfControlDto.setRightToAppointmentAndRemove(rightToAppointmentAndRemovePersons);
+        natureOfControlDto.setSignificantInfluenceControl(sigInfluenceControl);
 
         PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
 
@@ -156,16 +156,16 @@ class PersonWithSignificantControlServiceNocTest {
         assertEquals(1, savedNaturesOfControl.size());
         NatureOfControlDao savedNatureOfControl = savedNaturesOfControl.getFirst();
 
-        assertEquals(partRightToShareSurplusAssets25To50Percent, savedNatureOfControl.getPartRightToShareSurplusAssets25To50Percent());
-        assertEquals(partRightToShareSurplusAssets50To75Percent, savedNatureOfControl.getPartRightToShareSurplusAssets50To75Percent());
-        assertEquals(partRightToShareSurplusAssets75To100Percent, savedNatureOfControl.getPartRightToShareSurplusAssets75To100Percent());
-        assertEquals(partRightToShareSurplusAssetsDoesNotApply, savedNatureOfControl.getPartRightToShareSurplusAssetsDoesNotApply());
-        assertEquals(votingRights25To50Percent, savedNatureOfControl.getVotingRights25To50Percent());
-        assertEquals(votingRights50To75Percent, savedNatureOfControl.getVotingRights50To75Percent());
-        assertEquals(votingRights75To100Percent, savedNatureOfControl.getVotingRights75To100Percent());
+        assertEquals(partRightToShareSurplusAssets25To50Percent, savedNatureOfControl.getShareOfAssets25To50());
+        assertEquals(partRightToShareSurplusAssets50To75Percent, savedNatureOfControl.getShareOfAssets50To75());
+        assertEquals(partRightToShareSurplusAssets75To100Percent, savedNatureOfControl.getShareOfAssets75To100());
+        assertEquals(partRightToShareSurplusAssetsDoesNotApply, savedNatureOfControl.getShareOfAssetsDoesNotApply());
+        assertEquals(votingRights25To50Percent, savedNatureOfControl.getVotingRights25To50());
+        assertEquals(votingRights50To75Percent, savedNatureOfControl.getVotingRights50To75());
+        assertEquals(votingRights75To100Percent, savedNatureOfControl.getVotingRights75To100());
         assertEquals(votingRightsDoesNotApply, savedNatureOfControl.getVotingRightsDoesNotApply());
-        assertEquals(rightToAppointmentAndRemovePersons, savedNatureOfControl.getRightToAppointmentAndRemovePersons());
-        assertEquals(sigInfluenceControl, savedNatureOfControl.getSigInfluenceControl());
+        assertEquals(rightToAppointmentAndRemovePersons, savedNatureOfControl.getRightToAppointmentAndRemove());
+        assertEquals(sigInfluenceControl, savedNatureOfControl.getSignificantInfluenceControl());
     }
 
     static Stream<Arguments> provideNaturesOfControlIndividualValidationError() {
@@ -274,16 +274,16 @@ class PersonWithSignificantControlServiceNocTest {
         NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
         natureOfControlDto.setType(NatureOfControlType.INDIVIDUAL);
 
-        natureOfControlDto.setPartRightToShareSurplusAssets25To50Percent(partRightToShareSurplusAssets25To50Percent);
-        natureOfControlDto.setPartRightToShareSurplusAssets50To75Percent(partRightToShareSurplusAssets50To75Percent);
-        natureOfControlDto.setPartRightToShareSurplusAssets75To100Percent(partRightToShareSurplusAssets75To100Percent);
-        natureOfControlDto.setPartRightToShareSurplusAssetsDoesNotApply(partRightToShareSurplusAssetsDoesNotApply);
-        natureOfControlDto.setVotingRights25To50Percent(votingRights25To50Percent);
-        natureOfControlDto.setVotingRights50To75Percent(votingRights50To75Percent);
-        natureOfControlDto.setVotingRights75To100Percent(votingRights75To100Percent);
+        natureOfControlDto.setShareOfAssets25To50(partRightToShareSurplusAssets25To50Percent);
+        natureOfControlDto.setShareOfAssets50To75(partRightToShareSurplusAssets50To75Percent);
+        natureOfControlDto.setShareOfAssets75To100(partRightToShareSurplusAssets75To100Percent);
+        natureOfControlDto.setShareOfAssetsDoesNotApply(partRightToShareSurplusAssetsDoesNotApply);
+        natureOfControlDto.setVotingRights25To50(votingRights25To50Percent);
+        natureOfControlDto.setVotingRights50To75(votingRights50To75Percent);
+        natureOfControlDto.setVotingRights75To100(votingRights75To100Percent);
         natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
-        natureOfControlDto.setRightToAppointmentAndRemovePersons(rightToAppointmentAndRemovePersons);
-        natureOfControlDto.setSigInfluenceControl(sigInfluenceControl);
+        natureOfControlDto.setRightToAppointmentAndRemove(rightToAppointmentAndRemovePersons);
+        natureOfControlDto.setSignificantInfluenceControl(sigInfluenceControl);
 
         PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
 
