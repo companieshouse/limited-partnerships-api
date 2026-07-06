@@ -14,7 +14,7 @@ public class NatureOfControlIndividualValidator {
 			return false;
 		}
 
-		if (!isHasSurplus(natureOfControlDto) || !isHasVoting(natureOfControlDto)) {
+		if (!hasAssets(natureOfControlDto) || !hasVoting(natureOfControlDto)) {
 			return false;
 		}
 
@@ -55,13 +55,13 @@ public class NatureOfControlIndividualValidator {
 	}
 
 	// Must have a surplus assets field set (either a percentage or doesNotApply)
-	private boolean isHasSurplus(NatureOfControlDto natureOfControlDto) {
+	private boolean hasAssets(NatureOfControlDto natureOfControlDto) {
 		return hasShareAssetsPercent(natureOfControlDto) ||
 				Boolean.TRUE.equals(natureOfControlDto.getShareOfAssetsDoesNotApply());
 	}
 
 	// Must have a voting rights field set (either a percentage or doesNotApply)
-	private boolean isHasVoting(NatureOfControlDto natureOfControlDto) {
+	private boolean hasVoting(NatureOfControlDto natureOfControlDto) {
 		return hasVotingRightsPercent(natureOfControlDto) ||
 				Boolean.TRUE.equals(natureOfControlDto.getVotingRightsDoesNotApply());
 	}
