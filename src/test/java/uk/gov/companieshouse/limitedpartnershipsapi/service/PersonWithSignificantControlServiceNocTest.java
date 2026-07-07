@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -13,11 +12,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.NatureOfControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.NatureOfControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
@@ -68,74 +67,23 @@ class PersonWithSignificantControlServiceNocTest {
         transaction.setFilingMode(FilingMode.REGISTRATION.getDescription());
     }
 
-    static Stream<Arguments> provideNaturesOfControlIndividual() {
+    static Stream<NatureOfControlDto> provideNaturesOfControlIndividual() {
         return Stream.of(
-                Arguments.of(
-                    true, null, null, null,
-                    null, null, null, true,
-                    false, false),
-                Arguments.of(
-                    null, null, null, true,
-                    true, null, null, null,
-                    false, false),
-                Arguments.of(
-                    null, true, null, null,
-                    true, null, null, null,
-                    false,  false),
-                Arguments.of(
-                    null, null, null, true,
-                    null, null, null, true,
-                    true, false),
-                Arguments.of(
-                    null, null, null, true,
-                    null, null, null, true,
-                    false, true),
-                Arguments.of(
-                    null, null, true, null,
-                    null, null, null, true,
-                    true, false),
-                Arguments.of(
-                    null, null, null, true,
-                    null, true, null, null,
-                    true, false),
-                Arguments.of(
-                    null, null, true, null,
-                    null, null, true, null,
-                    true, false)
+            new NatureOfControlBuilder().withShareOfAssets25To50().withVotingRightsDoesNotApply().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withVotingRights50To75().build(),
+            new NatureOfControlBuilder().withShareOfAssets50To75().withVotingRights75To100().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withVotingRightsDoesNotApply().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssets25To50().withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withVotingRights75To100().withRightToAppointmentAndRemove().build(),
+            new NatureOfControlBuilder().withShareOfAssets75To100().withVotingRights50To75().withRightToAppointmentAndRemove().build()
         );
     }
 
     @ParameterizedTest
     @MethodSource("provideNaturesOfControlIndividual")
-    void shouldUpdateTheDaoWithNocIndividual(
-            Boolean partRightToShareSurplusAssets25To50Percent,
-            Boolean partRightToShareSurplusAssets50To75Percent,
-            Boolean partRightToShareSurplusAssets75To100Percent,
-            Boolean partRightToShareSurplusAssetsDoesNotApply,
-
-            Boolean votingRights25To50Percent,
-            Boolean votingRights50To75Percent,
-            Boolean votingRights75To100Percent,
-            Boolean votingRightsDoesNotApply,
-
-            Boolean rightToAppointmentAndRemovePersons,
-            Boolean sigInfluenceControl
-    ) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldUpdateTheDaoWithNocIndividual(NatureOfControlDto natureOfControlDto) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
-
-        NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
-        natureOfControlDto.setType(NatureOfControlType.INDIVIDUAL);
-
-        natureOfControlDto.setShareOfAssets25To50(partRightToShareSurplusAssets25To50Percent);
-        natureOfControlDto.setShareOfAssets50To75(partRightToShareSurplusAssets50To75Percent);
-        natureOfControlDto.setShareOfAssets75To100(partRightToShareSurplusAssets75To100Percent);
-        natureOfControlDto.setShareOfAssetsDoesNotApply(partRightToShareSurplusAssetsDoesNotApply);
-        natureOfControlDto.setVotingRights25To50(votingRights25To50Percent);
-        natureOfControlDto.setVotingRights50To75(votingRights50To75Percent);
-        natureOfControlDto.setVotingRights75To100(votingRights75To100Percent);
-        natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
-        natureOfControlDto.setRightToAppointmentAndRemove(rightToAppointmentAndRemovePersons);
-        natureOfControlDto.setSignificantInfluenceControl(sigInfluenceControl);
 
         PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
 
@@ -156,134 +104,47 @@ class PersonWithSignificantControlServiceNocTest {
         assertEquals(1, savedNaturesOfControl.size());
         NatureOfControlDao savedNatureOfControl = savedNaturesOfControl.getFirst();
 
-        assertEquals(partRightToShareSurplusAssets25To50Percent, savedNatureOfControl.getShareOfAssets25To50());
-        assertEquals(partRightToShareSurplusAssets50To75Percent, savedNatureOfControl.getShareOfAssets50To75());
-        assertEquals(partRightToShareSurplusAssets75To100Percent, savedNatureOfControl.getShareOfAssets75To100());
-        assertEquals(partRightToShareSurplusAssetsDoesNotApply, savedNatureOfControl.getShareOfAssetsDoesNotApply());
-        assertEquals(votingRights25To50Percent, savedNatureOfControl.getVotingRights25To50());
-        assertEquals(votingRights50To75Percent, savedNatureOfControl.getVotingRights50To75());
-        assertEquals(votingRights75To100Percent, savedNatureOfControl.getVotingRights75To100());
-        assertEquals(votingRightsDoesNotApply, savedNatureOfControl.getVotingRightsDoesNotApply());
-        assertEquals(rightToAppointmentAndRemovePersons, savedNatureOfControl.getRightToAppointmentAndRemove());
-        assertEquals(sigInfluenceControl, savedNatureOfControl.getSignificantInfluenceControl());
+        assertEquals(natureOfControlDto.getShareOfAssets25To50(), savedNatureOfControl.getShareOfAssets25To50());
+        assertEquals(natureOfControlDto.getShareOfAssets50To75(), savedNatureOfControl.getShareOfAssets50To75());
+        assertEquals(natureOfControlDto.getShareOfAssets75To100(), savedNatureOfControl.getShareOfAssets75To100());
+        assertEquals(natureOfControlDto.getShareOfAssetsDoesNotApply(), savedNatureOfControl.getShareOfAssetsDoesNotApply());
+        assertEquals(natureOfControlDto.getVotingRights25To50(), savedNatureOfControl.getVotingRights25To50());
+        assertEquals(natureOfControlDto.getVotingRights50To75(), savedNatureOfControl.getVotingRights50To75());
+        assertEquals(natureOfControlDto.getVotingRights75To100(), savedNatureOfControl.getVotingRights75To100());
+        assertEquals(natureOfControlDto.getVotingRightsDoesNotApply(), savedNatureOfControl.getVotingRightsDoesNotApply());
+        assertEquals(natureOfControlDto.getRightToAppointmentAndRemove(), savedNatureOfControl.getRightToAppointmentAndRemove());
+        assertEquals(natureOfControlDto.getSignificantInfluenceControl(), savedNatureOfControl.getSignificantInfluenceControl());
     }
 
-    static Stream<Arguments> provideNaturesOfControlIndividualValidationError() {
+    static Stream<NatureOfControlDto> provideNaturesOfControlIndividualValidationError() {
         return Stream.of(
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, null,
-                false, false),
-            Arguments.of(
-                true, null, null, null,
-                true, null, null, null,
-                true, true),
-            Arguments.of(
-                null, null, null, true,
-                null, true, null, null,
-                true, true),
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, null,
-                true, true),
-            Arguments.of(
-                null, null, null, null,
-                null, null, true, null,
-                true, true),
-            Arguments.of(
-                null, true, null, null,
-                null, null, null, null,
-                true, true),
-            Arguments.of(
-                null, null, true, null,
-                null, null, true, null,
-                false, true),
-            Arguments.of(
-                true, null, null, null,
-                null, null, null, true,
-                false, true),
-            Arguments.of(
-                null, null, null, true,
-                true, null, null, null,
-                false, true),
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, true,
-                false, true),
-            Arguments.of(
-                null, true, null, null,
-                null, null, null, null,
-                false, true),
-            Arguments.of(
-                null, null, null, true,
-                null, null, null, null,
-                false, false),
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, true,
-                false, false),
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, null,
-                false, true),
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, null,
-                true, false),
-            Arguments.of(
-                null, null, null, true,
-                null, null, null, true,
-                false, false),
-            Arguments.of(
-                null, null, null, true,
-                null, null, null, null,
-                false, true),
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, true,
-                false, true),
-            Arguments.of(
-                null, null, null, true,
-                null, null, null, null,
-                true, false),
-            Arguments.of(
-                null, null, null, null,
-                null, null, null, true,
-                true, false)
+            new NatureOfControlBuilder().build(),
+            new NatureOfControlBuilder().withShareOfAssets25To50().withVotingRights25To50().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withVotingRights50To75().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withVotingRights75To100().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssets50To75().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssets75To100().withVotingRights75To100().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssets25To50().withVotingRightsDoesNotApply().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withVotingRights25To50().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withVotingRightsDoesNotApply().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssets50To75().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().build(),
+            new NatureOfControlBuilder().withVotingRightsDoesNotApply().build(),
+            new NatureOfControlBuilder().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withRightToAppointmentAndRemove().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withVotingRightsDoesNotApply().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withVotingRightsDoesNotApply().withSignificantInfluenceControl().build(),
+            new NatureOfControlBuilder().withShareOfAssetsDoesNotApply().withRightToAppointmentAndRemove().build(),
+            new NatureOfControlBuilder().withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().build()
         );
     }
 
     @ParameterizedTest
     @MethodSource("provideNaturesOfControlIndividualValidationError")
-    void shouldNotUpdateTheDaoWithIncorrectNocIndividual(
-        Boolean partRightToShareSurplusAssets25To50Percent,
-        Boolean partRightToShareSurplusAssets50To75Percent,
-        Boolean partRightToShareSurplusAssets75To100Percent,
-        Boolean partRightToShareSurplusAssetsDoesNotApply,
-
-        Boolean votingRights25To50Percent,
-        Boolean votingRights50To75Percent,
-        Boolean votingRights75To100Percent,
-        Boolean votingRightsDoesNotApply,
-
-        Boolean rightToAppointmentAndRemovePersons,
-        Boolean sigInfluenceControl
-    ) {
+    void shouldNotUpdateTheDaoWithIncorrectNocIndividual(NatureOfControlDto natureOfControlDto) {
         PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
-
-        NatureOfControlDto natureOfControlDto = new NatureOfControlDto();
-        natureOfControlDto.setType(NatureOfControlType.INDIVIDUAL);
-
-        natureOfControlDto.setShareOfAssets25To50(partRightToShareSurplusAssets25To50Percent);
-        natureOfControlDto.setShareOfAssets50To75(partRightToShareSurplusAssets50To75Percent);
-        natureOfControlDto.setShareOfAssets75To100(partRightToShareSurplusAssets75To100Percent);
-        natureOfControlDto.setShareOfAssetsDoesNotApply(partRightToShareSurplusAssetsDoesNotApply);
-        natureOfControlDto.setVotingRights25To50(votingRights25To50Percent);
-        natureOfControlDto.setVotingRights50To75(votingRights50To75Percent);
-        natureOfControlDto.setVotingRights75To100(votingRights75To100Percent);
-        natureOfControlDto.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
-        natureOfControlDto.setRightToAppointmentAndRemove(rightToAppointmentAndRemovePersons);
-        natureOfControlDto.setSignificantInfluenceControl(sigInfluenceControl);
 
         PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
 
