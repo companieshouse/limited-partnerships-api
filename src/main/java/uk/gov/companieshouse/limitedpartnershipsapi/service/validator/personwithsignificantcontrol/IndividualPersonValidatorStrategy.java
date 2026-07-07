@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol;
 
 import jakarta.validation.Validator;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -24,15 +23,14 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
 
     private final Validator validator;
     private final ValidationStatus validationStatus;
-    private final NatureOfControlValidator natureOfControlValidator;
 
     @Autowired
     public IndividualPersonValidatorStrategy(Validator validator,
                                              ValidationStatus validationStatus,
                                              NatureOfControlValidator natureOfControlValidator) {
+        super(natureOfControlValidator);
         this.validator = validator;
         this.validationStatus = validationStatus;
-        this.natureOfControlValidator = natureOfControlValidator;
     }
 
     @Override
@@ -58,13 +56,7 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
             addError("data.nationality2", "Second nationality must be different from the first", bindingResult);
         }
 
-        if(!CollectionUtils.isEmpty(data.getNaturesOfControl())) {
-            for (var natureOfControlDto : data.getNaturesOfControl()) {
-                if (natureOfControlDto.getType() != null && !natureOfControlValidator.isValid(natureOfControlDto)) {
-                    addError("data.natures_of_control", "Invalid nature of control combination", bindingResult);
-                }
-            }
-        }
+        super.validateNaturesOfControl(personWithSignificantControlDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(PersonWithSignificantControlDataDto.class.getConstructor(), -1);
