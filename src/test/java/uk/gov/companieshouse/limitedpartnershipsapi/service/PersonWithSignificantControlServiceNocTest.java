@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -76,6 +77,17 @@ class PersonWithSignificantControlServiceNocTest {
             );
         }
 
+        static Stream<Arguments> provideNaturesOfControlAndPscTypesForUpdate() {
+            return provideNaturesOfControlIndividual().flatMap(noc -> Stream.of(
+                Arguments.of(noc, new PersonWithSignificantControlBuilder().individualPersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).individualPersonDto()),
+                Arguments.of(noc, new PersonWithSignificantControlBuilder().relevantLegalEntityDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).relevantLegalEntityDto()),
+                Arguments.of(noc, new PersonWithSignificantControlBuilder().otherRegistrablePersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).otherRegistrablePersonDto())
+            ));
+        }
+
         static Stream<NatureOfControlDto> provideNaturesOfControlIndividualValidationError() {
             return Stream.of(
                 new NatureOfControlBuilder().build(),
@@ -101,57 +113,20 @@ class PersonWithSignificantControlServiceNocTest {
             );
         }
 
-        @ParameterizedTest
-        @MethodSource("provideNaturesOfControlIndividual")
-        void shouldUpdateTheIndividualDaoWithNocIndividual(NatureOfControlDto natureOfControlDto) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
-
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
-
-            happyPathsCheck(natureOfControlDto, personWithSignificantControlDao, personWithSignificantControlDto);
+        static Stream<Arguments> provideNaturesOfControlAndPscTypesForFailure() {
+            return provideNaturesOfControlIndividualValidationError().flatMap(noc -> Stream.of(
+                Arguments.of(new PersonWithSignificantControlBuilder().individualPersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).individualPersonDto()),
+                Arguments.of(new PersonWithSignificantControlBuilder().relevantLegalEntityDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).relevantLegalEntityDto()),
+                Arguments.of(new PersonWithSignificantControlBuilder().otherRegistrablePersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).otherRegistrablePersonDto())
+            ));
         }
 
         @ParameterizedTest
-        @MethodSource("provideNaturesOfControlIndividualValidationError")
-        void shouldNotUpdateTheIndividualDaoWithIncorrectNocIndividual(NatureOfControlDto natureOfControlDto) {
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().individualPersonDao();
-
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).individualPersonDto();
-
-            when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
-            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
-
-            assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, personWithSignificantControlDto.getData(), REQUEST_ID, USER_ID))
-                .isInstanceOf(MethodArgumentNotValidException.class)
-                .hasMessageContaining("Invalid nature of control combination");
-        }
-
-        @ParameterizedTest
-        @MethodSource("provideNaturesOfControlIndividual")
-        void shouldUpdateTheRLEDaoWithNocIndividual(NatureOfControlDto natureOfControlDto) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
-
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).relevantLegalEntityDto();
-
-            happyPathsCheck(natureOfControlDto, personWithSignificantControlDao, personWithSignificantControlDto);
-        }
-
-        @ParameterizedTest
-        @MethodSource("provideNaturesOfControlIndividualValidationError")
-        void shouldNotUpdateTheRLEDaoWithIncorrectNocIndividual(NatureOfControlDto natureOfControlDto) {
-            PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
-
-            PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(natureOfControlDto)).relevantLegalEntityDto();
-
-            when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
-            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
-
-            assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, personWithSignificantControlDto.getData(), REQUEST_ID, USER_ID))
-                .isInstanceOf(MethodArgumentNotValidException.class)
-                .hasMessageContaining("Invalid nature of control combination");
-        }
-
-        private void happyPathsCheck(NatureOfControlDto natureOfControlDto, PersonWithSignificantControlDao personWithSignificantControlDao, PersonWithSignificantControlDto personWithSignificantControlDto) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        @MethodSource("provideNaturesOfControlAndPscTypesForUpdate")
+        void shouldUpdateTheDaoWithNocIndividual(NatureOfControlDto natureOfControlDto, PersonWithSignificantControlDao personWithSignificantControlDao, PersonWithSignificantControlDto personWithSignificantControlDto) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
             when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
             when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
@@ -179,6 +154,17 @@ class PersonWithSignificantControlServiceNocTest {
             assertEquals(natureOfControlDto.getVotingRightsDoesNotApply(), savedNatureOfControl.getVotingRightsDoesNotApply());
             assertEquals(natureOfControlDto.getRightToAppointmentAndRemove(), savedNatureOfControl.getRightToAppointmentAndRemove());
             assertEquals(natureOfControlDto.getSignificantInfluenceControl(), savedNatureOfControl.getSignificantInfluenceControl());
+        }
+
+        @ParameterizedTest
+        @MethodSource("provideNaturesOfControlAndPscTypesForFailure")
+        void shouldNotUpdateTheDaoWithIncorrectNocIndividual(PersonWithSignificantControlDao personWithSignificantControlDao, PersonWithSignificantControlDto personWithSignificantControlDto) {
+            when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, personWithSignificantControlDto.getData(), REQUEST_ID, USER_ID))
+                .isInstanceOf(MethodArgumentNotValidException.class)
+                .hasMessageContaining("Invalid nature of control combination");
         }
     }
 }
