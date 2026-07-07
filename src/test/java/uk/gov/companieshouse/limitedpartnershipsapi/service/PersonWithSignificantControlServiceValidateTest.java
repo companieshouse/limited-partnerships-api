@@ -15,7 +15,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignifican
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.NatureOfControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 
@@ -275,6 +277,30 @@ class PersonWithSignificantControlServiceValidateTest {
                     .singleElement()
                     .usingRecursiveComparison()
                     .isEqualTo(new ValidationStatusError("Forename " + INVALID_CHARACTERS_MESSAGE, "data.forename", null, null));
+        }
+
+        @Test
+        void shouldReturnErrorsIfNocIsInvalid() throws ServiceException {
+            // given
+            NatureOfControlDao natureOfControlDao = new NatureOfControlDao();
+            natureOfControlDao.setType(NatureOfControlType.INDIVIDUAL);
+
+            natureOfControlDao.setShareOfAssets25To50(true);
+            natureOfControlDao.setRightToAppointmentAndRemove(false);
+
+            individualPersonPersonWithSignificantControl.getData().setNaturesOfControl(List.of(natureOfControlDao));
+
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(individualPersonPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results)
+                .singleElement()
+                .usingRecursiveComparison()
+                .isEqualTo(new ValidationStatusError("Invalid nature of control combination", "data.natures_of_control", null, null));
         }
     }
 

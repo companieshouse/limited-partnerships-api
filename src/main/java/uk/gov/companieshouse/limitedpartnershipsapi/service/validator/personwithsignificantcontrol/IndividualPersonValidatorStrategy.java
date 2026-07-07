@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol;
 
 import jakarta.validation.Validator;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +24,15 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
 
     private final Validator validator;
     private final ValidationStatus validationStatus;
+    private final NatureOfControlValidator natureOfControlValidator;
 
     @Autowired
     public IndividualPersonValidatorStrategy(Validator validator,
-                                                ValidationStatus validationStatus) {
+                                             ValidationStatus validationStatus,
+                                             NatureOfControlValidator natureOfControlValidator) {
         this.validator = validator;
         this.validationStatus = validationStatus;
+        this.natureOfControlValidator = natureOfControlValidator;
     }
 
     @Override
@@ -51,6 +56,14 @@ public class IndividualPersonValidatorStrategy extends PersonWithSignificantCont
 
         if (data.getNationality1() != null && data.getNationality1().equals(data.getNationality2())) {
             addError("data.nationality2", "Second nationality must be different from the first", bindingResult);
+        }
+
+        if(!CollectionUtils.isEmpty(data.getNaturesOfControl())) {
+            for (var natureOfControlDto : data.getNaturesOfControl()) {
+                if (natureOfControlDto.getType() != null && !natureOfControlValidator.isValid(natureOfControlDto)) {
+                    addError("data.natures_of_control", "Invalid nature of control combination", bindingResult);
+                }
+            }
         }
 
         if (bindingResult.hasErrors()) {

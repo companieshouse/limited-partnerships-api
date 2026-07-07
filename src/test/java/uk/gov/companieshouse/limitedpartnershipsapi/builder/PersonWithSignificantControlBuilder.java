@@ -1,16 +1,15 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
-
-import com.google.common.collect.Lists;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.NatureOfControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 
@@ -44,16 +43,6 @@ public class PersonWithSignificantControlBuilder {
     public static final LocalDate DATE_EFFECTIVE_FROM = LocalDate.of(2026, 1, 20);
     public static final LocalDate DATE_OF_BIRTH = LocalDate.of(1999, 12, 31);
     public static final LocalDate RESIGNATION_DATE = LocalDate.of(2025, 12, 11);
-    public static final List<String> NATURES_OF_CONTROL_LIST_DESCRIPTIONS = Lists.newArrayList(
-            NatureOfControl.RLE.getDescription(),
-            NatureOfControl.INDIVIDUAL_FIRM_CONTROL.getDescription(),
-            NatureOfControl.ORP_TRUST_CONTROL.getDescription()
-    );
-    public static final List<NatureOfControl> NATURES_OF_CONTROL_LIST = Lists.newArrayList(
-            NatureOfControl.RLE,
-            NatureOfControl.INDIVIDUAL_FIRM_CONTROL,
-            NatureOfControl.ORP_TRUST_CONTROL
-    );
     public static final String MIDDLE_NAMES = "John Jack";
 
     private String kind = FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
@@ -71,6 +60,8 @@ public class PersonWithSignificantControlBuilder {
     private Nationality nationality2 = FRENCH;
 
     private List<NatureOfControlType> natureOfControlTypes = List.of(NatureOfControlType.INDIVIDUAL, NatureOfControlType.FIRM, NatureOfControlType.TRUST);
+    public List<NatureOfControlDto> naturesOfControl;
+    public List<NatureOfControlDao> naturesOfControlDAO;
 
     public PersonWithSignificantControlBuilder withKind(String kind) {
         this.kind = kind;
@@ -132,6 +123,10 @@ public class PersonWithSignificantControlBuilder {
         return this;
     }
 
+    public PersonWithSignificantControlBuilder withNaturesOfControl(List<NatureOfControlDto> naturesOfControl) {
+        this.naturesOfControl = naturesOfControl;
+        return this;
+    }
 
     public PersonWithSignificantControlDto individualPersonDto () {
         PersonWithSignificantControlDto dto = new PersonWithSignificantControlDto();
@@ -151,7 +146,7 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setFormerNames(formerNames);
         dataDto.setNationality1(nationality1);
         dataDto.setNationality2(nationality2);
-        dataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
+        dataDto.setNaturesOfControl(naturesOfControl);
         dataDto.setResignationDate(RESIGNATION_DATE);
         dataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         dataDto.setUsualResidentialAddress(createAddressDto(URA_PREFIX));
@@ -177,7 +172,7 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation);
         dataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
         dataDto.setLegalForm(LEGAL_FORM);
-        dataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
+        dataDto.setNaturesOfControl(naturesOfControl);
         dataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
         dataDto.setServiceAddress(createAddressDto(SERVICE_PREFIX));
         dataDto.setResignationDate(RESIGNATION_DATE);
@@ -200,7 +195,7 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setGoverningLaw(GOVERNING_LAW);
         dataDto.setLegalEntityName(legalEntityName);
         dataDto.setLegalForm(LEGAL_FORM);
-        dataDto.setNaturesOfControl(NATURES_OF_CONTROL_LIST);
+        dataDto.setNaturesOfControl(naturesOfControl);
         dataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
         dataDto.setResignationDate(RESIGNATION_DATE);
         dataDto.setType(PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON);
@@ -241,7 +236,7 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setFormerNames(formerNames);
         dataDao.setNationality1(nationality1.getDescription());
         dataDao.setNationality2(nationality2.getDescription());
-        dataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
+        dataDao.setNaturesOfControl(naturesOfControlDAO);
         dataDao.setResignationDate(RESIGNATION_DATE);
         dataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
         dataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
@@ -269,7 +264,7 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation.getDescription());
         dataDao.setLegalForm(LEGAL_FORM);
         dataDao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
-        dataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
+        dataDao.setNaturesOfControl(naturesOfControlDAO);
         dataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
         dataDao.setResignationDate(RESIGNATION_DATE);
         dataDao.setServiceAddress(createAddressDao(SERVICE_PREFIX));
@@ -294,7 +289,7 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setGoverningLaw(GOVERNING_LAW);
         dataDao.setLegalEntityName(legalEntityName);
         dataDao.setLegalForm(LEGAL_FORM);
-        dataDao.setNaturesOfControl(NATURES_OF_CONTROL_LIST_DESCRIPTIONS);
+        dataDao.setNaturesOfControl(naturesOfControlDAO);
         dataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
         dataDao.setType(PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON);
         dataDao.setNatureOfControlTypes(natureOfControlTypes.stream().map(NatureOfControlType::toString).toList());
