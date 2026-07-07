@@ -32,14 +32,10 @@ public class NatureOfControlIndividualValidator {
 
 		// If neither surplus nor voting has a percent value (both are doesNotApply),
 		// at least one of rightToAppointment or sigInfluence must be true
-		if (!hasShareAssetsPercent(natureOfControlDto) &&
-				!hasVotingRightsPercent(natureOfControlDto) &&
-				!Boolean.TRUE.equals(natureOfControlDto.getRightToAppointmentAndRemove()) &&
-				!Boolean.TRUE.equals(natureOfControlDto.getSignificantInfluenceControl())) {
-			return false;
-		}
-
-		return true;
+		return hasShareAssetsPercent(natureOfControlDto) ||
+				hasVotingRightsPercent(natureOfControlDto) ||
+				Boolean.TRUE.equals(natureOfControlDto.getRightToAppointmentAndRemove()) ||
+				Boolean.TRUE.equals(natureOfControlDto.getSignificantInfluenceControl());
 	}
 
 	private boolean hasShareAssetsPercent(NatureOfControlDto natureOfControlDto) {
