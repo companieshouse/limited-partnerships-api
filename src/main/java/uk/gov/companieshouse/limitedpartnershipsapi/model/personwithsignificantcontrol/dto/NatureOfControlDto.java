@@ -25,7 +25,7 @@ public class NatureOfControlDto {
 	@JsonProperty("voting_rights_50_to_75")
 	Boolean votingRights50To75;
 
-	@JsonProperty("voting_rights_75_to_100p")
+	@JsonProperty("voting_rights_75_to_100")
 	Boolean votingRights75To100;
 
 	@JsonProperty("voting_rights_does_not_apply")

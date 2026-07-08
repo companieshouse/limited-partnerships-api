@@ -9,6 +9,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
 import java.util.List;
 
@@ -20,7 +21,9 @@ public class OtherRegistrablePersonValidatorStrategy extends PersonWithSignifica
 
     @Autowired
     public OtherRegistrablePersonValidatorStrategy(Validator validator,
-                                                   ValidationStatus validationStatus) {
+                                                   ValidationStatus validationStatus,
+                                                   NatureOfControlValidator natureOfControlValidator) {
+        super(natureOfControlValidator);
         this.validator = validator;
         this.validationStatus = validationStatus;
     }

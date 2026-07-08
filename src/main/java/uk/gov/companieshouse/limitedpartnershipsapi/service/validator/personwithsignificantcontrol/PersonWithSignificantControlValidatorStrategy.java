@@ -2,6 +2,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwit
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -14,6 +16,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,12 @@ import java.util.Set;
 public abstract class PersonWithSignificantControlValidatorStrategy {
 
     protected static final String DATA_DTO_CLASS_NAME = PersonWithSignificantControlDataDto.class.getName();
+    private final NatureOfControlValidator natureOfControlValidator;
+
+    @Autowired
+    PersonWithSignificantControlValidatorStrategy(NatureOfControlValidator natureOfControlValidator) {
+        this.natureOfControlValidator = natureOfControlValidator;
+    }
 
     public abstract List<ValidationStatusError> validateFull(PersonWithSignificantControlDto personWithSignificantControlDto) throws ServiceException;
     public abstract void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException;
@@ -62,6 +71,8 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
         checkNotNullOrEmpty(data.getLegalForm(), "data.legalForm", "Legal form is required", bindingResult);
         checkNotNullOrEmpty(data.getGoverningLaw(), "data.governingLaw", "Governing law is required", bindingResult);
 
+        this.validateNaturesOfControl(personWithSignificantControlDto, bindingResult);
+
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(PersonWithSignificantControlDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
@@ -95,6 +106,18 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
         var type = dataDto.getType();
         if (type != null && type != expectedType) {
             addError("data.type", "Person with significant control type cannot be changed", bindingResult);
+        }
+    }
+
+    protected void validateNaturesOfControl(PersonWithSignificantControlDto personWithSignificantControlDto, BindingResult bindingResult) {
+        PersonWithSignificantControlDataDto data = personWithSignificantControlDto.getData();
+
+        if (!CollectionUtils.isEmpty(data.getNaturesOfControl())) {
+            for (var natureOfControlDto : data.getNaturesOfControl()) {
+                if (natureOfControlDto.getType() != null && !natureOfControlValidator.isValid(natureOfControlDto)) {
+                    addError("data.natures_of_control", "Invalid nature of control combination", bindingResult);
+                }
+            }
         }
     }
 }

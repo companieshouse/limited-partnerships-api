@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,8 @@ public class UnknownTypeValidatorStrategy extends PersonWithSignificantControlVa
     private final ValidationStatus validationStatus;
 
     @Autowired
-    public UnknownTypeValidatorStrategy(ValidationStatus validationStatus) {
+    public UnknownTypeValidatorStrategy(ValidationStatus validationStatus, NatureOfControlValidator natureOfControlValidator) {
+        super(natureOfControlValidator);
         this.validationStatus = validationStatus;
     }
 
