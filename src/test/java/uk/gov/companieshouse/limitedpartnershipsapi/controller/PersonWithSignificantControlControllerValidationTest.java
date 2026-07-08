@@ -31,6 +31,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwith
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.RelevantLegalEntityValidatorStrategy;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.UnknownTypeValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlFirmValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlIndividualValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
@@ -59,7 +60,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
         OtherRegistrablePersonValidatorStrategy.class,
         UnknownTypeValidatorStrategy.class,
         NatureOfControlValidator.class,
-        NatureOfControlIndividualValidator.class}
+        NatureOfControlIndividualValidator.class,
+        NatureOfControlFirmValidator.class}
 )
 @WebMvcTest(controllers = {PersonWithSignificantControlController.class})
 class PersonWithSignificantControlControllerValidationTest {

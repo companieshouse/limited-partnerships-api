@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
 
 @Component
-public class NatureOfControlIndividualValidator {
+public class NatureOfControlIndividualValidator extends AbstractNatureOfControlValidator {
 	public boolean isValid(NatureOfControlDto natureOfControlDto) {
 		if (natureOfControlDto == null) {
 			return false;
@@ -14,7 +14,7 @@ public class NatureOfControlIndividualValidator {
 			return false;
 		}
 
-		if (!hasAssets(natureOfControlDto) || !hasVoting(natureOfControlDto)) {
+		if (hasNoAssets(natureOfControlDto) || hasNoVoting(natureOfControlDto)) {
 			return false;
 		}
 
@@ -36,29 +36,5 @@ public class NatureOfControlIndividualValidator {
 				hasVotingRightsPercent(natureOfControlDto) ||
 				Boolean.TRUE.equals(natureOfControlDto.getRightToAppointmentAndRemove()) ||
 				Boolean.TRUE.equals(natureOfControlDto.getSignificantInfluenceControl());
-	}
-
-	private boolean hasShareAssetsPercent(NatureOfControlDto natureOfControlDto) {
-		return Boolean.TRUE.equals(natureOfControlDto.getShareOfAssets25To50()) ||
-				Boolean.TRUE.equals(natureOfControlDto.getShareOfAssets50To75()) ||
-				Boolean.TRUE.equals(natureOfControlDto.getShareOfAssets75To100());
-	}
-
-	private boolean hasVotingRightsPercent(NatureOfControlDto natureOfControlDto) {
-		return Boolean.TRUE.equals(natureOfControlDto.getVotingRights25To50()) ||
-				Boolean.TRUE.equals(natureOfControlDto.getVotingRights50To75()) ||
-				Boolean.TRUE.equals(natureOfControlDto.getVotingRights75To100());
-	}
-
-	// Must have a surplus assets field set (either a percentage or doesNotApply)
-	private boolean hasAssets(NatureOfControlDto natureOfControlDto) {
-		return hasShareAssetsPercent(natureOfControlDto) ||
-				Boolean.TRUE.equals(natureOfControlDto.getShareOfAssetsDoesNotApply());
-	}
-
-	// Must have a voting rights field set (either a percentage or doesNotApply)
-	private boolean hasVoting(NatureOfControlDto natureOfControlDto) {
-		return hasVotingRightsPercent(natureOfControlDto) ||
-				Boolean.TRUE.equals(natureOfControlDto.getVotingRightsDoesNotApply());
 	}
 }

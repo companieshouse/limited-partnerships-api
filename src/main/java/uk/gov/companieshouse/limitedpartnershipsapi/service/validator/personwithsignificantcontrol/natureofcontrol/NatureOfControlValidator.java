@@ -7,17 +7,22 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantc
 @Component
 public class NatureOfControlValidator {
 	private final NatureOfControlIndividualValidator natureOfControlIndividualValidator;
+	private final NatureOfControlFirmValidator natureOfControlFirmValidator;
 
-	NatureOfControlValidator(NatureOfControlIndividualValidator natureOfControlIndividualValidator) {
+	NatureOfControlValidator(NatureOfControlIndividualValidator natureOfControlIndividualValidator,
+	                         NatureOfControlFirmValidator natureOfControlFirmValidator) {
 		this.natureOfControlIndividualValidator = natureOfControlIndividualValidator;
+		this.natureOfControlFirmValidator = natureOfControlFirmValidator;
 	}
 
 	public boolean isValid(NatureOfControlDto natureOfControlDto) {
 
 		if (natureOfControlDto.getType() == NatureOfControlType.INDIVIDUAL) {
 			return natureOfControlIndividualValidator.isValid(natureOfControlDto);
+		} else if (natureOfControlDto.getType() == NatureOfControlType.FIRM) {
+			return natureOfControlFirmValidator.isValid(natureOfControlDto);
 		}
 
-		return true;
+		return false;
 	}
 }
