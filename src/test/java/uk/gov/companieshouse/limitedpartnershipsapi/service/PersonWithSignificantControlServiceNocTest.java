@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,8 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -62,6 +64,21 @@ class PersonWithSignificantControlServiceNocTest {
 
     @Captor
     private ArgumentCaptor<PersonWithSignificantControlDao> pscDaoArgumentCaptor;
+
+    private ThrowingConsumer<NatureOfControlDao> hasPersistedNocCorrectly(NatureOfControlDto natureOfControlDto) {
+        return savedNatureOfControl -> {
+            Assertions.assertThat(savedNatureOfControl.getShareOfAssets25To50()).isEqualTo(natureOfControlDto.getShareOfAssets25To50());
+            Assertions.assertThat(savedNatureOfControl.getShareOfAssets50To75()).isEqualTo(natureOfControlDto.getShareOfAssets50To75());
+            Assertions.assertThat(savedNatureOfControl.getShareOfAssets75To100()).isEqualTo(natureOfControlDto.getShareOfAssets75To100());
+            Assertions.assertThat(savedNatureOfControl.getShareOfAssetsDoesNotApply()).isEqualTo(natureOfControlDto.getShareOfAssetsDoesNotApply());
+            Assertions.assertThat(savedNatureOfControl.getVotingRights25To50()).isEqualTo(natureOfControlDto.getVotingRights25To50());
+            Assertions.assertThat(savedNatureOfControl.getVotingRights50To75()).isEqualTo(natureOfControlDto.getVotingRights50To75());
+            Assertions.assertThat(savedNatureOfControl.getVotingRights75To100()).isEqualTo(natureOfControlDto.getVotingRights75To100());
+            Assertions.assertThat(savedNatureOfControl.getVotingRightsDoesNotApply()).isEqualTo(natureOfControlDto.getVotingRightsDoesNotApply());
+            Assertions.assertThat(savedNatureOfControl.getRightToAppointmentAndRemove()).isEqualTo(natureOfControlDto.getRightToAppointmentAndRemove());
+            Assertions.assertThat(savedNatureOfControl.getSignificantInfluenceControl()).isEqualTo(natureOfControlDto.getSignificantInfluenceControl());
+        };
+    }
 
     @Nested
     class NaturesOfControlIndividual {
@@ -142,19 +159,9 @@ class PersonWithSignificantControlServiceNocTest {
 
             List<NatureOfControlDao> savedNaturesOfControl = savedPersonWithSignificantControlDao.getData().getNaturesOfControl();
 
-            assertEquals(1, savedNaturesOfControl.size());
-            NatureOfControlDao savedNatureOfControl = savedNaturesOfControl.getFirst();
-
-            assertEquals(natureOfControlDto.getShareOfAssets25To50(), savedNatureOfControl.getShareOfAssets25To50());
-            assertEquals(natureOfControlDto.getShareOfAssets50To75(), savedNatureOfControl.getShareOfAssets50To75());
-            assertEquals(natureOfControlDto.getShareOfAssets75To100(), savedNatureOfControl.getShareOfAssets75To100());
-            assertEquals(natureOfControlDto.getShareOfAssetsDoesNotApply(), savedNatureOfControl.getShareOfAssetsDoesNotApply());
-            assertEquals(natureOfControlDto.getVotingRights25To50(), savedNatureOfControl.getVotingRights25To50());
-            assertEquals(natureOfControlDto.getVotingRights50To75(), savedNatureOfControl.getVotingRights50To75());
-            assertEquals(natureOfControlDto.getVotingRights75To100(), savedNatureOfControl.getVotingRights75To100());
-            assertEquals(natureOfControlDto.getVotingRightsDoesNotApply(), savedNatureOfControl.getVotingRightsDoesNotApply());
-            assertEquals(natureOfControlDto.getRightToAppointmentAndRemove(), savedNatureOfControl.getRightToAppointmentAndRemove());
-            assertEquals(natureOfControlDto.getSignificantInfluenceControl(), savedNatureOfControl.getSignificantInfluenceControl());
+            assertThat(savedNaturesOfControl)
+                    .singleElement()
+                    .satisfies(hasPersistedNocCorrectly(natureOfControlDto));
         }
 
         @ParameterizedTest
@@ -200,7 +207,7 @@ class PersonWithSignificantControlServiceNocTest {
             ));
         }
 
-        static Stream<NatureOfControlDto> provideNaturesOfControlIndividualValidationError() {
+        static Stream<NatureOfControlDto> provideNaturesOfControlFirmValidationError() {
             return Stream.of(
                     new NatureOfControlBuilder().withType(NatureOfControlType.FIRM).build(),
                     new NatureOfControlBuilder().withType(NatureOfControlType.FIRM).withVotingRights25To50().build(),
@@ -220,7 +227,7 @@ class PersonWithSignificantControlServiceNocTest {
         }
 
         static Stream<Arguments> provideNaturesOfControlAndPscTypesForFailure() {
-            return provideNaturesOfControlIndividualValidationError().flatMap(noc -> Stream.of(
+            return provideNaturesOfControlFirmValidationError().flatMap(noc -> Stream.of(
                     Arguments.of(new PersonWithSignificantControlBuilder().individualPersonDao(),
                             new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).individualPersonDto()),
                     Arguments.of(new PersonWithSignificantControlBuilder().relevantLegalEntityDao(),
@@ -247,24 +254,14 @@ class PersonWithSignificantControlServiceNocTest {
 
             List<NatureOfControlDao> savedNaturesOfControl = savedPersonWithSignificantControlDao.getData().getNaturesOfControl();
 
-            assertEquals(1, savedNaturesOfControl.size());
-            NatureOfControlDao savedNatureOfControl = savedNaturesOfControl.getFirst();
-
-            assertEquals(natureOfControlDto.getShareOfAssets25To50(), savedNatureOfControl.getShareOfAssets25To50());
-            assertEquals(natureOfControlDto.getShareOfAssets50To75(), savedNatureOfControl.getShareOfAssets50To75());
-            assertEquals(natureOfControlDto.getShareOfAssets75To100(), savedNatureOfControl.getShareOfAssets75To100());
-            assertEquals(natureOfControlDto.getShareOfAssetsDoesNotApply(), savedNatureOfControl.getShareOfAssetsDoesNotApply());
-            assertEquals(natureOfControlDto.getVotingRights25To50(), savedNatureOfControl.getVotingRights25To50());
-            assertEquals(natureOfControlDto.getVotingRights50To75(), savedNatureOfControl.getVotingRights50To75());
-            assertEquals(natureOfControlDto.getVotingRights75To100(), savedNatureOfControl.getVotingRights75To100());
-            assertEquals(natureOfControlDto.getVotingRightsDoesNotApply(), savedNatureOfControl.getVotingRightsDoesNotApply());
-            assertEquals(natureOfControlDto.getRightToAppointmentAndRemove(), savedNatureOfControl.getRightToAppointmentAndRemove());
-            assertEquals(natureOfControlDto.getSignificantInfluenceControl(), savedNatureOfControl.getSignificantInfluenceControl());
+            assertThat(savedNaturesOfControl)
+                    .singleElement()
+                    .satisfies(hasPersistedNocCorrectly(natureOfControlDto));
         }
 
         @ParameterizedTest
         @MethodSource("provideNaturesOfControlAndPscTypesForFailure")
-        void shouldNotUpdateTheDaoWithIncorrectNocIndividual(PersonWithSignificantControlDao personWithSignificantControlDao, PersonWithSignificantControlDto personWithSignificantControlDto) {
+        void shouldNotUpdateTheDaoWithIncorrectNocFirm(PersonWithSignificantControlDao personWithSignificantControlDao, PersonWithSignificantControlDto personWithSignificantControlDto) {
             when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
             when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 

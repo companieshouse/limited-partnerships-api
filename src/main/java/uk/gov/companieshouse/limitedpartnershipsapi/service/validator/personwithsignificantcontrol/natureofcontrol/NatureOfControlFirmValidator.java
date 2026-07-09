@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
 
 @Component
-public class NatureOfControlFirmValidator extends AbstractNatureOfControlValidator {
+public class NatureOfControlFirmValidator {
     public boolean isValid(NatureOfControlDto natureOfControlDto) {
         if (natureOfControlDto == null) {
             return false;
@@ -14,15 +14,14 @@ public class NatureOfControlFirmValidator extends AbstractNatureOfControlValidat
             return false;
         }
 
-        if (hasNoAssets(natureOfControlDto) || hasNoVoting(natureOfControlDto)) {
+        if (natureOfControlDto.hasNoAssets() || natureOfControlDto.hasNoVoting()) {
             return false;
         }
 
-
         // Valid if at least one nature of control is selected
         // either share assets percent, share voting rights percent or right to appointment or significant influence control
-        return hasShareAssetsPercent(natureOfControlDto) ||
-                hasVotingRightsPercent(natureOfControlDto) ||
+        return natureOfControlDto.hasShareAssetsPercent() ||
+                natureOfControlDto.hasVotingRightsPercent() ||
                 Boolean.TRUE.equals(natureOfControlDto.getRightToAppointmentAndRemove()) ||
                 Boolean.TRUE.equals(natureOfControlDto.getSignificantInfluenceControl());
     }

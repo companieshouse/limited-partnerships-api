@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
 
 @Component
-public class NatureOfControlIndividualValidator extends AbstractNatureOfControlValidator {
+public class NatureOfControlIndividualValidator {
 	public boolean isValid(NatureOfControlDto natureOfControlDto) {
 		if (natureOfControlDto == null) {
 			return false;
@@ -14,7 +14,7 @@ public class NatureOfControlIndividualValidator extends AbstractNatureOfControlV
 			return false;
 		}
 
-		if (hasNoAssets(natureOfControlDto) || hasNoVoting(natureOfControlDto)) {
+		if (natureOfControlDto.hasNoAssets() || natureOfControlDto.hasNoVoting()) {
 			return false;
 		}
 
@@ -26,14 +26,14 @@ public class NatureOfControlIndividualValidator extends AbstractNatureOfControlV
 
 		// sigInfluenceControl=true is only valid when both surplus and voting are doesNotApply (no percent values)
 		if (Boolean.TRUE.equals(natureOfControlDto.getSignificantInfluenceControl()) &&
-				(hasShareAssetsPercent(natureOfControlDto) || hasVotingRightsPercent(natureOfControlDto))) {
+				(natureOfControlDto.hasShareAssetsPercent() || natureOfControlDto.hasVotingRightsPercent())) {
 			return false;
 		}
 
 		// If neither surplus nor voting has a percent value (both are doesNotApply),
 		// at least one of rightToAppointment or sigInfluence must be true
-		return hasShareAssetsPercent(natureOfControlDto) ||
-				hasVotingRightsPercent(natureOfControlDto) ||
+		return natureOfControlDto.hasShareAssetsPercent() ||
+				natureOfControlDto.hasVotingRightsPercent() ||
 				Boolean.TRUE.equals(natureOfControlDto.getRightToAppointmentAndRemove()) ||
 				Boolean.TRUE.equals(natureOfControlDto.getSignificantInfluenceControl());
 	}
