@@ -124,4 +124,26 @@ public class NatureOfControlDto {
 	public void setSignificantInfluenceControl(Boolean significantInfluenceControl) {
 		this.significantInfluenceControl = significantInfluenceControl;
 	}
+
+	public boolean hasShareAssetsPercent() {
+		return Boolean.TRUE.equals(this.getShareOfAssets25To50()) ||
+				Boolean.TRUE.equals(this.getShareOfAssets50To75()) ||
+				Boolean.TRUE.equals(this.getShareOfAssets75To100());
+	}
+
+	public boolean hasVotingRightsPercent() {
+		return Boolean.TRUE.equals(this.getVotingRights25To50()) ||
+				Boolean.TRUE.equals(this.getVotingRights50To75()) ||
+				Boolean.TRUE.equals(this.getVotingRights75To100());
+	}
+
+	public boolean hasNoAssets() {
+		return !hasShareAssetsPercent() &&
+				!Boolean.TRUE.equals(this.getShareOfAssetsDoesNotApply());
+	}
+
+	public boolean hasNoVoting() {
+		return !hasVotingRightsPercent() &&
+				!Boolean.TRUE.equals(this.getVotingRightsDoesNotApply());
+	}
 }
