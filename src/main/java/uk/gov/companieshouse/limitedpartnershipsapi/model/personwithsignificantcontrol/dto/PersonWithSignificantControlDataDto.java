@@ -197,7 +197,13 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     }
 
     public void setNaturesOfControl(List<NatureOfControlDto> naturesOfControl) {
-        this.naturesOfControl = naturesOfControl;
+        if (naturesOfControl != null && natureOfControlTypes != null) {
+            this.naturesOfControl = naturesOfControl.stream()
+                    .filter(noc -> natureOfControlTypes.contains(noc.getType()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } else {
+            this.naturesOfControl = naturesOfControl;
+        }
     }
 
     public AddressDto getServiceAddress() {

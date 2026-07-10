@@ -1,9 +1,19 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.NatureOfControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
 
 public class NatureOfControlBuilder {
+
+	public static NatureOfControlBuilder validIndividual() {
+		return new NatureOfControlBuilder().withType(NatureOfControlType.INDIVIDUAL).withShareOfAssets25To50().withVotingRightsDoesNotApply();
+	}
+
+	public static NatureOfControlBuilder validFirm() {
+		return new NatureOfControlBuilder().withType(NatureOfControlType.FIRM).withShareOfAssets25To50().withVotingRightsDoesNotApply();
+	}
+
 	private NatureOfControlType type = NatureOfControlType.INDIVIDUAL;
 	private boolean shareOfAssets25To50 = false;
 	private boolean shareOfAssets50To75 = false;
@@ -87,5 +97,23 @@ public class NatureOfControlBuilder {
 		natureOfControlDto.setSignificantInfluenceControl(significantInfluenceControl);
 
 		return natureOfControlDto;
+	}
+
+	public NatureOfControlDao buildDao() {
+		NatureOfControlDao natureOfControlDao = new NatureOfControlDao();
+
+		natureOfControlDao.setType(type);
+		natureOfControlDao.setShareOfAssets25To50(shareOfAssets25To50);
+		natureOfControlDao.setShareOfAssets50To75(shareOfAssets50To75);
+		natureOfControlDao.setShareOfAssets75To100(shareOfAssets75To100);
+		natureOfControlDao.setShareOfAssetsDoesNotApply(shareOfAssetsDoesNotApply);
+		natureOfControlDao.setVotingRights25To50(votingRights25To50);
+		natureOfControlDao.setVotingRights50To75(votingRights50To75);
+		natureOfControlDao.setVotingRights75To100(votingRights75To100);
+		natureOfControlDao.setVotingRightsDoesNotApply(votingRightsDoesNotApply);
+		natureOfControlDao.setRightToAppointmentAndRemove(rightToAppointmentAndRemove);
+		natureOfControlDao.setSignificantInfluenceControl(significantInfluenceControl);
+
+		return natureOfControlDao;
 	}
 }
