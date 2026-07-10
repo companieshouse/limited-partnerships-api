@@ -200,7 +200,7 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
         if (naturesOfControl != null && natureOfControlTypes != null) {
             this.naturesOfControl = naturesOfControl.stream()
                     .filter(noc -> natureOfControlTypes.contains(noc.getType()))
-                    .collect(Collectors.toList());
+                    .toList();
         } else {
             this.naturesOfControl = naturesOfControl;
         }
