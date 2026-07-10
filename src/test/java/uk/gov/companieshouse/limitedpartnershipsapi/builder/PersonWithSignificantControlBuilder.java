@@ -128,6 +128,11 @@ public class PersonWithSignificantControlBuilder {
         return this;
     }
 
+    public PersonWithSignificantControlBuilder withNaturesOfControlDao(List<NatureOfControlDao> naturesOfControlDAO) {
+        this.naturesOfControlDAO = naturesOfControlDAO;
+        return this;
+    }
+
     public PersonWithSignificantControlDto individualPersonDto () {
         PersonWithSignificantControlDto dto = new PersonWithSignificantControlDto();
         dto.setId(PERSON_WITH_SIGNIFICANT_CONTROL_ID);

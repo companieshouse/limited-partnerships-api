@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.NatureOfControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -24,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.NatureOfControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
@@ -362,5 +364,58 @@ class PersonWithSignificantControlServiceUpdateTest {
         assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID))
                 .isInstanceOf(MethodArgumentNotValidException.class)
                 .hasMessageContaining("Nature of control types must be valid");
+    }
+
+
+    @Test
+    void shouldRemoveNatureOfControlWhenNatureOfControlTypeChanges() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        NatureOfControlDao individualDao = NatureOfControlBuilder.validIndividual().buildDao();
+        NatureOfControlDao firmDao = NatureOfControlBuilder.validFirm().buildDao();
+
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder()
+                .withNaturesOfControlDao(List.of(individualDao, firmDao))
+                .individualPersonDao();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
+        changesDto.setNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL));
+        changesDto.setNaturesOfControl(List.of(NatureOfControlBuilder.validIndividual().build(), NatureOfControlBuilder.validFirm().build()));
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID);
+
+        verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+        PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+        assertThat(savedPersonWithSignificantControlDao.getData().getNatureOfControlTypes()).isEqualTo(List.of(NatureOfControlType.INDIVIDUAL.toString()));
+        assertThat(savedPersonWithSignificantControlDao.getData().getNaturesOfControl())
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyElementsOf(List.of(individualDao));
+    }
+
+    @Test
+    void shouldNotRemoveNatureOfControlWhenNatureOfControlTypeUnchanged() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        NatureOfControlDao individualDao = NatureOfControlBuilder.validIndividual().buildDao();
+        NatureOfControlDao firmDao = NatureOfControlBuilder.validFirm().buildDao();
+
+        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder()
+                .withNaturesOfControlDao(List.of(individualDao, firmDao))
+                .individualPersonDao();
+
+        PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlDataDto();
+        changesDto.setNatureOfControlTypes(List.of(NatureOfControlType.INDIVIDUAL, NatureOfControlType.FIRM));
+        changesDto.setNaturesOfControl(List.of(NatureOfControlBuilder.validIndividual().build(), NatureOfControlBuilder.validFirm().build()));
+
+        when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, changesDto, REQUEST_ID, USER_ID);
+
+        verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+        PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+        assertThat(savedPersonWithSignificantControlDao.getData().getNatureOfControlTypes()).isEqualTo(List.of(NatureOfControlType.INDIVIDUAL.toString(), NatureOfControlType.FIRM.toString()));
+        assertThat(savedPersonWithSignificantControlDao.getData().getNaturesOfControl())
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyElementsOf(List.of(individualDao, firmDao));
     }
 }
