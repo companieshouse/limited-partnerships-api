@@ -270,4 +270,99 @@ class PersonWithSignificantControlServiceNocTest {
                     .hasMessageContaining("Invalid nature of control combination");
         }
     }
+
+    @Nested
+    class NaturesOfControlTrust {
+        static Stream<NatureOfControlDto> provideNaturesOfControlTrust() {
+            return Stream.of(
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssets25To50().withVotingRights25To50().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssets50To75().withVotingRights50To75().withRightToAppointmentAndRemove().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssets75To100().withVotingRights75To100().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssets25To50().withVotingRights50To75().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssets75To100().withVotingRightsDoesNotApply().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssets25To50().withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssets50To75().withVotingRightsDoesNotApply().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withVotingRights25To50().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withVotingRights50To75().withRightToAppointmentAndRemove().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withVotingRights75To100().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withVotingRightsDoesNotApply().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build()
+            );
+        }
+
+        static Stream<Arguments> provideNaturesOfControlAndPscTypesForUpdate() {
+            return provideNaturesOfControlTrust().flatMap(noc -> Stream.of(
+                Arguments.of(noc, new PersonWithSignificantControlBuilder().individualPersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).individualPersonDto()),
+                Arguments.of(noc, new PersonWithSignificantControlBuilder().relevantLegalEntityDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).relevantLegalEntityDto()),
+                Arguments.of(noc, new PersonWithSignificantControlBuilder().otherRegistrablePersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).otherRegistrablePersonDto())
+            ));
+        }
+
+        static Stream<NatureOfControlDto> provideNaturesOfControlTrustValidationError() {
+            return Stream.of(
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withVotingRights25To50().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withVotingRightsDoesNotApply().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withVotingRightsDoesNotApply().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withRightToAppointmentAndRemove().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withVotingRightsDoesNotApply().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withVotingRightsDoesNotApply().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withRightToAppointmentAndRemove().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withSignificantInfluenceControl().build(),
+                new NatureOfControlBuilder().withType(NatureOfControlType.TRUST).withShareOfAssetsDoesNotApply().withRightToAppointmentAndRemove().withSignificantInfluenceControl().build()
+            );
+        }
+
+        static Stream<Arguments> provideNaturesOfControlAndPscTypesForFailure() {
+            return provideNaturesOfControlTrustValidationError().flatMap(noc -> Stream.of(
+                Arguments.of(new PersonWithSignificantControlBuilder().individualPersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).individualPersonDto()),
+                Arguments.of(new PersonWithSignificantControlBuilder().relevantLegalEntityDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).relevantLegalEntityDto()),
+                Arguments.of(new PersonWithSignificantControlBuilder().otherRegistrablePersonDao(),
+                    new PersonWithSignificantControlBuilder().withNaturesOfControl(List.of(noc)).otherRegistrablePersonDto())
+            ));
+        }
+
+        @ParameterizedTest
+        @MethodSource("provideNaturesOfControlAndPscTypesForUpdate")
+        void shouldUpdateTheDaoWithNocTrust(NatureOfControlDto natureOfControlDto, PersonWithSignificantControlDao personWithSignificantControlDao, PersonWithSignificantControlDto personWithSignificantControlDto) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            assertNull(personWithSignificantControlDao.getData().getNaturesOfControl());
+
+            personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, personWithSignificantControlDto.getData(), REQUEST_ID, USER_ID);
+
+            verify(personWithSignificantControlRepository).findById(PSC_ID);
+            verify(personWithSignificantControlRepository).save(pscDaoArgumentCaptor.capture());
+
+            PersonWithSignificantControlDao savedPersonWithSignificantControlDao = pscDaoArgumentCaptor.getValue();
+
+            List<NatureOfControlDao> savedNaturesOfControl = savedPersonWithSignificantControlDao.getData().getNaturesOfControl();
+
+            assertThat(savedNaturesOfControl)
+                .singleElement()
+                .satisfies(hasPersistedNocCorrectly(natureOfControlDto));
+        }
+
+        @ParameterizedTest
+        @MethodSource("provideNaturesOfControlAndPscTypesForFailure")
+        void shouldNotUpdateTheDaoWithIncorrectNocTrust(PersonWithSignificantControlDao personWithSignificantControlDao, PersonWithSignificantControlDto personWithSignificantControlDto) {
+            when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            assertThatThrownBy(() -> personWithSignificantControlService.updatePersonWithSignificantControl(transaction, PSC_ID, personWithSignificantControlDto.getData(), REQUEST_ID, USER_ID))
+                .isInstanceOf(MethodArgumentNotValidException.class)
+                .hasMessageContaining("Invalid nature of control combination");
+        }
+    }
 }

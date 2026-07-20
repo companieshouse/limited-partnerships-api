@@ -21,6 +21,8 @@ public class NatureOfControlValidator {
 			return natureOfControlIndividualValidator.isValid(natureOfControlDto);
 		} else if (natureOfControlDto.getType() == NatureOfControlType.FIRM) {
 			return natureOfControlFirmValidator.isValid(natureOfControlDto);
+		} else if (natureOfControlDto.getType() == NatureOfControlType.TRUST) {
+			return new NatureOfControlTrust().isValid(natureOfControlDto);
 		}
 
 		return false;
