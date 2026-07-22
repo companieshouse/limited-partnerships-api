@@ -115,8 +115,7 @@ class PartnershipControllerValidationTest {
         httpHeaders.add("X-Request-Id", "123");
         httpHeaders.add("ERIC-Identity", "123");
 
-        transaction = new TransactionBuilder().build();
-        transaction.setFilingMode("limited-partnership-registration");
+        transaction = new TransactionBuilder().withIncorporationKind(FilingMode.REGISTRATION).build();
     }
 
     @Nested
@@ -846,6 +845,7 @@ class PartnershipControllerValidationTest {
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipDao));
 
         when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
     }
 
     private void mocks() {

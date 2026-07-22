@@ -156,6 +156,7 @@ class LimitedPartnershipServiceTest {
         LimitedPartnershipDao limitedPartnershipDaoAfterPatch = new LimitedPartnershipBuilder().buildDao();
         when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(
                 limitedPartnershipDaoAfterPatch);
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         // when
         service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);

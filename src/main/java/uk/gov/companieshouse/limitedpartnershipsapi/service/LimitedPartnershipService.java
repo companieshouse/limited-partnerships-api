@@ -107,13 +107,10 @@ public class LimitedPartnershipService {
                                          LimitedPartnershipPatchDto limitedPartnershipPatchDto,
                                          String requestId,
                                          String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        var optionalLpSubmissionDaoBeforePatch = repository.findById(submissionId);
+        var lpSubmissionDaoBeforePatch = repository.findById(submissionId).orElseThrow(() -> new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId)));
 
-        if (optionalLpSubmissionDaoBeforePatch.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("Submission with id %s not found", submissionId));
-        }
+        checkIfPartnershipIsLinkedToTransaction(transaction, submissionId, lpSubmissionDaoBeforePatch);
 
-        var lpSubmissionDaoBeforePatch = optionalLpSubmissionDaoBeforePatch.get();
         var lpSubmissionDto = mapper.daoToDto(lpSubmissionDaoBeforePatch);
 
         patchMapper.update(limitedPartnershipPatchDto, lpSubmissionDto.getData());
@@ -159,16 +156,10 @@ public class LimitedPartnershipService {
     }
 
     public LimitedPartnershipDto getLimitedPartnership(Transaction transaction, String submissionId) throws ResourceNotFoundException {
-        String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
         var limitedPartnershipDao = repository.findById(submissionId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Limited Partnership with id %s not found", submissionId)));
 
-        String kind = requireNonNullElse(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
-
-        if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, kind)) {
-            throw new ResourceNotFoundException(String.format(
-                    "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
-        }
+        checkIfPartnershipIsLinkedToTransaction(transaction, submissionId, limitedPartnershipDao);
 
         return mapper.daoToDto(limitedPartnershipDao);
     }
@@ -205,4 +196,13 @@ public class LimitedPartnershipService {
         return limitedPartnershipValidator.validateFull(limitedPartnershipDto, FilingMode.fromDescription(transaction.getFilingMode()));
     }
 
+    private void checkIfPartnershipIsLinkedToTransaction(Transaction transaction, String submissionId, LimitedPartnershipDao limitedPartnershipDao) throws ResourceNotFoundException {
+        String submissionUri = getSubmissionUri(transaction.getId(), submissionId);
+        String kind = requireNonNullElse(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+
+        if (!transactionService.isTransactionLinkedToResource(transaction, submissionUri, kind)) {
+            throw new ResourceNotFoundException(String.format(
+                "Transaction id: %s does not have a resource that matches submission id: %s", transaction.getId(), submissionId));
+        }
+    }
 }
