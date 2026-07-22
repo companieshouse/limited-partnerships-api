@@ -71,6 +71,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
+                when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao partnership name before mapping/update
                 assertEquals("Test Partnership", limitedPartnershipDao.getData().getPartnershipName());
@@ -121,6 +122,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
+                when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao registered office address is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getRegisteredOfficeAddress());
@@ -180,6 +182,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
+                when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao term is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getTerm());
@@ -231,6 +234,7 @@ class LimitedPartnershipServiceUpdateTest {
 
                 when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
                         limitedPartnershipDao));
+                when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao principal place of business address is null before mapping/update
                 assertNull(limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress());
