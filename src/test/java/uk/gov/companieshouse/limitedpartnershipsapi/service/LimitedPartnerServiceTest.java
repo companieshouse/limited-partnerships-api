@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -26,10 +27,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -159,5 +163,75 @@ class LimitedPartnerServiceTest {
         List<LimitedPartnerDataDto> limitedPartnerDtoList = limitedPartnerService.getLimitedPartnerDataList(transaction);
 
         assertEquals(0, limitedPartnerDtoList.size());
+    }
+
+    @Nested
+    class Transactional {
+        @Test
+        void givenTransactionUpdateFails_whenCreateLimitedPartner_thenInsertedLimitedPartnerIsDeleted() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            LimitedPartnerDto limitedPartnerDto = new LimitedPartnerBuilder().personDto();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+            when(mapper.dtoToDao(limitedPartnerDto)).thenReturn(limitedPartnerDao);
+            when(repository.insert(limitedPartnerDao)).thenReturn(limitedPartnerDao);
+
+            doThrow(new ServiceException("Transaction update failed"))
+                    .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any(), any());
+
+            assertThatThrownBy(() -> limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, REQUEST_ID, USER_ID))
+                    .isInstanceOf(ServiceException.class)
+                    .hasMessageContaining("Transaction update failed");
+
+            verify(repository).deleteById(LIMITED_ID);
+        }
+
+        @Test
+        void givenTransactionUpdateSucceeds_whenCreateLimitedPartner_thenInsertedLimitedPartnerIsNotDeleted() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            LimitedPartnerDto limitedPartnerDto = new LimitedPartnerBuilder().personDto();
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+
+            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+            when(mapper.dtoToDao(limitedPartnerDto)).thenReturn(limitedPartnerDao);
+            when(repository.insert(limitedPartnerDao)).thenReturn(limitedPartnerDao);
+
+            limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, REQUEST_ID, USER_ID);
+
+            verify(repository, never()).deleteById(LIMITED_ID);
+        }
+
+        @Test
+        void givenTransactionDeleteFails_whenDeleteLimitedPartner_thenMongoDocumentIsRestored() throws ServiceException {
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+
+            when(repository.findById(LIMITED_ID)).thenReturn(Optional.of(limitedPartnerDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+            doThrow(new ServiceException("Transaction resource delete failed"))
+                    .when(transactionService).deleteTransactionResource(any(), any(), any());
+
+            assertThatThrownBy(() -> limitedPartnerService.deleteLimitedPartner(transaction, LIMITED_ID, REQUEST_ID))
+                    .isInstanceOf(ServiceException.class)
+                    .hasMessageContaining("Transaction resource delete failed");
+
+            // MongoDB was deleted first, then the transaction call failed — expect rollback save
+            verify(repository).deleteById(LIMITED_ID);
+            verify(repository).save(limitedPartnerDao);
+        }
+
+        @Test
+        void givenTransactionDeleteSucceeds_whenDeleteLimitedPartner_thenMongoDocumentIsNotRestored() throws ServiceException {
+            LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+
+            when(repository.findById(LIMITED_ID)).thenReturn(Optional.of(limitedPartnerDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            limitedPartnerService.deleteLimitedPartner(transaction, LIMITED_ID, REQUEST_ID);
+
+            // only deleteById — no rollback save
+            verify(repository).deleteById(LIMITED_ID);
+            verify(repository, never()).save(any());
+        }
     }
 }

@@ -33,6 +33,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionRollback.executeWithTransactionRollback;
 
 @Service
 public class LimitedPartnerService {
@@ -90,7 +91,13 @@ public class LimitedPartnerService {
 
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null);
+        executeWithTransactionRollback(
+                requestId,
+                insertedSubmission.getId(),
+                () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null),
+                "insertion",
+                () -> repository.deleteById(insertedSubmission.getId())
+        );
 
         return insertedSubmission.getId();
     }
@@ -210,8 +217,15 @@ public class LimitedPartnerService {
 
         var submissionUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), limitedPartnerId);
 
-        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
         repository.deleteById(limitedPartnerDao.getId());
+
+        executeWithTransactionRollback(
+                requestId,
+                limitedPartnerId,
+                () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),
+                "deletion",
+                () -> repository.save(limitedPartnerDao)
+        );
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));
     }
