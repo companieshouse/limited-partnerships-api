@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.INSERTION;
 
 class TransactionalRollbackTest {
 
@@ -21,7 +22,7 @@ class TransactionalRollbackTest {
 		TransactionalRollback.executeWithTransactionalRollback(
 				REQUEST_ID, SUBMISSION_ID,
 				() -> { /* success — no-op */ },
-				"insertion",
+				INSERTION,
 				() -> rollbackCalled.set(true));
 
 		assertFalse(rollbackCalled.get());
@@ -37,7 +38,7 @@ class TransactionalRollbackTest {
 						() -> {
 							throw new ServiceException("update failed");
 						},
-						"insertion",
+						INSERTION,
 						() -> rollbackCalled.set(true)));
 
 		assertTrue(rollbackCalled.get());
@@ -51,7 +52,7 @@ class TransactionalRollbackTest {
 						() -> {
 							throw new ServiceException("update failed");
 						},
-						"insertion",
+						INSERTION,
 						() -> {
 							throw new RuntimeException("rollback also failed");
 						}));

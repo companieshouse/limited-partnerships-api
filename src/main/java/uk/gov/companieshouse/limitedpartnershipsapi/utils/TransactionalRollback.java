@@ -21,6 +21,25 @@ public class TransactionalRollback {
     }
 
     /**
+     * Identifies the type of MongoDB operation being rolled back, used in log messages.
+     */
+    public enum Operation {
+        INSERTION("insertion"),
+        DELETION("deletion"),
+        UPDATE("update");
+
+        private final String description;
+
+        Operation(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    /**
      * Executes a transaction service update and, if it fails with a {@link ServiceException},
      * runs the provided rollback action to revert any MongoDB writes made before the update.
      * The original exception is always re-thrown so the caller is aware of the failure.
@@ -31,8 +50,7 @@ public class TransactionalRollback {
      * @param requestId         the logging context identifier
      * @param submissionId      the MongoDB document ID, used in log messages
      * @param transactionUpdate the transaction service call to execute
-     * @param operationName     a short label for the operation (e.g. "insertion", "deletion"),
-     *                          used in log messages
+     * @param operation         the type of operation being rolled back, used in log messages
      * @param rollback          the action that reverts the MongoDB write(s)
      * @throws ServiceException if the transaction update fails
      */
@@ -40,18 +58,18 @@ public class TransactionalRollback {
             String requestId,
             String submissionId,
             ThrowingRunnable transactionUpdate,
-            String operationName,
+            TransactionalRollback.Operation operation,
             Runnable rollback) throws ServiceException {
         try {
             transactionUpdate.run();
         } catch (ServiceException e) {
             ApiLogger.errorContext(requestId, String.format(
-                    "Failed to update transaction for submission with id: %s. Rolling back %s.", submissionId, operationName), e);
+                "Failed to update transaction for submission with id: %s. Rolling back %s.", submissionId, operation.getDescription()), e);
             try {
                 rollback.run();
             } catch (Exception rollbackException) {
                 ApiLogger.errorContext(requestId, String.format(
-                        "Failed to rollback %s for submission id: %s", operationName, submissionId), rollbackException);
+                    "Failed to rollback %s for submission id: %s", operation.getDescription(), submissionId), rollbackException);
             }
             throw e;
         }

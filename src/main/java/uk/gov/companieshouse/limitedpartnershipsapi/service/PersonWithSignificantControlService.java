@@ -26,6 +26,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.DELETION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.INSERTION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
@@ -91,11 +93,11 @@ public class PersonWithSignificantControlService {
         String kind = requireNonNullElse(insertedResource.getData().getKind(), FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
 
         executeWithTransactionalRollback(
-                requestId,
-                insertedResource.getId(),
-                () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, resourceUri, kind, null),
-                "insertion",
-                () -> repository.deleteById(insertedResource.getId())
+            requestId,
+            insertedResource.getId(),
+            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, resourceUri, kind, null),
+            INSERTION,
+            () -> repository.deleteById(insertedResource.getId())
         );
 
         return insertedResource.getId();
@@ -163,11 +165,11 @@ public class PersonWithSignificantControlService {
         repository.deleteById(personWithSignificantControlDao.getId());
 
         executeWithTransactionalRollback(
-                requestId,
-                personWithSignificantControlId,
-                () -> transactionService.deleteTransactionResource(transaction.getId(), personWithSignificantControlUri, requestId),
-                "deletion",
-                () -> repository.save(personWithSignificantControlDao)
+            requestId,
+            personWithSignificantControlId,
+            () -> transactionService.deleteTransactionResource(transaction.getId(), personWithSignificantControlUri, requestId),
+            DELETION,
+            () -> repository.save(personWithSignificantControlDao)
         );
 
         ApiLogger.infoContext(requestId, String.format("Person with significant control deleted with id: %s", personWithSignificantControlId));

@@ -33,6 +33,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.DELETION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.INSERTION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
@@ -92,11 +94,11 @@ public class LimitedPartnerService {
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
         executeWithTransactionalRollback(
-                requestId,
-                insertedSubmission.getId(),
-                () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null),
-                "insertion",
-                () -> repository.deleteById(insertedSubmission.getId())
+            requestId,
+            insertedSubmission.getId(),
+            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null),
+            INSERTION,
+            () -> repository.deleteById(insertedSubmission.getId())
         );
 
         return insertedSubmission.getId();
@@ -220,11 +222,11 @@ public class LimitedPartnerService {
         repository.deleteById(limitedPartnerDao.getId());
 
         executeWithTransactionalRollback(
-                requestId,
-                limitedPartnerId,
-                () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),
-                "deletion",
-                () -> repository.save(limitedPartnerDao)
+            requestId,
+            limitedPartnerId,
+            () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),
+            DELETION,
+            () -> repository.save(limitedPartnerDao)
         );
 
         ApiLogger.infoContext(requestId, String.format("Limited Partner deleted with id: %s", limitedPartnerId));

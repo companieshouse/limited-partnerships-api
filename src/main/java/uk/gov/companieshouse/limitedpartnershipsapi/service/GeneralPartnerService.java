@@ -31,6 +31,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.DELETION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.INSERTION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
@@ -82,7 +84,7 @@ public class GeneralPartnerService {
             requestId,
             insertedId,
             () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, finalCost),
-            "insertion",
+            INSERTION,
             () -> repository.deleteById(insertedId));
 
         return insertedId;
@@ -244,7 +246,7 @@ public class GeneralPartnerService {
             requestId,
             generalPartnerId,
             () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),
-            "deletion",
+            DELETION,
             () -> repository.save(generalPartnerDao));
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));

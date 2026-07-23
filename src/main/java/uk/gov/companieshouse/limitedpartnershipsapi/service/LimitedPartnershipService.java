@@ -29,6 +29,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.INSERTION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.UPDATE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
@@ -93,7 +95,7 @@ public class LimitedPartnershipService {
             insertedLimitedPartnership.getId(),
             () -> transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
                 submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId()),
-            "insertion",
+            INSERTION,
             () -> repository.deleteById(insertedLimitedPartnership.getId()));
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership created with id: %s", insertedLimitedPartnership.getId()));
@@ -136,7 +138,7 @@ public class LimitedPartnershipService {
             requestId,
             submissionId,
             () -> transactionService.updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName()),
-            "update",
+            UPDATE,
             () -> repository.save(lpSubmissionDaoBeforePatch));
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission updated with id: %s", submissionId));
