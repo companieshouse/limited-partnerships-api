@@ -238,7 +238,6 @@ public class GeneralPartnerService {
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
-        // Delete from MongoDB first so the transaction update can be rolled back if it fails
         repository.deleteById(generalPartnerDao.getId());
 
         executeWithTransactionRollback(

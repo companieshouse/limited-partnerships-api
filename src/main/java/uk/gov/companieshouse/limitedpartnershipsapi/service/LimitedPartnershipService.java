@@ -130,7 +130,6 @@ public class LimitedPartnershipService {
 
         setAuditDetailsForUpdate(userId, lpSubmissionDaoAfterPatch);
 
-        // Persist the patched document first so the rollback can restore the original if the transaction update fails
         repository.save(lpSubmissionDaoAfterPatch);
 
         executeWithTransactionRollback(
