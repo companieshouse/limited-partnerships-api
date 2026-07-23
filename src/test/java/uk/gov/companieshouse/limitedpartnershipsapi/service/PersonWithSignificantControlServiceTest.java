@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,6 +38,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -308,8 +312,8 @@ class PersonWithSignificantControlServiceTest {
 
         verify(repository, times(1)).findById(PSC_ID);
         verify(transactionService, times(1)).isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
-        verify(transactionService, times(1)).deleteTransactionResource(TRANSACTION.getId(), pscUri, REQUEST_ID);
         verify(repository, times(1)).deleteById(PSC_ID);
+        verify(transactionService, times(1)).deleteTransactionResource(TRANSACTION.getId(), pscUri, REQUEST_ID);
     }
 
     @Test
@@ -392,5 +396,72 @@ class PersonWithSignificantControlServiceTest {
 
         var dto = personWithSignificantControlService.getPersonWithSignificantControl(TRANSACTION, PSC_ID);
         assertEquals(List.of(NatureOfControlType.INDIVIDUAL), dto.getData().getNatureOfControlTypes());
+    }
+
+    @Nested
+    class Transactional {
+        @Test
+        void givenTransactionUpdateFails_whenCreatePsc_thenInsertedPscIsDeleted() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            PersonWithSignificantControlDto dto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
+            PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+
+            when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
+            when(mapper.dtoToDao(dto)).thenReturn(dao);
+            when(repository.insert(dao)).thenReturn(dao);
+            doThrow(new ServiceException("Transaction update failed"))
+                    .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any(), any());
+
+            assertThatThrownBy(() -> personWithSignificantControlService.createPersonWithSignificantControl(TRANSACTION, dto, REQUEST_ID, USER_ID))
+                    .isInstanceOf(ServiceException.class)
+                    .hasMessageContaining("Transaction update failed");
+
+            verify(repository).deleteById(PSC_ID);
+        }
+
+        @Test
+        void givenTransactionUpdateSucceeds_whenCreatePsc_thenInsertedPscIsNotDeleted() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            PersonWithSignificantControlDto dto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
+            PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+
+            when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
+            when(mapper.dtoToDao(dto)).thenReturn(dao);
+            when(repository.insert(dao)).thenReturn(dao);
+
+            personWithSignificantControlService.createPersonWithSignificantControl(TRANSACTION, dto, REQUEST_ID, USER_ID);
+
+            verify(repository, never()).deleteById(PSC_ID);
+        }
+
+        @Test
+        void givenTransactionDeleteFails_whenDeletePsc_thenMongoDocumentIsRestored() throws ServiceException {
+            PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+
+            when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+            doThrow(new ServiceException("Transaction resource delete failed"))
+                    .when(transactionService).deleteTransactionResource(any(), any(), any());
+
+            assertThatThrownBy(() -> personWithSignificantControlService.deletePersonWithSignificantControl(TRANSACTION, PSC_ID, REQUEST_ID))
+                    .isInstanceOf(ServiceException.class)
+                    .hasMessageContaining("Transaction resource delete failed");
+
+            // MongoDB was deleted first, then the transaction call failed — expect rollback save
+            verify(repository).deleteById(PSC_ID);
+            verify(repository).save(existingDao);
+        }
+
+        @Test
+        void givenTransactionDeleteSucceeds_whenDeletePsc_thenMongoDocumentIsNotRestored() throws ServiceException {
+            PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+
+            when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            personWithSignificantControlService.deletePersonWithSignificantControl(TRANSACTION, PSC_ID, REQUEST_ID);
+
+            // only deleteById — no rollback save
+            verify(repository).deleteById(PSC_ID);
+            verify(repository, never()).save(any());
+        }
     }
 }
