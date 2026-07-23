@@ -401,7 +401,7 @@ class PersonWithSignificantControlServiceTest {
     @Nested
     class Transactional {
         @Test
-        void givenTransactionUpdateFails_whenCreatePsc_thenInsertedPscIsDeleted() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        void givenTransactionUpdateFails_whenCreatePsc_thenInsertedPscIsDeleted() throws ServiceException {
             PersonWithSignificantControlDto dto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
             PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
 

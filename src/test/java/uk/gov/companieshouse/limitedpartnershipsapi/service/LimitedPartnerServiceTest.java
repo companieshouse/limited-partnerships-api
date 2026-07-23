@@ -168,7 +168,7 @@ class LimitedPartnerServiceTest {
     @Nested
     class Transactional {
         @Test
-        void givenTransactionUpdateFails_whenCreateLimitedPartner_thenInsertedLimitedPartnerIsDeleted() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        void givenTransactionUpdateFails_whenCreateLimitedPartner_thenInsertedLimitedPartnerIsDeleted() throws ServiceException {
             LimitedPartnerDto limitedPartnerDto = new LimitedPartnerBuilder().personDto();
             LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
             LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
