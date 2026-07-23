@@ -6,9 +6,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
  * Utility class providing a reusable pattern for executing a transaction service update
  * and rolling back any MongoDB writes if the update fails.
  */
-public class TransactionRollback {
+public class TransactionalRollback {
 
-    private TransactionRollback() {
+    private TransactionalRollback() {
         // Private constructor to prevent instantiation
     }
 
@@ -36,7 +36,7 @@ public class TransactionRollback {
      * @param rollback          the action that reverts the MongoDB write(s)
      * @throws ServiceException if the transaction update fails
      */
-    public static void executeWithTransactionRollback(
+    public static void executeWithTransactionalRollback(
             String requestId,
             String submissionId,
             ThrowingRunnable transactionUpdate,

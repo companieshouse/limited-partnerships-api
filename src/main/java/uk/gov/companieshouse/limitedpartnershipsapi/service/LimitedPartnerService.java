@@ -33,7 +33,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionRollback.executeWithTransactionRollback;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
 public class LimitedPartnerService {
@@ -91,7 +91,7 @@ public class LimitedPartnerService {
 
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
                 requestId,
                 insertedSubmission.getId(),
                 () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null),
@@ -219,7 +219,7 @@ public class LimitedPartnerService {
 
         repository.deleteById(limitedPartnerDao.getId());
 
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
                 requestId,
                 limitedPartnerId,
                 () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),

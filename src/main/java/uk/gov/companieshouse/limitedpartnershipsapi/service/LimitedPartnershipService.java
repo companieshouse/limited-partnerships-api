@@ -29,7 +29,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionRollback.executeWithTransactionRollback;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
 public class LimitedPartnershipService {
@@ -88,7 +88,7 @@ public class LimitedPartnershipService {
             addCostLink(limitedPartnershipDto, limitedPartnershipResource, submissionUri);
         }
 
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
             requestId,
             insertedLimitedPartnership.getId(),
             () -> transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
@@ -132,7 +132,7 @@ public class LimitedPartnershipService {
 
         repository.save(lpSubmissionDaoAfterPatch);
 
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
             requestId,
             submissionId,
             () -> transactionService.updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName()),

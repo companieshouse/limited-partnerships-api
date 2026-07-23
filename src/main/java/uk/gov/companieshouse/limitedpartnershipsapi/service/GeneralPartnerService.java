@@ -31,7 +31,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionRollback.executeWithTransactionRollback;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
 public class GeneralPartnerService {
@@ -78,7 +78,7 @@ public class GeneralPartnerService {
 
         final String insertedId = insertedSubmission.getId();
         final Cost finalCost = cost;
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
             requestId,
             insertedId,
             () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, finalCost),
@@ -240,7 +240,7 @@ public class GeneralPartnerService {
 
         repository.deleteById(generalPartnerDao.getId());
 
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
             requestId,
             generalPartnerId,
             () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),

@@ -26,7 +26,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionRollback.executeWithTransactionRollback;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
 public class PersonWithSignificantControlService {
@@ -90,7 +90,7 @@ public class PersonWithSignificantControlService {
 
         String kind = requireNonNullElse(insertedResource.getData().getKind(), FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
 
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
                 requestId,
                 insertedResource.getId(),
                 () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, resourceUri, kind, null),
@@ -162,7 +162,7 @@ public class PersonWithSignificantControlService {
 
         repository.deleteById(personWithSignificantControlDao.getId());
 
-        executeWithTransactionRollback(
+        executeWithTransactionalRollback(
                 requestId,
                 personWithSignificantControlId,
                 () -> transactionService.deleteTransactionResource(transaction.getId(), personWithSignificantControlUri, requestId),
