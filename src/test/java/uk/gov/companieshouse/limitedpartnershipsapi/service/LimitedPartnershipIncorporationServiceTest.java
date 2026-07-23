@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,6 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -243,5 +247,43 @@ class LimitedPartnershipIncorporationServiceTest {
 
         // when
         incorporationService.createIncorporation(transaction, incorporationDto, REQUEST_ID, USER_ID);
+    }
+
+    @Nested
+    class Transactional {
+        @Test
+        void givenTransactionUpdateFails_whenCreateIncorporation_thenInsertedIncorporationIsDeleted() throws ServiceException {
+            LimitedPartnershipIncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
+            when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(incorporationDao);
+
+            IncorporationDto incorporationDto = new IncorporationDto();
+            IncorporationDataDto dataDto = new IncorporationDataDto();
+            dataDto.setKind(REGISTRATION);
+            incorporationDto.setData(dataDto);
+
+            doThrow(new ServiceException("Transaction update failed"))
+                    .when(transactionService).updateTransaction(any(), any());
+
+            assertThatThrownBy(() -> incorporationService.createIncorporation(transaction, incorporationDto, REQUEST_ID, USER_ID))
+                    .isInstanceOf(ServiceException.class)
+                    .hasMessageContaining("Transaction update failed");
+
+            verify(repository).deleteById(SUBMISSION_ID);
+        }
+
+        @Test
+        void givenTransactionUpdateSucceeds_whenCreateIncorporation_thenInsertedIncorporationIsNotDeleted() throws ServiceException {
+            LimitedPartnershipIncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
+            when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(incorporationDao);
+
+            IncorporationDto incorporationDto = new IncorporationDto();
+            IncorporationDataDto dataDto = new IncorporationDataDto();
+            dataDto.setKind(REGISTRATION);
+            incorporationDto.setData(dataDto);
+
+            incorporationService.createIncorporation(transaction, incorporationDto, REQUEST_ID, USER_ID);
+
+            verify(repository, never()).deleteById(SUBMISSION_ID);
+        }
     }
 }
