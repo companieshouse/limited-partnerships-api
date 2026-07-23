@@ -355,7 +355,7 @@ class GeneralPartnerServiceUpdateTest {
         }
 
         @Test
-        void shouldNotDeleteGeneralPartnerIfTransactionResourceDeleteFails() throws ServiceException {
+        void shouldRollbackDeletedGeneralPartnerIfTransactionResourceDeleteFails() throws ServiceException {
             GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
 
             when(generalPartnerRepository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
@@ -369,7 +369,9 @@ class GeneralPartnerServiceUpdateTest {
                     .isInstanceOf(ServiceException.class)
                     .hasMessageContaining("Transaction resource delete failed");
 
-            verify(generalPartnerRepository, never()).deleteById(GENERAL_PARTNER_ID);
+            // MongoDB delete happens first; on HTTP failure the document is re-saved (rolled back)
+            verify(generalPartnerRepository).deleteById(GENERAL_PARTNER_ID);
+            verify(generalPartnerRepository).save(generalPartnerDao);
         }
 
         @Test

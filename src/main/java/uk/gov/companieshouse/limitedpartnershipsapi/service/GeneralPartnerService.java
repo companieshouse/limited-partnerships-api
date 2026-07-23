@@ -31,6 +31,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionRollback.executeWithTransactionRollback;
 
 @Service
 public class GeneralPartnerService {
@@ -75,9 +76,16 @@ public class GeneralPartnerService {
             cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
         }
 
-        transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, cost);
+        final String insertedId = insertedSubmission.getId();
+        final Cost finalCost = cost;
+        executeWithTransactionRollback(
+            requestId,
+            insertedId,
+            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, finalCost),
+            "insertion",
+            () -> repository.deleteById(insertedId));
 
-        return insertedSubmission.getId();
+        return insertedId;
     }
 
     private GeneralPartnerDao insertDaoWithMetadata(
@@ -230,8 +238,15 @@ public class GeneralPartnerService {
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
-        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
+        // Delete from MongoDB first so the transaction update can be rolled back if it fails
         repository.deleteById(generalPartnerDao.getId());
+
+        executeWithTransactionRollback(
+            requestId,
+            generalPartnerId,
+            () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),
+            "deletion",
+            () -> repository.save(generalPartnerDao));
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
     }
@@ -246,4 +261,3 @@ public class GeneralPartnerService {
         }
     }
 }
-

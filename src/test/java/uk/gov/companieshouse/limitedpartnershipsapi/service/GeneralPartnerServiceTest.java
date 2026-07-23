@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -35,6 +36,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -217,5 +220,77 @@ class GeneralPartnerServiceTest {
         generalPartnerResource.setLinks(linksMap);
         generalPartnerResource.setKind(FILING_KIND_GENERAL_PARTNER);
         return generalPartnerResource;
+    }
+
+    @Nested
+    class Transactional {
+        @Test
+        void givenTransactionUpdateFails_whenCreateGeneralPartner_thenInsertedPartnerIsDeleted() throws Exception {
+            // given
+            GeneralPartnerDto dto = new GeneralPartnerBuilder().personDto();
+            GeneralPartnerDao dao = new GeneralPartnerBuilder().personDao();
+
+            when(mapper.dtoToDao(dto)).thenReturn(dao);
+            when(repository.insert(dao)).thenReturn(dao);
+            doThrow(new ServiceException("Transaction update failed"))
+                .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any(), any());
+
+            // when + then
+            assertThrows(ServiceException.class,
+                () -> generalPartnerService.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID));
+
+            verify(repository).deleteById(SUBMISSION_ID);
+        }
+
+        @Test
+        void givenTransactionUpdateSucceeds_whenCreateGeneralPartner_thenInsertedPartnerIsNotDeleted() throws Exception {
+            // given
+            GeneralPartnerDto dto = new GeneralPartnerBuilder().personDto();
+            GeneralPartnerDao dao = new GeneralPartnerBuilder().personDao();
+
+            when(mapper.dtoToDao(dto)).thenReturn(dao);
+            when(repository.insert(dao)).thenReturn(dao);
+
+            // when
+            generalPartnerService.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            // then: no rollback delete
+            verify(repository, never()).deleteById(any());
+        }
+
+        @Test
+        void givenTransactionDeleteFails_whenDeleteGeneralPartner_thenMongoDocumentIsRestored() throws Exception {
+            // given
+            GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
+
+            when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(generalPartnerDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+            doThrow(new ServiceException("Transaction resource delete failed"))
+                .when(transactionService).deleteTransactionResource(any(), any(), any());
+
+            // when + then
+            assertThrows(ServiceException.class,
+                () -> generalPartnerService.deleteGeneralPartner(transaction, SUBMISSION_ID, REQUEST_ID));
+
+            // MongoDB was deleted first, then the transaction call failed — expect rollback save
+            verify(repository).deleteById(SUBMISSION_ID);
+            verify(repository).save(generalPartnerDao);
+        }
+
+        @Test
+        void givenTransactionDeleteSucceeds_whenDeleteGeneralPartner_thenMongoDocumentIsNotRestored() throws Exception {
+            // given
+            GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
+
+            when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(generalPartnerDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            // when
+            generalPartnerService.deleteGeneralPartner(transaction, SUBMISSION_ID, REQUEST_ID);
+
+            // then: only deleteById — no rollback save
+            verify(repository).deleteById(SUBMISSION_ID);
+            verify(repository, never()).save(any());
+        }
     }
 }
