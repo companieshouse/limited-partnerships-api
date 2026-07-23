@@ -1,0 +1,59 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.utils;
+
+import org.junit.jupiter.api.Test;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class TransactionRollbackTest {
+
+	private static final String REQUEST_ID = "req-123";
+	private static final String SUBMISSION_ID = "sub-456";
+
+	@Test
+	void givenTransactionUpdateSucceeds_thenRollbackIsNotCalled() throws ServiceException {
+		AtomicBoolean rollbackCalled = new AtomicBoolean(false);
+
+		TransactionRollback.executeWithTransactionRollback(
+				REQUEST_ID, SUBMISSION_ID,
+				() -> { /* success — no-op */ },
+				"insertion",
+				() -> rollbackCalled.set(true));
+
+		assertFalse(rollbackCalled.get());
+	}
+
+	@Test
+	void givenTransactionUpdateFails_thenRollbackIsCalledAndExceptionIsRethrown() {
+		AtomicBoolean rollbackCalled = new AtomicBoolean(false);
+
+		assertThrows(ServiceException.class, () ->
+				TransactionRollback.executeWithTransactionRollback(
+						REQUEST_ID, SUBMISSION_ID,
+						() -> {
+							throw new ServiceException("update failed");
+						},
+						"insertion",
+						() -> rollbackCalled.set(true)));
+
+		assertTrue(rollbackCalled.get());
+	}
+
+	@Test
+	void givenRollbackAlsoFails_thenOriginalExceptionIsStillRethrown() {
+		assertThrows(ServiceException.class, () ->
+				TransactionRollback.executeWithTransactionRollback(
+						REQUEST_ID, SUBMISSION_ID,
+						() -> {
+							throw new ServiceException("update failed");
+						},
+						"insertion",
+						() -> {
+							throw new RuntimeException("rollback also failed");
+						}));
+	}
+}

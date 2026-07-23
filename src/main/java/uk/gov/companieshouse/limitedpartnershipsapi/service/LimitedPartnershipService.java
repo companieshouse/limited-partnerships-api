@@ -29,6 +29,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_SELF;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionRollback.executeWithTransactionRollback;
 
 @Service
 public class LimitedPartnershipService {
@@ -87,8 +88,13 @@ public class LimitedPartnershipService {
             addCostLink(limitedPartnershipDto, limitedPartnershipResource, submissionUri);
         }
 
-        transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
-                submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId());
+        executeWithTransactionRollback(
+            requestId,
+            insertedLimitedPartnership.getId(),
+            () -> transactionService.updateTransactionWithLinksAndPartnershipName(transaction, limitedPartnershipDto,
+                submissionUri, limitedPartnershipResource, requestId, insertedLimitedPartnership.getId()),
+            "insertion",
+            () -> repository.deleteById(insertedLimitedPartnership.getId()));
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership created with id: %s", insertedLimitedPartnership.getId()));
 
@@ -124,12 +130,17 @@ public class LimitedPartnershipService {
 
         setAuditDetailsForUpdate(userId, lpSubmissionDaoAfterPatch);
 
-        // Finally, update the transaction in case the partnership name has changed as a result of this patch request
-        transactionService.updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName());
+        // Persist the patched document first so the rollback can restore the original if the transaction update fails
+        repository.save(lpSubmissionDaoAfterPatch);
+
+        executeWithTransactionRollback(
+            requestId,
+            submissionId,
+            () -> transactionService.updateTransactionWithPartnershipName(transaction, requestId, lpSubmissionDaoAfterPatch.getData().getPartnershipName()),
+            "update",
+            () -> repository.save(lpSubmissionDaoBeforePatch));
 
         ApiLogger.infoContext(requestId, String.format("Limited Partnership submission updated with id: %s", submissionId));
-
-        repository.save(lpSubmissionDaoAfterPatch);
     }
 
     private void copyMetaDataForUpdate(LimitedPartnershipDao lpSubmissionDaoBeforePatch,

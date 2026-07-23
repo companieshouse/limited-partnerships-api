@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +39,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
@@ -323,5 +327,90 @@ class LimitedPartnershipServiceTest {
     @Test
     void giveSubmissionIdAndTransactionIdDoNotMatch_whenValidateStatus_ThenResourceNotFoundExceptionThrown() {
         assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartnership(transaction));
+    }
+
+    @Nested
+    class Transactional {
+        @Test
+        void givenTransactionUpdateFails_whenCreateLP_thenInsertedLPIsDeleted() throws Exception {
+            // given
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+
+            when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDao);
+            when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
+            doThrow(new ServiceException("Transaction update failed"))
+                .when(transactionService).updateTransactionWithLinksAndPartnershipName(
+                    eq(transaction), any(), any(), any(), any(), any());
+
+            // when + then
+            assertThrows(ServiceException.class,
+                () -> service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID));
+
+            verify(repository).deleteById(SUBMISSION_ID);
+        }
+
+        @Test
+        void givenTransactionUpdateSucceeds_whenCreateLP_thenInsertedLPIsNotDeleted() throws Exception {
+            // given
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+
+            when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDao);
+            when(repository.insert(limitedPartnershipDao)).thenReturn(limitedPartnershipDao);
+
+            // when
+            service.createLimitedPartnership(transaction, limitedPartnershipDto, REQUEST_ID, USER_ID);
+
+            // then
+            verify(repository, never()).deleteById(any());
+        }
+
+        @Test
+        void givenTransactionUpdateFails_whenUpdateLP_thenOriginalLPIsRestored() throws Exception {
+            // given
+            LimitedPartnershipDao limitedPartnershipDaoBeforePatch = new LimitedPartnershipBuilder().buildDao();
+            limitedPartnershipDaoBeforePatch.setCreatedBy("original-creator");
+
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            LimitedPartnershipDao limitedPartnershipDaoAfterPatch = new LimitedPartnershipBuilder().buildDao();
+
+            when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDaoBeforePatch));
+            when(mapper.daoToDto(limitedPartnershipDaoBeforePatch)).thenReturn(limitedPartnershipDto);
+            when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDaoAfterPatch);
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+            doThrow(new ServiceException("Transaction update failed"))
+                .when(transactionService).updateTransactionWithPartnershipName(any(), any(), any());
+
+            // when + then
+            assertThrows(ServiceException.class,
+                () -> service.updateLimitedPartnership(transaction, SUBMISSION_ID, new LimitedPartnershipPatchDto(), REQUEST_ID, USER_ID));
+
+            // verify: first save = patched DAO, second save = original DAO (rollback)
+            verify(repository, times(2)).save(submissionCaptor.capture());
+            List<LimitedPartnershipDao> savedValues = submissionCaptor.getAllValues();
+            assertEquals(limitedPartnershipDaoAfterPatch, savedValues.get(0));
+            assertEquals(limitedPartnershipDaoBeforePatch, savedValues.get(1));
+        }
+
+        @Test
+        void givenTransactionUpdateSucceeds_whenUpdateLP_thenOriginalLPIsNotRestored() throws Exception {
+            // given
+            LimitedPartnershipDao limitedPartnershipDaoBeforePatch = new LimitedPartnershipBuilder().buildDao();
+            LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+            LimitedPartnershipDao limitedPartnershipDaoAfterPatch = new LimitedPartnershipBuilder().buildDao();
+
+            when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDaoBeforePatch));
+            when(mapper.daoToDto(limitedPartnershipDaoBeforePatch)).thenReturn(limitedPartnershipDto);
+            when(mapper.dtoToDao(limitedPartnershipDto)).thenReturn(limitedPartnershipDaoAfterPatch);
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            // when
+            service.updateLimitedPartnership(transaction, SUBMISSION_ID, new LimitedPartnershipPatchDto(), REQUEST_ID, USER_ID);
+
+            // then: only one save (the patched DAO) — no rollback save
+            verify(repository, times(1)).save(submissionCaptor.capture());
+            assertEquals(limitedPartnershipDaoAfterPatch, submissionCaptor.getValue());
+        }
     }
 }
