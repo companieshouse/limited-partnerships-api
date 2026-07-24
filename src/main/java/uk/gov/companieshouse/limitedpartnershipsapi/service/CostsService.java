@@ -6,11 +6,11 @@ import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -19,19 +19,19 @@ import java.util.Collections;
 @Service
 public class CostsService {
 
-    private final LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+    private final IncorporationRepository incorporationRepository;
     private final LimitedPartnershipService limitedPartnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     public CostsService(
-            LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository,
+        IncorporationRepository incorporationRepository,
             LimitedPartnershipService limitedPartnershipService,
             GeneralPartnerService generalPartnerService,
             LimitedPartnerService limitedPartnerService,
             PostTransitionStrategyHandler postTransitionStrategyHandler) {
-        this.limitedPartnershipIncorporationRepository = limitedPartnershipIncorporationRepository;
+        this.incorporationRepository = incorporationRepository;
         this.limitedPartnershipService = limitedPartnershipService;
         this.generalPartnerService = generalPartnerService;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
@@ -53,7 +53,7 @@ public class CostsService {
     private static final String VALUE = "Value";
 
     public Cost getCost(String incorporationId, String requestId) throws ResourceNotFoundException {
-        LimitedPartnershipIncorporationDao incorporationDao = limitedPartnershipIncorporationRepository.findById(incorporationId).orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
+        IncorporationDao incorporationDao = incorporationRepository.findById(incorporationId).orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
 
         ApiLogger.infoContext(requestId, String.format("Cost for incorporation with id: %s and kind: %s", incorporationId, incorporationDao.getData().getKind()));
 

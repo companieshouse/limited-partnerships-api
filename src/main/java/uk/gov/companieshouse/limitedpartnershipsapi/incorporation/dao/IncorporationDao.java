@@ -1,11 +1,11 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.BaseDao;
 
 @Document(collection = "limited_partnership_incorporations")
-public class LimitedPartnershipIncorporationDao extends BaseDao {
+public class IncorporationDao extends BaseDao {
 
     @Field("data")
     private IncorporationDataDao data;

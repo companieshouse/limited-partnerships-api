@@ -23,6 +23,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.config.JacksonConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
@@ -32,7 +33,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -94,7 +94,7 @@ class PartnershipControllerValidationTest {
     private LimitedPartnershipRepository repository;
 
     @MockitoBean
-    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+    private IncorporationRepository incorporationRepository;
 
     @MockitoBean
     private TransactionService transactionService;

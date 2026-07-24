@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,12 +8,15 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationSubResourcesDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationSubResourcesDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +35,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRo
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
-public class LimitedPartnershipIncorporationService {
+public class IncorporationService {
 
     private final GeneralPartnerService generalPartnerService;
 
@@ -40,18 +43,18 @@ public class LimitedPartnershipIncorporationService {
 
     private final LimitedPartnershipService limitedPartnershipService;
 
-    private final LimitedPartnershipIncorporationRepository repository;
+    private final IncorporationRepository repository;
     private final TransactionService transactionService;
 
-    private final LimitedPartnershipIncorporationMapper mapper;
+    private final IncorporationMapper mapper;
     private final PersonWithSignificantControlService personWithSignificantControlService;
 
-    public LimitedPartnershipIncorporationService(
+    public IncorporationService(
             GeneralPartnerService generalPartnerService,
             LimitedPartnerService limitedPartnerService,
             LimitedPartnershipService limitedPartnershipService,
-            LimitedPartnershipIncorporationRepository repository,
-            LimitedPartnershipIncorporationMapper mapper,
+            IncorporationRepository repository,
+            IncorporationMapper mapper,
             TransactionService transactionService,
             PersonWithSignificantControlService personWithSignificantControlService) {
         this.generalPartnerService = generalPartnerService;
@@ -67,12 +70,12 @@ public class LimitedPartnershipIncorporationService {
             throws ServiceException {
         final var kind = incorporationDto.getData().getKind();
 
-        var dao = new LimitedPartnershipIncorporationDao();
+        var dao = new IncorporationDao();
         dao.getData().setKind(kind);
         dao.getData().setEtag(GenerateEtagUtil.generateEtag());
         dao.setCreatedBy(userId);
 
-        LimitedPartnershipIncorporationDao insertedIncorporation = repository.insert(dao);
+        IncorporationDao insertedIncorporation = repository.insert(dao);
 
         transaction.setFilingMode(kind);
 
@@ -125,7 +128,7 @@ public class LimitedPartnershipIncorporationService {
         }
 
         var incorporation = repository.findById(incorporationId);
-        LimitedPartnershipIncorporationDao incorporationDao = incorporation.orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
+        IncorporationDao incorporationDao = incorporation.orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
 
         LimitedPartnershipIncorporationDto incorporationDto = mapper.daoToDto(incorporationDao);
 
@@ -154,7 +157,7 @@ public class LimitedPartnershipIncorporationService {
         return errors;
     }
 
-    private void updateIncorporationTypeWithSelfLink(LimitedPartnershipIncorporationDao incorporationDao,
+    private void updateIncorporationTypeWithSelfLink(IncorporationDao incorporationDao,
                                                      String submissionUri) {
         incorporationDao.setLinks(Collections.singletonMap(LINK_SELF, submissionUri));
         repository.save(incorporationDao);

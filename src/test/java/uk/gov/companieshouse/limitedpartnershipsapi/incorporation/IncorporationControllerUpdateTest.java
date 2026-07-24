@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.controller;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -14,16 +14,14 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
@@ -63,10 +61,10 @@ class IncorporationControllerUpdateTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LimitedPartnershipIncorporationService limitedPartnershipIncorporationService;
+    private IncorporationService incorporationService;
 
     @MockitoBean
-    LimitedPartnershipIncorporationRepository repository;
+    IncorporationRepository repository;
 
     @MockitoBean
     LimitedPartnershipRepository limitedPartnershipRepository;
@@ -100,7 +98,7 @@ class IncorporationControllerUpdateTest {
         @Test
         void shouldReturn200() throws Exception {
 
-            LimitedPartnershipIncorporationDao incorporationDao = new LimitedPartnershipIncorporationDao();
+            IncorporationDao incorporationDao = new IncorporationDao();
             incorporationDao.setId(INCORPORATION_ID);
             incorporationDao.getData().setKind(REGISTRATION.getDescription());
 

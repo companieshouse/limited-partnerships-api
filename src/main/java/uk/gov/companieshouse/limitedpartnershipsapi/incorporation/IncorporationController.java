@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.controller;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
@@ -21,11 +21,10 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
@@ -44,11 +43,11 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/incorporation/limited-partnership")
 public class IncorporationController {
 
-    private final LimitedPartnershipIncorporationService incorporationService;
+    private final IncorporationService incorporationService;
     private final CostsService costsService;
 
     @Autowired
-    public IncorporationController(LimitedPartnershipIncorporationService incorporationService, CostsService costsService) {
+    public IncorporationController(IncorporationService incorporationService, CostsService costsService) {
         this.incorporationService = incorporationService;
         this.costsService = costsService;
     }

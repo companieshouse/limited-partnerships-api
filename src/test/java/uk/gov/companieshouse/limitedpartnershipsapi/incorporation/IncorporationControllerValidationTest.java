@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.controller;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,11 +19,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilde
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.config.InterceptorConfig;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
@@ -88,7 +87,7 @@ class IncorporationControllerValidationTest {
     private LimitedPartnershipRepository limitedPartnershipRepository;
 
     @MockitoBean
-    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+    private IncorporationRepository incorporationRepository;
 
     @MockitoBean
     private PersonWithSignificantControlRepository personWithSignificantControlRepository;
@@ -128,7 +127,7 @@ class IncorporationControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
-        when(limitedPartnershipIncorporationRepository.insert((LimitedPartnershipIncorporationDao) any())).thenReturn(new LimitedPartnershipIncorporationDao());
+        when(incorporationRepository.insert((IncorporationDao) any())).thenReturn(new IncorporationDao());
 
         mockMvc.perform(post(IncorporationControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)

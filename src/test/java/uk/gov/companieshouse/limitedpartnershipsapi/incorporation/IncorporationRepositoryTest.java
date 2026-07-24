@@ -1,8 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.repository;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +9,15 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
+
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest
-class LimitedPartnershipIncorporationRepositoryTest {
+class IncorporationRepositoryTest {
 
     @Container
     private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
@@ -28,15 +28,15 @@ class LimitedPartnershipIncorporationRepositoryTest {
     }
 
     @Autowired
-    private LimitedPartnershipIncorporationRepository repository;
+    private IncorporationRepository repository;
 
     @Test
     void testAuditFieldsArePopulated() {
         LocalDateTime startOfTest = LocalDateTime.now();
-        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = new LimitedPartnershipIncorporationDao();
-        repository.insert(limitedPartnershipIncorporationDao);
+        IncorporationDao incorporationDao = new IncorporationDao();
+        repository.insert(incorporationDao);
 
-        assertThat(limitedPartnershipIncorporationDao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
-        assertThat(limitedPartnershipIncorporationDao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
+        assertThat(incorporationDao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
+        assertThat(incorporationDao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
     }
 }

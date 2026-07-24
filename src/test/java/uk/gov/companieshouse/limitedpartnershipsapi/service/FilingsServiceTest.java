@@ -30,6 +30,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignifican
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
@@ -37,12 +39,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
 import java.time.LocalDate;
@@ -110,7 +110,7 @@ class FilingsServiceTest {
     @MockitoBean
     private CompanyService companyService;
     @MockitoBean
-    private LimitedPartnershipIncorporationRepository limitedPartnershipIncorporationRepository;
+    private IncorporationRepository incorporationRepository;
 
     @MockitoBean
     private ApiClientService apiClientService;
@@ -135,7 +135,7 @@ class FilingsServiceTest {
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
-        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+        when(incorporationRepository.findById(any())).thenReturn(Optional.of(new IncorporationDao()));
 
         FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
 
@@ -164,7 +164,7 @@ class FilingsServiceTest {
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
         when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction))
                 .thenReturn(Collections.singletonList(new PersonWithSignificantControlBuilder().relevantLegalEntityDto().getData()));
-        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+        when(incorporationRepository.findById(any())).thenReturn(Optional.of(new IncorporationDao()));
 
         FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
 
@@ -192,7 +192,7 @@ class FilingsServiceTest {
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
         when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(new ArrayList<>());
-        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+        when(incorporationRepository.findById(any())).thenReturn(Optional.of(new IncorporationDao()));
 
         FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
 
@@ -215,7 +215,7 @@ class FilingsServiceTest {
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
-        when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+        when(incorporationRepository.findById(any())).thenReturn(Optional.of(new IncorporationDao()));
 
         FilingApi filing = filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID);
 
@@ -874,7 +874,7 @@ class FilingsServiceTest {
             when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfile);
             when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
             when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
-            when(limitedPartnershipIncorporationRepository.findById(any())).thenReturn(Optional.of(new LimitedPartnershipIncorporationDao()));
+            when(incorporationRepository.findById(any())).thenReturn(Optional.of(new IncorporationDao()));
 
             when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
 

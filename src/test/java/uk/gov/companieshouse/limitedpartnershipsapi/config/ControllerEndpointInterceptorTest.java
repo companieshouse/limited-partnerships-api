@@ -16,6 +16,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.AllowedTransactionStatusInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
@@ -23,7 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -63,7 +63,7 @@ class ControllerEndpointInterceptorTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LimitedPartnershipIncorporationService incorporationService;
+    private IncorporationService incorporationService;
 
     @MockitoBean
     private LimitedPartnershipService limitedPartnershipService;

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.controller;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,11 +12,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipIncorporationService;
 
 import java.util.Objects;
 
@@ -33,7 +32,7 @@ class IncorporationControllerTest {
     private IncorporationController incorporationController;
 
     @Mock
-    private LimitedPartnershipIncorporationService incorporationService;
+    private IncorporationService incorporationService;
 
     private final Transaction transaction = new TransactionBuilder().build();
 

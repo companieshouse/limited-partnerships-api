@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,17 +14,19 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBu
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipIncorporationMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.IncorporationDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dao.LimitedPartnershipIncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.IncorporationDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.incorporation.dto.LimitedPartnershipIncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipIncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.util.List;
 import java.util.Map;
@@ -54,22 +56,22 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 
 @ExtendWith(MockitoExtension.class)
-class LimitedPartnershipIncorporationServiceTest {
+class IncorporationServiceTest {
 
     @InjectMocks
-    private LimitedPartnershipIncorporationService incorporationService;
+    private IncorporationService incorporationService;
 
     @Mock
-    private LimitedPartnershipIncorporationRepository repository;
+    private IncorporationRepository repository;
 
     @Mock
     private TransactionService transactionService;
 
     @Captor
-    private ArgumentCaptor<LimitedPartnershipIncorporationDao> incorporationCaptor;
+    private ArgumentCaptor<IncorporationDao> incorporationCaptor;
 
     @Mock
-    private LimitedPartnershipIncorporationMapper mapper;
+    private IncorporationMapper mapper;
 
     @Mock
     private LimitedPartnershipService limitedPartnershipService;
@@ -93,8 +95,8 @@ class LimitedPartnershipIncorporationServiceTest {
     @Test
     void testCreateIncorporationIsSuccessful() throws ServiceException {
         // given
-        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
-        when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
+        IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
+        when(repository.insert(any(IncorporationDao.class))).thenReturn(incorporationDao);
 
         IncorporationDto incorporationDto = new IncorporationDto();
         IncorporationDataDto dataDto = new IncorporationDataDto();
@@ -108,7 +110,7 @@ class LimitedPartnershipIncorporationServiceTest {
         verify(repository, times(1)).insert(incorporationCaptor.capture());
         assertEquals(SUBMISSION_ID, submissionId);
 
-        LimitedPartnershipIncorporationDao sentSubmission = incorporationCaptor.getValue();
+        IncorporationDao sentSubmission = incorporationCaptor.getValue();
         IncorporationDataDao dataDao = sentSubmission.getData();
         assertEquals(dataDto.getKind(), dataDao.getKind());
         assertNotNull(dataDao.getEtag());
@@ -157,10 +159,10 @@ class LimitedPartnershipIncorporationServiceTest {
     @Test
     void testGetIncorporationTypeWithoutSubResourcesIsSuccessful() throws ServiceException {
         // given
-        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
+        IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
-        when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(incorporationDao));
+        when(mapper.daoToDto(incorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
 
         // when
         var limitedPartnershipIncorporationDto = incorporationService.getIncorporation(transaction, SUBMISSION_ID, false);
@@ -174,13 +176,13 @@ class LimitedPartnershipIncorporationServiceTest {
     @Test
     void testGetIncorporationTypeWithSubResourcesIsSuccessful() throws ServiceException {
         // given
-        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
+        IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
         LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
         List<LimitedPartnerDto> limitedPartnerList = List.of(new LimitedPartnerDto());
         List<GeneralPartnerDto> generalPartnerList = List.of(new GeneralPartnerDto());
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipIncorporationDao));
-        when(mapper.daoToDto(limitedPartnershipIncorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
+        when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(incorporationDao));
+        when(mapper.daoToDto(incorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
         when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(
                 limitedPartnershipDto);
         when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(limitedPartnerList);
@@ -220,8 +222,8 @@ class LimitedPartnershipIncorporationServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> incorporationService.getIncorporation(transaction, INVALID_SUBMISSION_ID, true));
     }
 
-    private LimitedPartnershipIncorporationDao createLimitedPartnershipIncorporationDao() {
-        var dao = new LimitedPartnershipIncorporationDao();
+    private IncorporationDao createLimitedPartnershipIncorporationDao() {
+        var dao = new IncorporationDao();
         dao.setId(SUBMISSION_ID);
         dao.getData().setKind(REGISTRATION.getDescription());
 
@@ -236,8 +238,8 @@ class LimitedPartnershipIncorporationServiceTest {
 
     private void createIncorporation(FilingMode filingMode) throws ServiceException {
         // given
-        LimitedPartnershipIncorporationDao limitedPartnershipIncorporationDao = createLimitedPartnershipIncorporationDao();
-        when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(limitedPartnershipIncorporationDao);
+        IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
+        when(repository.insert(any(IncorporationDao.class))).thenReturn(incorporationDao);
         when(transactionService.isForRegistration(transaction)).thenReturn(REGISTRATION.equals(filingMode));
 
         IncorporationDto incorporationDto = new IncorporationDto();
@@ -253,8 +255,8 @@ class LimitedPartnershipIncorporationServiceTest {
     class Transactional {
         @Test
         void givenTransactionUpdateFails_whenCreateIncorporation_thenInsertedIncorporationIsDeleted() throws ServiceException {
-            LimitedPartnershipIncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
-            when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(incorporationDao);
+            IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
+            when(repository.insert(any(IncorporationDao.class))).thenReturn(incorporationDao);
 
             IncorporationDto incorporationDto = new IncorporationDto();
             IncorporationDataDto dataDto = new IncorporationDataDto();
@@ -273,8 +275,8 @@ class LimitedPartnershipIncorporationServiceTest {
 
         @Test
         void givenTransactionUpdateSucceeds_whenCreateIncorporation_thenInsertedIncorporationIsNotDeleted() throws ServiceException {
-            LimitedPartnershipIncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
-            when(repository.insert(any(LimitedPartnershipIncorporationDao.class))).thenReturn(incorporationDao);
+            IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
+            when(repository.insert(any(IncorporationDao.class))).thenReturn(incorporationDao);
 
             IncorporationDto incorporationDto = new IncorporationDto();
             IncorporationDataDto dataDto = new IncorporationDataDto();
