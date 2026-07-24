@@ -39,8 +39,6 @@
         <sonar.projectName>limited-partnerships-api</sonar.projectName>
         <sonar.projectKey>uk.gov.companieshouse:limited-partnerships-api</sonar.projectKey>
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
-        <plexus-utils.version>4.0.3</plexus-utils.version>
-        <bouncycastle.version>1.84</bouncycastle.version>
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
         <sonar.login></sonar.login>
         <sonar.password></sonar.password>
