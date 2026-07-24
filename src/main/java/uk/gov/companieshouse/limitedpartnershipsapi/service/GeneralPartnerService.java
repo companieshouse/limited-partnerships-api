@@ -31,6 +31,9 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.copyMetaDataForPatch;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.MetaDataUtils.setAuditDetailsForPatch;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.DELETION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.INSERTION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
 public class GeneralPartnerService {
@@ -75,9 +78,16 @@ public class GeneralPartnerService {
             cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
         }
 
-        transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, cost);
+        final String insertedId = insertedSubmission.getId();
+        final Cost finalCost = cost;
+        executeWithTransactionalRollback(
+            requestId,
+            insertedId,
+            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, finalCost),
+            INSERTION,
+            () -> repository.deleteById(insertedId));
 
-        return insertedSubmission.getId();
+        return insertedId;
     }
 
     private GeneralPartnerDao insertDaoWithMetadata(
@@ -230,8 +240,14 @@ public class GeneralPartnerService {
 
         var submissionUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), generalPartnerId);
 
-        transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId);
         repository.deleteById(generalPartnerDao.getId());
+
+        executeWithTransactionalRollback(
+            requestId,
+            generalPartnerId,
+            () -> transactionService.deleteTransactionResource(transaction.getId(), submissionUri, requestId),
+            DELETION,
+            () -> repository.save(generalPartnerDao));
 
         ApiLogger.infoContext(requestId, String.format("General Partner deleted with id: %s", generalPartnerId));
     }
@@ -246,4 +262,3 @@ public class GeneralPartnerService {
         }
     }
 }
-

@@ -398,7 +398,7 @@ class LimitedPartnerServiceUpdateTest {
         }
 
         @Test
-        void shouldNotDeleteLimitedPartnerIfTransactionResourceDeleteFails() throws ServiceException {
+        void shouldRollbackDeletedLimitedPartnerIfTransactionResourceDeleteFails() throws ServiceException {
             LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
             when(limitedPartnerRepository.findById(LIMITED_PARTNER_ID)).thenReturn(Optional.of(limitedPartnerDao));
@@ -412,7 +412,9 @@ class LimitedPartnerServiceUpdateTest {
                     .isInstanceOf(ServiceException.class)
                     .hasMessageContaining("Transaction resource delete failed");
 
-            verify(limitedPartnerRepository, never()).deleteById(LIMITED_PARTNER_ID);
+            // MongoDB delete happens first; on HTTP failure the document is re-saved (rolled back)
+            verify(limitedPartnerRepository).deleteById(LIMITED_PARTNER_ID);
+            verify(limitedPartnerRepository).save(limitedPartnerDao);
         }
 
         @Test

@@ -28,6 +28,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_INCORPORATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.Operation.INSERTION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.TransactionalRollback.executeWithTransactionalRollback;
 
 @Service
 public class LimitedPartnershipIncorporationService {
@@ -77,7 +79,13 @@ public class LimitedPartnershipIncorporationService {
         String incorporationUri = getSubmissionUri(transaction.getId(), insertedIncorporation.getId());
         updateIncorporationTypeWithSelfLink(dao, incorporationUri);
 
-        updateTransactionWithIncorporationResource(transaction, incorporationUri, kind, requestId);
+        executeWithTransactionalRollback(
+            requestId,
+            insertedIncorporation.getId(),
+            () -> updateTransactionWithIncorporationResource(transaction, incorporationUri, kind, requestId),
+            INSERTION,
+            () -> repository.deleteById(insertedIncorporation.getId())
+        );
 
         return insertedIncorporation.getId();
     }
