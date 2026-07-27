@@ -1,23 +1,23 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.DataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class LimitedPartnershipMapperTest {
+class PartnershipMapperTest {
 
     @Test
     void givenDto_whenMapsToDao_thenCorrect() {
         // given
-        LimitedPartnershipDto source = new LimitedPartnershipDto();
+        PartnershipDto source = new PartnershipDto();
         DataDto sourceData = new DataDto();
         sourceData.setPartnershipName("Joe Bloggs");
         sourceData.setNameEnding(PartnershipNameEnding.LIMITED_PARTNERSHIP);
@@ -25,7 +25,7 @@ class LimitedPartnershipMapperTest {
         source.setData(sourceData);
 
         // when
-        LimitedPartnershipDao destination = LimitedPartnershipMapper.INSTANCE.dtoToDao(source);
+        PartnershipDao destination = PartnershipMapper.INSTANCE.dtoToDao(source);
 
         // then
         DataDao destinationData = destination.getData();
@@ -39,7 +39,7 @@ class LimitedPartnershipMapperTest {
         // given
         PartnershipNameEnding sourceData = PartnershipNameEnding.LIMITED_PARTNERSHIP;
         // when
-        String destinationData = LimitedPartnershipMapper.INSTANCE.mapPartnershipNameEndingToString(sourceData);
+        String destinationData = PartnershipMapper.INSTANCE.mapPartnershipNameEndingToString(sourceData);
         // then
         assertEquals(sourceData.getDescription(), destinationData);
     }
@@ -49,7 +49,7 @@ class LimitedPartnershipMapperTest {
         // given
         String sourceData = PartnershipNameEnding.LIMITED_PARTNERSHIP.getDescription();
         // when
-        PartnershipNameEnding destinationData = LimitedPartnershipMapper.INSTANCE.mapPartnershipNameEndingToEnum(sourceData);
+        PartnershipNameEnding destinationData = PartnershipMapper.INSTANCE.mapPartnershipNameEndingToEnum(sourceData);
         // then
         assertEquals(sourceData, destinationData.getDescription());
     }
@@ -59,7 +59,7 @@ class LimitedPartnershipMapperTest {
         // given
         String invalidNameEnding = "Invalid Name Ending";
         // when
-        PartnershipNameEnding destinationData = LimitedPartnershipMapper.INSTANCE.mapPartnershipNameEndingToEnum(invalidNameEnding);
+        PartnershipNameEnding destinationData = PartnershipMapper.INSTANCE.mapPartnershipNameEndingToEnum(invalidNameEnding);
         // then
         assertEquals(PartnershipNameEnding.UNKNOWN.getDescription(), destinationData.getDescription());
     }
@@ -69,7 +69,7 @@ class LimitedPartnershipMapperTest {
         // given
         Jurisdiction sourceData = Jurisdiction.ENGLAND_AND_WALES;
         // when
-        String destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToString(sourceData);
+        String destinationData = PartnershipMapper.INSTANCE.mapJurisdictionToString(sourceData);
         // then
         assertEquals(sourceData.getApiKey(), destinationData);
     }
@@ -79,7 +79,7 @@ class LimitedPartnershipMapperTest {
         // given
         String sourceData = Jurisdiction.NORTHERN_IRELAND.getApiKey();
         // when
-        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(sourceData);
+        Jurisdiction destinationData = PartnershipMapper.INSTANCE.mapJurisdictionToEnum(sourceData);
         // then
         assertEquals(sourceData, destinationData.getApiKey());
     }
@@ -89,7 +89,7 @@ class LimitedPartnershipMapperTest {
         // given
         String invalidJurisdiction = "Invalid Jurisdiction";
         // when
-        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
+        Jurisdiction destinationData = PartnershipMapper.INSTANCE.mapJurisdictionToEnum(invalidJurisdiction);
         // then
         assertEquals(Jurisdiction.UNKNOWN.getApiKey(), destinationData.getApiKey());
     }
@@ -97,7 +97,7 @@ class LimitedPartnershipMapperTest {
     @Test
     void givenNullJurisdiction_whenMapsToEnum_thenNullReturned() {
         // when
-        Jurisdiction destinationData = LimitedPartnershipMapper.INSTANCE.mapJurisdictionToEnum(null);
+        Jurisdiction destinationData = PartnershipMapper.INSTANCE.mapJurisdictionToEnum(null);
         // then
         assertNull(destinationData);
     }

@@ -15,14 +15,14 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipPatchMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -40,9 +40,9 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMo
 @ContextConfiguration(classes = {
         IncorporationController.class,
         CostsService.class,
-        LimitedPartnershipService.class,
-        LimitedPartnershipMapperImpl.class,
-        LimitedPartnershipPatchMapperImpl.class,
+    PartnershipService.class,
+    PartnershipMapperImpl.class,
+    PartnershipPatchMapperImpl.class,
         LimitedPartnershipValidator.class,
         ValidationStatus.class,
         PostTransitionStrategyHandler.class,
@@ -67,7 +67,7 @@ class IncorporationControllerUpdateTest {
     IncorporationRepository repository;
 
     @MockitoBean
-    LimitedPartnershipRepository limitedPartnershipRepository;
+    PartnershipRepository partnershipRepository;
 
     @MockitoBean
     private TransactionService transactionService;

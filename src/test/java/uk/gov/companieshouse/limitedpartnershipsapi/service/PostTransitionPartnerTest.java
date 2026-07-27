@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -49,7 +50,7 @@ class PostTransitionPartnerTest {
     private GeneralPartnerService generalPartnerService;
 
     @Autowired
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
 
     @Autowired
     private LimitedPartnerService limitedPartnerService;

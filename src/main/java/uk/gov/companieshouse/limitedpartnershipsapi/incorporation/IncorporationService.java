@@ -12,9 +12,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.Incorporat
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
@@ -41,7 +41,7 @@ public class IncorporationService {
 
     private final LimitedPartnerService limitedPartnerService;
 
-    private final LimitedPartnershipService limitedPartnershipService;
+    private final PartnershipService partnershipService;
 
     private final IncorporationRepository repository;
     private final TransactionService transactionService;
@@ -52,14 +52,14 @@ public class IncorporationService {
     public IncorporationService(
             GeneralPartnerService generalPartnerService,
             LimitedPartnerService limitedPartnerService,
-            LimitedPartnershipService limitedPartnershipService,
+            PartnershipService partnershipService,
             IncorporationRepository repository,
             IncorporationMapper mapper,
             TransactionService transactionService,
             PersonWithSignificantControlService personWithSignificantControlService) {
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
-        this.limitedPartnershipService = limitedPartnershipService;
+        this.partnershipService = partnershipService;
         this.repository = repository;
         this.mapper = mapper;
         this.transactionService = transactionService;
@@ -137,7 +137,7 @@ public class IncorporationService {
 
             subResourcesDto.setGeneralPartners(generalPartnerService.getGeneralPartnerList(transaction));
             subResourcesDto.setLimitedPartners(limitedPartnerService.getLimitedPartnerList(transaction));
-            subResourcesDto.setPartnership(limitedPartnershipService.getLimitedPartnership(transaction));
+            subResourcesDto.setPartnership(partnershipService.getLimitedPartnership(transaction));
 
             incorporationDto.setSubResources(subResourcesDto);
         }
@@ -149,7 +149,7 @@ public class IncorporationService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         List<ValidationStatusError> errors = new ArrayList<>();
 
-        errors.addAll(limitedPartnershipService.validateLimitedPartnership(transaction));
+        errors.addAll(partnershipService.validateLimitedPartnership(transaction));
         errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
         errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
         errors.addAll(personWithSignificantControlService.validatePersonsWithSignificantControl(transaction));

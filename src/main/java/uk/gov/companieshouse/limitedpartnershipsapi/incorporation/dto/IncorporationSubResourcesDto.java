@@ -3,7 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class IncorporationSubResourcesDto {
     private List<LimitedPartnerDto> limitedPartners;
 
     @JsonProperty("partnership")
-    private LimitedPartnershipDto partnership;
+    private PartnershipDto partnership;
 
     public List<GeneralPartnerDto> getGeneralPartners() {
         return generalPartners;
@@ -34,11 +34,11 @@ public class IncorporationSubResourcesDto {
         this.limitedPartners = limitedPartners;
     }
 
-    public LimitedPartnershipDto getPartnership() {
+    public PartnershipDto getPartnership() {
         return partnership;
     }
 
-    public void setPartnership(LimitedPartnershipDto partnership) {
+    public void setPartnership(PartnershipDto partnership) {
         this.partnership = partnership;
     }
 }

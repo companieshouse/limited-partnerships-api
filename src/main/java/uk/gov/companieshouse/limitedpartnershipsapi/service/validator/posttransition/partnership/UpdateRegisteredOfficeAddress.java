@@ -5,14 +5,14 @@ import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategy;
 
 import java.util.List;
 
 @Component
-public class UpdateRegisteredOfficeAddress implements PostTransitionStrategy<LimitedPartnershipDto> {
+public class UpdateRegisteredOfficeAddress implements PostTransitionStrategy<PartnershipDto> {
 
     @Override
     public String getKind() {
@@ -20,8 +20,8 @@ public class UpdateRegisteredOfficeAddress implements PostTransitionStrategy<Lim
     }
 
     @Override
-    public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) {
-        if (limitedPartnershipDto.getData().getRegisteredOfficeAddress() == null) {
+    public void validate(PartnershipDto partnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) {
+        if (partnershipDto.getData().getRegisteredOfficeAddress() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Registered office address is required",
                     "data.registeredOfficeAddress"));
         }

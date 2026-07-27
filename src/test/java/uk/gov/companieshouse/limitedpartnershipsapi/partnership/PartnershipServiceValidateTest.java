@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,15 +10,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.DataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,28 +29,28 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.LP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.PFLP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.SLP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType.SPFLP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType.LP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType.PFLP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType.SLP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType.SPFLP;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-class LimitedPartnershipServiceValidateTest {
+class PartnershipServiceValidateTest {
 
     Transaction transaction = new TransactionBuilder().build();
 
     @Autowired
-    private LimitedPartnershipService service;
+    private PartnershipService service;
 
     @MockitoBean
-    private LimitedPartnershipRepository repository;
+    private PartnershipRepository repository;
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
 
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
@@ -67,7 +66,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
 
         limitedPartnershipSubmissionDao.getData().setPartnershipName(null);
@@ -98,7 +97,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorsWhenPartnershipDataIsInvalidAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setEmail(null);
         limitedPartnershipSubmissionDao.getData().setJurisdiction(null);
         limitedPartnershipSubmissionDao.getData().setRegisteredOfficeAddress(null);
@@ -140,7 +139,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorWhen(PartnershipType partnershipType) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(partnershipType);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(partnershipType);
 
         var errorMessage = "";
         if (LP.equals(partnershipType) || PFLP.equals(partnershipType)) {
@@ -171,7 +170,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = FilingMode.class, names = {"UNKNOWN", "DEFAULT"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldOnlyValidateHasPscWhenFilingModeIsRegistration(FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
         transaction.setFilingMode(filingMode.getDescription());
         limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(null);
 
@@ -194,7 +193,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = FilingMode.class, names = {"UNKNOWN", "DEFAULT"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorWhenHasPscNotNullAndIsNotRegistration(FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
         transaction.setFilingMode(filingMode.getDescription());
         limitedPartnershipSubmissionDao.getData().setHasPersonWithSignificantControl(true);
 
@@ -217,7 +216,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
 
         limitedPartnershipSubmissionDao.getData().setPartnershipName("");
@@ -238,7 +237,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
 
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
@@ -257,7 +256,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
 
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
@@ -279,7 +278,7 @@ class LimitedPartnershipServiceValidateTest {
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
-        LimitedPartnershipDao limitedPartnershipSubmissionDao = createDao(type);
+        PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
 
         limitedPartnershipSubmissionDao.getData().setNameEnding(null);
@@ -298,8 +297,8 @@ class LimitedPartnershipServiceValidateTest {
         checkForError(results, "Partnership number must be valid", "data.partnershipNumber");
     }
 
-    private LimitedPartnershipDao createDao(PartnershipType type) {
-        LimitedPartnershipDao dao = new LimitedPartnershipBuilder()
+    private PartnershipDao createDao(PartnershipType type) {
+        PartnershipDao dao = new PartnershipBuilder()
                 .withAddresses()
                 .buildDao();
 
@@ -320,7 +319,7 @@ class LimitedPartnershipServiceValidateTest {
                 hasProperty("location", is(location)))));
     }
 
-    private void setupPartnershipTypeSpecificFields(LimitedPartnershipDao limitedPartnershipSubmissionDao, PartnershipType partnershipType){
+    private void setupPartnershipTypeSpecificFields(PartnershipDao limitedPartnershipSubmissionDao, PartnershipType partnershipType) {
         if (partnershipType == PFLP || partnershipType == PartnershipType.SPFLP) {
             limitedPartnershipSubmissionDao.getData().setTerm(null);
             limitedPartnershipSubmissionDao.getData().setSicCodes(null);

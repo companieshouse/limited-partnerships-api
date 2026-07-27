@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -22,10 +22,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPar
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.util.List;
@@ -74,7 +74,7 @@ class IncorporationServiceTest {
     private IncorporationMapper mapper;
 
     @Mock
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
 
     @Mock
     private LimitedPartnerService limitedPartnerService;
@@ -87,7 +87,7 @@ class IncorporationServiceTest {
 
     private static final String USER_ID = "xbJf0l";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String SUBMISSION_ID = PartnershipBuilder.SUBMISSION_ID;
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
 
     Transaction transaction = new TransactionBuilder().build();
@@ -177,14 +177,14 @@ class IncorporationServiceTest {
     void testGetIncorporationTypeWithSubResourcesIsSuccessful() throws ServiceException {
         // given
         IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+        PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
         List<LimitedPartnerDto> limitedPartnerList = List.of(new LimitedPartnerDto());
         List<GeneralPartnerDto> generalPartnerList = List.of(new GeneralPartnerDto());
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(incorporationDao));
         when(mapper.daoToDto(incorporationDao)).thenReturn(createLimitedPartnershipIncorporationDto());
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(
-                limitedPartnershipDto);
+        when(partnershipService.getLimitedPartnership(transaction)).thenReturn(
+            partnershipDto);
         when(limitedPartnerService.getLimitedPartnerList(transaction)).thenReturn(limitedPartnerList);
         when(generalPartnerService.getGeneralPartnerList(transaction)).thenReturn(generalPartnerList);
 
@@ -196,7 +196,7 @@ class IncorporationServiceTest {
         assertEquals(REGISTRATION.getDescription(), limitedPartnershipIncorporationDto.getKind());
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources());
         assertNotNull(limitedPartnershipIncorporationDto.getSubResources().getPartnership());
-        assertEquals(limitedPartnershipDto.getData(), limitedPartnershipIncorporationDto.getSubResources().getPartnership().getData());
+        assertEquals(partnershipDto.getData(), limitedPartnershipIncorporationDto.getSubResources().getPartnership().getData());
         assertThat(limitedPartnershipIncorporationDto.getSubResources().getLimitedPartners(), containsInAnyOrder(limitedPartnerList.toArray()));
         assertThat(limitedPartnershipIncorporationDto.getSubResources().getGeneralPartners(), containsInAnyOrder(generalPartnerList.toArray()));
     }

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,17 +11,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,25 +36,25 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-class LimitedPartnershipServiceUpdateTest {
+class PartnershipServiceUpdateTest {
 
     Transaction transaction = new TransactionBuilder().build();
 
     private static final String USER_ID = "xbJf0l";
     private static final String REQUEST_ID = "fd4gld5h3jhh";
-    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String SUBMISSION_ID = PartnershipBuilder.SUBMISSION_ID;
 
     @Autowired
-    private LimitedPartnershipService service;
+    private PartnershipService service;
 
     @MockitoBean
-    private LimitedPartnershipRepository repository;
+    private PartnershipRepository repository;
 
     @MockitoBean
     private TransactionService transactionService;
 
     @Captor
-    private ArgumentCaptor<LimitedPartnershipDao> submissionCaptor;
+    private ArgumentCaptor<PartnershipDao> submissionCaptor;
 
     @Nested
     public class updateLimitedPartnership {
@@ -64,17 +64,17 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
-                var limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
+                var limitedPartnershipPatchDto = new PartnershipPatchDto();
                 limitedPartnershipPatchDto.setPartnershipName("Test Partnership Updated");
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao partnership name before mapping/update
-                assertEquals("Test Partnership", limitedPartnershipDao.getData().getPartnershipName());
+                assertEquals("Test Partnership", partnershipDao.getData().getPartnershipName());
 
                 // when
                 service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
@@ -83,7 +83,7 @@ class LimitedPartnershipServiceUpdateTest {
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+                PartnershipDao sentSubmission = submissionCaptor.getValue();
                 assertEquals(USER_ID, sentSubmission.getUpdatedBy());
 
                 assertEquals("Test Partnership Updated", sentSubmission.getData().getPartnershipName());
@@ -92,18 +92,18 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingPartnershipName() throws ResourceNotFoundException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setPartnershipName("Test Partnership Updated");
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setPartnershipName("Test Partnership Updated");
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // when
-                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipDao.getId());
+                verify(repository).findById(partnershipDao.getId());
                 assertEquals("Test Partnership Updated", retrievedDto.getData().getPartnershipName());
             }
         }
@@ -113,28 +113,28 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
                 AddressDto registeredOfficeAddress = getAddressDto();
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setRegisteredOfficeAddress(registeredOfficeAddress);
+                PartnershipPatchDto partnershipPatchDto = new PartnershipPatchDto();
+                partnershipPatchDto.setRegisteredOfficeAddress(registeredOfficeAddress);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao registered office address is null before mapping/update
-                assertNull(limitedPartnershipDao.getData().getRegisteredOfficeAddress());
+                assertNull(partnershipDao.getData().getRegisteredOfficeAddress());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, partnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+                PartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals(registeredOfficeAddress.getAddressLine1(), sentSubmission.getData().getRegisteredOfficeAddress().getAddressLine1());
                 assertEquals(registeredOfficeAddress.getCountry(), sentSubmission.getData().getRegisteredOfficeAddress().getCountry());
@@ -148,18 +148,18 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 AddressDao registeredOfficeAddress = getAddressDao();
 
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setRegisteredOfficeAddress(registeredOfficeAddress);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setRegisteredOfficeAddress(registeredOfficeAddress);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // when
-                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipDao.getId());
+                verify(repository).findById(partnershipDao.getId());
 
                 assertEquals(registeredOfficeAddress.getAddressLine1(), retrievedDto.getData().getRegisteredOfficeAddress().getAddressLine1());
                 assertEquals(registeredOfficeAddress.getCountry(), retrievedDto.getData().getRegisteredOfficeAddress().getCountry());
@@ -174,27 +174,27 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setTerm(null);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setTerm(null);
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setTerm(Term.BY_AGREEMENT);
+                PartnershipPatchDto partnershipPatchDto = new PartnershipPatchDto();
+                partnershipPatchDto.setTerm(Term.BY_AGREEMENT);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao term is null before mapping/update
-                assertNull(limitedPartnershipDao.getData().getTerm());
+                assertNull(partnershipDao.getData().getTerm());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, partnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+                PartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals(Term.BY_AGREEMENT, sentSubmission.getData().getTerm());
             }
@@ -202,18 +202,18 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingRegisteredOfficeAddress() throws ResourceNotFoundException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setTerm(Term.BY_AGREEMENT);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setTerm(Term.BY_AGREEMENT);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // when
-                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipDao.getId());
+                verify(repository).findById(partnershipDao.getId());
 
                 assertEquals(Term.BY_AGREEMENT, retrievedDto.getData().getTerm());
 
@@ -225,28 +225,28 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
                 AddressDto principalPlaceOfBusinessAddress = getAddressDto();
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
+                PartnershipPatchDto partnershipPatchDto = new PartnershipPatchDto();
+                partnershipPatchDto.setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao principal place of business address is null before mapping/update
-                assertNull(limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress());
+                assertNull(partnershipDao.getData().getPrincipalPlaceOfBusinessAddress());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, partnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+                PartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals(principalPlaceOfBusinessAddress.getAddressLine1(), sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
                 assertEquals(principalPlaceOfBusinessAddress.getCountry(), sentSubmission.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
@@ -260,18 +260,18 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 AddressDao principalPlaceOfBusinessAddress = getAddressDao();
 
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setPrincipalPlaceOfBusinessAddress(principalPlaceOfBusinessAddress);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(
-                        limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
+                    partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // when
-                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipDao.getId());
+                verify(repository).findById(partnershipDao.getId());
 
                 assertEquals(principalPlaceOfBusinessAddress.getAddressLine1(), retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getAddressLine1());
                 assertEquals(principalPlaceOfBusinessAddress.getCountry(), retrievedDto.getData().getPrincipalPlaceOfBusinessAddress().getCountry());
@@ -286,28 +286,28 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setSicCodes(null);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setSicCodes(null);
 
                 List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setSicCodes(sicCodes);
+                PartnershipPatchDto partnershipPatchDto = new PartnershipPatchDto();
+                partnershipPatchDto.setSicCodes(sicCodes);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao sic codes is null before mapping/update
-                assertNull(limitedPartnershipDao.getData().getSicCodes());
+                assertNull(partnershipDao.getData().getSicCodes());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, partnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+                PartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals(sentSubmission.getData().getSicCodes().size(), sicCodes.size());
                 assertEquals(sicCodes.getFirst().toString(), sentSubmission.getData().getSicCodes().getFirst().toString());
@@ -318,17 +318,17 @@ class LimitedPartnershipServiceUpdateTest {
                 // given
                 List<String> sicCodes = Arrays.asList("12345", "22345", "33345");
 
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setSicCodes(sicCodes);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setSicCodes(sicCodes);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // when
-                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipDao.getId());
+                verify(repository).findById(partnershipDao.getId());
 
                 assertEquals(sicCodes, retrievedDto.getData().getSicCodes());
             }
@@ -339,26 +339,26 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(null);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setLawfulPurposeStatementChecked(null);
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
+                PartnershipPatchDto partnershipPatchDto = new PartnershipPatchDto();
+                partnershipPatchDto.setLawfulPurposeStatementChecked(Boolean.TRUE);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao lawful purpose statement check is null before mapping/update
-                assertNull(limitedPartnershipDao.getData().getLawfulPurposeStatementChecked());
+                assertNull(partnershipDao.getData().getLawfulPurposeStatementChecked());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, partnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+                PartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertTrue(sentSubmission.getData().getLawfulPurposeStatementChecked());
             }
@@ -366,17 +366,17 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingLawfulPurposeStatementChecked() throws ResourceNotFoundException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setLawfulPurposeStatementChecked(true);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setLawfulPurposeStatementChecked(true);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // when
-                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipDao.getId());
+                verify(repository).findById(partnershipDao.getId());
 
                 assertTrue(retrievedDto.getData().getLawfulPurposeStatementChecked());
             }
@@ -387,26 +387,26 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setHasPersonWithSignificantControl(null);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setHasPersonWithSignificantControl(null);
 
-                LimitedPartnershipPatchDto limitedPartnershipPatchDto = new LimitedPartnershipPatchDto();
-                limitedPartnershipPatchDto.setHasPersonWithSignificantControl(Boolean.TRUE);
+                PartnershipPatchDto partnershipPatchDto = new PartnershipPatchDto();
+                partnershipPatchDto.setHasPersonWithSignificantControl(Boolean.TRUE);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // dao has person with significant control is null before mapping/update
-                assertNull(limitedPartnershipDao.getData().getHasPersonWithSignificantControl());
+                assertNull(partnershipDao.getData().getHasPersonWithSignificantControl());
 
                 // when
-                service.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+                service.updateLimitedPartnership(transaction, SUBMISSION_ID, partnershipPatchDto, REQUEST_ID, USER_ID);
 
                 // then
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
 
-                LimitedPartnershipDao sentSubmission = submissionCaptor.getValue();
+                PartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertTrue(sentSubmission.getData().getHasPersonWithSignificantControl());
             }
@@ -414,17 +414,17 @@ class LimitedPartnershipServiceUpdateTest {
             @Test
             void shouldReturnDtoContainingHasPersonWithSignificantControl() throws ResourceNotFoundException {
                 // given
-                LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
-                limitedPartnershipDao.getData().setHasPersonWithSignificantControl(true);
+                PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
+                partnershipDao.getData().setHasPersonWithSignificantControl(true);
 
-                when(repository.findById(limitedPartnershipDao.getId())).thenReturn(Optional.of(limitedPartnershipDao));
+                when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
                 // when
-                LimitedPartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
+                PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
                 // then
-                verify(repository).findById(limitedPartnershipDao.getId());
+                verify(repository).findById(partnershipDao.getId());
 
                 assertTrue(retrievedDto.getData().getHasPersonWithSignificantControl());
             }
@@ -432,12 +432,12 @@ class LimitedPartnershipServiceUpdateTest {
     }
 
     private static AddressDao getAddressDao() {
-        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().withAddresses().buildDao();
-        return limitedPartnershipDao.getData().getRegisteredOfficeAddress();
+        PartnershipDao partnershipDao = new PartnershipBuilder().withAddresses().buildDao();
+        return partnershipDao.getData().getRegisteredOfficeAddress();
     }
 
     private static AddressDto getAddressDto() {
-        LimitedPartnershipDto limitedPartnershipDao = new LimitedPartnershipBuilder().withAddresses().buildDto();
+        PartnershipDto limitedPartnershipDao = new PartnershipBuilder().withAddresses().buildDto();
         return limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress();
     }
 }

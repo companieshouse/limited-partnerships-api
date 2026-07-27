@@ -10,7 +10,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.Lim
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

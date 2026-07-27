@@ -20,11 +20,11 @@ import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionPayment;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -57,7 +57,7 @@ class TransactionServiceTest {
     private static final String LOGGING_CONTEXT = "fg4536";
     private static final String PRIVATE_TRANSACTIONS_URL = "/private/transactions/";
     private static final String INCORPORATION_SELF_LINK = "/transactions/txn-123/incorporation/limited-partnership/sub-456";
-    private static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String SUBMISSION_ID = PartnershipBuilder.SUBMISSION_ID;
     private static final String LIMITED_PARTNERSHIP_SELF_LINK = "/transaction/1234/limited-partnership/partnership/1234";
     private static final String LIMITED_PARTNER_SELF_LINK = "/transactions/txn-123/limited-partnership/limited-partner/sub-456";
     private static final String GENERAL_PARTNER_SELF_LINK = "/transactions/trans123/limited-partnership/generalPartner/gp123";
@@ -231,7 +231,7 @@ class TransactionServiceTest {
     private void assertTransactionLinksAndResumeUri(String filingMode, String expectedResumeUri) throws Exception {
         Transaction txn = new TransactionBuilder().build();
         txn.setFilingMode(filingMode);
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
+        PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
 
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
         when(internalApiClient.privateTransaction()).thenReturn(privateTransactionResourceHandler);
@@ -248,14 +248,14 @@ class TransactionServiceTest {
 
         transactionService.updateTransactionWithLinksAndPartnershipName(
                 txn,
-                limitedPartnershipDto,
+            partnershipDto,
                 submissionUri,
                 limitedPartnershipResource,
                 "",
                 SUBMISSION_ID
         );
 
-        assertEquals(limitedPartnershipDto.getData().getPartnershipName(), txn.getCompanyName());
+        assertEquals(partnershipDto.getData().getPartnershipName(), txn.getCompanyName());
         assertEquals(submissionUri, txn.getResources().get(submissionUri).getLinks().get("resource"));
         Map<String, Resource> transactionResources = txn.getResources();
         assertEquals(1, transactionResources.size());

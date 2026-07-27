@@ -15,7 +15,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 
 public class TransactionBuilder {
     public static final String TRANSACTION_ID = "863851-951242-143528";
-    public static final String SUBMISSION_ID = LimitedPartnershipBuilder.SUBMISSION_ID;
+    public static final String SUBMISSION_ID = PartnershipBuilder.SUBMISSION_ID;
     public static final String COMPANY_NUMBER = "LP123456";
 
     private FilingMode filingMode = FilingMode.REGISTRATION;

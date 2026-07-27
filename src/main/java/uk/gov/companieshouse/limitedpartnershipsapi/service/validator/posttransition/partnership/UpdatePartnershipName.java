@@ -6,14 +6,14 @@ import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategy;
 
 import java.util.List;
 
 @Component
-public class UpdatePartnershipName implements PostTransitionStrategy<LimitedPartnershipDto> {
+public class UpdatePartnershipName implements PostTransitionStrategy<PartnershipDto> {
 
     @Value("${UPDATE_PARTNERSHIP_NAME_COST}")
     private String updatePartnershipNameCost;
@@ -26,8 +26,8 @@ public class UpdatePartnershipName implements PostTransitionStrategy<LimitedPart
     }
 
     @Override
-    public void validate(LimitedPartnershipDto limitedPartnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) {
-        if (limitedPartnershipDto.getData().getNameEnding() == null) {
+    public void validate(PartnershipDto partnershipDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) {
+        if (partnershipDto.getData().getNameEnding() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Name ending is required",
                     "data.nameEnding"));
         }

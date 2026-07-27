@@ -25,9 +25,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
@@ -56,7 +57,7 @@ public class FilingsService {
     public static final String LIMITED_PARTNERSHIP_TRANSITION_FILING_DESCRIPTION = "Transition a Limited Partnership";
     public static final String LIMITED_PARTNERSHIP_POST_TRANSITION_FILING_DESCRIPTION = "Post Transition a Limited Partnership";
 
-    private final LimitedPartnershipService limitedPartnershipService;
+    private final PartnershipService partnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
     private final PersonWithSignificantControlService personWithSignificantControlService;
@@ -67,7 +68,7 @@ public class FilingsService {
     private final CostsService costsService;
     private final FilingKind filingKind;
 
-    public FilingsService(LimitedPartnershipService limitedPartnershipService,
+    public FilingsService(PartnershipService partnershipService,
                           GeneralPartnerService generalPartnerService,
                           LimitedPartnerService limitedPartnerService,
                           PersonWithSignificantControlService personWithSignificantControlService,
@@ -79,7 +80,7 @@ public class FilingsService {
                           CostsService costsService
     ) {
 
-        this.limitedPartnershipService = limitedPartnershipService;
+        this.partnershipService = partnershipService;
         this.generalPartnerService = generalPartnerService;
         this.limitedPartnerService = limitedPartnerService;
         this.personWithSignificantControlService = personWithSignificantControlService;
@@ -113,7 +114,7 @@ public class FilingsService {
 
         Map<String, Object> data = new HashMap<>();
 
-        var limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+        var limitedPartnershipDto = partnershipService.getLimitedPartnership(transaction);
         List<GeneralPartnerDataDto> generalPartnerDataList = generalPartnerService.getGeneralPartnerDataList(transaction);
         List<LimitedPartnerDataDto> limitedPartnerDataList = limitedPartnerService.getLimitedPartnerDataList(transaction);
         List<PersonWithSignificantControlDataDto> personsWithSignificantControlDataList = personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction);
@@ -127,16 +128,16 @@ public class FilingsService {
     }
 
     private void setSubmissionData(Map<String, Object> data,
-                                   LimitedPartnershipDto limitedPartnershipDto,
+                                   PartnershipDto partnershipDto,
                                    List<GeneralPartnerDataDto> generalPartnersDataList,
                                    List<LimitedPartnerDataDto> limitedPartnersDataList,
                                    List<PersonWithSignificantControlDataDto> personsWithSignificantControlDataList,
                                    Transaction transaction,
                                    Map<String, Object> logMap) {
-        boolean isScottishPartnershipAndRegistrationFilingMode = SCOTTISH_PARTNERSHIP_TYPES.contains(limitedPartnershipDto.getData().getPartnershipType())
+        boolean isScottishPartnershipAndRegistrationFilingMode = SCOTTISH_PARTNERSHIP_TYPES.contains(partnershipDto.getData().getPartnershipType())
                 && FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode());
 
-        data.put(LIMITED_PARTNERSHIP_FIELD, limitedPartnershipDto.getData());
+        data.put(LIMITED_PARTNERSHIP_FIELD, partnershipDto.getData());
         data.put(GENERAL_PARTNER_FIELD, generalPartnersDataList);
         data.put(LIMITED_PARTNER_FIELD, limitedPartnersDataList);
         if (isScottishPartnershipAndRegistrationFilingMode && !personsWithSignificantControlDataList.isEmpty()) {
@@ -391,8 +392,8 @@ public class FilingsService {
     }
 
     public FilingApi generateLimitedPartnershipFiling(Transaction transaction) throws ServiceException {
-        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-        DataDto limitedPartnershipDataDto = limitedPartnershipDto.getData();
+        PartnershipDto partnershipDto = partnershipService.getLimitedPartnership(transaction);
+        DataDto limitedPartnershipDataDto = partnershipDto.getData();
 
         if (shouldIncludeCompanyPreviousDetails(transaction, limitedPartnershipDataDto)) {
             CompanyProfileApi companyProfile = companyService.getCompanyProfile(transaction.getCompanyNumber());

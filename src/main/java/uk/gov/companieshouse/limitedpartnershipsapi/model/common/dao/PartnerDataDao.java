@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 
 import java.time.LocalDate;
 

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,11 +7,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 
 @SpringBootTest
-class LimitedPartnershipPatchMapperTest {
+class PartnershipPatchMapperTest {
 
     private static final String JSON_WITH_MISSING_FIELDS = "{\"email\":\"test@test.com\"}";
     private static final String JSON_WITH_VALID_FIELDS_ALL_PRESENT = "{\"partnership_name\":\"Asset Adders\", \"name_ending\":\"L.P.\",\"partnership_type\":\"PFLP\", \"email\":\"test@test.com\", \"jurisdiction\":\"Scotland\"}";
@@ -33,16 +33,16 @@ class LimitedPartnershipPatchMapperTest {
     private ObjectMapper mapper;
 
     @Autowired
-    private LimitedPartnershipPatchMapper patchMapper;
+    private PartnershipPatchMapper patchMapper;
 
     @Test
     void testObjectMapperCanHandleJsonNullableFields() throws JsonProcessingException {
         assertEquals("some description", mapper.readValue("{\"partnership_name\":\"some description\"}",
-                LimitedPartnershipPatchDto.class).getPartnershipName());
+            PartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{\"partnership_name\":null}",
-                LimitedPartnershipPatchDto.class).getPartnershipName());
-        assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getPartnershipName());
-        assertNull(mapper.readValue("{}", LimitedPartnershipPatchDto.class).getLawfulPurposeStatementChecked());
+            PartnershipPatchDto.class).getPartnershipName());
+        assertNull(mapper.readValue("{}", PartnershipPatchDto.class).getPartnershipName());
+        assertNull(mapper.readValue("{}", PartnershipPatchDto.class).getLawfulPurposeStatementChecked());
     }
 
     @ParameterizedTest
@@ -62,7 +62,7 @@ class LimitedPartnershipPatchMapperTest {
                                                        String expectedPartnershipNameEnding)
             throws JsonProcessingException {
         // Given
-        LimitedPartnershipPatchDto patchDto = mapper.readValue(incomingJson, LimitedPartnershipPatchDto.class);
+        PartnershipPatchDto patchDto = mapper.readValue(incomingJson, PartnershipPatchDto.class);
 
         DataDto mongoDto = createMongoDto();
 

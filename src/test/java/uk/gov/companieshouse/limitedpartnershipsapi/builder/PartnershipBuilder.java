@@ -3,19 +3,19 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.DataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.DataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public class LimitedPartnershipBuilder {
+public class PartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
 
     private static final String PARTNERSHIP_NAME = "Test Partnership";
@@ -82,13 +82,13 @@ public class LimitedPartnershipBuilder {
         this.principalPalceOfBusinessAddressDao = ppobaDao;
     }
 
-    public LimitedPartnershipBuilder withAddresses() {
+    public PartnershipBuilder withAddresses() {
         createAddressDto();
         createAddressDao();
         return this;
     }
 
-    public LimitedPartnershipBuilder withRegisteredOfficeAddress(AddressDto addressDto) {
+    public PartnershipBuilder withRegisteredOfficeAddress(AddressDto addressDto) {
 
         if (addressDto == null) {
             this.registeredOfficeAddressDto = null;
@@ -111,7 +111,7 @@ public class LimitedPartnershipBuilder {
         return this;
     }
 
-    public LimitedPartnershipBuilder withPrincipalPlaceOfBusinessAddress(AddressDto addressDto) {
+    public PartnershipBuilder withPrincipalPlaceOfBusinessAddress(AddressDto addressDto) {
 
         if (addressDto == null) {
             this.principalPalceOfBusinessAddressDto = null;
@@ -134,43 +134,43 @@ public class LimitedPartnershipBuilder {
         return this;
     }
 
-    public LimitedPartnershipBuilder withPartnershipType(PartnershipType partnershipType) {
+    public PartnershipBuilder withPartnershipType(PartnershipType partnershipType) {
         this.partnershipType = partnershipType;
         return this;
     }
 
-    public LimitedPartnershipBuilder withTerm(Term term) {
+    public PartnershipBuilder withTerm(Term term) {
         this.term = term;
         return this;
     }
 
-    public LimitedPartnershipBuilder withSicCodes(List<String> sicCodes) {
+    public PartnershipBuilder withSicCodes(List<String> sicCodes) {
         this.sicCodes = sicCodes;
         return this;
     }
 
-    public LimitedPartnershipBuilder withLawfulPurposeStatementChecked(boolean lawfulPurposeStatementChecked) {
+    public PartnershipBuilder withLawfulPurposeStatementChecked(boolean lawfulPurposeStatementChecked) {
         this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
         return this;
     }
 
-    public LimitedPartnershipBuilder withPartnershipKind(String partnershipKind) {
+    public PartnershipBuilder withPartnershipKind(String partnershipKind) {
         this.partnershipKind = partnershipKind;
         return this;
     }
 
-    public LimitedPartnershipBuilder withDateOfUpdate(LocalDate dateOfUpdate) {
+    public PartnershipBuilder withDateOfUpdate(LocalDate dateOfUpdate) {
         this.dateOfUpdate = dateOfUpdate;
         return this;
     }
 
-    public LimitedPartnershipBuilder withNameEnding(PartnershipNameEnding partnershipNameEnding) {
+    public PartnershipBuilder withNameEnding(PartnershipNameEnding partnershipNameEnding) {
         this.partnershipNameEnding = partnershipNameEnding;
         return this;
     }
 
-    public LimitedPartnershipDto buildDto() {
-        LimitedPartnershipDto dto = new LimitedPartnershipDto();
+    public PartnershipDto buildDto() {
+        PartnershipDto dto = new PartnershipDto();
         DataDto dataDto = new DataDto();
 
         dataDto.setKind(partnershipKind);
@@ -192,8 +192,8 @@ public class LimitedPartnershipBuilder {
         return dto;
     }
 
-    public LimitedPartnershipDao buildDao() {
-        LimitedPartnershipDao dao = new LimitedPartnershipDao();
+    public PartnershipDao buildDao() {
+        PartnershipDao dao = new PartnershipDao();
         dao.setId(SUBMISSION_ID);
 
         DataDao dataDao = new DataDao();

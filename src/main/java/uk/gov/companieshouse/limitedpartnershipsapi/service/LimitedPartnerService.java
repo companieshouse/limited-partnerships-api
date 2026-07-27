@@ -14,8 +14,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
@@ -44,7 +45,7 @@ public class LimitedPartnerService {
     private final LimitedPartnerMapper mapper;
     private final LimitedPartnerValidator limitedPartnerValidator;
     private final TransactionService transactionService;
-    private final LimitedPartnershipService limitedPartnershipService;
+    private final PartnershipService partnershipService;
     private final CompanyService companyService;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
@@ -52,7 +53,7 @@ public class LimitedPartnerService {
                                  LimitedPartnerMapper mapper,
                                  LimitedPartnerValidator limitedPartnerValidator,
                                  TransactionService transactionService,
-                                 LimitedPartnershipService limitedPartnershipService,
+                                 PartnershipService partnershipService,
                                  CompanyService companyService,
                                  PostTransitionStrategyHandler postTransitionStrategyHandler
     ) {
@@ -60,7 +61,7 @@ public class LimitedPartnerService {
         this.mapper = mapper;
         this.limitedPartnerValidator = limitedPartnerValidator;
         this.transactionService = transactionService;
-        this.limitedPartnershipService = limitedPartnershipService;
+        this.partnershipService = partnershipService;
         this.companyService = companyService;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
     }
@@ -68,9 +69,9 @@ public class LimitedPartnerService {
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PartnershipType partnershipType;
         if (!FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
-            LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
-            limitedPartnerDto.getData().setPartnershipType(limitedPartnershipDto.getData().getPartnershipType());
-            partnershipType = limitedPartnershipDto.getData().getPartnershipType();
+            PartnershipDto partnershipDto = partnershipService.getLimitedPartnership(transaction);
+            limitedPartnerDto.getData().setPartnershipType(partnershipDto.getData().getPartnershipType());
+            partnershipType = partnershipDto.getData().getPartnershipType();
         } else {
             CompanyProfileApi companyProfile = companyService.getCompanyProfile(transaction.getCompanyNumber());
             partnershipType = PartnershipType.fromValue(companyProfile.getSubtype());

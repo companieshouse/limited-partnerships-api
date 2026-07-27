@@ -11,7 +11,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
@@ -49,15 +49,15 @@ public class TransactionService {
      * is handled by the web client.
      */
     public void updateTransactionWithLinksAndPartnershipName(Transaction transaction,
-                                                             LimitedPartnershipDto limitedPartnershipDto,
+                                                             PartnershipDto partnershipDto,
                                                              String submissionUri,
                                                              Resource limitedPartnershipResource,
                                                              String loggingContext,
                                                              String submissionId) throws ServiceException {
-        transaction.setCompanyName(limitedPartnershipDto.getData().getPartnershipName());
+        transaction.setCompanyName(partnershipDto.getData().getPartnershipName());
 
         if (FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
-            transaction.setCompanyNumber(limitedPartnershipDto.getData().getPartnershipNumber());
+            transaction.setCompanyNumber(partnershipDto.getData().getPartnershipNumber());
         }
 
         transaction.setResources(Collections.singletonMap(submissionUri, limitedPartnershipResource));

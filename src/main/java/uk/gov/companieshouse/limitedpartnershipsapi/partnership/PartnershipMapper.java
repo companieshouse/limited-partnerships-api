@@ -1,20 +1,20 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 
 @Mapper(componentModel = "spring")
-public interface LimitedPartnershipMapper {
+public interface PartnershipMapper {
 
-    LimitedPartnershipMapper INSTANCE = Mappers.getMapper(LimitedPartnershipMapper.class);
+    PartnershipMapper INSTANCE = Mappers.getMapper(PartnershipMapper.class);
 
-    LimitedPartnershipDao dtoToDao(LimitedPartnershipDto dto);
+    PartnershipDao dtoToDao(PartnershipDto dto);
 
-    LimitedPartnershipDto daoToDto(LimitedPartnershipDao dao);
+    PartnershipDto daoToDto(PartnershipDao dao);
 
     default String mapPartnershipNameEndingToString(PartnershipNameEnding nameEnding) {
         return nameEnding.getDescription();

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.controller;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -15,19 +15,17 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.CompanyBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnershipPatchMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipPatchMapperImpl;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -45,11 +43,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ContextConfiguration(classes = {
         PartnershipController.class,
-        LimitedPartnershipService.class,
+    PartnershipService.class,
         LimitedPartnershipValidator.class,
         ValidationStatus.class,
-        LimitedPartnershipMapperImpl.class,
-        LimitedPartnershipPatchMapperImpl.class,
+    PartnershipMapperImpl.class,
+    PartnershipPatchMapperImpl.class,
         CostsService.class,
         PostTransitionStrategyHandler.class,
         GlobalExceptionHandler.class
@@ -57,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerUpdateTest {
 
-    private static final String PARTNERSHIP_PATCH_URL = "/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID;
+    private static final String PARTNERSHIP_PATCH_URL = "/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + PartnershipBuilder.SUBMISSION_ID;
 
     private HttpHeaders httpHeaders;
     private final Transaction transaction = new TransactionBuilder().build();
@@ -66,7 +64,7 @@ class PartnershipControllerUpdateTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private LimitedPartnershipRepository limitedPartnershipRepository;
+    private PartnershipRepository partnershipRepository;
 
     @MockitoBean
     private IncorporationRepository incorporationRepository;
@@ -95,7 +93,7 @@ class PartnershipControllerUpdateTest {
     void UpdateAddressShouldReturn200() throws Exception {
         mocks();
 
-        LimitedPartnershipDto limitedPartnership = new LimitedPartnershipBuilder().withAddresses().buildDto();
+        PartnershipDto limitedPartnership = new PartnershipBuilder().withAddresses().buildDto();
 
         ObjectWriter jsonWrapper = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = jsonWrapper.writeValueAsString(limitedPartnership.getData().getRegisteredOfficeAddress());
@@ -204,10 +202,10 @@ class PartnershipControllerUpdateTest {
                 .andExpect(status().isBadRequest());
     }
 
-    private void mocks(LimitedPartnershipDao limitedPartnershipDao) throws ServiceException {
-        when(limitedPartnershipRepository.insert((LimitedPartnershipDao) any())).thenReturn(limitedPartnershipDao);
-        when(limitedPartnershipRepository.save(any())).thenReturn(limitedPartnershipDao);
-        when(limitedPartnershipRepository.findById(LimitedPartnershipBuilder.SUBMISSION_ID)).thenReturn(Optional.of(limitedPartnershipDao));
+    private void mocks(PartnershipDao partnershipDao) throws ServiceException {
+        when(partnershipRepository.insert((PartnershipDao) any())).thenReturn(partnershipDao);
+        when(partnershipRepository.save(any())).thenReturn(partnershipDao);
+        when(partnershipRepository.findById(PartnershipBuilder.SUBMISSION_ID)).thenReturn(Optional.of(partnershipDao));
 
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
@@ -216,8 +214,8 @@ class PartnershipControllerUpdateTest {
     }
 
     private void mocks() throws ServiceException {
-        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder().buildDao();
+        PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
-        mocks(limitedPartnershipDao);
+        mocks(partnershipDao);
     }
 }

@@ -16,14 +16,14 @@ import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.config.InterceptorConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.GeneralPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.PersonWithSignificantControlRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
@@ -84,7 +84,7 @@ class IncorporationControllerValidationTest {
     private LimitedPartnerRepository limitedPartnerRepository;
 
     @MockitoBean
-    private LimitedPartnershipRepository limitedPartnershipRepository;
+    private PartnershipRepository partnershipRepository;
 
     @MockitoBean
     private IncorporationRepository incorporationRepository;
@@ -143,7 +143,7 @@ class IncorporationControllerValidationTest {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
             when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
-            when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
+            when(partnershipRepository.findByTransactionId(any())).thenReturn(List.of(new PartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new GeneralPartnerBuilder().personDao()));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
 
@@ -164,7 +164,7 @@ class IncorporationControllerValidationTest {
             generalPartnerDao.getData().setNationality1("UNKNOWN");
 
             when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
-            when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
+            when(partnershipRepository.findByTransactionId(any())).thenReturn(List.of(new PartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(generalPartnerDao));
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(List.of(new LimitedPartnerBuilder().personDao()));
 
@@ -185,7 +185,7 @@ class IncorporationControllerValidationTest {
         @Test
         void shouldReturn200AndErrorDetailsIfInsufficientNumberOfPartners() throws Exception {
             when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
-            when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(new LimitedPartnershipBuilder().withAddresses().buildDao()));
+            when(partnershipRepository.findByTransactionId(any())).thenReturn(List.of(new PartnershipBuilder().withAddresses().buildDao()));
             when(generalPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());
             when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(any())).thenReturn(Collections.emptyList());
 

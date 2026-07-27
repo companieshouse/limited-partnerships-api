@@ -27,9 +27,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currenc
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 
 import java.time.LocalDate;
@@ -68,7 +69,7 @@ class LimitedPartnerServiceValidateTest {
     private LimitedPartnerRepository repository;
 
     @MockitoBean
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
 
     @MockitoBean
     private CompanyService companyService;
@@ -356,11 +357,11 @@ class LimitedPartnerServiceValidateTest {
     }
 
     private void mockLimitedPartnershipsService(PartnershipType partnershipType) throws ServiceException {
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(partnershipType);
+        PartnershipDto partnershipDto = new PartnershipDto();
+        partnershipDto.setData(new DataDto());
+        partnershipDto.getData().setPartnershipType(partnershipType);
 
-        when(limitedPartnershipService.getLimitedPartnership(transaction))
-                .thenReturn(limitedPartnershipDto);
+        when(partnershipService.getLimitedPartnership(transaction))
+            .thenReturn(partnershipDto);
     }
 }

@@ -20,13 +20,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -140,7 +140,7 @@ class LimitedPartnerControllerValidationTest {
     private TransactionInterceptor transactionInterceptor;
 
     @MockitoBean
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
 
     @MockitoBean
     private CompanyService companyService;
@@ -297,11 +297,11 @@ class LimitedPartnerControllerValidationTest {
     }
 
     private void mockLimitedPartnershipService(PartnershipType partnershipType) throws ServiceException {
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        PartnershipDto partnershipDto = new PartnershipDto();
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipType(partnershipType);
-        limitedPartnershipDto.setData(dataDto);
+        partnershipDto.setData(dataDto);
 
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+        when(partnershipService.getLimitedPartnership(transaction)).thenReturn(partnershipDto);
     }
 }

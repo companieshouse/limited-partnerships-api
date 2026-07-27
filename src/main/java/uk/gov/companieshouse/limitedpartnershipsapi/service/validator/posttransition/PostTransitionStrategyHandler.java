@@ -11,7 +11,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
 import java.util.ArrayList;
@@ -50,21 +50,21 @@ public class PostTransitionStrategyHandler {
         this.strategyMap = setStrategyMap(strategies);
     }
 
-    public List<ValidationStatusError> validateLimitedPartnership(LimitedPartnershipDto limitedPartnershipDto, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    public List<ValidationStatusError> validateLimitedPartnership(PartnershipDto partnershipDto, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        validateDto(limitedPartnershipDto, errorsList);
+        validateDto(partnershipDto, errorsList);
 
-        if (limitedPartnershipDto.getData().getDateOfUpdate() == null) {
+        if (partnershipDto.getData().getDateOfUpdate() == null) {
             errorsList.add(validationStatus.createValidationStatusError("Date of update is required",
                     "data.dateOfUpdate"));
         }
 
-        String kind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+        String kind = requireNonNullElse(partnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        PostTransitionStrategy<LimitedPartnershipDto> strategy = (PostTransitionStrategy<LimitedPartnershipDto>) getStrategy(kind);
+        PostTransitionStrategy<PartnershipDto> strategy = (PostTransitionStrategy<PartnershipDto>) getStrategy(kind);
 
-        strategy.validate(limitedPartnershipDto, errorsList, validationStatus, transaction);
+        strategy.validate(partnershipDto, errorsList, validationStatus, transaction);
 
         return errorsList;
     }
@@ -96,8 +96,8 @@ public class PostTransitionStrategyHandler {
     public <T> Cost getCost(T dto) throws ServiceException {
         String kind = null;
 
-        if (dto instanceof LimitedPartnershipDto limitedPartnershipDto) {
-            kind = requireNonNullElse(limitedPartnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
+        if (dto instanceof PartnershipDto partnershipDto) {
+            kind = requireNonNullElse(partnershipDto.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
         } else if (dto instanceof PartnerDto partnerDto) {
             kind = partnerDto.getData().getKind();
         }

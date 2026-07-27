@@ -1,8 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.repository;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +9,15 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest
-class LimitedPartnershipRepositoryTest {
+class PartnershipRepositoryTest {
 
     @Container
     private static final MongoDBContainer mongoDBContainer = Containers.mongoDBContainer();
@@ -28,15 +28,15 @@ class LimitedPartnershipRepositoryTest {
     }
 
     @Autowired
-    private LimitedPartnershipRepository repository;
+    private PartnershipRepository repository;
 
     @Test
      void testAuditFieldsArePopulated() {
         LocalDateTime startOfTest = LocalDateTime.now();
-        LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipDao();
-        repository.insert(limitedPartnershipDao);
+      PartnershipDao partnershipDao = new PartnershipDao();
+      repository.insert(partnershipDao);
 
-        assertThat(limitedPartnershipDao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
-        assertThat(limitedPartnershipDao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
+      assertThat(partnershipDao.getCreatedAt()).isBetween(startOfTest, LocalDateTime.now());
+      assertThat(partnershipDao.getUpdatedAt()).isBetween(startOfTest, LocalDateTime.now());
     }
 }

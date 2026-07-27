@@ -26,13 +26,13 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.mapper.LimitedPartnerMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnerValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
@@ -84,7 +84,7 @@ class LimitedPartnerControllerUpdateTest {
     private TransactionInterceptor transactionInterceptor;
 
     @MockitoBean
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
 
     @MockitoBean
     private CompanyService companyService;
@@ -329,12 +329,12 @@ class LimitedPartnerControllerUpdateTest {
 
                 mocks();
 
-                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
-                limitedPartnershipDto.getData().setPartnershipType(type);
+                PartnershipDto partnershipDto = new PartnershipDto();
+                partnershipDto.setData(new DataDto());
+                partnershipDto.getData().setPartnershipType(type);
 
-                when(limitedPartnershipService.getLimitedPartnership(transaction))
-                        .thenReturn(limitedPartnershipDto);
+                when(partnershipService.getLimitedPartnership(transaction))
+                    .thenReturn(partnershipDto);
 
                 mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -352,12 +352,12 @@ class LimitedPartnerControllerUpdateTest {
 
                 mocks();
 
-                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
-                limitedPartnershipDto.getData().setPartnershipType(type);
+                PartnershipDto partnershipDto = new PartnershipDto();
+                partnershipDto.setData(new DataDto());
+                partnershipDto.getData().setPartnershipType(type);
 
-                when(limitedPartnershipService.getLimitedPartnership(transaction))
-                        .thenReturn(limitedPartnershipDto);
+                when(partnershipService.getLimitedPartnership(transaction))
+                    .thenReturn(partnershipDto);
 
                 mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -373,12 +373,12 @@ class LimitedPartnerControllerUpdateTest {
             void shouldReturn400ForPFLPWithContribution(PartnershipType type) throws Exception {
                 mocks();
 
-                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
-                limitedPartnershipDto.getData().setPartnershipType(type);
+                PartnershipDto partnershipDto = new PartnershipDto();
+                partnershipDto.setData(new DataDto());
+                partnershipDto.getData().setPartnershipType(type);
 
-                when(limitedPartnershipService.getLimitedPartnership(transaction))
-                        .thenReturn(limitedPartnershipDto);
+                when(partnershipService.getLimitedPartnership(transaction))
+                    .thenReturn(partnershipDto);
 
                 String body = """
                           {"data": {
@@ -413,12 +413,12 @@ class LimitedPartnerControllerUpdateTest {
 
                 mocks();
 
-                LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-                limitedPartnershipDto.setData(new DataDto());
-                limitedPartnershipDto.getData().setPartnershipType(type);
+                PartnershipDto partnershipDto = new PartnershipDto();
+                partnershipDto.setData(new DataDto());
+                partnershipDto.getData().setPartnershipType(type);
 
-                when(limitedPartnershipService.getLimitedPartnership(transaction))
-                        .thenReturn(limitedPartnershipDto);
+                when(partnershipService.getLimitedPartnership(transaction))
+                    .thenReturn(partnershipDto);
 
                 mockMvc.perform(post(LIMITED_PARTNER_POST_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -589,12 +589,12 @@ class LimitedPartnerControllerUpdateTest {
 
         when(limitedPartnerRepository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(limitedPartners);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
-        limitedPartnershipDto.setData(new DataDto());
-        limitedPartnershipDto.getData().setPartnershipType(PartnershipType.LP);
+        PartnershipDto partnershipDto = new PartnershipDto();
+        partnershipDto.setData(new DataDto());
+        partnershipDto.getData().setPartnershipType(PartnershipType.LP);
 
-        when(limitedPartnershipService.getLimitedPartnership(transaction))
-                .thenReturn(limitedPartnershipDto);
+        when(partnershipService.getLimitedPartnership(transaction))
+            .thenReturn(partnershipDto);
 
         mockMvc.perform(get(LIMITED_PARTNER_LIST_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -614,11 +614,11 @@ class LimitedPartnerControllerUpdateTest {
 
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
-        LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipDto();
+        PartnershipDto partnershipDto = new PartnershipDto();
         DataDto dataDto = new DataDto();
         dataDto.setPartnershipType(PartnershipType.LP);
-        limitedPartnershipDto.setData(dataDto);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+        partnershipDto.setData(dataDto);
+        when(partnershipService.getLimitedPartnership(transaction)).thenReturn(partnershipDto);
     }
 
     private void mocks() throws ServiceException {

@@ -9,15 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dao.LimitedPartnershipDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.repository.LimitedPartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
 
 import java.time.LocalDate;
@@ -25,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
@@ -40,19 +41,19 @@ class PostTransitionPartnershipTest {
     private CostsService costsService;
 
     @Autowired
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
 
     @Autowired
     private ValidationStatus validationStatus;
 
     @MockitoBean
-    private LimitedPartnershipRepository limitedPartnershipRepository;
+    private PartnershipRepository partnershipRepository;
 
     @MockitoBean
     private TransactionService transactionService;
 
     private final Transaction transaction = new TransactionBuilder().build();
-    private final LimitedPartnershipDao limitedPartnershipDao = new LimitedPartnershipBuilder()
+    private final PartnershipDao partnershipDao = new PartnershipBuilder()
             .withAddresses()
             .withDateOfUpdate(LocalDate.of(2024, 1, 1))
             .buildDao();
@@ -62,10 +63,10 @@ class PostTransitionPartnershipTest {
 
         mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 
-        limitedPartnershipDao.getData().setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        partnershipDao.getData().setKind(FILING_KIND_LIMITED_PARTNERSHIP);
 
         var exception = assertThrows(ServiceException.class, () ->
-                limitedPartnershipService.validateLimitedPartnership(transaction)
+            partnershipService.validateLimitedPartnership(transaction)
         );
 
         assertEquals("No strategy found for kind: limited-partnership", exception.getMessage());
@@ -78,7 +79,7 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).isEmpty();
         }
@@ -88,9 +89,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 
-            limitedPartnershipDao.getData().setRegisteredOfficeAddress(null);
+            partnershipDao.getData().setRegisteredOfficeAddress(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -105,9 +106,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 
-            limitedPartnershipDao.getData().getRegisteredOfficeAddress().setPostalCode(null);
+            partnershipDao.getData().getRegisteredOfficeAddress().setPostalCode(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -122,9 +123,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
 
-            limitedPartnershipDao.getData().setDateOfUpdate(null);
+            partnershipDao.getData().setDateOfUpdate(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -141,7 +142,7 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).isEmpty();
         }
@@ -151,10 +152,10 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
 
-            limitedPartnershipDao.getData().setPartnershipName(null);
-            limitedPartnershipDao.getData().setNameEnding(null);
+            partnershipDao.getData().setPartnershipName(null);
+            partnershipDao.getData().setNameEnding(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -170,9 +171,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_NAME);
 
-            limitedPartnershipDao.getData().setPartnershipName(StringUtils.repeat("A", 161));
+            partnershipDao.getData().setPartnershipName(StringUtils.repeat("A", 161));
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -190,7 +191,7 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_TERM);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).isEmpty();
         }
@@ -200,9 +201,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_TERM);
 
-            limitedPartnershipDao.getData().setTerm(null);
+            partnershipDao.getData().setTerm(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -217,9 +218,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_TERM);
 
-            limitedPartnershipDao.getData().setTerm(Term.UNKNOWN);
+            partnershipDao.getData().setTerm(Term.UNKNOWN);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -236,7 +237,7 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).isEmpty();
         }
@@ -246,9 +247,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
 
-            limitedPartnershipDao.getData().setPrincipalPlaceOfBusinessAddress(null);
+            partnershipDao.getData().setPrincipalPlaceOfBusinessAddress(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -263,9 +264,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
 
-            limitedPartnershipDao.getData().getPrincipalPlaceOfBusinessAddress().setPostalCode(null);
+            partnershipDao.getData().getPrincipalPlaceOfBusinessAddress().setPostalCode(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -280,9 +281,9 @@ class PostTransitionPartnershipTest {
 
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS);
 
-            limitedPartnershipDao.getData().setDateOfUpdate(null);
+            partnershipDao.getData().setDateOfUpdate(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -300,11 +301,11 @@ class PostTransitionPartnershipTest {
         void shouldReturn200IfNoErrorsResignateToPFLPFieldsAreBothTrueUnlessPrivate(PartnershipType partnershipType) throws Exception {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
 
-            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
-            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
-            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
+            partnershipDao.getData().setPartnershipType(partnershipType);
+            partnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
+            partnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
                 assertThat(result).isEmpty();
@@ -322,11 +323,11 @@ class PostTransitionPartnershipTest {
         void shouldReturn200IfNoErrorsResignateToConfirmPFLPIsFalse(PartnershipType partnershipType) throws Exception {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
 
-            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
-            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
-            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.FALSE);
+            partnershipDao.getData().setPartnershipType(partnershipType);
+            partnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
+            partnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.FALSE);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
                 assertThat(result).hasSize(1)
@@ -350,11 +351,11 @@ class PostTransitionPartnershipTest {
         void shouldReturn200IfNoErrorsResignateToApplyPFLPIsFalse(PartnershipType partnershipType) throws Exception {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
 
-            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
-            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.FALSE);
-            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
+            partnershipDao.getData().setPartnershipType(partnershipType);
+            partnershipDao.getData().setRedesignateToPFLPApply(Boolean.FALSE);
+            partnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
                 assertThat(result).hasSize(1)
@@ -378,11 +379,11 @@ class PostTransitionPartnershipTest {
         void shouldReturn200AndNoErrorDetailsIfRedisgnateFlagsAreBothFalse(PartnershipType partnershipType) throws Exception {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
 
-            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
-            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.FALSE);
-            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.FALSE);
+            partnershipDao.getData().setPartnershipType(partnershipType);
+            partnershipDao.getData().setRedesignateToPFLPApply(Boolean.FALSE);
+            partnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.FALSE);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
                 assertThat(result).hasSize(2)
@@ -407,11 +408,11 @@ class PostTransitionPartnershipTest {
         void shouldReturn200AndNoErrorDetailsIfResignateToConfirmPFLPIsNull(PartnershipType partnershipType) throws Exception {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
 
-            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
-            limitedPartnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
-            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(null);
+            partnershipDao.getData().setPartnershipType(partnershipType);
+            partnershipDao.getData().setRedesignateToPFLPApply(Boolean.TRUE);
+            partnershipDao.getData().setRedesignateToPFLPConfirm(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
                 assertThat(result).hasSize(1)
@@ -434,11 +435,11 @@ class PostTransitionPartnershipTest {
         void shouldReturn200AndNoErrorDetailsIfResignateToApplyPFLPIsNull(PartnershipType partnershipType) throws Exception {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
 
-            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
-            limitedPartnershipDao.getData().setRedesignateToPFLPApply(null);
-            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
+            partnershipDao.getData().setPartnershipType(partnershipType);
+            partnershipDao.getData().setRedesignateToPFLPApply(null);
+            partnershipDao.getData().setRedesignateToPFLPConfirm(Boolean.TRUE);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
                 assertThat(result).hasSize(1)
@@ -461,11 +462,11 @@ class PostTransitionPartnershipTest {
         void shouldReturn200AndNoErrorDetailsIfRedisgnateFlagsAreBothNull(PartnershipType partnershipType) throws Exception {
             mocks(PartnershipKind.UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP);
 
-            limitedPartnershipDao.getData().setPartnershipType(partnershipType);
-            limitedPartnershipDao.getData().setRedesignateToPFLPApply(null);
-            limitedPartnershipDao.getData().setRedesignateToPFLPConfirm(null);
+            partnershipDao.getData().setPartnershipType(partnershipType);
+            partnershipDao.getData().setRedesignateToPFLPApply(null);
+            partnershipDao.getData().setRedesignateToPFLPConfirm(null);
 
-            var result = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var result = partnershipService.validateLimitedPartnership(transaction);
 
             if (partnershipType == PartnershipType.LP || partnershipType == PartnershipType.SLP) {
                 assertThat(result).hasSize(2)
@@ -540,9 +541,9 @@ class PostTransitionPartnershipTest {
     void mocks(PartnershipKind partnershipKind) {
         transaction.setFilingMode(FilingMode.DEFAULT.getDescription());
 
-        limitedPartnershipDao.getData().setKind(partnershipKind.getDescription());
+        partnershipDao.getData().setKind(partnershipKind.getDescription());
 
-        when(limitedPartnershipRepository.findByTransactionId(any())).thenReturn(List.of(limitedPartnershipDao));
+        when(partnershipRepository.findByTransactionId(any())).thenReturn(List.of(partnershipDao));
 
         when(transactionService.doesTransactionHaveALimitedPartnership(any(), any())).thenReturn(true);
     }

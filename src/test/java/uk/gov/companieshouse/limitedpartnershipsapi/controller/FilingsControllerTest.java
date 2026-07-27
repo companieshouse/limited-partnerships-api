@@ -23,7 +23,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
@@ -34,15 +34,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PaymentService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
@@ -78,7 +78,7 @@ class FilingsControllerTest {
     private FilingsController filingsController;
 
     @MockitoBean
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
 
     @MockitoBean
     private GeneralPartnerService generalPartnerService;
@@ -135,8 +135,8 @@ class FilingsControllerTest {
 
     }
 
-    LimitedPartnershipDto limitedPartnershipDto = new LimitedPartnershipBuilder().buildDto();
-    LimitedPartnershipDto scottishLimitedPartnershipDto = new LimitedPartnershipBuilder()
+    PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
+    PartnershipDto scottishPartnershipDto = new PartnershipBuilder()
             .withPartnershipType(PartnershipType.SLP)
             .buildDto();
     GeneralPartnerDto generalPartner = new GeneralPartnerBuilder().personDto();
@@ -145,7 +145,7 @@ class FilingsControllerTest {
 
     @Nested
     class IncorporationFiling {
-        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/incorporation/limited-partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/incorporation/limited-partnership/" + PartnershipBuilder.SUBMISSION_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().build();
 
         @Test
@@ -166,8 +166,8 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transactionWithPayment)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(partnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(partnershipDto.getData().getNameEnding()))
                     .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
                     .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
                     .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
@@ -193,8 +193,8 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transactionWithPayment)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishLimitedPartnershipDto.getData().getPartnershipName()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishLimitedPartnershipDto.getData().getNameEnding()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishPartnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishPartnershipDto.getData().getNameEnding()))
                     .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
                     .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
                     .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
@@ -222,8 +222,8 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transactionWithPayment)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishLimitedPartnershipDto.getData().getPartnershipName()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishLimitedPartnershipDto.getData().getNameEnding()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishPartnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishPartnershipDto.getData().getNameEnding()))
                     .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
                     .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
                     .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
@@ -235,7 +235,7 @@ class FilingsControllerTest {
         void shouldReturn404() throws Exception {
             mock(transaction);
 
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ResourceNotFoundException.class);
+            when(partnershipService.getLimitedPartnership(transaction)).thenThrow(ResourceNotFoundException.class);
 
             mockMvc.perform(get(URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -250,7 +250,7 @@ class FilingsControllerTest {
         void shouldReturn500() throws Exception {
             mock(transaction);
 
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
+            when(partnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
 
             mockMvc.perform(get(URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -263,14 +263,14 @@ class FilingsControllerTest {
 
         private void mock(Transaction transaction) throws ServiceException {
             when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(partnershipDto);
             when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(generalPartner.getData()));
             when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(limitedPartner.getData()));
         }
 
         private void mockScottishLP(Transaction transaction)  throws ServiceException {
             when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(scottishLimitedPartnershipDto);
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(scottishPartnershipDto);
             when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(generalPartner.getData()));
             when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(limitedPartner.getData()));
             when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(Collections.singletonList(personWithSignificantControl.getData()));
@@ -301,7 +301,7 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transaction)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
                     .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
                     .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
@@ -323,7 +323,7 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transaction)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
                     .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
                     .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()))
@@ -373,7 +373,7 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transaction)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.limited_partners[0].forename").value(limitedPartner.getData().getForename()))
                     .andExpect(jsonPath("[0].data.limited_partners[0].surname").value(limitedPartner.getData().getSurname()))
                     .andExpect(jsonPath("[0].data.limited_partners[0].kind").value(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription()))
@@ -409,7 +409,7 @@ class FilingsControllerTest {
 
     @Nested
     class LimitedPartnershipFiling {
-        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + LimitedPartnershipBuilder.SUBMISSION_ID + "/filings";
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + PartnershipBuilder.SUBMISSION_ID + "/filings";
         private final Transaction transaction = new TransactionBuilder().build();
 
         @Test
@@ -423,9 +423,9 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transaction)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(partnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(partnershipDto.getData().getNameEnding()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.payment_method").doesNotExist())
                     .andExpect(jsonPath("[0].data.payment_reference").doesNotExist());
         }
@@ -448,9 +448,9 @@ class FilingsControllerTest {
                             .requestAttr("transaction", transactionWithPayment)
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(limitedPartnershipDto.getData().getPartnershipName()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(limitedPartnershipDto.getData().getNameEnding()))
-                    .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(limitedPartnershipDto.getData().getPartnershipNumber()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(partnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(partnershipDto.getData().getNameEnding()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
                     .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
                     .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
         }
@@ -458,7 +458,7 @@ class FilingsControllerTest {
         @Test
         void shouldReturn404() throws Exception {
 
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ResourceNotFoundException.class);
+            when(partnershipService.getLimitedPartnership(transaction)).thenThrow(ResourceNotFoundException.class);
 
             mockMvc.perform(get(URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -470,11 +470,11 @@ class FilingsControllerTest {
         }
 
         private void mockPartnership(Transaction transaction, PartnershipKind kind) throws ServiceException {
-            limitedPartnershipDto.getData().setKind(kind.getDescription());
+            partnershipDto.getData().setKind(kind.getDescription());
 
             when(transactionService.doesTransactionHaveALimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
 
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnershipDto);
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(partnershipDto);
         }
     }
 }

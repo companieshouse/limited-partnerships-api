@@ -15,9 +15,9 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 
 import java.time.LocalDate;
@@ -44,13 +44,13 @@ public class LimitedPartnershipValidator {
         this.companyService = companyService;
     }
 
-    public List<ValidationStatusError> validateFull(LimitedPartnershipDto limitedPartnershipDto,
+    public List<ValidationStatusError> validateFull(PartnershipDto partnershipDto,
                                                     FilingMode filingMode) throws ServiceException {
         List<ValidationStatusError> errorsList = new ArrayList<>();
 
-        checkFieldConstraints(limitedPartnershipDto, filingMode, errorsList);
+        checkFieldConstraints(partnershipDto, filingMode, errorsList);
 
-        final var dataDto = limitedPartnershipDto.getData();
+        final var dataDto = partnershipDto.getData();
 
         checkCommonFields(dataDto, filingMode, errorsList);
         checkPartnershipTypeSpecificFields(dataDto, filingMode, errorsList);
@@ -59,15 +59,15 @@ public class LimitedPartnershipValidator {
         return errorsList;
     }
 
-    public void validatePartial(LimitedPartnershipDto limitedPartnershipDto,
+    public void validatePartial(PartnershipDto partnershipDto,
                                 FilingMode filingMode)
             throws NoSuchMethodException, MethodArgumentNotValidException {
-        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnershipDto, DataDto.class.getName());
+        BindingResult bindingResult = new BeanPropertyBindingResult(partnershipDto, DataDto.class.getName());
 
-        dtoValidation(limitedPartnershipDto, bindingResult);
+        dtoValidation(partnershipDto, bindingResult);
 
         if (filingMode != null) {
-            checkJourneySpecificFields(limitedPartnershipDto.getData(), filingMode, bindingResult);
+            checkJourneySpecificFields(partnershipDto.getData(), filingMode, bindingResult);
         }
 
         if (bindingResult.hasErrors()) {
@@ -76,13 +76,13 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    public void validateUpdate(LimitedPartnershipDto limitedPartnershipDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
+    public void validateUpdate(PartnershipDto partnershipDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
-        BindingResult bindingResult = new BeanPropertyBindingResult(limitedPartnershipDto, LimitedPartnerDataDto.class.getName());
+        BindingResult bindingResult = new BeanPropertyBindingResult(partnershipDto, LimitedPartnerDataDto.class.getName());
 
-        dtoValidation(limitedPartnershipDto, bindingResult);
+        dtoValidation(partnershipDto, bindingResult);
 
-        validateDateOfUpdate(transaction, limitedPartnershipDto, bindingResult);
+        validateDateOfUpdate(transaction, partnershipDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
@@ -118,11 +118,11 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    protected void validateDateOfUpdate(Transaction transaction, LimitedPartnershipDto limitedPartnershipDto, BindingResult bindingResult) throws ServiceException {
-        if (limitedPartnershipDto.getData().getDateOfUpdate() != null) {
+    protected void validateDateOfUpdate(Transaction transaction, PartnershipDto partnershipDto, BindingResult bindingResult) throws ServiceException {
+        if (partnershipDto.getData().getDateOfUpdate() != null) {
             CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
 
-            LocalDate dateEffectiveFrom = limitedPartnershipDto.getData().getDateOfUpdate();
+            LocalDate dateEffectiveFrom = partnershipDto.getData().getDateOfUpdate();
 
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
@@ -188,8 +188,8 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    private void dtoValidation(LimitedPartnershipDto limitedPartnershipDto, BindingResult bindingResult) {
-        Set<ConstraintViolation<LimitedPartnershipDto>> violations = validator.validate(limitedPartnershipDto);
+    private void dtoValidation(PartnershipDto partnershipDto, BindingResult bindingResult) {
+        Set<ConstraintViolation<PartnershipDto>> violations = validator.validate(partnershipDto);
 
         if (!violations.isEmpty()) {
             violations.forEach(violation ->
@@ -202,10 +202,10 @@ public class LimitedPartnershipValidator {
         bindingResult.addError(new FieldError(CLASS_NAME, fieldName, defaultMessage));
     }
 
-    private void checkFieldConstraints(LimitedPartnershipDto limitedPartnershipDto, FilingMode filingMode, List<ValidationStatusError> errorsList)
+    private void checkFieldConstraints(PartnershipDto partnershipDto, FilingMode filingMode, List<ValidationStatusError> errorsList)
             throws ServiceException {
         try {
-            validatePartial(limitedPartnershipDto, filingMode);
+            validatePartial(partnershipDto, filingMode);
         } catch (MethodArgumentNotValidException e) {
             validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
         } catch (NoSuchMethodException e) {

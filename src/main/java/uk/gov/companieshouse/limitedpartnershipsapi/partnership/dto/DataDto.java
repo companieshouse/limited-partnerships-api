@@ -1,38 +1,52 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipNameEnding;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.CompanyPreviousDetailsDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.NameSize;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MIN_SIZE_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.REG_EXP_FOR_ALLOWED_CHARACTERS;
 
 @NameSize
-public class LimitedPartnershipPatchDto {
+public class DataDto {
+
+    public static final String NAME_MIN_SIZE_MESSAGE = "Limited partnership name must be greater than {min}";
+    public static final String NAME_MAX_SIZE_MESSAGE = "Limited partnership name must be less than {max}";
+
+    @JsonInclude(NON_NULL)
+    @JsonProperty("partnership_number")
+    @Pattern(regexp = "^(LP|NL|SL)\\d{6}$", message = "Partnership number must be valid")
+    private String partnershipNumber;
+
+    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_name")
-    @Size(min = MIN_SIZE, message = "Limited partnership name " + MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = "Limited partnership name " + MAX_SIZE_MESSAGE)
+    @NotNull(message = "Limited partnership name must not be null")
+    @Size(min = MIN_SIZE, message = NAME_MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = NAME_MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Limited partnership name " + INVALID_CHARACTERS_MESSAGE)
     private String partnershipName;
 
+    @JsonInclude(NON_NULL)
     @JsonProperty("name_ending")
     @EnumValid(message = "Name ending must be valid")
     private PartnershipNameEnding nameEnding;
@@ -41,10 +55,13 @@ public class LimitedPartnershipPatchDto {
     @Email
     private String email;
 
+    @JsonInclude(NON_NULL)
     @JsonProperty("partnership_type")
+    @NotNull(message = "Partnership type must not be null")
     @EnumValid(message = "Partnership type must be valid")
     private PartnershipType partnershipType;
 
+    @JsonInclude(NON_NULL)
     @JsonProperty("jurisdiction")
     @EnumValid(message = "Jurisdiction must be valid")
     private Jurisdiction jurisdiction;
@@ -56,6 +73,12 @@ public class LimitedPartnershipPatchDto {
     @JsonProperty("term")
     @EnumValid(message = "Term must be valid")
     private Term term;
+
+    @JsonProperty("redesignate_to_pflp_apply")
+    private Boolean redesignateToPFLPApply;
+
+    @JsonProperty("redesignate_to_pflp_confirm")
+    private Boolean redesignateToPFLPConfirm;
 
     @JsonProperty("principal_place_of_business_address")
     @Valid
@@ -71,10 +94,24 @@ public class LimitedPartnershipPatchDto {
     @JsonProperty("has_person_with_significant_control")
     private Boolean hasPersonWithSignificantControl;
 
+    @JsonProperty("kind")
+    private String kind;
+
     @JsonProperty("date_of_update")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @PastOrPresent(message = "Date of update must not be in the future")
     private LocalDate dateOfUpdate;
+
+    @JsonProperty("company_previous_details")
+    private CompanyPreviousDetailsDto companyPreviousDetails;
+
+    public String getPartnershipNumber() {
+        return partnershipNumber;
+    }
+
+    public void setPartnershipNumber(String partnershipNumber) {
+        this.partnershipNumber = partnershipNumber;
+    }
 
     public String getPartnershipName() {
         return partnershipName;
@@ -84,8 +121,8 @@ public class LimitedPartnershipPatchDto {
         this.partnershipName = partnershipName;
     }
 
-    public PartnershipNameEnding getNameEnding() {
-        return nameEnding;
+    public String getNameEnding() {
+        return nameEnding != null ? nameEnding.getDescription() : null;
     }
 
     public void setNameEnding(PartnershipNameEnding nameEnding) {
@@ -108,8 +145,8 @@ public class LimitedPartnershipPatchDto {
         this.partnershipType = partnershipType;
     }
 
-    public Jurisdiction getJurisdiction() {
-        return jurisdiction;
+    public String getJurisdiction() {
+        return jurisdiction != null ? jurisdiction.getApiKey() : null;
     }
 
     public void setJurisdiction(Jurisdiction jurisdiction) {
@@ -132,28 +169,28 @@ public class LimitedPartnershipPatchDto {
         this.term = term;
     }
 
+    public Boolean getRedesignateToPFLPConfirm() {
+        return redesignateToPFLPConfirm;
+    }
+
+    public Boolean getRedesignateToPFLPApply() {
+        return redesignateToPFLPApply;
+    }
+
+    public void setRedesignateToPFLPApply(Boolean redesignateToPFLPApply) {
+        this.redesignateToPFLPApply = redesignateToPFLPApply;
+    }
+
+    public void setRedesignateToPFLPConfirm(Boolean redesignateToPFLPConfirm) {
+        this.redesignateToPFLPConfirm = redesignateToPFLPConfirm;
+    }
+
     public AddressDto getPrincipalPlaceOfBusinessAddress() {
         return principalPlaceOfBusinessAddress;
     }
 
     public void setPrincipalPlaceOfBusinessAddress(AddressDto principalPlaceOfBusinessAddress) {
         this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
-    }
-
-    public List<String> getSicCodes() {
-        return sicCodes;
-    }
-
-    public void setSicCodes(List<String> sicCodes) {
-        this.sicCodes = sicCodes;
-    }
-
-    public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
-        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
-    }
-
-    public Boolean getLawfulPurposeStatementChecked() {
-        return lawfulPurposeStatementChecked;
     }
 
     public Boolean getHasPersonWithSignificantControl() {
@@ -164,11 +201,43 @@ public class LimitedPartnershipPatchDto {
         this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
     }
 
+    public List<String> getSicCodes() {
+        return sicCodes;
+    }
+
+    public void setSicCodes(List<String> sicCodes) {
+        this.sicCodes = sicCodes;
+    }
+
+    public Boolean getLawfulPurposeStatementChecked() {
+        return lawfulPurposeStatementChecked;
+    }
+
+    public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
+        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
     public LocalDate getDateOfUpdate() {
         return dateOfUpdate;
     }
 
     public void setDateOfUpdate(LocalDate dateOfUpdate) {
         this.dateOfUpdate = dateOfUpdate;
+    }
+
+    public CompanyPreviousDetailsDto getCompanyPreviousDetails() {
+        return companyPreviousDetails;
+    }
+
+    public void setCompanyPreviousDetails(CompanyPreviousDetailsDto companyPreviousDetails) {
+        this.companyPreviousDetails = companyPreviousDetails;
     }
 }

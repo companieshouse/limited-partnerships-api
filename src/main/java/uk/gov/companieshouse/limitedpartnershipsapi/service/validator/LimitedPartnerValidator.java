@@ -17,7 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Contrib
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 

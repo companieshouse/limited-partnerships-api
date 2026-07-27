@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 
 import java.util.Collections;
 import java.util.List;

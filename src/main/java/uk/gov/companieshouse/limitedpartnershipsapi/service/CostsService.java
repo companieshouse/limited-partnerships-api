@@ -10,7 +10,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationR
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -20,19 +21,19 @@ import java.util.Collections;
 public class CostsService {
 
     private final IncorporationRepository incorporationRepository;
-    private final LimitedPartnershipService limitedPartnershipService;
+    private final PartnershipService partnershipService;
     private final GeneralPartnerService generalPartnerService;
     private final LimitedPartnerService limitedPartnerService;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     public CostsService(
         IncorporationRepository incorporationRepository,
-            LimitedPartnershipService limitedPartnershipService,
+        PartnershipService partnershipService,
             GeneralPartnerService generalPartnerService,
             LimitedPartnerService limitedPartnerService,
             PostTransitionStrategyHandler postTransitionStrategyHandler) {
         this.incorporationRepository = incorporationRepository;
-        this.limitedPartnershipService = limitedPartnershipService;
+        this.partnershipService = partnershipService;
         this.generalPartnerService = generalPartnerService;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
         this.limitedPartnerService = limitedPartnerService;
@@ -77,9 +78,9 @@ public class CostsService {
     }
 
     public Cost getPostTransitionLimitedPartnershipCost(Transaction transaction) throws ServiceException {
-        LimitedPartnershipDto limitedPartnershipDto = limitedPartnershipService.getLimitedPartnership(transaction);
+        PartnershipDto partnershipDto = partnershipService.getLimitedPartnership(transaction);
 
-        return postTransitionStrategyHandler.getCost(limitedPartnershipDto);
+        return postTransitionStrategyHandler.getCost(partnershipDto);
     }
 
     public Cost getPostTransitionGeneralPartnerCost(Transaction transaction, String generalPartnerId) throws ServiceException {

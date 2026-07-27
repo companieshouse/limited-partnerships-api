@@ -25,7 +25,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -41,8 +41,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.Gen
 import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
 import java.time.LocalDate;
@@ -63,7 +64,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder.GENERAL_PARTNER_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder.LIMITED_PARTNER_ID;
-import static uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnershipBuilder.SUBMISSION_ID;
+import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder.SUBMISSION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder.COMPANY_NUMBER;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder.TRANSACTION_ID;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
@@ -96,7 +97,7 @@ class FilingsServiceTest {
     @Autowired
     private FilingsService filingsService;
     @MockitoBean
-    private LimitedPartnershipService limitedPartnershipService;
+    private PartnershipService partnershipService;
     @MockitoBean
     private GeneralPartnerService generalPartnerService;
     @MockitoBean
@@ -132,7 +133,7 @@ class FilingsServiceTest {
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
         when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
+        when(partnershipService.getLimitedPartnership(transaction)).thenReturn(new PartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
         when(incorporationRepository.findById(any())).thenReturn(Optional.of(new IncorporationDao()));
@@ -159,7 +160,7 @@ class FilingsServiceTest {
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
         when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
+        when(partnershipService.getLimitedPartnership(transaction)).thenReturn(new PartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
         when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction))
@@ -188,7 +189,7 @@ class FilingsServiceTest {
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
         when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
         when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
+        when(partnershipService.getLimitedPartnership(transaction)).thenReturn(new PartnershipBuilder().withPartnershipType(PartnershipType.SLP).buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(new GeneralPartnerBuilder().personDto().getData()));
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(new LimitedPartnerBuilder().legalEntityDto().getData()));
         when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(new ArrayList<>());
@@ -212,7 +213,7 @@ class FilingsServiceTest {
         var transaction = new TransactionBuilder().withIncorporationKind(FilingMode.TRANSITION).build();
 
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(new LimitedPartnershipBuilder().buildDto());
+        when(partnershipService.getLimitedPartnership(transaction)).thenReturn(new PartnershipBuilder().buildDto());
         when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(new ArrayList<>());
         when(incorporationRepository.findById(any())).thenReturn(Optional.of(new IncorporationDao()));
@@ -235,7 +236,7 @@ class FilingsServiceTest {
     void testFilingGenerationFailureWhenLimitedPartnershipNotFound() throws ServiceException {
         var transaction = new TransactionBuilder().build();
 
-        when(limitedPartnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
+        when(partnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
         assertThrows(ServiceException.class, () -> filingsService.generateIncorporationFiling(transaction, INCORPORATION_ID));
     }
 
@@ -798,7 +799,7 @@ class FilingsServiceTest {
 
             Transaction transaction = transactionBuilder.build();
 
-            var limitedPartnership = new LimitedPartnershipBuilder()
+            var limitedPartnership = new PartnershipBuilder()
                     .withPartnershipKind(partnerKind)
                     .withDateOfUpdate(today)
                     .buildDto();
@@ -809,7 +810,7 @@ class FilingsServiceTest {
             PaymentApi payment = new PaymentApi();
             payment.setPaymentMethod(PAYMENT_METHOD);
 
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnership);
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnership);
             when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfile);
             when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
             when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);
@@ -861,7 +862,7 @@ class FilingsServiceTest {
 
             Transaction transaction = transactionBuilder.build();
 
-            var limitedPartnership = new LimitedPartnershipBuilder()
+            var limitedPartnership = new PartnershipBuilder()
                     .withPartnershipKind(partnerKind)
                     .buildDto();
 
@@ -870,7 +871,7 @@ class FilingsServiceTest {
             PaymentApi payment = new PaymentApi();
             payment.setPaymentMethod(PAYMENT_METHOD);
 
-            when(limitedPartnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnership);
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(limitedPartnership);
             when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfile);
             when(transactionService.getPaymentReference(transaction.getLinks().getPayment())).thenReturn(PAYMENT_REFERENCE);
             when(paymentService.getPayment(PAYMENT_REFERENCE)).thenReturn(payment);

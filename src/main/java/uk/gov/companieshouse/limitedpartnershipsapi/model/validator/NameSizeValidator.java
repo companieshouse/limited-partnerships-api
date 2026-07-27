@@ -2,8 +2,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.model.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.DataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 
@@ -14,7 +14,7 @@ public class NameSizeValidator implements ConstraintValidator<NameSize, Object> 
             case DataDto dto -> {
                 return isSizeCorrect(dto.getPartnershipName(), dto.getNameEnding());
             }
-            case LimitedPartnershipPatchDto dto -> {
+            case PartnershipPatchDto dto -> {
                 String nameEnding = dto.getNameEnding() != null ? dto.getNameEnding().getDescription() : "";
                 return isSizeCorrect(dto.getPartnershipName(), nameEnding);
             }

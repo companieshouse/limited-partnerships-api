@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.controller;
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
 import com.google.gson.GsonBuilder;
 import jakarta.validation.Valid;
@@ -21,11 +21,10 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipCreatedResponseDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.dto.LimitedPartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
@@ -44,21 +43,21 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_P
 @RequestMapping("/transactions/{" + URL_PARAM_TRANSACTION_ID + "}/limited-partnership/partnership")
 public class PartnershipController {
 
-    private final LimitedPartnershipService limitedPartnershipService;
+    private final PartnershipService partnershipService;
     private final CostsService costsService;
 
     @Autowired
     public PartnershipController(
-            LimitedPartnershipService limitedPartnershipService,
+        PartnershipService partnershipService,
             CostsService costsService) {
-        this.limitedPartnershipService = limitedPartnershipService;
+        this.partnershipService = partnershipService;
         this.costsService = costsService;
     }
 
     @PostMapping
     public ResponseEntity<Object> createPartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @RequestBody LimitedPartnershipDto limitedPartnershipDto,
+            @RequestBody PartnershipDto partnershipDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId)
             throws MethodArgumentNotValidException, NoSuchMethodException {
@@ -70,11 +69,11 @@ public class PartnershipController {
         try {
             ApiLogger.infoContext(requestId, "Calling service to create a Limited Partnership", logMap);
 
-            var submissionId = limitedPartnershipService.createLimitedPartnership(transaction,
-                    limitedPartnershipDto, requestId, userId);
+            var submissionId = partnershipService.createLimitedPartnership(transaction,
+                partnershipDto, requestId, userId);
 
             var location = URI.create(String.format(URL_GET_PARTNERSHIP, transactionId, submissionId));
-            var response = new LimitedPartnershipCreatedResponseDto(submissionId);
+            var response = new PartnershipCreatedResponseDto(submissionId);
 
             return ResponseEntity.created(location).body(response);
         } catch (ServiceException e) {
@@ -87,7 +86,7 @@ public class PartnershipController {
     public ResponseEntity<Object> updatePartnership(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_SUBMISSION_ID) String submissionId,
-            @Valid @RequestBody LimitedPartnershipPatchDto limitedPartnershipPatchDto,
+            @Valid @RequestBody PartnershipPatchDto partnershipPatchDto,
             @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String userId) throws MethodArgumentNotValidException, NoSuchMethodException {
 
@@ -97,7 +96,7 @@ public class PartnershipController {
         logMap.put(URL_PARAM_SUBMISSION_ID, submissionId);
 
         try {
-            limitedPartnershipService.updateLimitedPartnership(transaction, submissionId, limitedPartnershipPatchDto, requestId, userId);
+            partnershipService.updateLimitedPartnership(transaction, submissionId, partnershipPatchDto, requestId, userId);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
@@ -121,7 +120,7 @@ public class PartnershipController {
         logMap.put(URL_PARAM_TRANSACTION_ID, transactionId);
 
         try {
-            LimitedPartnershipDto dto = limitedPartnershipService.getLimitedPartnership(transaction, submissionId);
+            PartnershipDto dto = partnershipService.getLimitedPartnership(transaction, submissionId);
             return ResponseEntity.ok().body(dto);
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
@@ -143,7 +142,7 @@ public class PartnershipController {
             var validationStatus = new ValidationStatusResponse();
             validationStatus.setValid(true);
 
-            var validationErrors = limitedPartnershipService.validateLimitedPartnership(transaction);
+            var validationErrors = partnershipService.validateLimitedPartnership(transaction);
 
             if (!validationErrors.isEmpty()) {
                 ApiLogger.errorContext(requestId, String.format("Validation errors: %s",
