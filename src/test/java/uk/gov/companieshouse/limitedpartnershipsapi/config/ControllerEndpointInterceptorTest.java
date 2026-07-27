@@ -21,10 +21,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationS
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.AllowedTransactionStatusInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthenticationInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 

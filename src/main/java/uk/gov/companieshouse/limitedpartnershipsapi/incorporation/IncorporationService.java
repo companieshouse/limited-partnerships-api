@@ -13,8 +13,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.Incorporat
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationSubResourcesDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 

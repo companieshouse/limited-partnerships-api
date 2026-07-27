@@ -2,7 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 
 import java.util.List;

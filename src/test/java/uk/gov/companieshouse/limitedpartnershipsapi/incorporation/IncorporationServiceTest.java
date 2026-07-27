@@ -21,11 +21,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.Incorporat
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.IncorporationDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dto.LimitedPartnershipIncorporationDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.util.List;

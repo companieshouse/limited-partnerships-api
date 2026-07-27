@@ -1,12 +1,12 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.ContributionSubTypes;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
 
 import java.util.List;

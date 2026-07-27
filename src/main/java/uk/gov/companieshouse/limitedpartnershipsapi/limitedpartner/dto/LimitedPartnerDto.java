@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

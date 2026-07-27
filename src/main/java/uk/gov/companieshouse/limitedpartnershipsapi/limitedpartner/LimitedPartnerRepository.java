@@ -1,7 +1,7 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.repository;
+package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dao.LimitedPartnerDao;
 
 import java.util.List;
 

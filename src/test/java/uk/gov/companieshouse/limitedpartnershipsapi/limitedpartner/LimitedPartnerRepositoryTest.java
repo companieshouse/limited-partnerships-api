@@ -1,8 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.repository;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
+package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +9,11 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dao.LimitedPartnerDao;
+
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest

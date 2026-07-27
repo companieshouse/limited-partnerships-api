@@ -1,9 +1,9 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao;
+package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.PartnerDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.ContributionSubTypes;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.Currency;
 
 import java.util.List;
 

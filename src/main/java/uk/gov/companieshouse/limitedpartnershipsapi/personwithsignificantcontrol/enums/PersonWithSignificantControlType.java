@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
