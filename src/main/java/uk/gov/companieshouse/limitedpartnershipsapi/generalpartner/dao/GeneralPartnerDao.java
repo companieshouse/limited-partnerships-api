@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao;
+package uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.mapper;
+package uk.gov.companieshouse.limitedpartnershipsapi.generalpartner;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;

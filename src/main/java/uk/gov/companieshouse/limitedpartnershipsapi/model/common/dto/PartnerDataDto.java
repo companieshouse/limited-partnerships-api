@@ -15,7 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Partnershi
 
 import java.time.LocalDate;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dto.GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD;
+import static uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDataDto.SERVICE_ADDRESS_FIELD;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LONG_MAX_SIZE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.MAX_SIZE_MESSAGE;

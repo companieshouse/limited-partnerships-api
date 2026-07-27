@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.repository;
+package uk.gov.companieshouse.limitedpartnershipsapi.generalpartner;
 
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import uk.gov.companieshouse.limitedpartnershipsapi.Containers;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao.GeneralPartnerDao;
 
 import java.time.LocalDateTime;
 import java.util.List;

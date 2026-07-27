@@ -24,8 +24,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.config.JacksonConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipPatchMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
@@ -330,7 +328,8 @@ class PartnershipControllerValidationTest {
                                 .requestAttr("transaction", transaction)
                                 .content(body))
                         .andExpect(status().isBadRequest())
-                        .andExpect(jsonPath("$.['errors'].['data.partnershipName']").value("Max length 'partnership name + name ending' is 160 characters"));
+
+                    .andExpect(jsonPath("$.['errors'].['partnershipPatchDto']").value("Max length 'partnership name + name ending' is 160 characters"));
 
             }
         }

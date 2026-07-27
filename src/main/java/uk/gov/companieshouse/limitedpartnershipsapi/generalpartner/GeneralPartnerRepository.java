@@ -1,7 +1,7 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.repository;
+package uk.gov.companieshouse.limitedpartnershipsapi.generalpartner;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.generalpartner.dao.GeneralPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao.GeneralPartnerDao;
 
 import java.util.List;
 

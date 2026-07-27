@@ -20,8 +20,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipMapperImpl;
-import uk.gov.companieshouse.limitedpartnershipsapi.mapper.PartnershipPatchMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
