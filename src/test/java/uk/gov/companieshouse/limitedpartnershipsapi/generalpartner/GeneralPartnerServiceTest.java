@@ -19,7 +19,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao.GeneralPa
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.GeneralPartnerValidator;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,0 +1,144 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.validator;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Set;
+
+public abstract class PartnerValidator {
+
+    protected Validator validator;
+    protected final ValidationStatus validationStatus;
+    protected CompanyService companyService;
+
+    public static final String NATIONALITY_1_IS_REQUIRED = "Nationality1 is required";
+
+    @Autowired
+    protected PartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService) {
+        this.validator = validator;
+        this.validationStatus = validationStatus;
+        this.companyService = companyService;
+    }
+
+    protected void addError(String className, String fieldName, String defaultMessage, BindingResult bindingResult) {
+        bindingResult.addError(new FieldError(className, fieldName, defaultMessage));
+    }
+
+    protected void checkNotNullLegalEntity(String className,
+                                           PartnerDataDto partnerDataDto,
+                                           BindingResult bindingResult) {
+        checkFieldNotNull(className, partnerDataDto.getLegalEntityName(), PartnerDataDto.LEGAL_ENTITY_NAME_FIELD, "Legal Entity Name is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getLegalForm(), PartnerDataDto.LEGAL_FORM_FIELD, "Legal Form is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getGoverningLaw(), PartnerDataDto.GOVERNING_LAW_FIELD, "Governing Law is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getLegalEntityRegisterName(), PartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD, "Legal Entity Register Name is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getLegalEntityRegistrationLocation(), PartnerDataDto.LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD, "Legal Entity Registration Location is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getRegisteredCompanyNumber(), PartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD, "Registered Company Number is required", bindingResult);
+    }
+
+    protected void checkNotNullPerson(String className,
+                                      PartnerDataDto partnerDataDto,
+                                      BindingResult bindingResult) {
+        checkNotNullName(className, partnerDataDto, bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getDateOfBirth(), PartnerDataDto.DATE_OF_BIRTH_FIELD, "Date of birth is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
+    }
+
+    protected void checkNotNullName(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
+        checkFieldNotNull(className, partnerDataDto.getForename(), PartnerDataDto.FORENAME_FIELD, "Forename is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getSurname(), PartnerDataDto.SURNAME_FIELD, "Surname is required", bindingResult);
+    }
+
+    protected void checkFieldNotNull(String className, Object value, String fieldName, String errorMessage, BindingResult bindingResult) {
+        if (value == null) {
+            addError(className, fieldName, errorMessage, bindingResult);
+        }
+    }
+
+    protected void dtoValidation(String className, PartnerDto partnerDto, BindingResult bindingResult) {
+        Set<ConstraintViolation<PartnerDto>> violations = validator.validate(
+                partnerDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    addError(className, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+            );
+        }
+    }
+
+    protected void isSecondNationalityDifferent(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
+        String nationality1 = partnerDataDto.getNationality1();
+        String nationality2 = partnerDataDto.getNationality2();
+
+        if (nationality1 != null && nationality1.equals(nationality2)) {
+            addError(className, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
+        }
+    }
+
+    protected void checkNotNullDateEffectiveFrom(String className, PartnerDto partnerDto, Transaction transaction, BindingResult bindingResult) throws ServiceException {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode()) && PartnerKind.isAddPartnerKind(partnerDto.getData().getKind())) {
+            if (partnerDto.getData().getDateEffectiveFrom() == null) {
+                addError(className, "data.dateEffectiveFrom", "Partner date effective from is required", bindingResult);
+            }
+
+            validateDateEffectiveFrom(className, transaction, partnerDto, bindingResult);
+        }
+    }
+
+    protected void validateDateEffectiveFrom(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
+        if (partnerDto.getData().getDateEffectiveFrom() != null) {
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate dateEffectiveFrom = partnerDto.getData().getDateEffectiveFrom();
+
+            String partner = Objects.equals(className, GeneralPartnerDto.class.getName()) ? "general partner" : "limited partner";
+            String pronoun = partnerDto.getData().isLegalEntity() ? "it" : "they";
+
+            if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError(className, "data.dateEffectiveFrom", String.format("Date %s became a %s must be the same as or after limited partnership's registration date", pronoun, partner), bindingResult);
+            }
+        }
+    }
+
+    protected void validateCeaseDate(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
+        CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+        LocalDate ceaseDate = partnerDto.getData().getCeaseDate();
+
+        if (ceaseDate != null) {
+            if (ceaseDate.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError(className, "data.ceaseDate", "Partner cease date cannot be before the incorporation date", bindingResult);
+            }
+
+            LocalDate dateOfBirth = partnerDto.getData().getDateOfBirth();
+            if (dateOfBirth != null && ceaseDate.isBefore(dateOfBirth)) {
+                addError(className, "data.ceaseDate", "Partner cease date cannot be before the date of birth", bindingResult);
+            }
+        }
+    }
+
+    protected void validateDateOfUpdate(String className, Transaction transaction, PartnerDto partnerDto, BindingResult bindingResult) throws ServiceException {
+        if (partnerDto.getData().getDateOfUpdate() != null) {
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate dateOfUpdate = partnerDto.getData().getDateOfUpdate();
+
+            if (dateOfUpdate.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError(className, "data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
+            }
+        }
+    }
+}

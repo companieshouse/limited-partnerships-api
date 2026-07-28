@@ -34,9 +34,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;

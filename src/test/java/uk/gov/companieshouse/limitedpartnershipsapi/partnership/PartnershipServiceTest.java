@@ -22,7 +22,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipD
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
 
 import java.util.ArrayList;
 import java.util.Collections;

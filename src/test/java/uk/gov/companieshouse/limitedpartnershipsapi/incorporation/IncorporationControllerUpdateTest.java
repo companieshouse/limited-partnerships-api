@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipPatchMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipRepository;
@@ -24,9 +25,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipServi
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.LimitedPartnershipValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.posttransition.PostTransitionStrategyHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.PostTransitionStrategyHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;

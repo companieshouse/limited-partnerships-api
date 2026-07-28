@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.UkPostcode;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.UkPostcode;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.ALL_DOMESTIC_COUNTRIES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;

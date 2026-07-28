@@ -11,9 +11,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
 
 import java.util.ArrayList;
 import java.util.Collections;

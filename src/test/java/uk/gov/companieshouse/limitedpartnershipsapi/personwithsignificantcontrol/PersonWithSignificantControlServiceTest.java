@@ -21,8 +21,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorStrategy;
 
 import java.util.ArrayList;
 import java.util.List;

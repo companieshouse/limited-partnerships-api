@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.validator.EnumValid;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.EnumValid;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 

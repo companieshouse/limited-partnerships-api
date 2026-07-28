@@ -25,7 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dao.LimitedPa
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
 
 import java.time.LocalDate;
 import java.util.Map;

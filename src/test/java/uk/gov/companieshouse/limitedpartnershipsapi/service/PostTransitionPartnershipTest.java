@@ -19,7 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipServi
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
 
 import java.time.LocalDate;
 import java.util.List;
