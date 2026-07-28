@@ -1,7 +1,7 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.NatureOfControlType;
 
 public class NatureOfControlDto {
 	@JsonProperty("type")

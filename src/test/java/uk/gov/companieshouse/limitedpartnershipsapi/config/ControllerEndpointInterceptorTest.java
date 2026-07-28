@@ -23,9 +23,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.CustomUserAuthen
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingInterceptor;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
 
 import java.nio.charset.StandardCharsets;

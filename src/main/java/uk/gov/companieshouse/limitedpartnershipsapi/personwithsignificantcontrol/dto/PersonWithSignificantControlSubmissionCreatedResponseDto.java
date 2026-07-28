@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto;
 
 public record PersonWithSignificantControlSubmissionCreatedResponseDto(String id) {
 }

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;

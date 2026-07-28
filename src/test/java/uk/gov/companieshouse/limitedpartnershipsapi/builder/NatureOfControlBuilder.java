@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao.NatureOfControlDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.NatureOfControlDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.NatureOfControlDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.NatureOfControlType;
 
 public class NatureOfControlBuilder {
 

@@ -1,7 +1,7 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dao;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.NatureOfControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.NatureOfControlType;
 
 public class NatureOfControlDao {
 	@Field("type")

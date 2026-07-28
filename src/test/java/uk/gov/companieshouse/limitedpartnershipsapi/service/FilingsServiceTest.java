@@ -46,6 +46,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerData
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
 import java.time.LocalDate;

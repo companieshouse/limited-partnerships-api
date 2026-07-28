@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.repository;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;

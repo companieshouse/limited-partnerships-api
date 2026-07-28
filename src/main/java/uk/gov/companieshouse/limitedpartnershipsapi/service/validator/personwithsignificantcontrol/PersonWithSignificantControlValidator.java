@@ -2,7 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwit
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
 
 @Component
 public class PersonWithSignificantControlValidator {
@@ -21,7 +21,7 @@ public class PersonWithSignificantControlValidator {
         this.relevantLegalEntityValidatorStrategy = relevantLegalEntityValidatorStrategy;
         this.unknownTypeValidatorStrategy = unknownTypeValidatorStrategy;
     }
-    
+
     public PersonWithSignificantControlValidatorStrategy getValidatorByType(PersonWithSignificantControlType type) {
         if (type == null) {
             throw new IllegalArgumentException("PersonWithSignificantControlType must not be null");

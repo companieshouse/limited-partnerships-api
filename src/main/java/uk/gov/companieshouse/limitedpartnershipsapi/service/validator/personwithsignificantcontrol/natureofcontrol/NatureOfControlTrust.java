@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.service.validator.personwithsignificantcontrol.natureofcontrol;
 
-import uk.gov.companieshouse.limitedpartnershipsapi.model.personwithsignificantcontrol.dto.NatureOfControlDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.NatureOfControlDto;
 
 public class NatureOfControlTrust {
 	public boolean isValid(NatureOfControlDto natureOfControlDto) {
