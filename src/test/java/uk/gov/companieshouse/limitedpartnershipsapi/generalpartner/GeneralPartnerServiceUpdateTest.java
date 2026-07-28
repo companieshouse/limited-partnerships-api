@@ -21,11 +21,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 
 import java.util.Objects;
 import java.util.Optional;

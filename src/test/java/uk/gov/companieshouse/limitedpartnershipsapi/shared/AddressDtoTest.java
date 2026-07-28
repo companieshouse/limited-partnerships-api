@@ -1,7 +1,7 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model;
+package uk.gov.companieshouse.limitedpartnershipsapi.shared;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

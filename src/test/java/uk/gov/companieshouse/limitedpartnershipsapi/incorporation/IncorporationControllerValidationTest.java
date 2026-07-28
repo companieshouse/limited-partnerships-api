@@ -25,9 +25,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.Incorporat
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.PersonWithSignificantControlRepository;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;

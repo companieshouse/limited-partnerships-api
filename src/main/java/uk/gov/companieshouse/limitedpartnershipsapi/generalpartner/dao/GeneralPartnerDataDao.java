@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.PartnerDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.PartnerDataDao;
 
 public class GeneralPartnerDataDao extends PartnerDataDao {
 

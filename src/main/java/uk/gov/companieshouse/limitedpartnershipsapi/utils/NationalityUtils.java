@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.HasNationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.HasNationality;
 
 public class NationalityUtils {
 

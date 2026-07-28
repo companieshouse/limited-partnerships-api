@@ -31,9 +31,9 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSig
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.SERVICE_PREFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.TITLE_MR;
 import static uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder.URA_PREFIX;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.BRITISH;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.FRENCH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.Country.ENGLAND;
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality.BRITISH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality.FRENCH;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 class PersonWithSignificantControlMapperTest {

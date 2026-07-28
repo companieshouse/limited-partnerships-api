@@ -22,9 +22,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipMappe
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipPatchMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.PostTransitionStrategyHandler;
 
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode.REGISTRATION;
 
 @ContextConfiguration(classes = {
         IncorporationController.class,

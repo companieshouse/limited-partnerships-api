@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.model.common;
+package uk.gov.companieshouse.limitedpartnershipsapi.shared;
 
 public interface HasNationality {
 

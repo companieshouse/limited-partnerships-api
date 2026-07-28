@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
 
 import java.time.LocalDate;
 import java.util.List;

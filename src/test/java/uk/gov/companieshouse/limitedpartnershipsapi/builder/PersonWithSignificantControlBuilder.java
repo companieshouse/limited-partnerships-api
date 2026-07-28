@@ -1,9 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.NatureOfControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDataDao;
@@ -12,13 +8,17 @@ import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country.ENGLAND;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.BRITISH;
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality.FRENCH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.Country.ENGLAND;
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality.BRITISH;
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality.FRENCH;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 public class PersonWithSignificantControlBuilder {

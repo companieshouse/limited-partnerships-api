@@ -16,6 +16,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.filings.FilingsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationService;
 import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.AllowedTransactionStatusInterceptor;
@@ -24,9 +25,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.interceptor.LoggingIntercept
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.PersonWithSignificantControlService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.CostsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService;
-import uk.gov.companieshouse.limitedpartnershipsapi.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 
 import java.nio.charset.StandardCharsets;
 

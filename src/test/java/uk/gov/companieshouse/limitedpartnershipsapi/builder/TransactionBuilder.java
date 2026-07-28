@@ -3,12 +3,12 @@ package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.transaction.TransactionLinks;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.service.FilingsService.LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.filings.FilingsService.LIMITED_PARTNERSHIP_REGISTRATION_FILING_DESCRIPTION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;

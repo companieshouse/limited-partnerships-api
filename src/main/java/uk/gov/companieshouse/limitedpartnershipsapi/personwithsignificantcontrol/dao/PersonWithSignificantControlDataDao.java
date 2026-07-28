@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao;
 
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -6,11 +6,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPa
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.Currency;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

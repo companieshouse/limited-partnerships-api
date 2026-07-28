@@ -2,7 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dao;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.BaseDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.BaseDao;
 
 @Document(collection = "limited_partners")
 public class LimitedPartnerDao extends BaseDao {

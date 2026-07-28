@@ -2,8 +2,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.pa
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
 
 import java.util.List;
