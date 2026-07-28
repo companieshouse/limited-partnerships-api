@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.service;
+package uk.gov.companieshouse.limitedpartnershipsapi.filings;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,18 +20,22 @@ import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPa
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.FilingMode;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnerKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.PartnershipKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AppointmentPreviousDetailsDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.CompanyPreviousDetailsDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.PersonWithSignificantControlService;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnershipKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AppointmentPreviousDetailsDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.CompanyPreviousDetailsDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.PaymentService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
 
