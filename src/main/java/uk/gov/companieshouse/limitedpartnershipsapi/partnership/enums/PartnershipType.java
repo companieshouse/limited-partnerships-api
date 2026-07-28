@@ -1,0 +1,23 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+
+public enum PartnershipType {
+    LP,
+    PFLP,
+    SLP,
+    SPFLP,
+
+    @JsonEnumDefaultValue
+    UNKNOWN;
+
+    @JsonCreator
+    public static PartnershipType fromValue(String value) {
+        try {
+            return PartnershipType.valueOf(value.toUpperCase());
+        } catch (Exception e) {
+            return UNKNOWN;
+        }
+    }
+}

@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.BaseDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.BaseDao;
 
 public class MetaDataUtils {
 

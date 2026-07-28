@@ -1,0 +1,289 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipCreatedResponseDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
+
+@ExtendWith(MockitoExtension.class)
+class PartnershipControllerTest {
+
+    private static final String REQUEST_ID = "5346336";
+    private static final String USER_ID = "rjg736k791";
+    private static final String SUBMISSION_ID = PartnershipBuilder.SUBMISSION_ID;
+    private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;
+
+    @InjectMocks
+    private PartnershipController partnershipController;
+
+    @Mock
+    private PartnershipService partnershipService;
+
+    private final Transaction transaction = new TransactionBuilder().build();
+
+    private PartnershipDto partnershipDto;
+
+    @BeforeEach
+    void init() {
+        partnershipDto = new PartnershipBuilder().buildDto();
+    }
+
+    @Test
+    void testCreatePartnershipIsSuccessful() throws Exception {
+        // given
+        when(partnershipService.createLimitedPartnership(
+                any(Transaction.class),
+            any(PartnershipDto.class),
+                eq(REQUEST_ID),
+                eq(USER_ID)))
+                .thenReturn(SUBMISSION_ID);
+
+        // when
+        var response = partnershipController.createPartnership(
+                transaction,
+            partnershipDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
+        var responseHeaderLocation = Objects.requireNonNull(response.getHeaders().get(HttpHeaders.LOCATION)).getFirst();
+        assertEquals(
+                String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID),
+                responseHeaderLocation);
+        PartnershipCreatedResponseDto responseBody = (PartnershipCreatedResponseDto) response.getBody();
+        assert responseBody != null;
+        assertEquals(SUBMISSION_ID, responseBody.id());
+    }
+
+    @Test
+    void testInternalServerErrorReturnedWhenCreatePartnershipFails() throws Exception {
+        // given
+        when(partnershipService.createLimitedPartnership(
+                any(Transaction.class),
+            any(PartnershipDto.class),
+                eq(REQUEST_ID),
+                eq(USER_ID)))
+                .thenThrow(new ServiceException("TEST"));
+
+        // when
+        var response = partnershipController.createPartnership(
+                transaction,
+            partnershipDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testUpdatePartnershipIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        var limitedPartnershipPatchDto = new PartnershipPatchDto();
+
+        // when
+        var response = partnershipController.updatePartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        verify(partnershipService, times(1)).updateLimitedPartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+    }
+
+    @Test
+    void testInternalServerErrorReturnedWhenUpdatePartnershipFails() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        var limitedPartnershipPatchDto = new PartnershipPatchDto();
+
+        doThrow(new ServiceException(String.format("Submission with id %s not found", SUBMISSION_ID)))
+            .when(partnershipService).updateLimitedPartnership(
+                        transaction,
+                        SUBMISSION_ID,
+                        limitedPartnershipPatchDto,
+                        REQUEST_ID,
+                        USER_ID);
+
+        // when
+        var response = partnershipController.updatePartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode().value());
+    }
+
+    @Test
+    void testNotFoundReturnedWhenUpdatePartnershipFailsToFindResource() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        var limitedPartnershipPatchDto = new PartnershipPatchDto();
+        doThrow(new ResourceNotFoundException("error"))
+            .when(partnershipService).updateLimitedPartnership(
+                        transaction,
+                        SUBMISSION_ID,
+                        limitedPartnershipPatchDto,
+                        REQUEST_ID,
+                        USER_ID);
+
+        // when
+        var response = partnershipController.updatePartnership(
+                transaction,
+                SUBMISSION_ID,
+                limitedPartnershipPatchDto,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testGetPartnershipIsSuccessful() throws ResourceNotFoundException {
+        // given
+        DataDto dataDto = new DataDto();
+        dataDto.setPartnershipName("Test name");
+        partnershipDto.setData(dataDto);
+
+        when(partnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenReturn(
+            partnershipDto);
+
+        // when
+        var response = partnershipController.getPartnership(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        assertEquals(partnershipDto, response.getBody());
+        assertEquals("Test name", partnershipDto.getData().getPartnershipName());
+        assertNull(partnershipDto.getData().getNameEnding());
+    }
+
+    @Test
+    void testNotFoundReturnedWhenGetPartnershipFailsToFindResource() throws ResourceNotFoundException {
+        // given
+        when(partnershipService.getLimitedPartnership(transaction, SUBMISSION_ID)).thenThrow(new ResourceNotFoundException("error"));
+
+        // when
+        var response = partnershipController.getPartnership(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID,
+                USER_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testValidationStatusWhenPartnershipDataIsValid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        when(partnershipService.validateLimitedPartnership(transaction)).thenReturn(new ArrayList<>());
+
+        // when
+        var response = partnershipController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        ValidationStatusResponse validationStatusResponse = response.getBody();
+        assert validationStatusResponse != null;
+        assertTrue(validationStatusResponse.isValid());
+        assertNull(validationStatusResponse.getValidationStatusError());
+    }
+
+    @Test
+    void testValidationStatusWhenPartnershipDataIsNotValid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        List<ValidationStatusError> errors = new ArrayList<>();
+        errors.add(new ValidationStatusError("Partnership type must not be null", "data.partnershipType", null, null));
+        errors.add(new ValidationStatusError("Email must not be null", "data.email", null, null));
+        when(partnershipService.validateLimitedPartnership(transaction)).thenReturn(errors);
+
+        // when
+        var response = partnershipController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+
+        ValidationStatusResponse validationStatusResponse = response.getBody();
+
+        assert validationStatusResponse != null;
+        assertThat(validationStatusResponse.getValidationStatusError())
+                .hasSize(2)
+                .satisfiesExactly(
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Partnership type must not be null"),
+                        validationStatusError -> assertThat(validationStatusError.getError()).isEqualTo("Email must not be null"));
+    }
+
+    @Test
+    void testNotFoundReturnedWhenValidationStatusFailsToFindResource() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        // given
+        when(partnershipService.validateLimitedPartnership(transaction)).thenThrow(new ResourceNotFoundException("error"));
+
+        // when
+        var response = partnershipController.getValidationStatus(
+                transaction,
+                SUBMISSION_ID,
+                REQUEST_ID);
+
+        // then
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode().value());
+        assertNull(response.getBody());
+    }
+}

@@ -1,0 +1,47 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.partner;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.PostTransitionStrategy;
+
+import java.util.List;
+
+@Component
+public class RemoveLimitedPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
+
+    private final LimitedPartnerValidator limitedPartnerValidator;
+    private final RemoveOrUpdatePartner removeOrUpdatePartner;
+
+    RemoveLimitedPartnerLegalEntity(LimitedPartnerValidator limitedPartnerValidator, RemoveOrUpdatePartner removeOrUpdatePartner) {
+        this.limitedPartnerValidator = limitedPartnerValidator;
+        this.removeOrUpdatePartner = removeOrUpdatePartner;
+    }
+
+    @Override
+    public String getKind() {
+        return PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription();
+    }
+
+    @Override
+    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        List<ValidationStatusError> errorsListValidator = limitedPartnerValidator.validateFull((LimitedPartnerDto) partnerDto, transaction, true);
+
+        errorsList.addAll(errorsListValidator);
+
+        removeOrUpdatePartner.validateRemove(partnerDto, errorsList, validationStatus);
+    }
+
+    @Override
+    public Cost getCost(Cost cost) {
+        return null;
+    }
+}

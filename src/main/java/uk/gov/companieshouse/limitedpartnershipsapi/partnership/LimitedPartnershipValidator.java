@@ -1,0 +1,216 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode.REGISTRATION;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SCOTTISH_PARTNERSHIP_TYPES;
+
+@Component
+public class LimitedPartnershipValidator {
+    private static final String CLASS_NAME = DataDto.class.getName();
+
+    private final Validator validator;
+    private final ValidationStatus validationStatus;
+    private final CompanyService companyService;
+
+    @Autowired
+    public LimitedPartnershipValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService) {
+        this.validator = validator;
+        this.validationStatus = validationStatus;
+        this.companyService = companyService;
+    }
+
+    public List<ValidationStatusError> validateFull(PartnershipDto partnershipDto,
+                                                    FilingMode filingMode) throws ServiceException {
+        List<ValidationStatusError> errorsList = new ArrayList<>();
+
+        checkFieldConstraints(partnershipDto, filingMode, errorsList);
+
+        final var dataDto = partnershipDto.getData();
+
+        checkCommonFields(dataDto, filingMode, errorsList);
+        checkPartnershipTypeSpecificFields(dataDto, filingMode, errorsList);
+        validateHasPersonWithSignificantControl(dataDto, filingMode, errorsList);
+
+        return errorsList;
+    }
+
+    public void validatePartial(PartnershipDto partnershipDto,
+                                FilingMode filingMode)
+            throws NoSuchMethodException, MethodArgumentNotValidException {
+        BindingResult bindingResult = new BeanPropertyBindingResult(partnershipDto, DataDto.class.getName());
+
+        dtoValidation(partnershipDto, bindingResult);
+
+        if (filingMode != null) {
+            checkJourneySpecificFields(partnershipDto.getData(), filingMode, bindingResult);
+        }
+
+        if (bindingResult.hasErrors()) {
+            var methodParameter = new MethodParameter(DataDto.class.getConstructor(), -1);
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    public void validateUpdate(PartnershipDto partnershipDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
+        var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
+        BindingResult bindingResult = new BeanPropertyBindingResult(partnershipDto, LimitedPartnerDataDto.class.getName());
+
+        dtoValidation(partnershipDto, bindingResult);
+
+        validateDateOfUpdate(transaction, partnershipDto, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(methodParameter, bindingResult);
+        }
+    }
+
+    protected void validateHasPersonWithSignificantControl(DataDto dataDto, FilingMode filingMode, List<ValidationStatusError> errorsList) {
+        var errorLocation = "data.hasPersonWithSignificantControl";
+
+        if (!REGISTRATION.equals(filingMode)) {
+            if (Objects.nonNull(dataDto.getHasPersonWithSignificantControl())) {
+                errorsList.add(validationStatus.createValidationStatusError(
+                        "You can only declare whether the partnership will or will not have a person with significant control during registration",
+                        errorLocation));
+            }
+            return;
+        }
+
+        var partnershipType = dataDto.getPartnershipType();
+
+        if (SCOTTISH_PARTNERSHIP_TYPES.contains(partnershipType)
+                && Objects.isNull(dataDto.getHasPersonWithSignificantControl())) {
+            errorsList.add(validationStatus.createValidationStatusError(
+                    "You must declare whether the partnership will or will not have a person with significant control",
+                    errorLocation));
+        }
+        if ((PartnershipType.LP.equals(partnershipType)
+                || PartnershipType.PFLP.equals(partnershipType))
+                && Objects.nonNull(dataDto.getHasPersonWithSignificantControl())) {
+            errorsList.add(validationStatus.createValidationStatusError(
+                    "This type of partnership can not have a person with significant control",
+                    errorLocation));
+        }
+    }
+
+    protected void validateDateOfUpdate(Transaction transaction, PartnershipDto partnershipDto, BindingResult bindingResult) throws ServiceException {
+        if (partnershipDto.getData().getDateOfUpdate() != null) {
+            CompanyProfileApi companyProfileApi = companyService.getCompanyProfile(transaction.getCompanyNumber());
+
+            LocalDate dateEffectiveFrom = partnershipDto.getData().getDateOfUpdate();
+
+            if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
+                addError("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
+            }
+        }
+    }
+
+    private void checkCommonFields(DataDto dataDto, FilingMode filingMode, List<ValidationStatusError> errorsList) {
+        if (dataDto.getEmail() == null) {
+            errorsList.add(validationStatus.createValidationStatusError("Email is required", "data.email"));
+        }
+
+        if (dataDto.getJurisdiction() == null) {
+            errorsList.add(validationStatus.createValidationStatusError("Jurisdiction is required", "data.jurisdiction"));
+        }
+
+        if (dataDto.getRegisteredOfficeAddress() == null) {
+            errorsList.add(validationStatus.createValidationStatusError("Registered office address is required",
+                    "data.registeredOfficeAddress"));
+        }
+
+        if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && filingMode.equals(FilingMode.REGISTRATION)) {
+            errorsList.add(validationStatus.createValidationStatusError("Principal place of business address is required",
+                    "data.principalPlaceOfBusinessAddress"));
+        }
+
+        if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && filingMode.equals(FilingMode.REGISTRATION)) {
+            errorsList.add(validationStatus.createValidationStatusError("Lawful purpose statement checked is required",
+                    "data.lawfulPurposeStatementChecked"));
+        }
+    }
+
+    private void checkPartnershipTypeSpecificFields(DataDto dataDto, FilingMode filingMode, List<ValidationStatusError> errorsList) {
+        if (PartnershipType.PFLP.equals(dataDto.getPartnershipType())
+                || PartnershipType.SPFLP.equals(dataDto.getPartnershipType())) {
+            if (dataDto.getTerm() != null) {
+                errorsList.add(validationStatus.createValidationStatusError("Term is not required", "data.term"));
+            }
+
+            if (dataDto.getSicCodes() != null) {
+                errorsList.add(validationStatus.createValidationStatusError("SIC codes are not required", "data.sicCodes"));
+            }
+        } else {
+            if (dataDto.getTerm() == null && filingMode.equals(FilingMode.REGISTRATION)) {
+                errorsList.add(validationStatus.createValidationStatusError("Term is required", "data.term"));
+            }
+
+            if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && filingMode.equals(FilingMode.REGISTRATION)) {
+                errorsList.add(validationStatus.createValidationStatusError("SIC codes are required", "data.sicCodes"));
+            }
+        }
+    }
+
+    private void checkJourneySpecificFields(DataDto dataDto, FilingMode filingMode, BindingResult bindingResult) {
+        if (FilingMode.REGISTRATION.equals(filingMode)) {
+            if (dataDto.getNameEnding() == null) {
+                addError("data.nameEnding", "Name ending is required", bindingResult);
+            }
+        } else {
+            if (dataDto.getPartnershipNumber() == null) {
+                addError("data.partnershipNumber", "Partnership number is required", bindingResult);
+            }
+        }
+    }
+
+    private void dtoValidation(PartnershipDto partnershipDto, BindingResult bindingResult) {
+        Set<ConstraintViolation<PartnershipDto>> violations = validator.validate(partnershipDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                    addError(violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+            );
+        }
+    }
+
+    private void addError(String fieldName, String defaultMessage, BindingResult bindingResult) {
+        bindingResult.addError(new FieldError(CLASS_NAME, fieldName, defaultMessage));
+    }
+
+    private void checkFieldConstraints(PartnershipDto partnershipDto, FilingMode filingMode, List<ValidationStatusError> errorsList)
+            throws ServiceException {
+        try {
+            validatePartial(partnershipDto, filingMode);
+        } catch (MethodArgumentNotValidException e) {
+            validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
+        } catch (NoSuchMethodException e) {
+            throw new ServiceException(e.getMessage());
+        }
+    }
+}

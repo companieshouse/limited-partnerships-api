@@ -1,22 +1,22 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.builder;
 
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Country;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.Nationality;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dao.AddressDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.common.dto.AddressDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.Currency;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dao.LimitedPartnerDataDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDataDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.dto.LimitedPartnerDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.model.partnership.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dao.LimitedPartnerDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dao.LimitedPartnerDataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.ContributionSubTypes;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.Currency;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.model.limitedpartner.ContributionSubTypes.SHARES;
+import static uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.ContributionSubTypes.SHARES;
 
 public class LimitedPartnerBuilder {
     public static final String LIMITED_PARTNER_ID = "3756304d-fa80-472a-bb6b-8f1f5f04d8eb";

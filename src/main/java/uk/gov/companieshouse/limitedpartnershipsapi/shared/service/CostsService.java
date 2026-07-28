@@ -1,0 +1,99 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.shared.service;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.PostTransitionStrategyHandler;
+
+import java.util.Collections;
+
+@Service
+public class CostsService {
+
+    private final IncorporationRepository incorporationRepository;
+    private final PartnershipService partnershipService;
+    private final GeneralPartnerService generalPartnerService;
+    private final LimitedPartnerService limitedPartnerService;
+    private final PostTransitionStrategyHandler postTransitionStrategyHandler;
+
+    public CostsService(
+        IncorporationRepository incorporationRepository,
+        PartnershipService partnershipService,
+            GeneralPartnerService generalPartnerService,
+            LimitedPartnerService limitedPartnerService,
+            PostTransitionStrategyHandler postTransitionStrategyHandler) {
+        this.incorporationRepository = incorporationRepository;
+        this.partnershipService = partnershipService;
+        this.generalPartnerService = generalPartnerService;
+        this.postTransitionStrategyHandler = postTransitionStrategyHandler;
+        this.limitedPartnerService = limitedPartnerService;
+    }
+
+    @Value("${LP_REGISTRATION_COST}")
+    private String registrationCostAmount;
+
+    private static final String REGISTER_COST_DESCRIPTION = "Register Limited Partnership fee";
+
+    private static final String PAYMENT_ACCOUNT = "data-maintenance";
+    private static final String RESOURCE_KIND = "limited-partnership";
+    private static final String REGISTER_PRODUCT_TYPE = "register-limited-partnership"; // used by payment-reconciliation-consumer
+    private static final String CREDIT_CARD = "credit-card";
+    private static final String DESCRIPTION_IDENTIFIER = "description-identifier";
+    private static final String PAYMENT_SESSION = "payment-session#payment-session";
+    private static final String KEY = "Key";
+    private static final String VALUE = "Value";
+
+    public Cost getCost(String incorporationId, String requestId) throws ResourceNotFoundException {
+        IncorporationDao incorporationDao = incorporationRepository.findById(incorporationId).orElseThrow(() -> new ResourceNotFoundException(String.format("Incorporation with id %s not found", incorporationId)));
+
+        ApiLogger.infoContext(requestId, String.format("Cost for incorporation with id: %s and kind: %s", incorporationId, incorporationDao.getData().getKind()));
+
+        return getCostForRegistration();
+    }
+
+    public Cost getCostForRegistration() {
+        Cost cost = new Cost();
+
+        cost.setAmount(registrationCostAmount);
+        cost.setAvailablePaymentMethods(Collections.singletonList(CREDIT_CARD));
+        cost.setClassOfPayment(Collections.singletonList(PAYMENT_ACCOUNT));
+        cost.setDescription(REGISTER_COST_DESCRIPTION);
+        cost.setDescriptionIdentifier(DESCRIPTION_IDENTIFIER);
+        cost.setDescriptionValues(Collections.singletonMap(KEY, VALUE));
+        cost.setKind(PAYMENT_SESSION);
+        cost.setResourceKind(RESOURCE_KIND);
+        cost.setProductType(REGISTER_PRODUCT_TYPE);
+
+        return cost;
+    }
+
+    public Cost getPostTransitionLimitedPartnershipCost(Transaction transaction) throws ServiceException {
+        PartnershipDto partnershipDto = partnershipService.getLimitedPartnership(transaction);
+
+        return postTransitionStrategyHandler.getCost(partnershipDto);
+    }
+
+    public Cost getPostTransitionGeneralPartnerCost(Transaction transaction, String generalPartnerId) throws ServiceException {
+        GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
+
+        return postTransitionStrategyHandler.getCost(generalPartnerDto);
+    }
+
+    public Cost getPostTransitionLimitedPartnerCost(Transaction transaction, String limitedPartnerId) throws ServiceException {
+        LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
+
+        return postTransitionStrategyHandler.getCost(limitedPartnerDto);
+    }
+}

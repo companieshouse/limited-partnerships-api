@@ -1,0 +1,220 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.builder;
+
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.DataDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public class PartnershipBuilder {
+    public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
+
+    private static final String PARTNERSHIP_NAME = "Test Partnership";
+    private static final String PARTNERSHIP_NUMBER = "LP123456";
+    private static final String EMAIL = "test@test.com";
+    private static final Jurisdiction JURISDICTION = Jurisdiction.ENGLAND_AND_WALES;
+    private static final String PREMISES = "33";
+    private static final String ADDRESS_LINE_1 = "Acacia Avenue";
+    private static final String LOCALITY = "Birmingham";
+    private static final Country COUNTRY = Country.ENGLAND;
+    private static final String POSTAL_CODE = "BM1 2EH";
+
+    private PartnershipType partnershipType = PartnershipType.LP;
+    private PartnershipNameEnding partnershipNameEnding = PartnershipNameEnding.LIMITED_PARTNERSHIP;
+    private boolean lawfulPurposeStatementChecked = true;
+    private LocalDate dateOfUpdate = null;
+
+    private String partnershipKind = null;
+    private Term term = Term.BY_AGREEMENT;
+    private List<String> sicCodes = List.of("62012");
+
+    private AddressDto registeredOfficeAddressDto = null;
+    private AddressDto principalPalceOfBusinessAddressDto = null;
+    private AddressDao registeredOfficeAddressDao = null;
+    private AddressDao principalPalceOfBusinessAddressDao = null;
+
+    private void createAddressDto() {
+        AddressDto roaDto = new AddressDto();
+        AddressDto ppobaDto = new AddressDto();
+
+        roaDto.setPremises(PREMISES);
+        roaDto.setAddressLine1(ADDRESS_LINE_1);
+        roaDto.setLocality(LOCALITY);
+        roaDto.setCountry(COUNTRY.getDescription());
+        roaDto.setPostalCode(POSTAL_CODE);
+
+        ppobaDto.setPremises(PREMISES);
+        ppobaDto.setAddressLine1(ADDRESS_LINE_1);
+        ppobaDto.setLocality(LOCALITY);
+        ppobaDto.setCountry(COUNTRY.getDescription());
+        ppobaDto.setPostalCode(POSTAL_CODE);
+
+        this.registeredOfficeAddressDto = roaDto;
+        this.principalPalceOfBusinessAddressDto = ppobaDto;
+    }
+
+    private void createAddressDao() {
+        AddressDao roaDao = new AddressDao();
+        AddressDao ppobaDao = new AddressDao();
+
+        roaDao.setPremises(PREMISES);
+        roaDao.setAddressLine1(ADDRESS_LINE_1);
+        roaDao.setLocality(LOCALITY);
+        roaDao.setCountry(COUNTRY.getDescription());
+        roaDao.setPostalCode(POSTAL_CODE);
+
+        ppobaDao.setPremises(PREMISES);
+        ppobaDao.setAddressLine1(ADDRESS_LINE_1);
+        ppobaDao.setLocality(LOCALITY);
+        ppobaDao.setCountry(COUNTRY.getDescription());
+        ppobaDao.setPostalCode(POSTAL_CODE);
+
+        this.registeredOfficeAddressDao = roaDao;
+        this.principalPalceOfBusinessAddressDao = ppobaDao;
+    }
+
+    public PartnershipBuilder withAddresses() {
+        createAddressDto();
+        createAddressDao();
+        return this;
+    }
+
+    public PartnershipBuilder withRegisteredOfficeAddress(AddressDto addressDto) {
+
+        if (addressDto == null) {
+            this.registeredOfficeAddressDto = null;
+            this.registeredOfficeAddressDao = null;
+
+            return this;
+        }
+
+        AddressDao roaDao = new AddressDao();
+
+        roaDao.setPremises(PREMISES);
+        roaDao.setAddressLine1(ADDRESS_LINE_1);
+        roaDao.setLocality(LOCALITY);
+        roaDao.setCountry(COUNTRY.getDescription());
+        roaDao.setPostalCode(POSTAL_CODE);
+
+        this.registeredOfficeAddressDto = addressDto;
+        this.registeredOfficeAddressDao = roaDao;
+
+        return this;
+    }
+
+    public PartnershipBuilder withPrincipalPlaceOfBusinessAddress(AddressDto addressDto) {
+
+        if (addressDto == null) {
+            this.principalPalceOfBusinessAddressDto = null;
+            this.principalPalceOfBusinessAddressDao = null;
+
+            return this;
+        }
+
+        AddressDao ppobaDao = new AddressDao();
+
+        ppobaDao.setPremises(PREMISES);
+        ppobaDao.setAddressLine1(ADDRESS_LINE_1);
+        ppobaDao.setLocality(LOCALITY);
+        ppobaDao.setCountry(COUNTRY.getDescription());
+        ppobaDao.setPostalCode(POSTAL_CODE);
+
+        this.principalPalceOfBusinessAddressDto = addressDto;
+        this.principalPalceOfBusinessAddressDao = ppobaDao;
+
+        return this;
+    }
+
+    public PartnershipBuilder withPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
+        return this;
+    }
+
+    public PartnershipBuilder withTerm(Term term) {
+        this.term = term;
+        return this;
+    }
+
+    public PartnershipBuilder withSicCodes(List<String> sicCodes) {
+        this.sicCodes = sicCodes;
+        return this;
+    }
+
+    public PartnershipBuilder withLawfulPurposeStatementChecked(boolean lawfulPurposeStatementChecked) {
+        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
+        return this;
+    }
+
+    public PartnershipBuilder withPartnershipKind(String partnershipKind) {
+        this.partnershipKind = partnershipKind;
+        return this;
+    }
+
+    public PartnershipBuilder withDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
+        return this;
+    }
+
+    public PartnershipBuilder withNameEnding(PartnershipNameEnding partnershipNameEnding) {
+        this.partnershipNameEnding = partnershipNameEnding;
+        return this;
+    }
+
+    public PartnershipDto buildDto() {
+        PartnershipDto dto = new PartnershipDto();
+        DataDto dataDto = new DataDto();
+
+        dataDto.setKind(partnershipKind);
+        dataDto.setPartnershipName(PARTNERSHIP_NAME);
+        dataDto.setNameEnding(this.partnershipNameEnding);
+        dataDto.setPartnershipType(partnershipType);
+        dataDto.setPartnershipNumber(PARTNERSHIP_NUMBER);
+        dataDto.setEmail(EMAIL);
+        dataDto.setJurisdiction(JURISDICTION);
+        dataDto.setTerm(term);
+        dataDto.setSicCodes(sicCodes);
+        dataDto.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
+        dataDto.setRegisteredOfficeAddress(registeredOfficeAddressDto);
+        dataDto.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDto);
+        dataDto.setDateOfUpdate(dateOfUpdate);
+
+        dto.setData(dataDto);
+
+        return dto;
+    }
+
+    public PartnershipDao buildDao() {
+        PartnershipDao dao = new PartnershipDao();
+        dao.setId(SUBMISSION_ID);
+
+        DataDao dataDao = new DataDao();
+
+        dataDao.setKind(partnershipKind);
+        dataDao.setPartnershipName(PARTNERSHIP_NAME);
+        dataDao.setNameEnding(this.partnershipNameEnding.getDescription());
+        dataDao.setPartnershipType(partnershipType);
+        dataDao.setPartnershipNumber(PARTNERSHIP_NUMBER);
+        dataDao.setEmail(EMAIL);
+        dataDao.setJurisdiction(JURISDICTION.getApiKey());
+        dataDao.setTerm(term);
+        dataDao.setSicCodes(sicCodes);
+        dataDao.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
+        dataDao.setRegisteredOfficeAddress(registeredOfficeAddressDao);
+        dataDao.setPrincipalPlaceOfBusinessAddress(principalPalceOfBusinessAddressDao);
+        dataDao.setDateOfUpdate(dateOfUpdate);
+
+        dao.setData(dataDao);
+
+        return dao;
+    }
+
+}

@@ -1,0 +1,42 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.partner;
+
+import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.PostTransitionStrategy;
+
+import java.util.List;
+
+@Component
+public class AddGeneralPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
+
+    private final GeneralPartnerValidator generalPartnerValidator;
+
+    public AddGeneralPartnerLegalEntity(GeneralPartnerValidator generalPartnerValidator) {
+        this.generalPartnerValidator = generalPartnerValidator;
+    }
+
+    @Override
+    public String getKind() {
+        return PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY.getDescription();
+    }
+
+    @Override
+    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
+        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction, false);
+
+        errorsList.addAll(errorsListValidator);
+    }
+
+    @Override
+    public Cost getCost(Cost cost) {
+        return null;
+    }
+}

@@ -1,0 +1,479 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.filings;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.delta.PrivateDeltaResourceHandler;
+import uk.gov.companieshouse.api.handler.delta.company.appointment.request.PrivateOfficerGet;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.delta.officers.AppointmentFullRecordAPI;
+import uk.gov.companieshouse.api.model.delta.officers.SensitiveDateOfBirthAPI;
+import uk.gov.companieshouse.api.model.payment.PaymentApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.sdk.ApiClientService;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.GeneralPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.PersonWithSignificantControlService;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnershipKind;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.PaymentService;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
+import uk.gov.companieshouse.limitedpartnershipsapi.utils.FilingKind;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_GENERAL_PARTNER;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
+
+@ContextConfiguration(classes = {FilingsController.class, FilingsService.class, FilingKind.class, GlobalExceptionHandler.class})
+@WebMvcTest(controllers = {FilingsController.class})
+class FilingsControllerTest {
+
+    private static final String PASS_THROUGH_HEADER = "passthrough";
+    private static final String PAYMENT_REF = "334jhg324";
+    private static final String PAYMENT_METHOD = "CREDIT_CARD";
+
+    private HttpHeaders httpHeaders;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private FilingsController filingsController;
+
+    @MockitoBean
+    private PartnershipService partnershipService;
+
+    @MockitoBean
+    private GeneralPartnerService generalPartnerService;
+
+    @MockitoBean
+    private LimitedPartnerService limitedPartnerService;
+
+    @MockitoBean
+    private PersonWithSignificantControlService personWithSignificantControlService;
+
+    @MockitoBean
+    private TransactionService transactionService;
+
+    @MockitoBean
+    private PaymentService paymentService;
+
+    @MockitoBean
+    private CompanyService companyService;
+
+    @MockitoBean
+    private CostsService costsService;
+
+    @MockitoBean
+    private ApiClientService apiClientService;
+    @MockitoBean
+    private InternalApiClient internalApiClient;
+    @MockitoBean
+    private PrivateDeltaResourceHandler privateDeltaResourceHandler;
+    @MockitoBean
+    private PrivateOfficerGet privateOfficerGet;
+    @MockitoBean
+    private ApiResponse<AppointmentFullRecordAPI> appointmentFullRecordAPIApiResponse;
+
+    @BeforeEach
+    void setUp() throws ApiErrorResponseException, URIValidationException {
+        httpHeaders = new HttpHeaders();
+        httpHeaders.add("ERIC-Access-Token", PASS_THROUGH_HEADER);
+        httpHeaders.add("X-Request-Id", "123");
+        httpHeaders.add("ERIC-Identity", "123");
+
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
+        when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
+        when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
+        AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
+        SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
+        sensitiveDateOfBirthAPI.setDay(15);
+        sensitiveDateOfBirthAPI.setMonth(6);
+        sensitiveDateOfBirthAPI.setYear(1980);
+        appointmentFullRecordAPI.setDateOfBirth(sensitiveDateOfBirthAPI);
+        appointmentFullRecordAPI.setForename("Prev forename");
+        appointmentFullRecordAPI.setSurname("Prev surname");
+        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(appointmentFullRecordAPI);
+
+    }
+
+    PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
+    PartnershipDto scottishPartnershipDto = new PartnershipBuilder()
+            .withPartnershipType(PartnershipType.SLP)
+            .buildDto();
+    GeneralPartnerDto generalPartner = new GeneralPartnerBuilder().personDto();
+    LimitedPartnerDto limitedPartner = new LimitedPartnerBuilder().personDto();
+    PersonWithSignificantControlDto personWithSignificantControl = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
+
+    @Nested
+    class IncorporationFiling {
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/incorporation/limited-partnership/" + PartnershipBuilder.SUBMISSION_ID + "/filings";
+        private final Transaction transaction = new TransactionBuilder().build();
+
+        @Test
+        void shouldReturn200() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mock(transactionWithPayment);
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(partnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(partnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
+                    .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.limited_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.persons_with_significant_control").doesNotExist());
+        }
+
+        @Test
+        void shouldReturn200ForScottishLPWithPSCs() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().withFilingMode(FilingMode.REGISTRATION.getDescription()).build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mockScottishLP(transactionWithPayment);
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishPartnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishPartnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
+                    .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.limited_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.persons_with_significant_control").value(hasSize(1)));
+        }
+
+        @Test
+        void shouldReturn200ForScottishLPWithoutPSCs() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().withFilingMode(FilingMode.REGISTRATION.getDescription()).build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mock(transactionWithPayment);
+            when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(new ArrayList<>());
+
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(scottishPartnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(scottishPartnershipDto.getData().getNameEnding()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF))
+                    .andExpect(jsonPath("[0].data.general_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.limited_partners").value(hasSize(1)))
+                    .andExpect(jsonPath("[0].data.persons_with_significant_control").doesNotExist());
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            mock(transaction);
+
+            when(partnershipService.getLimitedPartnership(transaction)).thenThrow(ResourceNotFoundException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void shouldReturn500() throws Exception {
+            mock(transaction);
+
+            when(partnershipService.getLimitedPartnership(transaction)).thenThrow(ServiceException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isInternalServerError());
+        }
+
+        private void mock(Transaction transaction) throws ServiceException {
+            when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(partnershipDto);
+            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(generalPartner.getData()));
+            when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(limitedPartner.getData()));
+        }
+
+        private void mockScottishLP(Transaction transaction)  throws ServiceException {
+            when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(scottishPartnershipDto);
+            when(generalPartnerService.getGeneralPartnerDataList(transaction)).thenReturn(Collections.singletonList(generalPartner.getData()));
+            when(limitedPartnerService.getLimitedPartnerDataList(transaction)).thenReturn(Collections.singletonList(limitedPartner.getData()));
+            when(personWithSignificantControlService.getPersonWithSignificantControlDataList(transaction)).thenReturn(Collections.singletonList(personWithSignificantControl.getData()));
+        }
+    }
+
+    @Nested
+    class GeneralPartnerFiling {
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/general-partner/" + GeneralPartnerBuilder.GENERAL_PARTNER_ID + "/filings";
+        private final Transaction transaction = new TransactionBuilder().withKindAndUri(
+                PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription(),
+                URL_GET_GENERAL_PARTNER,
+                GeneralPartnerBuilder.GENERAL_PARTNER_ID
+        ).build();
+
+        @Test
+        void shouldReturn200() throws Exception {
+
+            FilingKind filingKind = new FilingKind();
+            String subKind = filingKind.getSubKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
+
+            mockPartner(transaction, PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(FilingMode.POST_TRANSITION.getDescription() + "#" + subKind));
+        }
+
+        @Test
+        void shouldReturn200WithAppointmentPreviousData() throws Exception {
+            FilingKind filingKind = new FilingKind();
+            String subKind = filingKind.getSubKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
+
+            mockPartner(transaction, PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
+            generalPartner.getData().setKind(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription());
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].forename").value(generalPartner.getData().getForename()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].surname").value(generalPartner.getData().getSurname()))
+                    .andExpect(jsonPath("[0].data.general_partners[0].kind").value(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(FilingMode.POST_TRANSITION.getDescription() + "#" + subKind))
+                    .andExpect(jsonPath("[0].data.general_partners[0].appointment_previous_details.forename").value("Prev forename"))
+                    .andExpect(jsonPath("[0].data.general_partners[0].appointment_previous_details.surname").value("Prev surname"))
+                    .andExpect(jsonPath("[0].data.general_partners[0].appointment_previous_details.date_of_birth").value("1980-06-15"));
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            mockPartner(transaction, PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
+
+            when(generalPartnerService.getGeneralPartner(transaction, GeneralPartnerBuilder.GENERAL_PARTNER_ID)).thenThrow(ResourceNotFoundException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    class LimitedPartnerFilling {
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/limited-partner/" + LimitedPartnerBuilder.LIMITED_PARTNER_ID + "/filings";
+        private final Transaction transaction = new TransactionBuilder().withKindAndUri(
+                PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription(),
+                URL_GET_LIMITED_PARTNER,
+                LimitedPartnerBuilder.LIMITED_PARTNER_ID
+        ).build();
+
+        @Test
+        void shouldReturn200() throws Exception {
+
+            FilingKind filingKind = new FilingKind();
+            String subKind = filingKind.getSubKind(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
+
+            mockPartner(transaction, PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.limited_partners[0].forename").value(limitedPartner.getData().getForename()))
+                    .andExpect(jsonPath("[0].data.limited_partners[0].surname").value(limitedPartner.getData().getSurname()))
+                    .andExpect(jsonPath("[0].data.limited_partners[0].kind").value(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription()))
+                    .andExpect(jsonPath("[0].kind").value(FilingMode.POST_TRANSITION.getDescription() + "#" + subKind));
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+            mockPartner(transaction, PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
+
+            when(limitedPartnerService.getLimitedPartner(transaction, LimitedPartnerBuilder.LIMITED_PARTNER_ID)).thenThrow(ResourceNotFoundException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isNotFound());
+        }
+
+    }
+
+    private void mockPartner(Transaction transaction, String kind) throws ResourceNotFoundException {
+
+        generalPartner.getData().setKind(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription());
+        limitedPartner.getData().setKind(PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription());
+
+        when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(kind))).thenReturn(true);
+        when(generalPartnerService.getGeneralPartner(transaction, generalPartner.getId())).thenReturn(generalPartner);
+        when(limitedPartnerService.getLimitedPartner(transaction, limitedPartner.getId())).thenReturn(limitedPartner);
+    }
+
+    @Nested
+    class LimitedPartnershipFiling {
+        private static final String URL = "/private/transactions/" + TransactionBuilder.TRANSACTION_ID + "/limited-partnership/partnership/" + PartnershipBuilder.SUBMISSION_ID + "/filings";
+        private final Transaction transaction = new TransactionBuilder().build();
+
+        @Test
+        void shouldReturn200() throws Exception {
+            mockPartnership(transaction, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(partnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(partnershipDto.getData().getNameEnding()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.payment_method").doesNotExist())
+                    .andExpect(jsonPath("[0].data.payment_reference").doesNotExist());
+        }
+
+        @Test
+        void shouldReturn200WithPayment() throws Exception {
+            Transaction transactionWithPayment = new TransactionBuilder().withPayment().build();
+
+            PaymentApi paymentApi = new PaymentApi();
+            paymentApi.setPaymentMethod(PAYMENT_METHOD);
+
+            mockPartnership(transactionWithPayment, PartnershipKind.UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS);
+            when(transactionService.getPaymentReference(transactionWithPayment.getLinks().getPayment())).thenReturn(PAYMENT_REF);
+            when(paymentService.getPayment(PAYMENT_REF)).thenReturn(paymentApi);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transactionWithPayment)
+                    )
+                    .andExpect(status().isOk())
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_name").value(partnershipDto.getData().getPartnershipName()))
+                .andExpect(jsonPath("[0].data.limited_partnership.name_ending").value(partnershipDto.getData().getNameEnding()))
+                .andExpect(jsonPath("[0].data.limited_partnership.partnership_number").value(partnershipDto.getData().getPartnershipNumber()))
+                    .andExpect(jsonPath("[0].data.payment_method").value(PAYMENT_METHOD))
+                    .andExpect(jsonPath("[0].data.payment_reference").value(PAYMENT_REF));
+        }
+
+        @Test
+        void shouldReturn404() throws Exception {
+
+            when(partnershipService.getLimitedPartnership(transaction)).thenThrow(ResourceNotFoundException.class);
+
+            mockMvc.perform(get(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding("utf-8")
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                    )
+                    .andExpect(status().isNotFound());
+        }
+
+        private void mockPartnership(Transaction transaction, PartnershipKind kind) throws ServiceException {
+            partnershipDto.getData().setKind(kind.getDescription());
+
+            when(transactionService.doesTransactionHaveALimitedPartnership(eq(transaction), any(String.class))).thenReturn(true);
+
+            when(partnershipService.getLimitedPartnership(transaction)).thenReturn(partnershipDto);
+        }
+    }
+}

@@ -1,0 +1,188 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao;
+
+import org.springframework.data.mongodb.core.mapping.Field;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public class DataDao {
+
+    @Field("partnership_number")
+    private String partnershipNumber;
+
+    @Field("partnership_name")
+    private String partnershipName;
+
+    @Field("name_ending")
+    private String nameEnding;
+
+    @Field("registered_email_address")
+    private String email;
+
+    @Field("partnership_type")
+    private PartnershipType partnershipType;
+
+    @Field("jurisdiction")
+    private String jurisdiction;
+
+    @Field("registered_office_address")
+    private AddressDao registeredOfficeAddress;
+
+    @Field("term")
+    private Term term;
+
+    @Field("redesignate_to_pflp_apply")
+    private Boolean redesignateToPFLPApply;
+
+    @Field("redesignate_to_pflp_confirm")
+    private Boolean redesignateToPFLPConfirm;
+
+    @Field("principal_place_of_business_address")
+    private AddressDao principalPlaceOfBusinessAddress;
+
+    @Field("sic_codes")
+    private List<String> sicCodes;
+
+    @Field("lawful_purpose_statement_checked")
+    private Boolean lawfulPurposeStatementChecked;
+
+    @Field("has_person_with_significant_control")
+    private Boolean hasPersonWithSignificantControl;
+
+    @Field("kind")
+    private String kind;
+
+    @Field("date_of_update")
+    private LocalDate dateOfUpdate;
+
+    public String getPartnershipNumber() {
+        return partnershipNumber;
+    }
+
+    public void setPartnershipNumber(String partnershipNumber) {
+        this.partnershipNumber = partnershipNumber;
+    }
+
+    public String getPartnershipName() {
+        return partnershipName;
+    }
+
+    public void setPartnershipName(String partnershipName) {
+        this.partnershipName = partnershipName;
+    }
+
+    public String getNameEnding() {
+        return nameEnding;
+    }
+
+    public void setNameEnding(String nameEnding) {
+        this.nameEnding = nameEnding;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public PartnershipType getPartnershipType() {
+        return partnershipType;
+    }
+
+    public void setPartnershipType(PartnershipType partnershipType) {
+        this.partnershipType = partnershipType;
+    }
+
+    public String getJurisdiction() {
+        return jurisdiction;
+    }
+
+    public void setJurisdiction(String jurisdiction) {
+        this.jurisdiction = jurisdiction;
+    }
+
+    public AddressDao getRegisteredOfficeAddress() {
+        return registeredOfficeAddress;
+    }
+
+    public void setRegisteredOfficeAddress(AddressDao registeredOfficeAddress) {
+        this.registeredOfficeAddress = registeredOfficeAddress;
+    }
+
+    public Term getTerm() {
+        return term;
+    }
+
+    public void setTerm(Term term) {
+        this.term = term;
+    }
+
+    public Boolean getRedesignateToPFLPApply() {
+        return redesignateToPFLPApply;
+    }
+
+    public void setRedesignateToPFLPApply(Boolean redesignateToPFLPApply) {
+        this.redesignateToPFLPApply = redesignateToPFLPApply;
+    }
+
+    public Boolean getRedesignateToPFLPConfirm() {
+        return redesignateToPFLPConfirm;
+    }
+
+    public void setRedesignateToPFLPConfirm(Boolean redesignateToPFLPConfirm) {
+        this.redesignateToPFLPConfirm = redesignateToPFLPConfirm;
+    }
+
+    public AddressDao getPrincipalPlaceOfBusinessAddress() {
+        return principalPlaceOfBusinessAddress;
+    }
+
+    public void setPrincipalPlaceOfBusinessAddress(AddressDao principalPlaceOfBusinessAddress) {
+        this.principalPlaceOfBusinessAddress = principalPlaceOfBusinessAddress;
+    }
+
+    public List<String> getSicCodes() {
+        return sicCodes;
+    }
+
+    public void setSicCodes(List<String> sicCodes) {
+        this.sicCodes = sicCodes;
+    }
+
+    public Boolean getHasPersonWithSignificantControl() {
+        return hasPersonWithSignificantControl;
+    }
+
+    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
+        this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
+    }
+
+    public Boolean getLawfulPurposeStatementChecked() {
+        return lawfulPurposeStatementChecked;
+    }
+
+    public void setLawfulPurposeStatementChecked(Boolean lawfulPurposeStatementChecked) {
+        this.lawfulPurposeStatementChecked = lawfulPurposeStatementChecked;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
+    public LocalDate getDateOfUpdate() {
+        return dateOfUpdate;
+    }
+
+    public void setDateOfUpdate(LocalDate dateOfUpdate) {
+        this.dateOfUpdate = dateOfUpdate;
+    }
+}

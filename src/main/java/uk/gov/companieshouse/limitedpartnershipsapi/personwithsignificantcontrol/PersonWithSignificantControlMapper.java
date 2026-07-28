@@ -1,0 +1,43 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol;
+
+import org.mapstruct.InheritConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.JsonNullableMapper;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+
+@Mapper(uses = JsonNullableMapper.class,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        componentModel = "spring")
+public interface PersonWithSignificantControlMapper {
+    PersonWithSignificantControlDto daoToDto(PersonWithSignificantControlDao dao);
+
+    PersonWithSignificantControlDao dtoToDao(PersonWithSignificantControlDto dto);
+
+    PersonWithSignificantControlDataDto map(PersonWithSignificantControlDataDto dto);
+
+    @InheritConfiguration
+    void update(PersonWithSignificantControlDataDto update, @MappingTarget PersonWithSignificantControlDataDto destination);
+
+    // ENUMS
+    default String mapNationalityToString(Nationality nationality) {
+        return nationality != null ? nationality.getDescription() : null;
+    }
+
+    default Nationality mapNationalityToEnum(String nationality) {
+        return nationality != null ? Nationality.fromDescription(nationality) : null;
+    }
+
+    default String mapCountryToString(Country country) {
+        return country != null ? country.getDescription() : null;
+    }
+
+    default Country mapCountryToEnum(String country) {
+        return country != null ? Country.fromDescription(country) : null;
+    }
+}

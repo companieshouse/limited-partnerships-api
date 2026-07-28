@@ -1,0 +1,20 @@
+package uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao;
+
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.BaseDao;
+
+@Document(collection = "limited_partnerships")
+public class PartnershipDao extends BaseDao {
+
+    @Field("data")
+    private DataDao data;
+
+    public DataDao getData() {
+        return data;
+    }
+
+    public void setData(DataDao data) {
+        this.data = data;
+    }
+}
