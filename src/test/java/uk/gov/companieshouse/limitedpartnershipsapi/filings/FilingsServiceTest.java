@@ -781,28 +781,35 @@ class FilingsServiceTest {
 
         /**
          * Tests for the nationality1Changed and nationality2Changed boolean logic
-         * in setNationalitiesFields method.
-         *
-         * Truth table:
-         * | partnerNationality1 | appointmentNationality1 | Expected nationality1Changed |
-         * |---------------------|-------------------------|------------------------------|
-         * | null                | null                    | false (unchanged)            |
-         * | null                | "British"               | true (changed)               |
-         * | "British"           | null                    | true (changed)               |
-         * | "British"           | "British"               | false (unchanged)            |
-         * | "British"           | "british" (diff case)   | false (unchanged)            |
-         * | "British"           | "French"                | true (changed)               |
+         * in setNationalitiesFields method, covering both nationality1 and nationality2
+         * change scenarios (unchanged, added, removed, case-insensitive match, differing values).
          */
-
-        @Test
-        void testNationality1Changed_BothNull() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            mockChsAppointmentApiData(true, null);
+        @ParameterizedTest
+        @CsvSource({
+                // appointmentNationalities, partnerNationality1, partnerNationality2, expectedNationality1, expectedNationality2
+                "'',                          ,       ,        ,       ",
+                "British,                     ,       ,        ,       ",
+                "'',                   BRITISH,       , British,       ",
+                "'British,French',     BRITISH, FRENCH,        ,       ",
+                "'british,french',     BRITISH, FRENCH,        ,       ",
+                "'French,Spanish',     BRITISH,  IRISH, British,  Irish",
+                "British,              BRITISH,       ,        ,       ",
+                "'British,French',     BRITISH,       , British,       ",
+                "British,              BRITISH, FRENCH, British, French"
+        })
+        void testNationalitiesChanged(
+                String appointmentNationalities,
+                Nationality partnerNationality1,
+                Nationality partnerNationality2,
+                String expectedNationality1,
+                String expectedNationality2) throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
+            mockChsAppointmentApiData(true, appointmentNationalities.isEmpty() ? null : appointmentNationalities);
             var transaction = new TransactionBuilder().build();
             var limitedPartner = new LimitedPartnerBuilder()
                     .withPartnershipType(PartnershipType.LP)
                     .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(null)
-                    .withNationality2(null)
+                    .withNationality1(partnerNationality1)
+                    .withNationality2(partnerNationality2)
                     .personDto();
 
             when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
@@ -813,202 +820,8 @@ class FilingsServiceTest {
             List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
             LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
 
-            assertNull(filingLimitedPartnerDataDto.getNationality1());
-            assertNull(filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality1Changed_PartnerNullAppointmentNonNull() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            // Appointment previously had "British" for nationality1, partner has none set.
-            // Removing nationality1 is not allowed, so both fields are nulled out (no update sent).
-            mockChsAppointmentApiData(true, "British");
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(null)
-                    .withNationality2(null)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertNull(filingLimitedPartnerDataDto.getNationality1());
-            assertNull(filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality1Changed_PartnerNonNullAppointmentNull() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            // Appointment has no nationality recorded, partner sets nationality1 to "British".
-            // This is a genuine change, so the partner's target value is output.
-            mockChsAppointmentApiData(true, null);
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(Nationality.BRITISH)
-                    .withNationality2(null)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertEquals("British", filingLimitedPartnerDataDto.getNationality1());
-            assertNull(filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality1Changed_BothSame() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            mockChsAppointmentApiData(true, "British,French");
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(Nationality.BRITISH)
-                    .withNationality2(Nationality.FRENCH)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertNull(filingLimitedPartnerDataDto.getNationality1());
-            assertNull(filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality1Changed_CaseInsensitiveComparison() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            mockChsAppointmentApiData(true, "british,french");
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(Nationality.BRITISH)
-                    .withNationality2(Nationality.FRENCH)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertNull(filingLimitedPartnerDataDto.getNationality1());
-            assertNull(filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality1Changed_DifferentValues() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            // Appointment previously had French/Spanish, partner target is British/Irish.
-            // Output should reflect the partner's NEW target values, not the appointment's old ones.
-            mockChsAppointmentApiData(true, "French,Spanish");
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(Nationality.BRITISH)
-                    .withNationality2(Nationality.IRISH)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertEquals("British", filingLimitedPartnerDataDto.getNationality1());
-            assertEquals("Irish", filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality2Changed_BothNull() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            // Appointment previously had only nationality1 ("British"), partner has same nationality1 and no nationality2.
-            // No change in either field.
-            mockChsAppointmentApiData(true, "British");
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(Nationality.BRITISH)
-                    .withNationality2(null)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertNull(filingLimitedPartnerDataDto.getNationality1());
-            assertNull(filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality2Changed_RemoveNationality2() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            // Appointment previously had British/French, partner target removes nationality2 (null).
-            mockChsAppointmentApiData(true, "British,French");
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(Nationality.BRITISH)
-                    .withNationality2(null)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertEquals("British", filingLimitedPartnerDataDto.getNationality1());
-            assertNull(filingLimitedPartnerDataDto.getNationality2());
-        }
-
-        @Test
-        void testNationality2Changed_AddNationality2() throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
-            // Appointment previously had only British, partner target adds French as nationality2.
-            mockChsAppointmentApiData(true, "British");
-            var transaction = new TransactionBuilder().build();
-            var limitedPartner = new LimitedPartnerBuilder()
-                    .withPartnershipType(PartnershipType.LP)
-                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
-                    .withNationality1(Nationality.BRITISH)
-                    .withNationality2(Nationality.FRENCH)
-                    .personDto();
-
-            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
-            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
-
-            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
-
-            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
-            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
-
-            assertEquals("British", filingLimitedPartnerDataDto.getNationality1());
-            assertEquals("French", filingLimitedPartnerDataDto.getNationality2());
+            assertEquals(expectedNationality1, filingLimitedPartnerDataDto.getNationality1());
+            assertEquals(expectedNationality2, filingLimitedPartnerDataDto.getNationality2());
         }
 
     }
