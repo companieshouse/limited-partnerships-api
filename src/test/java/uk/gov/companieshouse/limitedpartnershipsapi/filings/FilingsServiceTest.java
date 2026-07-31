@@ -777,6 +777,53 @@ class FilingsServiceTest {
 
             assertEquals(today, filingLimitedPartnerDataDto.getCeaseDate());
         }
+
+
+        /**
+         * Tests for the nationality1Changed and nationality2Changed boolean logic
+         * in setNationalitiesFields method, covering both nationality1 and nationality2
+         * change scenarios (unchanged, added, removed, case-insensitive match, differing values).
+         */
+        @ParameterizedTest
+        @CsvSource({
+                // appointmentNationalities, partnerNationality1, partnerNationality2, expectedNationality1, expectedNationality2
+                "'',                          ,       ,        ,       ",
+                "British,                     ,       ,        ,       ",
+                "'',                   BRITISH,       , British,       ",
+                "'British,French',     BRITISH, FRENCH,        ,       ",
+                "'british,french',     BRITISH, FRENCH,        ,       ",
+                "'French,Spanish',     BRITISH,  IRISH, British,  Irish",
+                "British,              BRITISH,       ,        ,       ",
+                "'British,French',     BRITISH,       , British,       ",
+                "British,              BRITISH, FRENCH, British, French"
+        })
+        void testNationalitiesChanged(
+                String appointmentNationalities,
+                Nationality partnerNationality1,
+                Nationality partnerNationality2,
+                String expectedNationality1,
+                String expectedNationality2) throws URIValidationException, ApiErrorResponseException, ResourceNotFoundException {
+            mockChsAppointmentApiData(true, appointmentNationalities.isEmpty() ? null : appointmentNationalities);
+            var transaction = new TransactionBuilder().build();
+            var limitedPartner = new LimitedPartnerBuilder()
+                    .withPartnershipType(PartnershipType.LP)
+                    .withLimitedPartnerKind(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription())
+                    .withNationality1(partnerNationality1)
+                    .withNationality2(partnerNationality2)
+                    .personDto();
+
+            when(limitedPartnerService.getLimitedPartner(transaction, LIMITED_PARTNER_ID)).thenReturn(limitedPartner);
+            when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(limitedPartner.getData().getKind()))).thenReturn(true);
+
+            FilingApi filing = filingsService.generateLimitedPartnerFiling(transaction, LIMITED_PARTNER_ID);
+
+            List<LimitedPartnerDataDto> limitedPartners = (List<LimitedPartnerDataDto>) filing.getData().get(LIMITED_PARTNER_FIELD);
+            LimitedPartnerDataDto filingLimitedPartnerDataDto = limitedPartners.getFirst();
+
+            assertEquals(expectedNationality1, filingLimitedPartnerDataDto.getNationality1());
+            assertEquals(expectedNationality2, filingLimitedPartnerDataDto.getNationality2());
+        }
+
     }
 
     @Nested
@@ -923,14 +970,18 @@ class FilingsServiceTest {
     }
 
     private void mockChsAppointmentApiData(boolean isPerson) throws URIValidationException, ApiErrorResponseException {
+        mockChsAppointmentApiData(isPerson, NATIONALITY);
+    }
+
+    private void mockChsAppointmentApiData(boolean isPerson, String nationalities) throws URIValidationException, ApiErrorResponseException {
         when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
         when(internalApiClient.privateDeltaResourceHandler()).thenReturn(privateDeltaResourceHandler);
         when(privateDeltaResourceHandler.getAppointment(any())).thenReturn(privateOfficerGet);
         when(privateOfficerGet.execute()).thenReturn(appointmentFullRecordAPIApiResponse);
-        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(getAppointmentFullRecordAPI(isPerson));
+        when(appointmentFullRecordAPIApiResponse.getData()).thenReturn(getAppointmentFullRecordAPI(isPerson, nationalities));
     }
 
-    private AppointmentFullRecordAPI getAppointmentFullRecordAPI(boolean isPerson) {
+    private AppointmentFullRecordAPI getAppointmentFullRecordAPI(boolean isPerson, String nationalities) {
         AppointmentFullRecordAPI appointmentFullRecordAPI = new AppointmentFullRecordAPI();
         SensitiveDateOfBirthAPI sensitiveDateOfBirthAPI = new SensitiveDateOfBirthAPI();
         sensitiveDateOfBirthAPI.setDay(15);
@@ -941,7 +992,7 @@ class FilingsServiceTest {
         if (isPerson) {
             appointmentFullRecordAPI.setForename(PREV_FORENAME);
             appointmentFullRecordAPI.setSurname(PREV_SURNAME);
-            appointmentFullRecordAPI.setNationality(NATIONALITY);
+            appointmentFullRecordAPI.setNationality(nationalities);
         } else {
             appointmentFullRecordAPI.setName(PREV_LEGAL_ENTITY_NAME);
             IdentificationAPI identificationAPI = new IdentificationAPI();

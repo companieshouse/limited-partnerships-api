@@ -327,8 +327,13 @@ public class FilingsService {
 
         var partnerNationality1 = StringUtils.trim(partnerDataDto.getNationality1());
         var partnerNationality2 = StringUtils.trim(partnerDataDto.getNationality2());
-        Boolean nationality1Changed = partnerNationality1 != null && !partnerNationality1.equalsIgnoreCase(appointmentNationality1);
-        Boolean nationality2Changed = partnerNationality2 == null || !partnerNationality2.equalsIgnoreCase(appointmentNationality2);
+
+        boolean nationality1Changed = (partnerNationality1 == null)
+                ? appointmentNationality1 != null
+                : !partnerNationality1.equalsIgnoreCase(appointmentNationality1);
+        boolean nationality2Changed = (partnerNationality2 == null)
+                ? appointmentNationality2 != null
+                : !partnerNationality2.equalsIgnoreCase(appointmentNationality2);
 
         if (nationality1Changed || nationality2Changed) {
             if (partnerNationality1 == null) {
