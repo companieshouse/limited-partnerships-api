@@ -24,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPa
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
@@ -69,7 +70,7 @@ public class LimitedPartnerController {
         try {
             String limitedPartnerId = limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, requestId, userId);
 
-            if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
+            if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode()) && PartnerKind.isAddPartnerKind(limitedPartnerDto.getData().getKind())) {
                 // Post Transition journey - limited partner created, update the transaction resume url
                 addResumeLinkToTransaction(transaction, requestId, limitedPartnerId);
             }

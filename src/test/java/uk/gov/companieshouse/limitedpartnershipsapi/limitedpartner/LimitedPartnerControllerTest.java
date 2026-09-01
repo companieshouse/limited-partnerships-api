@@ -134,7 +134,7 @@ class LimitedPartnerControllerTest {
                         LIMITED_PARTNER_ID)
                 .build();
         txn.setFilingMode(FilingMode.DEFAULT.getDescription());
-        assertCreatePartnerIsSuccessful(txn, true);
+        assertCreatePartnerIsSuccessful(txn, false);
     }
 
     @Test

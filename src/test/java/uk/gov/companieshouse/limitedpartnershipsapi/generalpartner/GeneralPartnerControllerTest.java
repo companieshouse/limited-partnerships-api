@@ -140,7 +140,7 @@ class GeneralPartnerControllerTest {
                 .withKindAndUri(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
                 .build();
         txn.setFilingMode(FilingMode.DEFAULT.getDescription());
-        assertCreatePartnerReturnsSuccess(txn, true);
+        assertCreatePartnerReturnsSuccess(txn, false);
     }
 
     @Test

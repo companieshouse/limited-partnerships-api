@@ -25,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPa
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -89,7 +90,7 @@ public class GeneralPartnerController {
         try {
             String generalPartnerId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
 
-            if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
+            if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode()) && PartnerKind.isAddPartnerKind(generalPartnerDto.getData().getKind())) {
                 // Post Transition journey - general partner created, update the transaction resume url
                 addResumeLinkToTransaction(transaction, requestId, generalPartnerId);
             }
@@ -107,10 +108,10 @@ public class GeneralPartnerController {
         transactionService.updateTransactionWithResumeJourneyUri(
                 transaction,
                 String.format(
-                        URL_RESUME_POST_TRANSITION_GENERAL_PARTNER,
-                        transaction.getCompanyNumber(),
-                        transaction.getId(),
-                        generalPartnerId
+                    URL_RESUME_POST_TRANSITION_GENERAL_PARTNER,
+                    transaction.getCompanyNumber(),
+                    transaction.getId(),
+                    generalPartnerId
                 ),
                 requestId
         );
