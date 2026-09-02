@@ -46,7 +46,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION_OR_TRANSITION;
 
 @ExtendWith(MockitoExtension.class)
@@ -223,9 +222,8 @@ class TransactionServiceTest {
     }
 
     @Test
-    void testCorrectLinksAddedForPostTransitionPartnership() throws Exception {
-        String expectedResumeUri = String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP, transaction.getCompanyNumber(), TRANSACTION_ID, SUBMISSION_ID);
-        assertTransactionLinksAndResumeUri(FilingMode.DEFAULT.getDescription(), expectedResumeUri);
+    void testNoLinksAddedForPostTransitionPartnership() throws Exception {
+        assertTransactionLinksAndResumeUri(FilingMode.DEFAULT.getDescription(), null);
     }
 
     private void assertTransactionLinksAndResumeUri(String filingMode, String expectedResumeUri) throws Exception {

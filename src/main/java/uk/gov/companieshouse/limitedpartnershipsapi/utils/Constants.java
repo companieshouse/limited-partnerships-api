@@ -29,7 +29,6 @@ public class Constants {
     public static final String COSTS_URI_SUFFIX = "/costs";
     public static final String URL_GET_PARTNERSHIP = "/transactions/%s/limited-partnership/partnership/%s";
     public static final String URL_RESUME_REGISTRATION_OR_TRANSITION = "/limited-partnerships/transaction/%s/submission/%s/resume";
-    public static final String URL_RESUME_POST_TRANSITION_PARTNERSHIP = "/limited-partnerships/update/company/%s/transaction/%s/submission/%s/resume";
     public static final String URL_RESUME_POST_TRANSITION_GENERAL_PARTNER = "/limited-partnerships/update/company/%s/transaction/%s/general-partner/%s/resume";
     public static final String URL_RESUME_POST_TRANSITION_LIMITED_PARTNER = "/limited-partnerships/update/company/%s/transaction/%s/limited-partner/%s/resume";
 
