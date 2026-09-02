@@ -147,7 +147,7 @@ class LimitedPartnerControllerTest {
     void testPostTransitionCreatePartnerReturnsSuccess() throws Exception {
         Transaction txn = new TransactionBuilder()
             .withKindAndUri(
-                PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription(),
+                PartnerKind.ADD_LIMITED_PARTNER_PERSON.getDescription(),
                 URL_GET_GENERAL_PARTNER,
                 LIMITED_PARTNER_ID)
             .build();
