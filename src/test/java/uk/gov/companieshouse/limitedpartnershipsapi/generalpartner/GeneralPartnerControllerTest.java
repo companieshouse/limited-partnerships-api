@@ -22,6 +22,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPa
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 
 import java.util.List;
@@ -131,16 +132,36 @@ class GeneralPartnerControllerTest {
                 .withKindAndUri(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
                 .withIncorporationKind(filingMode)
                 .build();
-        assertCreatePartnerReturnsSuccess(txn, false);
+
+        txn.setFilingMode(filingMode.getDescription());
+
+        assertCreatePartnerReturnsSuccess(txn, isAddPartnerPostTransition(txn));
+    }
+
+    @Test
+    void testPostTransitionUpdatePartnerReturnsSuccess() throws Exception {
+        Transaction txn = new TransactionBuilder()
+            .withKindAndUri(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON.getDescription(), URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
+                .build();
+
+        txn.setFilingMode(FilingMode.DEFAULT.getDescription());
+
+        assertCreatePartnerReturnsSuccess(txn, isAddPartnerPostTransition(txn));
     }
 
     @Test
     void testPostTransitionCreatePartnerReturnsSuccess() throws Exception {
         Transaction txn = new TransactionBuilder()
-                .withKindAndUri(FILING_KIND_GENERAL_PARTNER, URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
-                .build();
+            .withKindAndUri(PartnerKind.ADD_GENERAL_PARTNER_PERSON.getDescription(), URL_GET_GENERAL_PARTNER, GENERAL_PARTNER_ID)
+            .build();
+
         txn.setFilingMode(FilingMode.DEFAULT.getDescription());
-        assertCreatePartnerReturnsSuccess(txn, false);
+        
+        assertCreatePartnerReturnsSuccess(txn, isAddPartnerPostTransition(txn));
+    }
+
+    private boolean isAddPartnerPostTransition(Transaction txn) {
+        return txn.getFilingMode().equals(FilingMode.DEFAULT.getDescription()) && PartnerKind.isAddPartnerKind(txn.getKind());
     }
 
     @Test
