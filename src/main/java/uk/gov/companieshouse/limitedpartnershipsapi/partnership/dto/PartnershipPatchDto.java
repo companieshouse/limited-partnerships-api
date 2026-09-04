@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import org.openapitools.jackson.nullable.JsonNullable;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
@@ -70,7 +69,7 @@ public class PartnershipPatchDto {
     private Boolean lawfulPurposeStatementChecked;
 
     @JsonProperty("has_person_with_significant_control")
-    private JsonNullable<Boolean> hasPersonWithSignificantControl;
+    private Boolean hasPersonWithSignificantControl;
 
     @JsonProperty("date_of_update")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -157,11 +156,11 @@ public class PartnershipPatchDto {
         return lawfulPurposeStatementChecked;
     }
 
-    public JsonNullable<Boolean> getHasPersonWithSignificantControl() {
+    public Boolean getHasPersonWithSignificantControl() {
         return hasPersonWithSignificantControl;
     }
 
-    public void setHasPersonWithSignificantControl(JsonNullable<Boolean> hasPersonWithSignificantControl) {
+    public void setHasPersonWithSignificantControl(Boolean hasPersonWithSignificantControl) {
         this.hasPersonWithSignificantControl = hasPersonWithSignificantControl;
     }
 
