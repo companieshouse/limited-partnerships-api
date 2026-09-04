@@ -24,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.config.JacksonConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.JsonNullableMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
@@ -56,13 +57,14 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 
 @ContextConfiguration(classes = {
         PartnershipController.class,
-    PartnershipService.class,
+        PartnershipService.class,
         LimitedPartnershipValidator.class,
         PostTransitionStrategyHandler.class,
         Validator.class,
         ValidationStatus.class,
-    PartnershipMapperImpl.class,
-    PartnershipPatchMapperImpl.class,
+        PartnershipMapperImpl.class,
+        PartnershipPatchMapperImpl.class,
+        JsonNullableMapperImpl.class,
         CostsService.class,
         GlobalExceptionHandler.class,
         JacksonConfig.class
