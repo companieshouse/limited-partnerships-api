@@ -20,6 +20,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.JsonNullableMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
@@ -40,11 +41,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ContextConfiguration(classes = {
         PartnershipController.class,
-    PartnershipService.class,
+        PartnershipService.class,
         LimitedPartnershipValidator.class,
         ValidationStatus.class,
-    PartnershipMapperImpl.class,
-    PartnershipPatchMapperImpl.class,
+        PartnershipMapperImpl.class,
+        PartnershipPatchMapperImpl.class,
+        JsonNullableMapperImpl.class,
         CostsService.class,
         PostTransitionStrategyHandler.class,
         GlobalExceptionHandler.class

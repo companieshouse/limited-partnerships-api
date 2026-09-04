@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.mapper.JsonNullableMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipPatchMapperImpl;
@@ -40,9 +41,10 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode.REG
 @ContextConfiguration(classes = {
         IncorporationController.class,
         CostsService.class,
-    PartnershipService.class,
-    PartnershipMapperImpl.class,
-    PartnershipPatchMapperImpl.class,
+        PartnershipService.class,
+        PartnershipMapperImpl.class,
+        PartnershipPatchMapperImpl.class,
+        JsonNullableMapperImpl.class,
         LimitedPartnershipValidator.class,
         ValidationStatus.class,
         PostTransitionStrategyHandler.class,

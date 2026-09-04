@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
@@ -43,6 +44,11 @@ class PartnershipPatchMapperTest {
             PartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{}", PartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{}", PartnershipPatchDto.class).getLawfulPurposeStatementChecked());
+        assertNull(mapper.readValue("{}", PartnershipPatchDto.class).getHasPersonWithSignificantControl());
+        assertEquals(JsonNullable.of(true), mapper.readValue("{\"has_person_with_significant_control\":true}",
+            PartnershipPatchDto.class).getHasPersonWithSignificantControl());
+        assertEquals(JsonNullable.of(null), mapper.readValue("{\"has_person_with_significant_control\":null}",
+            PartnershipPatchDto.class).getHasPersonWithSignificantControl());
     }
 
     @ParameterizedTest
