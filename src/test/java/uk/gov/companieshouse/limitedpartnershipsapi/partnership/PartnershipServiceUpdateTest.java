@@ -3,9 +3,12 @@ package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -384,20 +388,29 @@ class PartnershipServiceUpdateTest {
 
         @Nested
         class UpdateHasPersonWithSignificantControl {
-            @Test
-            void shouldUpdateTheDao() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            @ParameterizedTest
+            @CsvSource({
+                    "null, true",
+                    "true, null",
+                    "false, true",
+                    "true, false",
+                    "null, null",
+                    "true, true",
+                    "false, false"
+            })
+            void shouldUpdateTheDao(String initialValue, String patchValue)
+                    throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
                 // given
                 PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
-                partnershipDao.getData().setHasPersonWithSignificantControl(null);
+                partnershipDao.getData().setHasPersonWithSignificantControl(initialValue.equals("null") ? null : Boolean.parseBoolean(initialValue));
 
                 PartnershipPatchDto partnershipPatchDto = new PartnershipPatchDto();
-                partnershipPatchDto.setHasPersonWithSignificantControl(Boolean.TRUE);
+                partnershipPatchDto.setHasPersonWithSignificantControl(JsonNullable.of(
+                        patchValue.equals("null") ? null : Boolean.parseBoolean(patchValue)
+                ));
 
                 when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(partnershipDao));
                 when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
-
-                // dao has person with significant control is null before mapping/update
-                assertNull(partnershipDao.getData().getHasPersonWithSignificantControl());
 
                 // when
                 service.updateLimitedPartnership(transaction, SUBMISSION_ID, partnershipPatchDto, REQUEST_ID, USER_ID);
@@ -405,10 +418,15 @@ class PartnershipServiceUpdateTest {
                 // then
                 verify(repository).findById(SUBMISSION_ID);
                 verify(repository).save(submissionCaptor.capture());
-
                 PartnershipDao sentSubmission = submissionCaptor.getValue();
 
-                assertTrue(sentSubmission.getData().getHasPersonWithSignificantControl());
+                if (patchValue.equals("true")) {
+                    assertTrue(sentSubmission.getData().getHasPersonWithSignificantControl());
+                } else if (patchValue.equals("false")) {
+                    assertFalse(sentSubmission.getData().getHasPersonWithSignificantControl());
+                } else {
+                    assertNull(sentSubmission.getData().getHasPersonWithSignificantControl());
+                }
             }
 
             @Test
