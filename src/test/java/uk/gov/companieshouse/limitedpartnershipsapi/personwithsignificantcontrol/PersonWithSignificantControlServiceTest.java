@@ -14,6 +14,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignifican
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
@@ -78,6 +79,9 @@ class PersonWithSignificantControlServiceTest {
 
     @Mock
     private PersonWithSignificantControlValidatorStrategy personWithSignificantControlValidatorStrategy;
+
+    @Mock
+    private PartnershipService partnershipService;
 
     @Captor
     private ArgumentCaptor<PersonWithSignificantControlDao> pscDaoArgumentCaptor;
@@ -300,12 +304,13 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testDeletePersonWithSignificantControlSuccess() throws ServiceException {
+    void testDeletePersonWithSignificantControlSuccessAndClearsPartnershipFlag() throws ServiceException {
         PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
         var pscUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
 
         when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
         when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL)).thenReturn(true);
+        when(repository.countByTransactionId(TRANSACTION.getId())).thenReturn(0L);
 
         personWithSignificantControlService.deletePersonWithSignificantControl(TRANSACTION, PSC_ID, REQUEST_ID);
 
@@ -313,6 +318,23 @@ class PersonWithSignificantControlServiceTest {
         verify(transactionService, times(1)).isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL);
         verify(repository, times(1)).deleteById(PSC_ID);
         verify(transactionService, times(1)).deleteTransactionResource(TRANSACTION.getId(), pscUri, REQUEST_ID);
+        verify(partnershipService, times(1)).clearHasPersonWithSignificantControl(TRANSACTION, REQUEST_ID);
+    }
+
+    @Test
+    void testDeletePersonWithSignificantControlWhenOthersRemainDoesNotClearPartnershipFlag() throws ServiceException {
+        PersonWithSignificantControlDao existingDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+        var pscUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
+
+        when(repository.findById(PSC_ID)).thenReturn(Optional.of(existingDao));
+        when(transactionService.isTransactionLinkedToResource(TRANSACTION, pscUri, FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL)).thenReturn(true);
+        when(repository.countByTransactionId(TRANSACTION.getId())).thenReturn(1L);
+
+        personWithSignificantControlService.deletePersonWithSignificantControl(TRANSACTION, PSC_ID, REQUEST_ID);
+
+        verify(repository, times(1)).deleteById(PSC_ID);
+        verify(transactionService, times(1)).deleteTransactionResource(TRANSACTION.getId(), pscUri, REQUEST_ID);
+        verify(partnershipService, never()).clearHasPersonWithSignificantControl(any(), any());
     }
 
     @Test
@@ -371,7 +393,7 @@ class PersonWithSignificantControlServiceTest {
     }
 
     @Test
-    void testGetPersonWithSignficantControlDataList() {
+    void testGetPersonWithSignificantControlDataList() {
         Transaction transaction = new TransactionBuilder().build();
 
         PersonWithSignificantControlDto personWithSignificantControlDto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();

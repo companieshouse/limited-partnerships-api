@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
@@ -36,16 +37,19 @@ public class PersonWithSignificantControlService {
     private final PersonWithSignificantControlMapper mapper;
     private final TransactionService transactionService;
     private final PersonWithSignificantControlValidator personWithSignificantControlValidator;
+    private final PartnershipService partnershipService;
 
     public PersonWithSignificantControlService(PersonWithSignificantControlRepository repository,
                                                PersonWithSignificantControlMapper mapper,
                                                TransactionService transactionService,
-                                               PersonWithSignificantControlValidator personWithSignificantControlValidator
+                                               PersonWithSignificantControlValidator personWithSignificantControlValidator,
+                                               PartnershipService partnershipService
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.transactionService = transactionService;
         this.personWithSignificantControlValidator = personWithSignificantControlValidator;
+        this.partnershipService = partnershipService;
     }
 
     public PersonWithSignificantControlDto getPersonWithSignificantControl(Transaction transaction, String personWithSignificantControlId) throws ResourceNotFoundException {
@@ -172,6 +176,11 @@ public class PersonWithSignificantControlService {
         );
 
         ApiLogger.infoContext(requestId, String.format("Person with significant control deleted with id: %s", personWithSignificantControlId));
+        
+        // if there are no more persons with significant control, update the partnership to reflect this
+        if (repository.countByTransactionId(transaction.getId()) == 0) {
+            partnershipService.clearHasPersonWithSignificantControl(transaction, requestId);
+        }
     }
 
     public List<ValidationStatusError> validatePersonsWithSignificantControl(Transaction transaction) throws ServiceException {

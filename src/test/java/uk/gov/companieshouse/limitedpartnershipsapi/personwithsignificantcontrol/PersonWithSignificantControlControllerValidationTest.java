@@ -19,6 +19,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignifican
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
@@ -82,6 +83,9 @@ class PersonWithSignificantControlControllerValidationTest {
 
     @MockitoBean
     private PersonWithSignificantControlRepository repository;
+
+    @MockitoBean
+    private PartnershipService partnershipService;
 
     @MockitoBean
     private TransactionService transactionService;
