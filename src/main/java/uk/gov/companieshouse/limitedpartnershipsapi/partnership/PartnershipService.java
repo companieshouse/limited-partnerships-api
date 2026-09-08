@@ -174,15 +174,7 @@ public class PartnershipService {
     }
 
     public PartnershipDto getLimitedPartnership(Transaction transaction) throws ServiceException {
-        var limitedPartnerships = repository.findByTransactionId(transaction.getId());
-
-        if (limitedPartnerships.isEmpty()) {
-            throw new ResourceNotFoundException(String.format("No limited partnership found for transaction id %s", transaction.getId()));
-        } else if (limitedPartnerships.size() > 1) {
-            throw new ServiceException(String.format("More than one limited partnership found for transaction id %s", transaction.getId()));
-        }
-
-        var limitedPartnershipDao = limitedPartnerships.getFirst();
+        PartnershipDao limitedPartnershipDao = getPartnershipDao(transaction);
 
         String kind = requireNonNullElse(limitedPartnershipDao.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
@@ -192,6 +184,32 @@ public class PartnershipService {
         }
 
         return mapper.daoToDto(limitedPartnershipDao);
+    }
+
+    public void clearHasPersonWithSignificantControl(Transaction transaction, String requestId) throws ServiceException {
+        PartnershipDao limitedPartnershipDao = getPartnershipDao(transaction);
+
+        limitedPartnershipDao.getData().setHasPersonWithSignificantControl(null);
+        repository.save(limitedPartnershipDao);
+
+        ApiLogger.infoContext(
+                requestId,
+                String.format(
+                        "Cleared has_person_with_significant_control for limited partnership %s with transaction id: %s",
+                        limitedPartnershipDao.getId(),
+                        transaction.getId()));
+    }
+
+    private PartnershipDao getPartnershipDao(Transaction transaction) throws ServiceException {
+        var limitedPartnerships = repository.findByTransactionId(transaction.getId());
+
+        if (limitedPartnerships.isEmpty()) {
+            throw new ResourceNotFoundException(String.format("No limited partnership found for transaction id %s", transaction.getId()));
+        } else if (limitedPartnerships.size() > 1) {
+            throw new ServiceException(String.format("More than one limited partnership found for transaction id %s", transaction.getId()));
+        }
+
+        return limitedPartnerships.getFirst();
     }
 
     public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction)

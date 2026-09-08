@@ -33,6 +33,7 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -277,6 +278,45 @@ class PartnershipServiceTest {
 
         // when + then
         assertThrows(ServiceException.class, () -> service.getLimitedPartnership(transaction));
+    }
+
+    @Test
+    void givenTransactionId_whenClearHasPersonWithSignificantControl_thenFieldSetToNullAndSaved() throws ServiceException {
+        // given
+        PartnershipDao lpDao = new PartnershipBuilder().buildDao();
+        lpDao.getData().setHasPersonWithSignificantControl(true);
+
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao));
+
+        // when
+        service.clearHasPersonWithSignificantControl(transaction, REQUEST_ID);
+
+        // then
+        verify(repository).save(submissionCaptor.capture());
+        assertNull(submissionCaptor.getValue().getData().getHasPersonWithSignificantControl());
+    }
+
+    @Test
+    void givenInvalidTransactionId_whenClearHasPersonWithSignificantControl_thenResourceNotFoundExceptionThrown() {
+        // given
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of());
+
+        // when + then
+        assertThrows(ResourceNotFoundException.class, () -> service.clearHasPersonWithSignificantControl(transaction, REQUEST_ID));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void givenTransactionIdHasMultipleLpSubmissions_whenClearHasPersonWithSignificantControl_thenServiceExceptionThrown() {
+        // given
+        PartnershipDao lpDao1 = new PartnershipBuilder().buildDao();
+        PartnershipDao lpDao2 = new PartnershipBuilder().buildDao();
+
+        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao1, lpDao2));
+
+        // when + then
+        assertThrows(ServiceException.class, () -> service.clearHasPersonWithSignificantControl(transaction, REQUEST_ID));
+        verify(repository, never()).save(any());
     }
 
     @Test
