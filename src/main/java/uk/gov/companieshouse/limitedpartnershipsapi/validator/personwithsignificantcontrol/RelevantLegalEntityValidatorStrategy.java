@@ -3,9 +3,12 @@ package uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignifi
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
@@ -30,7 +33,38 @@ public class RelevantLegalEntityValidatorStrategy extends PersonWithSignificantC
 
     @Override
     public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
-        super.validatePartialRleOrOrp(personWithSignificantControlDto, validator, PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY);
+        BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
+
+        super.validatePartialRleOrOrp(personWithSignificantControlDto, PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY, validator, bindingResult);
+
+        var data = personWithSignificantControlDto.getData();
+        validateRegisterDetails(data, bindingResult);
+
+        throwIfErrors(bindingResult);
+    }
+
+    private void validateRegisterDetails(PersonWithSignificantControlDataDto data, BindingResult bindingResult) {
+        var enteredOnRegister = data.getEnteredOnRegister();
+        var registeredCompanyNumber = data.getRegisteredCompanyNumber();
+        var legalEntityRegisterName = data.getLegalEntityRegisterName();
+        var legalEntityRegistrationLocation = data.getLegalEntityRegistrationLocation();
+
+        var enteredOnRegisterFieldName = "data.enteredOnRegister";
+        var registeredCompanyNumberFieldName = "data.registeredCompanyNumber";
+        var legalEntityRegisterNameFieldName = "data.legalEntityRegisterName";
+        var legalEntityRegistrationLocationFieldName = "data.legalEntityRegistrationLocation";
+
+        if (enteredOnRegister == null) {
+            addError(enteredOnRegisterFieldName, "Entered on register is required", bindingResult);
+        } else if (enteredOnRegister) {
+            checkNotNullOrEmpty(legalEntityRegistrationLocation, legalEntityRegistrationLocationFieldName, "Legal entity registration location is required when entered on register is true", bindingResult);
+            checkNotNullOrEmpty(legalEntityRegisterName, legalEntityRegisterNameFieldName, "Legal entity register name is required when entered on register is true", bindingResult);
+            checkNotNullOrEmpty(registeredCompanyNumber, registeredCompanyNumberFieldName, "Registered company number is required when entered on register is true", bindingResult);
+        } else {
+            checkNotPopulated(legalEntityRegistrationLocation, legalEntityRegistrationLocationFieldName, "Legal entity registration location is not required when entered on register is false", bindingResult);
+            checkNotPopulated(legalEntityRegisterName, legalEntityRegisterNameFieldName, "Legal entity register name is not required when entered on register is false", bindingResult);
+            checkNotPopulated(registeredCompanyNumber, registeredCompanyNumberFieldName, "Registered company number is not required when entered on register is false", bindingResult);
+        }
     }
 
     @Override

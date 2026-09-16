@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignifi
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
@@ -30,7 +32,11 @@ public class OtherRegistrablePersonValidatorStrategy extends PersonWithSignifica
 
     @Override
     public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
-        super.validatePartialRleOrOrp(personWithSignificantControlDto, validator, PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON);
+        BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
+
+        super.validatePartialRleOrOrp(personWithSignificantControlDto, PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON, validator, bindingResult);
+
+        throwIfErrors(bindingResult);
     }
 
     @Override

@@ -11,6 +11,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipServi
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
@@ -112,13 +113,18 @@ public class PersonWithSignificantControlService {
         checkPersonWithSignificantControlIsLinkedToTransaction(transaction, personWithSignificantControlId, kind);
 
         var dto = mapper.daoToDto(daoBeforePatch);
+        if (personWithSignificantControlChangesDataDto.getType() != null && personWithSignificantControlChangesDataDto.getType() != dto.getData().getType()) {
+            throw new ServiceException("Person with significant control type cannot be changed");
+        }
+
         var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
+        // do this before validator to ensure that if the legalEntityRegistrationLocation is not present in the patch, it is set to null in the DTO before validation
+        handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
 
         validator.validatePartial(dto);
 
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
-        handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
         handlePersonOptionalFields(personWithSignificantControlChangesDataDto, dto.getData());
 
         var daoAfterPatch = mapper.dtoToDao(dto);
@@ -130,16 +136,13 @@ public class PersonWithSignificantControlService {
         repository.save(daoAfterPatch);
     }
 
-    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto personWithSignificantControlChangesDataDto, PersonWithSignificantControlDataDto data) {
-        // Check RLE mandatory fields are present before setting legalEntityRegistrationLocation to null as this
-        // field is only needed when the person with significant control is a RLE.
-        // This is to avoid deleting the legalEntityRegistrationLocation when patching where
-        // legalEntityRegistrationLocation is not included in the patch.
-        if (personWithSignificantControlChangesDataDto.getLegalEntityName() != null
-            && personWithSignificantControlChangesDataDto.getLegalForm() != null
-            && personWithSignificantControlChangesDataDto.getGoverningLaw() != null
-            && personWithSignificantControlChangesDataDto.getLegalEntityRegistrationLocation() == null) {
-                data.setLegalEntityRegistrationLocation(null);
+    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto changesDataDto, PersonWithSignificantControlDataDto data) {
+        if (!PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY.equals(changesDataDto.getType())) {
+            return;
+        }
+
+        if (changesDataDto.getLegalEntityRegistrationLocation() == null) {
+            data.setLegalEntityRegistrationLocation(null);
         }
     }
 
