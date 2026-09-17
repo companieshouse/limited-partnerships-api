@@ -116,7 +116,8 @@ public class PersonWithSignificantControlService {
 
         var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
-        // do this before validator to ensure that if the legalEntityRegistrationLocation is not present in the patch, it is set to null in the DTO before validation
+
+        // handle register location optionality before validator to ensure that if the legalEntityRegistrationLocation is not present in the patch, it is set to null in the DTO before validation
         handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
 
         validator.validatePartial(dto);

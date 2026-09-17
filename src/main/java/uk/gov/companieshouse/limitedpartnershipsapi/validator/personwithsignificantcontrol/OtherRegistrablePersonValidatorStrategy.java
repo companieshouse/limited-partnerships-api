@@ -33,9 +33,7 @@ public class OtherRegistrablePersonValidatorStrategy extends PersonWithSignifica
     @Override
     public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
         BindingResult bindingResult = new BeanPropertyBindingResult(personWithSignificantControlDto, DATA_DTO_CLASS_NAME);
-
         super.validatePartialRleOrOrp(personWithSignificantControlDto, PersonWithSignificantControlType.OTHER_REGISTRABLE_PERSON, validator, bindingResult);
-
         throwIfErrors(bindingResult);
     }
 
