@@ -137,6 +137,9 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityRegisterName;
 
+    @JsonProperty("entered_on_register")
+    private Boolean enteredOnRegister;
+
     // RELEVANT LEGAL ENTITY (RLE) ONLY
     @JsonProperty("legal_entity_registration_location")
     @EnumValid(message = "Legal entity registration location must be valid")
@@ -300,6 +303,14 @@ public class PersonWithSignificantControlDataDto implements HasNationality {
 
     public void setLegalEntityRegisterName(String legalEntityRegisterName) {
         this.legalEntityRegisterName = legalEntityRegisterName;
+    }
+
+    public Boolean getEnteredOnRegister() {
+        return enteredOnRegister;
+    }
+
+    public void setEnteredOnRegister(Boolean enteredOnRegister) {
+        this.enteredOnRegister = enteredOnRegister;
     }
 
     public String getLegalEntityRegistrationLocation() {
