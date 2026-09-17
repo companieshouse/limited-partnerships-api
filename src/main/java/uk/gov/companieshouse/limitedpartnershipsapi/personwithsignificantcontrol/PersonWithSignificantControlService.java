@@ -113,9 +113,6 @@ public class PersonWithSignificantControlService {
         checkPersonWithSignificantControlIsLinkedToTransaction(transaction, personWithSignificantControlId, kind);
 
         var dto = mapper.daoToDto(daoBeforePatch);
-        if (personWithSignificantControlChangesDataDto.getType() != null && personWithSignificantControlChangesDataDto.getType() != dto.getData().getType()) {
-            throw new ServiceException("Person with significant control type cannot be changed");
-        }
 
         var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());

@@ -118,6 +118,7 @@ class PersonWithSignificantControlControllerValidationTest {
                     "legal_entity_name": "asasd",
                     "legal_form": "dsfs",
                     "governing_law": "sadsad",
+                    "entered_on_register": true,
                     "legal_entity_register_name": "REG NAME",
                     "legal_entity_registration_location": "Wales",
                     "registered_company_number": "12345"
@@ -131,7 +132,8 @@ class PersonWithSignificantControlControllerValidationTest {
                     "type": "RELEVANT_LEGAL_ENTITY",
                     "legal_entity_name": "asasd",
                     "legal_form": "dsfs",
-                    "governing_law": "sadsad"
+                    "governing_law": "sadsad",
+                    "entered_on_register": false
                 }
             }""";
 
@@ -153,6 +155,8 @@ class PersonWithSignificantControlControllerValidationTest {
         private static final String JSON_GOVERNING_LAW_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"" + TOO_MANY_CHARS + "\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
         private static final String JSON_LEGAL_ENTITY_REGISTER_NAME_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"legal_entity_register_name\": \"" + TOO_MANY_CHARS + "\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
         private static final String JSON_REGISTERED_COMPANY_NUMBER_IS_ABOVE_MAX_CHARS_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"legal_entity_register_name\": \"sss\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"" + TOO_MANY_CHARS + "\" }";
+        private static final String JSON_UPDATE_ENTERED_ON_REGISTER_TRUE_NO_REGISTER_DATA_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"entered_on_register\": true }";
+        private static final String JSON_UPDATE_ENTERED_ON_REGISTER_FALSE_WITH_REGISTER_DATA_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"entered_on_register\": false, \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
 
         @ParameterizedTest
         @ValueSource(strings = {JSON_CORRECT_RLE, JSON_CORRECT_MANDATORY_ONLY_RLE})
@@ -227,6 +231,42 @@ class PersonWithSignificantControlControllerValidationTest {
                             .content(body))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
+        }
+
+        @Test
+        void shouldReturn400_update_RLE_whenEnteredOnRegisterIsTrueAndNoRegisterDataSupplied() throws Exception {
+            mocksPsc(new PersonWithSignificantControlBuilder()
+                    .withEnteredOnRegister(false)
+                    .withLegalEntityRegisterName(null)
+                    .withRegisteredCompanyNumber(null)
+                    .relevantLegalEntityDao());
+
+            mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(JSON_UPDATE_ENTERED_ON_REGISTER_TRUE_NO_REGISTER_DATA_RLE))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegistrationLocation']").value("Legal entity registration location is required when entered on register is true"))
+                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegisterName']").value("Legal entity register name is required when entered on register is true"))
+                    .andExpect(jsonPath("$.['errors']['data.registeredCompanyNumber']").value("Registered company number is required when entered on register is true"));
+        }
+
+        @Test
+        void shouldReturn400_update_RLE_whenEnteredOnRegisterIsFalseAndRegisterDataSupplied() throws Exception {
+            mocksRle();
+
+            mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(JSON_UPDATE_ENTERED_ON_REGISTER_FALSE_WITH_REGISTER_DATA_RLE))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegistrationLocation']").value("Legal entity registration location is not required when entered on register is false"))
+                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegisterName']").value("Legal entity register name is not required when entered on register is false"))
+                    .andExpect(jsonPath("$.['errors']['data.registeredCompanyNumber']").value("Registered company number is not required when entered on register is false"));
         }
     }
 

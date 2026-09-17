@@ -24,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
@@ -212,13 +213,21 @@ class PersonWithSignificantControlServiceUpdateTest {
 
     @Test
     void shouldHandleLegalEntityRegistrationLocationOptionality_shouldDelete() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        PersonWithSignificantControlDao personWithSignificantControlDao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+        PersonWithSignificantControlDao personWithSignificantControlDao =
+                new PersonWithSignificantControlBuilder()
+                        .withLegalEntityRegisterName(null)
+                        .withRegisteredCompanyNumber(null)
+                        .withLegalEntityRegistrationLocation(Country.ENGLAND)
+                        .relevantLegalEntityDao();
 
         var preChangeLegalEntityRegistrationLocation = personWithSignificantControlDao.getData().getLegalEntityRegistrationLocation();
         assertThat(preChangeLegalEntityRegistrationLocation).isNotEmpty();
 
         PersonWithSignificantControlDataDto changesDto = new PersonWithSignificantControlBuilder()
+                .withEnteredOnRegister(false)
                 .withLegalEntityRegistrationLocation(null)
+                .withLegalEntityRegisterName(null)
+                .withRegisteredCompanyNumber(null)
                 .relevantLegalEntityDto().getData();
 
         when(personWithSignificantControlRepository.findById(personWithSignificantControlDao.getId())).thenReturn(Optional.of(personWithSignificantControlDao));

@@ -49,6 +49,9 @@ public class PersonWithSignificantControlBuilder {
 
     private String legalEntityName = "Legal Entity Name";
     private Country legalEntityRegistrationLocation = Country.ENGLAND;
+    private Boolean enteredOnRegister = true;
+    private String legalEntityRegisterName = LEGAL_ENTITY_REGISTER_NAME;
+    private String registeredCompanyNumber = REGISTERED_COMPANY_NUMBER;
 
     private Country country = ENGLAND;
     private String title = TITLE_MR;
@@ -75,6 +78,21 @@ public class PersonWithSignificantControlBuilder {
 
     public PersonWithSignificantControlBuilder withLegalEntityRegistrationLocation(Country legalEntityRegistrationLocation) {
         this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withEnteredOnRegister(Boolean enteredOnRegister) {
+        this.enteredOnRegister = enteredOnRegister;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withLegalEntityRegisterName(String legalEntityRegisterName) {
+        this.legalEntityRegisterName = legalEntityRegisterName;
+        return this;
+    }
+
+    public PersonWithSignificantControlBuilder withRegisteredCompanyNumber(String registeredCompanyNumber) {
+        this.registeredCompanyNumber = registeredCompanyNumber;
         return this;
     }
 
@@ -173,9 +191,10 @@ public class PersonWithSignificantControlBuilder {
         dataDto.setDateEffectiveFrom(DATE_EFFECTIVE_FROM);
         dataDto.setGoverningLaw(GOVERNING_LAW);
         dataDto.setLegalEntityName(legalEntityName);
-        dataDto.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
+        dataDto.setEnteredOnRegister(enteredOnRegister);
+        dataDto.setLegalEntityRegisterName(legalEntityRegisterName);
         dataDto.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation);
-        dataDto.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
+        dataDto.setRegisteredCompanyNumber(registeredCompanyNumber);
         dataDto.setLegalForm(LEGAL_FORM);
         dataDto.setNaturesOfControl(naturesOfControl);
         dataDto.setPrincipalOfficeAddress(createAddressDto(POA_PREFIX));
@@ -265,10 +284,11 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setEtag(ETAG);
         dataDao.setGoverningLaw(GOVERNING_LAW);
         dataDao.setLegalEntityName(legalEntityName);
-        dataDao.setLegalEntityRegisterName(LEGAL_ENTITY_REGISTER_NAME);
+        dataDao.setEnteredOnRegister(enteredOnRegister);
+        dataDao.setLegalEntityRegisterName(legalEntityRegisterName);
         dataDao.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation.getDescription());
         dataDao.setLegalForm(LEGAL_FORM);
-        dataDao.setRegisteredCompanyNumber(REGISTERED_COMPANY_NUMBER);
+        dataDao.setRegisteredCompanyNumber(registeredCompanyNumber);
         dataDao.setNaturesOfControl(naturesOfControlDAO);
         dataDao.setPrincipalOfficeAddress(createAddressDao(POA_PREFIX));
         dataDao.setResignationDate(RESIGNATION_DATE);
