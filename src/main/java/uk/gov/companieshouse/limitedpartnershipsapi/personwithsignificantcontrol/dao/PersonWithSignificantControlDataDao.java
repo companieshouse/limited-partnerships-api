@@ -99,6 +99,9 @@ public class PersonWithSignificantControlDataDao {
     @Field("registered_company_number")
     private String registeredCompanyNumber;
 
+    @Field("entered_on_register")
+    private Boolean enteredOnRegister;
+
     @Field("principal_office_address")
     private AddressDao principalOfficeAddress;
 
@@ -260,6 +263,14 @@ public class PersonWithSignificantControlDataDao {
 
     public void setLegalEntityRegistrationLocation(String legalEntityRegistrationLocation) {
         this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
+    }
+
+    public Boolean getEnteredOnRegister() {
+        return enteredOnRegister;
+    }
+
+    public void setEnteredOnRegister(Boolean enteredOnRegister) {
+        this.enteredOnRegister = enteredOnRegister;
     }
 
     public String getRegisteredCompanyNumber() {
