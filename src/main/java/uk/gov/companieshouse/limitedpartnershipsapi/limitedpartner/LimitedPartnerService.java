@@ -162,10 +162,10 @@ public class LimitedPartnerService {
     }
 
     private static void handleEnteredOnRegisterOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDto limitedPartnerDto) {
-        var shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality = limitedPartnerChangesDataDto.isLegalEntity()
+        boolean isLegalEntityAndNotRegistered = limitedPartnerChangesDataDto.isLegalEntity()
                 && Boolean.FALSE.equals(limitedPartnerChangesDataDto.getEnteredOnRegister());
 
-        if (shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality) {
+        if (isLegalEntityAndNotRegistered) {
             limitedPartnerDto.getData().setLegalEntityRegisterName(null);
             limitedPartnerDto.getData().setRegisteredCompanyNumber(null);
         }

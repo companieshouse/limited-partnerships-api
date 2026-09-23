@@ -146,10 +146,10 @@ public class GeneralPartnerService {
     }
 
     private static void handleEnteredOnRegisterOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDto generalPartnerDto) {
-        var shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality = generalPartnerChangesDataDto.isLegalEntity()
+        boolean isLegalEntityAndNotRegistered = generalPartnerChangesDataDto.isLegalEntity()
                 && Boolean.FALSE.equals(generalPartnerChangesDataDto.getEnteredOnRegister());
 
-        if (shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality) {
+        if (isLegalEntityAndNotRegistered) {
             generalPartnerDto.getData().setLegalEntityRegisterName(null);
             generalPartnerDto.getData().setRegisteredCompanyNumber(null);
         }
