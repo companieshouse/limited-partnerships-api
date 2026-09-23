@@ -98,6 +98,7 @@ class GeneralPartnerControllerValidationTest {
                 "legal_entity_name": "My Company Name",
                 "legal_form": "Form ABC",
                 "governing_law": "Act of law",
+                "entered_on_register": true,
                 "legal_entity_register_name": "Register of somewhere",
                 "legal_entity_registration_location": "Scotland",
                 "registered_company_number": "12345678",
@@ -111,6 +112,7 @@ class GeneralPartnerControllerValidationTest {
                 "legal_entity_name": "My Company Name",
                 "legal_form": "Form ABC",
                 "governing_law": "Act of law",
+                "entered_on_register": true,
                 "legal_entity_register_name": "Register of somewhere",
                 "legal_entity_registration_location": "Wrong Country",
                 "registered_company_number": "12345678",
@@ -123,6 +125,33 @@ class GeneralPartnerControllerValidationTest {
               "data": {
                 "legal_form": "Form ABC",
                 "governing_law": "Act of law",
+                "entered_on_register": true,
+                "legal_entity_register_name": "Register of somewhere",
+                "legal_entity_registration_location": "Scotland",
+                "registered_company_number": "12345678",
+                "not_disqualified_statement_checked": true
+              }
+            }""";
+
+    private static final String JSON_GENERAL_LEGAL_ENTITY_ENTERED_ON_REGISTER_TRUE_AND_REGISTER_NAME_AND_NUMBER_NOT_PROVIDED = """
+            {
+              "data": {
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
+                "governing_law": "Act of law",
+                "entered_on_register": true,
+                "legal_entity_registration_location": "Scotland",
+                "not_disqualified_statement_checked": true
+              }
+            }""";
+
+    private static final String JSON_GENERAL_LEGAL_ENTITY_ENTERED_ON_REGISTER_FALSE_AND_REGISTER_NAME_AND_NUMBER_PROVIDED = """
+            {
+              "data": {
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
+                "governing_law": "Act of law",
+                "entered_on_register": false,
                 "legal_entity_register_name": "Register of somewhere",
                 "legal_entity_registration_location": "Scotland",
                 "registered_company_number": "12345678",
@@ -189,7 +218,7 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
-        mocks();
+        mocks(true);
 
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -202,7 +231,7 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201WhenCreatingGeneralPartnerLegalEntity() throws Exception {
-        mocks();
+        mocks(false);
 
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -214,8 +243,20 @@ class GeneralPartnerControllerValidationTest {
     }
 
     @Test
+    void shouldReturn201WhenCreatingGeneralPartnerLegalEntityWithEnteredOnRegisterFalseAndRegisterNameAndNumberProvided() throws Exception {
+        mocks(false);
+        mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(JSON_GENERAL_LEGAL_ENTITY_ENTERED_ON_REGISTER_FALSE_AND_REGISTER_NAME_AND_NUMBER_PROVIDED))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
     void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithWrongCountry() throws Exception {
-        mocks();
+        mocks(false);
 
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -229,7 +270,7 @@ class GeneralPartnerControllerValidationTest {
 
     @Test
     void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithNoName() throws Exception {
-        mocks();
+        mocks(false);
 
         mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -241,11 +282,26 @@ class GeneralPartnerControllerValidationTest {
                 .andExpect(jsonPath("$.['errors'].['legal_entity_name']").value("Legal Entity Name is required"));
     }
 
+    @Test
+    void shouldReturn400WhenCreatingGeneralPartnerLegalEntityWithEnteredOnRegisterTrueAndRegisterNameAndNumberNotProvided() throws Exception {
+        mocks(false);
+
+        mockMvc.perform(post(GeneralPartnerControllerValidationTest.BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(JSON_GENERAL_LEGAL_ENTITY_ENTERED_ON_REGISTER_TRUE_AND_REGISTER_NAME_AND_NUMBER_NOT_PROVIDED))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.['errors'].['legal_entity_register_name']").value("Legal Entity Register Name is required when entered on register is true"))
+                .andExpect(jsonPath("$.['errors'].['registered_company_number']").value("Registered Company Number is required when entered on register is true"));
+    }
+
     @Nested
     class ValidatePartner {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            mocks();
+            mocks(true);
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -301,9 +357,11 @@ class GeneralPartnerControllerValidationTest {
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
     }
 
-    private void mocks() {
-        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
-
-        mocks(generalPartnerDao);
+    private void mocks(Boolean isPerson) {
+        if (isPerson) {
+            mocks(new GeneralPartnerBuilder().personDao());
+        } else {
+            mocks(new GeneralPartnerBuilder().legalEntityDao());
+        }
     }
 }

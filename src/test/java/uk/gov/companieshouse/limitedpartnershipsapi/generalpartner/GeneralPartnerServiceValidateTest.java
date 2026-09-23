@@ -152,7 +152,7 @@ class GeneralPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Governing Law is required", GeneralPartnerDataDto.GOVERNING_LAW_FIELD),
-                        tuple("Registered Company Number is required", GeneralPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
+                        tuple("Registered Company Number is required when entered on register is true", GeneralPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
                         tuple("Principal office address is required", GeneralPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD),
                         tuple("Not Disqualified Statement must be checked", GeneralPartnerDataDto.NOT_DISQUALIFIED_STATEMENT_CHECKED_FIELD));
 
@@ -162,6 +162,7 @@ class GeneralPartnerServiceValidateTest {
     void shouldReturnErrorsWhenGeneralPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
+        generalPartnerDao.getData().setEnteredOnRegister(true);
         generalPartnerDao.getData().setRegisteredCompanyNumber("");
         generalPartnerDao.getData().setLegalEntityRegisterName(null);
         generalPartnerDao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
@@ -177,7 +178,7 @@ class GeneralPartnerServiceValidateTest {
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(
                         tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
-                        tuple("Legal Entity Register Name is required", GeneralPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD));
+                        tuple("Legal Entity Register Name is required when entered on register is true", GeneralPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD));
     }
 
     @Test
@@ -280,6 +281,7 @@ class GeneralPartnerServiceValidateTest {
         dataDao.setLegalEntityName("Same");
         dataDao.setGoverningLaw("UK");
         dataDao.setLegalEntityRegistrationLocation(Country.UNITED_STATES.getDescription());
+        dataDao.setEnteredOnRegister(true);
         dataDao.setNotDisqualifiedStatementChecked(true);
         dataDao.setRegisteredCompanyNumber("LP111222");
         dataDao.setPrincipalOfficeAddress(createAddressDao());

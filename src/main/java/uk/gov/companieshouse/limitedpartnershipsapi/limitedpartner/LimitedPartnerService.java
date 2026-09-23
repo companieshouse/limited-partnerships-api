@@ -138,6 +138,8 @@ public class LimitedPartnerService {
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
+        handleEnteredOnRegisterOptionality(limitedPartnerChangesDataDto, limitedPartnerDto);
+
         if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
             limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
         } else {
@@ -157,6 +159,16 @@ public class LimitedPartnerService {
         ApiLogger.infoContext(requestId, String.format("Limited Partner updated with id: %s", limitedPartnerId));
 
         repository.save(limitedPartnerDaoAfterPatch);
+    }
+
+    private static void handleEnteredOnRegisterOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDto limitedPartnerDto) {
+        var shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality = limitedPartnerChangesDataDto.isLegalEntity()
+                && Boolean.FALSE.equals(limitedPartnerChangesDataDto.getEnteredOnRegister());
+
+        if (shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality) {
+            limitedPartnerDto.getData().setLegalEntityRegisterName(null);
+            limitedPartnerDto.getData().setRegisteredCompanyNumber(null);
+        }
     }
 
     private void handleUpdateAddressRequiredOptionality(String kind, LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto data) {

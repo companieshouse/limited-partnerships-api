@@ -399,18 +399,35 @@ class PostTransitionPartnerTest {
         }
 
         @Test
+        void shouldReturn200IfNoErrorsWhenEnteredOnRegisterIsFalseAndRegisterNameAndNumberNull_AddGeneralPartnerLegalEntity() throws Exception {
+
+            mocks(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
+
+            generalPartnerLegalEntityDao.getData().setEnteredOnRegister(false);
+            generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
+            generalPartnerLegalEntityDao.getData().setRegisteredCompanyNumber(null);
+
+            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+
+            assertThat(result).isEmpty();
+        }
+
+        @Test
         void shouldReturn200AndErrorDetailsIfPartnerDetailsMissing_AddGeneralPartnerLegalEntity() throws Exception {
 
             mocks(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
+            generalPartnerLegalEntityDao.getData().setEnteredOnRegister(true);
             generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
+            generalPartnerLegalEntityDao.getData().setRegisteredCompanyNumber(null);
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
 
-            assertThat(result).hasSize(1)
+            assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
-                            Map.entry("legal_entity_register_name", "Legal Entity Register Name is required")
+                            Map.entry("legal_entity_register_name", "Legal Entity Register Name is required when entered on register is true"),
+                            Map.entry("registered_company_number", "Registered Company Number is required when entered on register is true")
                     );
         }
 
@@ -679,6 +696,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setDateOfUpdate(LocalDate.now());
             generalPartnerLegalEntityDao.getData().setLegalEntityName(null);
             generalPartnerLegalEntityDao.getData().setGoverningLaw(null);
+            generalPartnerLegalEntityDao.getData().setEnteredOnRegister(null);
             generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
             generalPartnerLegalEntityDao.getData().setLegalEntityRegistrationLocation(null);
             generalPartnerLegalEntityDao.getData().setLegalForm(null);
@@ -687,15 +705,14 @@ class PostTransitionPartnerTest {
 
             var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
-            assertThat(result).hasSize(6)
+            assertThat(result).hasSize(5)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
                     .containsExactlyInAnyOrder(
                             Map.entry("legal_entity_name", "Legal Entity Name is required"),
                             Map.entry("legal_form", "Legal Form is required"),
                             Map.entry("governing_law", "Governing Law is required"),
-                            Map.entry("legal_entity_register_name", "Legal Entity Register Name is required"),
                             Map.entry("legal_entity_registration_location", "Legal Entity Registration Location is required"),
-                            Map.entry("registered_company_number", "Registered Company Number is required")
+                            Map.entry("entered_on_register", "Entered on register is required")
                     );
         }
 

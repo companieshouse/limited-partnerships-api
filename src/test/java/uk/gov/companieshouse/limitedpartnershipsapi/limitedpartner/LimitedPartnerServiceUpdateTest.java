@@ -213,6 +213,28 @@ class LimitedPartnerServiceUpdateTest {
         assertNull(sentSubmission.getData().getNationality2());
     }
 
+    @Test
+    void shouldHandleLegalEntityRegistrationNameAndNumberOptionality() throws Exception {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().legalEntityDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().legalEntityDto().getData();
+        limitedPartnerDataDto.setDateEffectiveFrom(null);
+        limitedPartnerDataDto.setEnteredOnRegister(false);
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertNull(sentSubmission.getData().getLegalEntityRegisterName());
+        assertNull(sentSubmission.getData().getRegisteredCompanyNumber());
+        assertFalse(sentSubmission.getData().getEnteredOnRegister());
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void shouldHandleUsualResidentialAddressForUpdateUraRequiredFlag(Boolean uraRequired) throws Exception {

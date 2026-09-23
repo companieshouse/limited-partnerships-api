@@ -171,6 +171,27 @@ class GeneralPartnerServiceUpdateTest {
         assertNull(sentSubmission.getData().getNationality2());
     }
 
+    @Test
+    void shouldHandleLegalEntityRegistrationNameAndNumberOptionality() throws Exception {
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().legalEntityDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().legalEntityDto().getData();
+        generalPartnerDataDto.setDateEffectiveFrom(null);
+        generalPartnerDataDto.setEnteredOnRegister(false);
+
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertNull(sentSubmission.getData().getLegalEntityRegisterName());
+        assertNull(sentSubmission.getData().getRegisteredCompanyNumber());
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void shouldHandleUsualResidentialAddressForUpdateUraRequiredFlag(Boolean uraRequired) throws Exception {

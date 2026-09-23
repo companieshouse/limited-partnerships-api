@@ -122,6 +122,8 @@ public class GeneralPartnerService {
 
         mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
+        handleEnteredOnRegisterOptionality(generalPartnerChangesDataDto, generalPartnerDto);
+
         if (PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
             generalPartnerValidator.validateRemove(generalPartnerDto, transaction);
         } else {
@@ -141,6 +143,16 @@ public class GeneralPartnerService {
         ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
 
         repository.save(generalPartnerDaoAfterPatch);
+    }
+
+    private static void handleEnteredOnRegisterOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDto generalPartnerDto) {
+        var shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality = generalPartnerChangesDataDto.isLegalEntity()
+                && Boolean.FALSE.equals(generalPartnerChangesDataDto.getEnteredOnRegister());
+
+        if (shouldHandleLegalEntityRegisterNameAndCompanyNumberOptionality) {
+            generalPartnerDto.getData().setLegalEntityRegisterName(null);
+            generalPartnerDto.getData().setRegisteredCompanyNumber(null);
+        }
     }
 
     private void handleUpdateAddressRequiredOptionality(String kind, GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto data) {

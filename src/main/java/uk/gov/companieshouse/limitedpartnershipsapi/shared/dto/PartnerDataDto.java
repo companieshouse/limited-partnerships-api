@@ -242,11 +242,12 @@ public abstract class PartnerDataDto implements HasNationality {
     // Legal Entity
 
     public static final String LEGAL_ENTITY_NAME_FIELD = "legal_entity_name";
-    public static final String LEGAL_ENTITY_REGISTER_NAME_FIELD = "legal_entity_register_name";
-    public static final String LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD = "legal_entity_registration_location";
     public static final String LEGAL_FORM_FIELD = "legal_form";
-    public static final String REGISTERED_COMPANY_NUMBER_FIELD = "registered_company_number";
     public static final String GOVERNING_LAW_FIELD = "governing_law";
+    public static final String LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD = "legal_entity_registration_location";
+    public static final String ENTERED_ON_REGISTER_FIELD = "entered_on_register";
+    public static final String LEGAL_ENTITY_REGISTER_NAME_FIELD = "legal_entity_register_name";
+    public static final String REGISTERED_COMPANY_NUMBER_FIELD = "registered_company_number";
     public static final String DATE_EFFECTIVE_FROM_FIELD = "date_effective_from";
     public static final String PRINCIPAL_OFFICE_ADDRESS_FIELD = "principal_office_address";
 
@@ -256,33 +257,36 @@ public abstract class PartnerDataDto implements HasNationality {
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity name " + INVALID_CHARACTERS_MESSAGE)
     private String legalEntityName;
 
-    @JsonProperty(LEGAL_ENTITY_REGISTER_NAME_FIELD)
-    @Size(min = MIN_SIZE, message = "Legal entity register name " + MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
-    private String legalEntityRegisterName;
-
-    @JsonProperty(LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD)
-    @EnumValid(message = "Legal entity registration location must be valid")
-    private Country legalEntityRegistrationLocation;
-
     @JsonProperty(LEGAL_FORM_FIELD)
     @Size(min = MIN_SIZE, message = "Legal form " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Legal form " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal form " + INVALID_CHARACTERS_MESSAGE)
     private String legalForm;
 
-    @JsonProperty(REGISTERED_COMPANY_NUMBER_FIELD)
-    @Size(min = MIN_SIZE, message = "Registered company number " + MIN_SIZE_MESSAGE)
-    @Size(max = LONG_MAX_SIZE, message = "Registered company number " + MAX_SIZE_MESSAGE)
-    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Registered company number " + INVALID_CHARACTERS_MESSAGE)
-    private String registeredCompanyNumber;
-
     @JsonProperty(GOVERNING_LAW_FIELD)
     @Size(min = MIN_SIZE, message = "Governing law " + MIN_SIZE_MESSAGE)
     @Size(max = LONG_MAX_SIZE, message = "Governing law " + MAX_SIZE_MESSAGE)
     @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Governing law " + INVALID_CHARACTERS_MESSAGE)
     private String governingLaw;
+
+    @JsonProperty(LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD)
+    @EnumValid(message = "Legal entity registration location must be valid")
+    private Country legalEntityRegistrationLocation;
+
+    @JsonProperty(ENTERED_ON_REGISTER_FIELD)
+    private Boolean enteredOnRegister;
+
+    @JsonProperty(LEGAL_ENTITY_REGISTER_NAME_FIELD)
+    @Size(min = MIN_SIZE, message = "Legal entity register name " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Legal entity register name " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Legal entity register name " + INVALID_CHARACTERS_MESSAGE)
+    private String legalEntityRegisterName;
+
+    @JsonProperty(REGISTERED_COMPANY_NUMBER_FIELD)
+    @Size(min = MIN_SIZE, message = "Registered company number " + MIN_SIZE_MESSAGE)
+    @Size(max = LONG_MAX_SIZE, message = "Registered company number " + MAX_SIZE_MESSAGE)
+    @Pattern(regexp = REG_EXP_FOR_ALLOWED_CHARACTERS, message = "Registered company number " + INVALID_CHARACTERS_MESSAGE)
+    private String registeredCompanyNumber;
 
     @JsonProperty("resignation_date")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -310,6 +314,22 @@ public abstract class PartnerDataDto implements HasNationality {
         this.legalEntityName = legalEntityName;
     }
 
+    public String getLegalForm() {
+        return legalForm;
+    }
+
+    public void setLegalForm(String legalForm) {
+        this.legalForm = legalForm;
+    }
+
+    public String getGoverningLaw() {
+        return governingLaw;
+    }
+
+    public void setGoverningLaw(String governingLaw) {
+        this.governingLaw = governingLaw;
+    }
+
     public String getLegalEntityRegistrationLocation() {
         return legalEntityRegistrationLocation != null ? legalEntityRegistrationLocation.getDescription() : null;
     }
@@ -318,12 +338,12 @@ public abstract class PartnerDataDto implements HasNationality {
         this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
     }
 
-    public String getLegalForm() {
-        return legalForm;
+    public Boolean getEnteredOnRegister() {
+        return enteredOnRegister;
     }
 
-    public void setLegalForm(String legalForm) {
-        this.legalForm = legalForm;
+    public void setEnteredOnRegister(Boolean enteredOnRegister) {
+        this.enteredOnRegister = enteredOnRegister;
     }
 
     public String getLegalEntityRegisterName() {
@@ -340,14 +360,6 @@ public abstract class PartnerDataDto implements HasNationality {
 
     public void setRegisteredCompanyNumber(String registeredCompanyNumber) {
         this.registeredCompanyNumber = registeredCompanyNumber;
-    }
-
-    public String getGoverningLaw() {
-        return governingLaw;
-    }
-
-    public void setGoverningLaw(String governingLaw) {
-        this.governingLaw = governingLaw;
     }
 
     public LocalDate getResignationDate() {
