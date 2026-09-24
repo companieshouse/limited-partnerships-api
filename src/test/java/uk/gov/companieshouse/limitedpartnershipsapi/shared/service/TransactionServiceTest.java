@@ -25,6 +25,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnershipKind;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -46,6 +47,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION_OR_TRANSITION;
 
 @ExtendWith(MockitoExtension.class)
@@ -218,15 +220,37 @@ class TransactionServiceTest {
     })
     void testCorrectLinksAddedForIncorporationPartnership(FilingMode filingMode) throws Exception {
         String expectedResumeUri = String.format(URL_RESUME_REGISTRATION_OR_TRANSITION, TRANSACTION_ID, SUBMISSION_ID);
-        assertTransactionLinksAndResumeUri(filingMode.getDescription(), expectedResumeUri);
+        assertTransactionLinksAndResumeUri(filingMode.getDescription(), expectedResumeUri, null);
     }
 
     @Test
     void testNoLinksAddedForPostTransitionPartnership() throws Exception {
-        assertTransactionLinksAndResumeUri(FilingMode.DEFAULT.getDescription(), null);
+        assertTransactionLinksAndResumeUri(FilingMode.DEFAULT.getDescription(), null, null);
     }
 
-    private void assertTransactionLinksAndResumeUri(String filingMode, String expectedResumeUri) throws Exception {
+    @ParameterizedTest
+    @EnumSource(value = PartnershipKind.class, names = {
+        "UPDATE_PARTNERSHIP_NAME",
+        "UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP"
+    })
+    void testResumeLinkAddedForPostTransitionPartnershipWhenKindIsUpdateNameOrRedesignated(PartnershipKind partnershipKind) throws Exception {
+        String expectedResumeUri = String.format(
+            URL_RESUME_POST_TRANSITION_PARTNERSHIP, TransactionBuilder.COMPANY_NUMBER, TRANSACTION_ID, SUBMISSION_ID);
+
+        assertTransactionLinksAndResumeUri(FilingMode.DEFAULT.getDescription(), expectedResumeUri, partnershipKind.getDescription());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PartnershipKind.class, names = {
+        "UPDATE_PARTNERSHIP_REGISTERED_OFFICE_ADDRESS",
+        "UPDATE_PARTNERSHIP_TERM",
+        "UPDATE_PARTNERSHIP_PRINCIPAL_PLACE_OF_BUSINESS_ADDRESS"
+    })
+    void testNoResumeLinkAddedForPostTransitionPartnershipWhenKindIsNotUpdateNameOrRedesignated(PartnershipKind partnershipKind) throws Exception {
+        assertTransactionLinksAndResumeUri(FilingMode.DEFAULT.getDescription(), null, partnershipKind.getDescription());
+    }
+
+    private void assertTransactionLinksAndResumeUri(String filingMode, String expectedResumeUri, String kind) throws Exception {
         Transaction txn = new TransactionBuilder().build();
         txn.setFilingMode(filingMode);
         PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
@@ -242,7 +266,7 @@ class TransactionServiceTest {
         Map<String, String> linksMap = new HashMap<>();
         linksMap.put(LINK_RESOURCE, submissionUri);
         limitedPartnershipResource.setLinks(linksMap);
-        limitedPartnershipResource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
+        limitedPartnershipResource.setKind(kind != null ? kind : FILING_KIND_LIMITED_PARTNERSHIP);
 
         transactionService.updateTransactionWithLinksAndPartnershipName(
                 txn,

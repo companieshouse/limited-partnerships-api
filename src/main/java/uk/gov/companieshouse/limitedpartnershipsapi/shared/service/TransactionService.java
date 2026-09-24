@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.sdk.ApiClientService;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnershipKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_POST_TRANSITION_PARTNERSHIP;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_RESUME_REGISTRATION_OR_TRANSITION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.VALIDATION_STATUS_URI_SUFFIX;
 
@@ -71,8 +73,13 @@ public class TransactionService {
     private String buildPartnershipResumeJourneyUri(Transaction transaction, String submissionId) {
         if (!FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return String.format(URL_RESUME_REGISTRATION_OR_TRANSITION, transaction.getId(), submissionId);
+        } else {
+            String kind = transaction.getResources().values().stream().findFirst().map(Resource::getKind).orElse(null);
+            if (PartnershipKind.isUpdateNameOrRedesignated(kind)) {
+                return String.format(URL_RESUME_POST_TRANSITION_PARTNERSHIP, transaction.getCompanyNumber(), transaction.getId(), submissionId);
+            }
         }
-        
+
         return null;
     }
 
