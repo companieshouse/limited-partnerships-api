@@ -122,13 +122,13 @@ public class GeneralPartnerService {
 
         mapper.update(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
-        handleEnteredOnRegisterOptionality(generalPartnerChangesDataDto, generalPartnerDto);
-
         if (PartnerKind.isRemoveGeneralPartnerKind(generalPartnerDto.getData().getKind())) {
             generalPartnerValidator.validateRemove(generalPartnerDto, transaction);
         } else {
             generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
         }
+
+        handleEnteredOnRegisterOptionality(generalPartnerChangesDataDto, generalPartnerDto);
 
         NationalityUtils.handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 

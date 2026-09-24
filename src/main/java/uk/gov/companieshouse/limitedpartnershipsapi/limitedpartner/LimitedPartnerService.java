@@ -138,13 +138,13 @@ public class LimitedPartnerService {
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
-        handleEnteredOnRegisterOptionality(limitedPartnerChangesDataDto, limitedPartnerDto);
-
         if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
             limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
         } else {
             limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         }
+
+        handleEnteredOnRegisterOptionality(limitedPartnerChangesDataDto, limitedPartnerDto);
 
         NationalityUtils.handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
