@@ -33,4 +33,8 @@ public enum PartnershipKind {
 
         return PartnershipKind.UNKNOWN;
     }
+
+    public static boolean isUpdateNameOrRedesignated(String kind) {
+        return UPDATE_PARTNERSHIP_NAME.getDescription().equalsIgnoreCase(kind) || UPDATE_PARTNERSHIP_REDESIGNATE_TO_PFLP.getDescription().equalsIgnoreCase(kind);
+    }
 }

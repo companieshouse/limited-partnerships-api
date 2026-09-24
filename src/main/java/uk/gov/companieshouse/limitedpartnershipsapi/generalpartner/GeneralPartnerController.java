@@ -91,7 +91,7 @@ public class GeneralPartnerController {
             String generalPartnerId = generalPartnerService.createGeneralPartner(transaction, generalPartnerDto, requestId, userId);
 
             if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode()) && PartnerKind.isAddPartnerKind(generalPartnerDto.getData().getKind())) {
-                // Post Transition journey - general partner created, update the transaction resume url
+                // Post Transition journey - general partner created - add the transaction resume url
                 addResumeLinkToTransaction(transaction, requestId, generalPartnerId);
             }
 
