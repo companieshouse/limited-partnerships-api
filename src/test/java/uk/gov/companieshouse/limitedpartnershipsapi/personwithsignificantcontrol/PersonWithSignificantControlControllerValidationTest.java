@@ -18,8 +18,8 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PersonWithSignificantControlBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
-import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
@@ -137,6 +137,21 @@ class PersonWithSignificantControlControllerValidationTest {
                 }
             }""";
 
+        private static final String JSON_CORRECT_MANDATORY_ONLY_RLE_WITH_REGISTER_DATA = """
+                {
+                    "data": {
+                        "kind": "limited-partnership#person-with-significant-control",
+                        "type": "RELEVANT_LEGAL_ENTITY",
+                        "legal_entity_name": "asasd",
+                        "legal_form": "dsfs",
+                        "governing_law": "sadsad",
+                        "entered_on_register": false,
+                        "legal_entity_register_name": "REG NAME",
+                        "legal_entity_registration_location": "Wales",
+                        "registered_company_number": "12345"
+                    }
+                }""";
+
         private static final String JSON_UNKNOWN_TYPE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"\", \"legal_entity_name\": \"\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
         private static final String JSON_NAME_IS_REQUIRED_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"\", \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
         private static final String JSON_NAME_IS_REQUIRED_NULL_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": null, \"legal_form\": \"dsfs\", \"governing_law\": \"sadsad\", \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
@@ -159,7 +174,7 @@ class PersonWithSignificantControlControllerValidationTest {
         private static final String JSON_UPDATE_ENTERED_ON_REGISTER_FALSE_WITH_REGISTER_DATA_RLE = "{ \"kind\": \"limited-partnership#person-with-significant-control\", \"type\": \"RELEVANT_LEGAL_ENTITY\", \"legal_entity_name\": \"aaaa\", \"legal_form\": \"aaa\", \"governing_law\": \"ww\", \"entered_on_register\": false, \"legal_entity_register_name\": \"REG NAME\", \"legal_entity_registration_location\": \"Wales\", \"registered_company_number\": \"12345\" }";
 
         @ParameterizedTest
-        @ValueSource(strings = {JSON_CORRECT_RLE, JSON_CORRECT_MANDATORY_ONLY_RLE})
+        @ValueSource(strings = {JSON_CORRECT_RLE, JSON_CORRECT_MANDATORY_ONLY_RLE, JSON_CORRECT_MANDATORY_ONLY_RLE_WITH_REGISTER_DATA})
         void shouldReturn201_RLE(String jsonPayload) throws Exception {
             mocksRle();
             mockMvc.perform(post(BASE_URL)
@@ -204,6 +219,19 @@ class PersonWithSignificantControlControllerValidationTest {
                     .andExpect(jsonPath("$.['errors'].['" + field + "']").value(errorMessage));
         }
 
+        @Test
+        void shouldReturn200_update_RLE_whenEnteredOnRegisterIsFalseAndRegisterDataSupplied() throws Exception {
+            mocksRle();
+
+            mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(JSON_UPDATE_ENTERED_ON_REGISTER_FALSE_WITH_REGISTER_DATA_RLE))
+                    .andExpect(status().isOk());
+        }
+
         @ParameterizedTest
         @CsvSource(value = {
                 JSON_NAME_IS_REQUIRED_RLE + "$ data.legalEntityName $ Name is required",
@@ -235,11 +263,15 @@ class PersonWithSignificantControlControllerValidationTest {
 
         @Test
         void shouldReturn400_update_RLE_whenEnteredOnRegisterIsTrueAndNoRegisterDataSupplied() throws Exception {
-            mocksPsc(new PersonWithSignificantControlBuilder()
-                    .withEnteredOnRegister(false)
+            PersonWithSignificantControlDao relevantLegalEntityDao = new PersonWithSignificantControlBuilder()
+                    .withEnteredOnRegister(true)
                     .withLegalEntityRegisterName(null)
                     .withRegisteredCompanyNumber(null)
-                    .relevantLegalEntityDao());
+                    .relevantLegalEntityDao();
+
+            relevantLegalEntityDao.getData().setLegalEntityRegistrationLocation(null);
+
+            mocksPsc(relevantLegalEntityDao);
 
             mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -248,25 +280,9 @@ class PersonWithSignificantControlControllerValidationTest {
                             .requestAttr("transaction", transaction)
                             .content(JSON_UPDATE_ENTERED_ON_REGISTER_TRUE_NO_REGISTER_DATA_RLE))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegistrationLocation']").value("Legal entity registration location is required when entered on register is true"))
-                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegisterName']").value("Legal entity register name is required when entered on register is true"))
-                    .andExpect(jsonPath("$.['errors']['data.registeredCompanyNumber']").value("Registered company number is required when entered on register is true"));
-        }
-
-        @Test
-        void shouldReturn400_update_RLE_whenEnteredOnRegisterIsFalseAndRegisterDataSupplied() throws Exception {
-            mocksRle();
-
-            mockMvc.perform(patch(BASE_URL + "/" + PERSON_WITH_SIGNIFICANT_CONTROL_ID)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .headers(httpHeaders)
-                            .requestAttr("transaction", transaction)
-                            .content(JSON_UPDATE_ENTERED_ON_REGISTER_FALSE_WITH_REGISTER_DATA_RLE))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegistrationLocation']").value("Legal entity registration location is not required when entered on register is false"))
-                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegisterName']").value("Legal entity register name is not required when entered on register is false"))
-                    .andExpect(jsonPath("$.['errors']['data.registeredCompanyNumber']").value("Registered company number is not required when entered on register is false"));
+                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegistrationLocation']").value("Legal Entity Registration Location is required when entered on register is true"))
+                    .andExpect(jsonPath("$.['errors']['data.legalEntityRegisterName']").value("Legal Entity Register Name is required when entered on register is true"))
+                    .andExpect(jsonPath("$.['errors']['data.registeredCompanyNumber']").value("Registered Company Number is required when entered on register is true"));
         }
     }
 
