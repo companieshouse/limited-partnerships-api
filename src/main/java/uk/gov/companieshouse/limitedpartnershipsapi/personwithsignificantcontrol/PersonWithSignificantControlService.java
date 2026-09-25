@@ -132,15 +132,15 @@ public class PersonWithSignificantControlService {
         repository.save(daoAfterPatch);
     }
 
-    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto changesDataDto, PersonWithSignificantControlDataDto data) {
+    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto changesDataDto, PersonWithSignificantControlDataDto existingDataDto) {
         if (!PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY.equals(changesDataDto.getType())) {
             return;
         }
 
         if (Boolean.FALSE.equals(changesDataDto.getEnteredOnRegister())) {
-            data.setLegalEntityRegistrationLocation(null);
-            data.setLegalEntityRegisterName(null);
-            data.setRegisteredCompanyNumber(null);
+            existingDataDto.setLegalEntityRegistrationLocation(null);
+            existingDataDto.setLegalEntityRegisterName(null);
+            existingDataDto.setRegisteredCompanyNumber(null);
         }
     }
 

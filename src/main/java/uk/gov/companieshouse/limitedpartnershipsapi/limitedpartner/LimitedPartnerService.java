@@ -144,7 +144,7 @@ public class LimitedPartnerService {
             limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         }
 
-        handleEnteredOnRegisterOptionality(limitedPartnerChangesDataDto, limitedPartnerDto);
+        handleEnteredOnRegisterOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         NationalityUtils.handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
@@ -161,13 +161,13 @@ public class LimitedPartnerService {
         repository.save(limitedPartnerDaoAfterPatch);
     }
 
-    private static void handleEnteredOnRegisterOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDto limitedPartnerDto) {
+    private static void handleEnteredOnRegisterOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto limitedPartnerExistingDataDto) {
         boolean isLegalEntityAndNotRegistered = limitedPartnerChangesDataDto.isLegalEntity()
                 && Boolean.FALSE.equals(limitedPartnerChangesDataDto.getEnteredOnRegister());
 
         if (isLegalEntityAndNotRegistered) {
-            limitedPartnerDto.getData().setLegalEntityRegisterName(null);
-            limitedPartnerDto.getData().setRegisteredCompanyNumber(null);
+            limitedPartnerExistingDataDto.setLegalEntityRegisterName(null);
+            limitedPartnerExistingDataDto.setRegisteredCompanyNumber(null);
         }
     }
 
