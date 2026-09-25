@@ -117,11 +117,9 @@ public class PersonWithSignificantControlService {
         var validator = personWithSignificantControlValidator.getValidatorByType(dto.getData().getType());
         mapper.update(personWithSignificantControlChangesDataDto, dto.getData());
 
-        // handle register location optionality before validator to ensure that if the legalEntityRegistrationLocation is not present in the patch, it is set to null in the DTO before validation
-        handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
-
         validator.validatePartial(dto);
 
+        handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
         handlePersonOptionalFields(personWithSignificantControlChangesDataDto, dto.getData());
 
@@ -134,13 +132,15 @@ public class PersonWithSignificantControlService {
         repository.save(daoAfterPatch);
     }
 
-    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto changesDataDto, PersonWithSignificantControlDataDto data) {
+    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto changesDataDto, PersonWithSignificantControlDataDto existingDataDto) {
         if (!PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY.equals(changesDataDto.getType())) {
             return;
         }
 
-        if (changesDataDto.getLegalEntityRegistrationLocation() == null) {
-            data.setLegalEntityRegistrationLocation(null);
+        if (Boolean.FALSE.equals(changesDataDto.getEnteredOnRegister())) {
+            existingDataDto.setLegalEntityRegistrationLocation(null);
+            existingDataDto.setLegalEntityRegisterName(null);
+            existingDataDto.setRegisteredCompanyNumber(null);
         }
     }
 

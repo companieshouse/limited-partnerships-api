@@ -157,6 +157,7 @@ public class LimitedPartnerBuilder {
         dataDto.setLegalEntityName(legalEntityName);
         dataDto.setLegalForm(legalForm);
         dataDto.setGoverningLaw(governingLaw);
+        dataDto.setEnteredOnRegister(true);
         dataDto.setLegalEntityRegisterName(legalEntityRegisterName);
         dataDto.setLegalEntityRegistrationLocation(legalEntityRegistrationLocation);
         dataDto.setRegisteredCompanyNumber(registeredCompanyNumber);
@@ -226,6 +227,7 @@ public class LimitedPartnerBuilder {
         dataDao.setLegalEntityName("My company ltd");
         dataDao.setLegalForm("Limited Company");
         dataDao.setGoverningLaw("Act of law");
+        dataDao.setEnteredOnRegister(true);
         dataDao.setLegalEntityRegisterName("UK Register");
         dataDao.setLegalEntityRegistrationLocation("United Kingdom");
         dataDao.setContributionCurrencyType(Currency.GBP);

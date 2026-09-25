@@ -49,6 +49,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         if (generalPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(CLASS_NAME, generalPartnerDataDto, bindingResult);
+            handleLegalEntityRegisterNameAndNumberOptionality(CLASS_NAME, generalPartnerDataDto, bindingResult);
         } else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, generalPartnerDataDto, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, generalPartnerDataDto, bindingResult);
@@ -88,6 +89,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         if (generalPartnerDto.getData().isLegalEntity() || PartnerKind.isLegalEntityKind(generalPartnerDto.getData().getKind())) {
             checkNotNullLegalEntity(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
+            handleLegalEntityRegisterNameAndNumberOptionality(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
         } else {
             checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
             checkFieldNotNull(CLASS_NAME, generalPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);

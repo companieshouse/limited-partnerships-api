@@ -144,6 +144,8 @@ public class LimitedPartnerService {
             limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         }
 
+        handleEnteredOnRegisterOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+
         NationalityUtils.handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         handleUpdateAddressRequiredOptionality(kind, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
@@ -157,6 +159,16 @@ public class LimitedPartnerService {
         ApiLogger.infoContext(requestId, String.format("Limited Partner updated with id: %s", limitedPartnerId));
 
         repository.save(limitedPartnerDaoAfterPatch);
+    }
+
+    private static void handleEnteredOnRegisterOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto limitedPartnerExistingDataDto) {
+        boolean isLegalEntityAndNotRegistered = limitedPartnerChangesDataDto.isLegalEntity()
+                && Boolean.FALSE.equals(limitedPartnerChangesDataDto.getEnteredOnRegister());
+
+        if (isLegalEntityAndNotRegistered) {
+            limitedPartnerExistingDataDto.setLegalEntityRegisterName(null);
+            limitedPartnerExistingDataDto.setRegisteredCompanyNumber(null);
+        }
     }
 
     private void handleUpdateAddressRequiredOptionality(String kind, LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto data) {

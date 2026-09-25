@@ -128,6 +128,8 @@ public class GeneralPartnerService {
             generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
         }
 
+        handleEnteredOnRegisterOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
+
         NationalityUtils.handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
         handleUpdateAddressRequiredOptionality(kind, generalPartnerChangesDataDto, generalPartnerDto.getData());
@@ -141,6 +143,16 @@ public class GeneralPartnerService {
         ApiLogger.infoContext(requestId, String.format("General Partner updated with id: %s", generalPartnerId));
 
         repository.save(generalPartnerDaoAfterPatch);
+    }
+
+    private static void handleEnteredOnRegisterOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto generalPartnerExistingDataDto) {
+        boolean isLegalEntityAndNotRegistered = generalPartnerChangesDataDto.isLegalEntity()
+                && Boolean.FALSE.equals(generalPartnerChangesDataDto.getEnteredOnRegister());
+
+        if (isLegalEntityAndNotRegistered) {
+            generalPartnerExistingDataDto.setLegalEntityRegisterName(null);
+            generalPartnerExistingDataDto.setRegisteredCompanyNumber(null);
+        }
     }
 
     private void handleUpdateAddressRequiredOptionality(String kind, GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto data) {

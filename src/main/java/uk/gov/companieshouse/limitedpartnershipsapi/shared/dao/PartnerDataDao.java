@@ -200,20 +200,23 @@ public abstract class PartnerDataDao {
     @Field("legal_entity_name")
     private String legalEntityName;
 
-    @Field("legal_entity_register_name")
-    private String legalEntityRegisterName;
+    @Field("legal_form")
+    private String legalForm;
+
+    @Field("governing_law")
+    private String governingLaw;
 
     @Field("legal_entity_registration_location")
     private String legalEntityRegistrationLocation;
 
-    @Field("legal_form")
-    private String legalForm;
+    @Field("entered_on_register")
+    private Boolean enteredOnRegister;
+
+    @Field("legal_entity_register_name")
+    private String legalEntityRegisterName;
 
     @Field("registered_company_number")
     private String registeredCompanyNumber;
-
-    @Field("governing_law")
-    private String governingLaw;
 
     @Field("resignation_date")
     private LocalDate resignationDate;
@@ -235,12 +238,20 @@ public abstract class PartnerDataDao {
         this.legalEntityName = legalEntityName;
     }
 
-    public String getLegalEntityRegisterName() {
-        return legalEntityRegisterName;
+    public String getLegalForm() {
+        return legalForm;
     }
 
-    public void setLegalEntityRegisterName(String legalEntityRegisterName) {
-        this.legalEntityRegisterName = legalEntityRegisterName;
+    public void setLegalForm(String legalForm) {
+        this.legalForm = legalForm;
+    }
+
+    public String getGoverningLaw() {
+        return governingLaw;
+    }
+
+    public void setGoverningLaw(String governingLaw) {
+        this.governingLaw = governingLaw;
     }
 
     public String getLegalEntityRegistrationLocation() {
@@ -251,12 +262,20 @@ public abstract class PartnerDataDao {
         this.legalEntityRegistrationLocation = legalEntityRegistrationLocation;
     }
 
-    public String getLegalForm() {
-        return legalForm;
+    public Boolean getEnteredOnRegister() {
+        return enteredOnRegister;
     }
 
-    public void setLegalForm(String legalForm) {
-        this.legalForm = legalForm;
+    public void setEnteredOnRegister(Boolean enteredOnRegister) {
+        this.enteredOnRegister = enteredOnRegister;
+    }
+
+    public String getLegalEntityRegisterName() {
+        return legalEntityRegisterName;
+    }
+
+    public void setLegalEntityRegisterName(String legalEntityRegisterName) {
+        this.legalEntityRegisterName = legalEntityRegisterName;
     }
 
     public String getRegisteredCompanyNumber() {
@@ -265,14 +284,6 @@ public abstract class PartnerDataDao {
 
     public void setRegisteredCompanyNumber(String registeredCompanyNumber) {
         this.registeredCompanyNumber = registeredCompanyNumber;
-    }
-
-    public String getGoverningLaw() {
-        return governingLaw;
-    }
-
-    public void setGoverningLaw(String governingLaw) {
-        this.governingLaw = governingLaw;
     }
 
     public LocalDate getResignationDate() {

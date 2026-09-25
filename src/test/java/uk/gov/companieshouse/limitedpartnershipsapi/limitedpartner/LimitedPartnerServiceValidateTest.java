@@ -189,7 +189,7 @@ class LimitedPartnerServiceValidateTest {
 
         List<Tuple> expectedErrors = new ArrayList<>(List.of(
                 tuple("Governing Law is required", LimitedPartnerDataDto.GOVERNING_LAW_FIELD),
-                tuple("Registered Company Number is required", LimitedPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
+                tuple("Registered Company Number is required when entered on register is true", LimitedPartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD),
                 tuple("Principal office address is required", LimitedPartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD)
         ));
 
@@ -225,7 +225,7 @@ class LimitedPartnerServiceValidateTest {
 
         List<Tuple> expectedErrors = new ArrayList<>(List.of(
                 tuple("Registered company number must be greater than 1", "data.registeredCompanyNumber"),
-                tuple("Legal Entity Register Name is required", LimitedPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD)
+                tuple("Legal Entity Register Name is required when entered on register is true", LimitedPartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD)
         ));
 
         if (shouldHaveContribution) {
@@ -317,6 +317,7 @@ class LimitedPartnerServiceValidateTest {
         dao.setId(LIMITED_PARTNER_ID);
         LimitedPartnerDataDao dataDao = new LimitedPartnerDataDao();
         dataDao.setLegalEntityRegisterName("Shell Company");
+        dataDao.setEnteredOnRegister(true);
         dataDao.setLegalForm("AA");
         dataDao.setLegalEntityName("Same");
         dataDao.setGoverningLaw("UK");

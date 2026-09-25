@@ -98,6 +98,7 @@ class LimitedPartnerControllerValidationTest {
                 "legal_entity_name": "My Company Name",
                 "legal_form": "Form ABC",
                 "governing_law": "Act of law",
+                "entered_on_register": true,
                 "legal_entity_register_name": "Register of somewhere",
                 "legal_entity_registration_location": "Scotland",
                 "registered_company_number": "12345678"
@@ -110,8 +111,34 @@ class LimitedPartnerControllerValidationTest {
                 "legal_entity_name": "My Company Name",
                 "legal_form": "Form ABC",
                 "governing_law": "Act of law",
+                "entered_on_register": true,
                 "legal_entity_register_name": "Register of somewhere",
                 "legal_entity_registration_location": "Wrong Country",
+                "registered_company_number": "12345678"
+              }
+            }""";
+
+    private static final String JSON_LIMITED_LEGAL_ENTITY_ENTERED_ON_REGISTER_TRUE_AND_REGISTER_NAME_AND_NUMBER_NOT_PROVIDED = """
+            {
+              "data": {
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
+                "governing_law": "Act of law",
+                "entered_on_register": true,
+                "legal_entity_registration_location": "Scotland",
+                "not_disqualified_statement_checked": true
+              }
+            }""";
+
+    private static final String JSON_LIMITED_LEGAL_ENTITY_CORRECT_WITH_ENTERED_ON_REGISTER_FALSE = """
+            {
+              "data": {
+                "legal_entity_name": "My Company Name",
+                "legal_form": "Form ABC",
+                "governing_law": "Act of law",
+                "entered_on_register": false,
+                "legal_entity_register_name": "Register of somewhere",
+                "legal_entity_registration_location": "Scotland",
                 "registered_company_number": "12345678"
               }
             }""";
@@ -167,7 +194,7 @@ class LimitedPartnerControllerValidationTest {
             JSON_PERSON_MISSING_CAPITAL_CONTRIBUTION_TYPE + "$ contribution_sub_types $ At least one contribution type must be selected"
     }, delimiter = '$')
     void shouldReturn400(String body, String field, String errorMessage) throws Exception {
-        mocks();
+        mocks(true);
 
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -181,7 +208,7 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201() throws Exception {
-        mocks();
+        mocks(true);
 
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -194,11 +221,9 @@ class LimitedPartnerControllerValidationTest {
 
     @Test
     void shouldReturn201WhenCreatingLimitedPartnerLegalEntity() throws Exception {
-        mocks();
+        mocks(false);
 
         mockLimitedPartnershipService(PartnershipType.PFLP);
-
-
 
         mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -206,6 +231,20 @@ class LimitedPartnerControllerValidationTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(JSON_LIMITED_LEGAL_ENTITY_CORRECT))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void shouldReturn201WhenCreatingLimitedPartnerLegalEntityWithEnteredOnRegisterFalseAndRegisterNameAndNumberProvided() throws Exception {
+        mocks(false);
+        mockLimitedPartnershipService(PartnershipType.PFLP);
+
+        mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(JSON_LIMITED_LEGAL_ENTITY_CORRECT_WITH_ENTERED_ON_REGISTER_FALSE))
                 .andExpect(status().isCreated());
     }
 
@@ -223,11 +262,26 @@ class LimitedPartnerControllerValidationTest {
                 .andExpect(jsonPath("$.['errors'].['data.legalEntityRegistrationLocation']").value("Legal entity registration location must be valid"));
     }
 
+    @Test
+    void shouldReturn400WhenCreatingLimitedPartnerLegalEntityWithEnteredOnRegisterTrueAndRegisterNameAndNumberNotProvided() throws Exception {
+        mockLimitedPartnershipService(PartnershipType.PFLP);
+
+        mockMvc.perform(post(LimitedPartnerControllerValidationTest.BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(JSON_LIMITED_LEGAL_ENTITY_ENTERED_ON_REGISTER_TRUE_AND_REGISTER_NAME_AND_NUMBER_NOT_PROVIDED))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.['errors'].['legal_entity_register_name']").value("Legal Entity Register Name is required when entered on register is true"))
+                .andExpect(jsonPath("$.['errors'].['registered_company_number']").value("Registered Company Number is required when entered on register is true"));
+    }
+
     @Nested
     class ValidatePartner {
         @Test
         void shouldReturn200IfNoErrors() throws Exception {
-            mocks();
+            mocks(true);
 
             mockMvc.perform(get(VALIDATE_STATUS_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -286,10 +340,12 @@ class LimitedPartnerControllerValidationTest {
         mockLimitedPartnershipService(PartnershipType.LP);
     }
 
-    private void mocks() throws ServiceException {
-        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
-
-        mocks(limitedPartnerDao);
+    private void mocks(Boolean isPerson) throws ServiceException {
+        if (isPerson) {
+            mocks(new LimitedPartnerBuilder().personDao());
+        } else {
+            mocks(new LimitedPartnerBuilder().legalEntityDao());
+        }
     }
 
     private void mockLimitedPartnershipService(PartnershipType partnershipType) throws ServiceException {

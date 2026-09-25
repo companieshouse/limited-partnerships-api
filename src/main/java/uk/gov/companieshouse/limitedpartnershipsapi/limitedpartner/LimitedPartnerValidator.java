@@ -72,6 +72,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         if (limitedPartnerDataDto.isLegalEntity()) {
             checkNotNullLegalEntity(CLASS_NAME, limitedPartnerDataDto, bindingResult);
+            handleLegalEntityRegisterNameAndNumberOptionality(CLASS_NAME, limitedPartnerDataDto, bindingResult);
             validateCapitalContributions(limitedPartnerDataDto, transaction, bindingResult);
         } else if (limitedPartnerDataDto.getForename() != null || limitedPartnerDataDto.getSurname() != null) {
             checkNotNullPerson(CLASS_NAME, limitedPartnerDataDto, bindingResult);
@@ -167,6 +168,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
         if (limitedPartnerDto.getData().isLegalEntity() || PartnerKind.isLegalEntityKind(limitedPartnerDto.getData().getKind())) {
             checkNotNullLegalEntity(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+            handleLegalEntityRegisterNameAndNumberOptionality(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
         } else {
             checkNotNullName(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
             checkFieldNotNull(CLASS_NAME, limitedPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);

@@ -57,13 +57,9 @@ public class RelevantLegalEntityValidatorStrategy extends PersonWithSignificantC
         if (enteredOnRegister == null) {
             addError(enteredOnRegisterFieldName, "Entered on register is required", bindingResult);
         } else if (enteredOnRegister) {
-            checkNotNullOrEmpty(legalEntityRegistrationLocation, legalEntityRegistrationLocationFieldName, "Legal entity registration location is required when entered on register is true", bindingResult);
-            checkNotNullOrEmpty(legalEntityRegisterName, legalEntityRegisterNameFieldName, "Legal entity register name is required when entered on register is true", bindingResult);
-            checkNotNullOrEmpty(registeredCompanyNumber, registeredCompanyNumberFieldName, "Registered company number is required when entered on register is true", bindingResult);
-        } else {
-            checkNotPopulated(legalEntityRegistrationLocation, legalEntityRegistrationLocationFieldName, "Legal entity registration location is not required when entered on register is false", bindingResult);
-            checkNotPopulated(legalEntityRegisterName, legalEntityRegisterNameFieldName, "Legal entity register name is not required when entered on register is false", bindingResult);
-            checkNotPopulated(registeredCompanyNumber, registeredCompanyNumberFieldName, "Registered company number is not required when entered on register is false", bindingResult);
+            checkNotNullOrEmpty(legalEntityRegistrationLocation, legalEntityRegistrationLocationFieldName, "Legal Entity Registration Location is required when entered on register is true", bindingResult);
+            checkNotNullOrEmpty(legalEntityRegisterName, legalEntityRegisterNameFieldName, "Legal Entity Register Name is required when entered on register is true", bindingResult);
+            checkNotNullOrEmpty(registeredCompanyNumber, registeredCompanyNumberFieldName, "Registered Company Number is required when entered on register is true", bindingResult);
         }
     }
 

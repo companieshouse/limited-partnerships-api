@@ -3,6 +3,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.validator;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
@@ -44,9 +45,7 @@ public abstract class PartnerValidator {
         checkFieldNotNull(className, partnerDataDto.getLegalEntityName(), PartnerDataDto.LEGAL_ENTITY_NAME_FIELD, "Legal Entity Name is required", bindingResult);
         checkFieldNotNull(className, partnerDataDto.getLegalForm(), PartnerDataDto.LEGAL_FORM_FIELD, "Legal Form is required", bindingResult);
         checkFieldNotNull(className, partnerDataDto.getGoverningLaw(), PartnerDataDto.GOVERNING_LAW_FIELD, "Governing Law is required", bindingResult);
-        checkFieldNotNull(className, partnerDataDto.getLegalEntityRegisterName(), PartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD, "Legal Entity Register Name is required", bindingResult);
         checkFieldNotNull(className, partnerDataDto.getLegalEntityRegistrationLocation(), PartnerDataDto.LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD, "Legal Entity Registration Location is required", bindingResult);
-        checkFieldNotNull(className, partnerDataDto.getRegisteredCompanyNumber(), PartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD, "Registered Company Number is required", bindingResult);
     }
 
     protected void checkNotNullPerson(String className,
@@ -68,6 +67,12 @@ public abstract class PartnerValidator {
         }
     }
 
+    protected void checkNotPopulated(String className, String value, String fieldName, String errorMessage, BindingResult bindingResult) {
+        if (StringUtils.hasText(value)) {
+            addError(className, fieldName, errorMessage, bindingResult);
+        }
+    }
+
     protected void dtoValidation(String className, PartnerDto partnerDto, BindingResult bindingResult) {
         Set<ConstraintViolation<PartnerDto>> violations = validator.validate(
                 partnerDto);
@@ -85,6 +90,19 @@ public abstract class PartnerValidator {
 
         if (nationality1 != null && nationality1.equals(nationality2)) {
             addError(className, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
+        }
+    }
+
+    protected void handleLegalEntityRegisterNameAndNumberOptionality(String className, PartnerDataDto dataDto, BindingResult bindingResult) {
+        var enteredOnRegister = dataDto.getEnteredOnRegister();
+        var registerName = dataDto.getLegalEntityRegisterName();
+        var companyNumber = dataDto.getRegisteredCompanyNumber();
+
+        if (enteredOnRegister == null) {
+            addError(className, PartnerDataDto.ENTERED_ON_REGISTER_FIELD, "Entered on register is required", bindingResult);
+        } else if (enteredOnRegister) {
+            checkFieldNotNull(className, registerName, PartnerDataDto.LEGAL_ENTITY_REGISTER_NAME_FIELD, "Legal Entity Register Name is required when entered on register is true", bindingResult);
+            checkFieldNotNull(className, companyNumber, PartnerDataDto.REGISTERED_COMPANY_NUMBER_FIELD, "Registered Company Number is required when entered on register is true", bindingResult);
         }
     }
 

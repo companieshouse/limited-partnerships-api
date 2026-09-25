@@ -149,7 +149,7 @@ class LimitedPartnerServiceCreateTest {
         }
 
         @Test
-        void shouldFailCreateALimitedPartnerLegalEntityIfLegalEntityRegisterNameIsCorrectAndOthersAreNull() throws ServiceException {
+        void shouldFailCreateALimitedPartnerLegalEntityIfLegalEntityNameIsCorrectAndOthersAreNull() throws ServiceException {
             LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
             var data = dto.getData();
             data.setLegalEntityRegisterName(null);
@@ -168,11 +168,11 @@ class LimitedPartnerServiceCreateTest {
             );
 
             assertNull(exception.getBindingResult().getFieldError("legal_entity_name"));
-            assertEquals("Legal Entity Register Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
+            assertEquals("Legal Entity Register Name is required when entered on register is true", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
             assertEquals("Legal Form is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_form")).getDefaultMessage());
             assertEquals("Governing Law is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
             assertEquals("Legal Entity Registration Location is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
-            assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
+            assertEquals("Registered Company Number is required when entered on register is true", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
 
             assertEquals("Contribution currency value is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)).getDefaultMessage());
             assertEquals("Contribution currency type is required", Objects.requireNonNull(exception.getBindingResult().getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)).getDefaultMessage());
@@ -197,11 +197,10 @@ class LimitedPartnerServiceCreateTest {
             );
 
             assertNull(exception.getBindingResult().getFieldError("legal_form"));
-            assertEquals("Legal Entity Register Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
+            assertEquals("Legal Entity Register Name is required when entered on register is true", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
             assertEquals("Governing Law is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("governing_law")).getDefaultMessage());
-            assertEquals("Legal Entity Register Name is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_register_name")).getDefaultMessage());
             assertEquals("Legal Entity Registration Location is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("legal_entity_registration_location")).getDefaultMessage());
-            assertEquals("Registered Company Number is required", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
+            assertEquals("Registered Company Number is required when entered on register is true", Objects.requireNonNull(exception.getBindingResult().getFieldError("registered_company_number")).getDefaultMessage());
         }
 
         @Test
