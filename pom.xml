@@ -30,10 +30,10 @@
         <encoder.version>1.3.1</encoder.version>
         <skip.unit.tests>false</skip.unit.tests>
 
-        <api-sdk-java.version>7.2.1</api-sdk-java.version>
-        <structured-logging.version>3.0.57</structured-logging.version>
-        <api-sdk-manager-java-library.version>3.0.28</api-sdk-manager-java-library.version>
-        <api-helper-java-library.version>3.0.4</api-helper-java-library.version>
+        <api-sdk-java.version>7.2.6</api-sdk-java.version>
+        <structured-logging.version>4.0.4</structured-logging.version>
+        <api-sdk-manager-java-library.version>3.0.31</api-sdk-manager-java-library.version>
+        <api-helper-java-library.version>3.0.5</api-helper-java-library.version>
 
         <!--  Sonar -->
         <sonar.projectName>limited-partnerships-api</sonar.projectName>
