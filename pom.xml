@@ -98,6 +98,14 @@
                 <version>11.0.25</version>
                 <scope>compile</scope>
             </dependency>
+
+            <!-- override plexus-utils to fix CVE-2025-67030 (8.8) - transitive dependency from sonar-maven-plugin 5.8.0.7211 -->
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>4.1.0</version>
+                <scope>compile</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
