@@ -7,7 +7,7 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.12</version>
+        <version>2.1.20</version>
         <relativePath/>
     </parent>
 
@@ -22,18 +22,20 @@
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot-maven-plugin.version>4.1.0</spring-boot-maven-plugin.version>
+        <spring-boot-maven-plugin.version>4.1.1</spring-boot-maven-plugin.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <commons-lang3.version>3.21.0</commons-lang3.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
-        <api-security-java.version>2.0.10</api-security-java.version>
         <encoder.version>1.3.1</encoder.version>
         <skip.unit.tests>false</skip.unit.tests>
 
-        <api-sdk-java.version>7.2.6</api-sdk-java.version>
+        <!--  CH Dependencies versions -->
+        <ch-dependency-bom.version>0.1.27</ch-dependency-bom.version>
+        <api-sdk-java.version>7.2.7</api-sdk-java.version>
         <structured-logging.version>4.0.4</structured-logging.version>
-        <api-sdk-manager-java-library.version>3.0.31</api-sdk-manager-java-library.version>
+        <api-sdk-manager-java-library.version>3.0.32</api-sdk-manager-java-library.version>
         <api-helper-java-library.version>3.0.5</api-helper-java-library.version>
+        <api-security-java.version>2.0.29</api-security-java.version>
 
         <!--  Sonar -->
         <sonar.projectName>limited-partnerships-api</sonar.projectName>
@@ -59,13 +61,19 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.opentelemetry.instrumentation</groupId>
-                <artifactId>opentelemetry-instrumentation-bom</artifactId>
-                <version>2.29.0</version>
+                <groupId>uk.gov.companieshouse</groupId>
+                <artifactId>ch-dependency-bom</artifactId>
+                <version>${ch-dependency-bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>2.32.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -76,35 +84,9 @@
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
-                <version>1.20.1</version>
+                <version>1.20.6</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <!-- OVERRIDE -->
-
-            <!-- override tomcat-embed-core to fix CVE-2026-65183(8.1), CVE-2026-65905(9.8), CVE-2026-65927(7.5), CVE-2026-66299(5.3), CVE-2026-66422(8.1), CVE-2026-68763(7.5), CVE-2026-68525(9.1), CVE-2026-68569(8.1), CVE-2026-73180(6.8), CVE-2026-65182(9.1), CVE-2026-65637(9.8) - transitive dependency from spring-boot-starter-web 4.1.1 -->
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-core</artifactId>
-                <version>11.0.25</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <!-- override tomcat-embed-websocket to fix CVE-2026-65183(8.1), CVE-2026-65905(9.8), CVE-2026-65927(7.5), CVE-2026-66299(5.3), CVE-2026-66422(8.1), CVE-2026-68763(7.5), CVE-2026-68525(9.1), CVE-2026-68569(8.1), CVE-2026-73180(6.8), CVE-2026-65182(9.1), CVE-2026-65637(9.8) - transitive dependency from spring-boot-starter-web 4.1.1 -->
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-websocket</artifactId>
-                <version>11.0.25</version>
-                <scope>compile</scope>
-            </dependency>
-
-            <!-- override plexus-utils to fix CVE-2025-67030 (8.8) - transitive dependency from sonar-maven-plugin 5.8.0.7211 -->
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <version>4.1.0</version>
-                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -174,7 +156,7 @@
         <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-logback-appender-1.0</artifactId>
-            <version>2.29.0-alpha</version>
+            <version>2.32.0-alpha</version>
             <scope>compile</scope>
         </dependency>
 
