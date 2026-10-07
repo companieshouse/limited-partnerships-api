@@ -305,6 +305,30 @@ class PersonWithSignificantControlServiceValidateTest {
     }
 
     @Nested
+    class ProtectedIndividualPerson {
+        private PersonWithSignificantControlDao protectedIndividualPersonWithSignificantControl;
+
+        @BeforeEach
+        void setUp() {
+            protectedIndividualPersonWithSignificantControl =
+                new PersonWithSignificantControlBuilder().protectedIndividualPersonDao();
+        }
+
+        @Test
+        void shouldReturnNoErrorsWhenPSCDataIsValid() throws ServiceException {
+            // given
+            when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID)).thenReturn(List.of(protectedIndividualPersonWithSignificantControl));
+
+            // when
+            List<ValidationStatusError> results = service.validatePersonsWithSignificantControl(transaction);
+
+            // then
+            verify(repository).findAllByTransactionIdOrderByUpdatedAtDesc(TRANSACTION_ID);
+            assertThat(results).isEmpty();
+        }
+    }
+
+    @Nested
     class UnknownType {
         @Test
         void shouldReturnErrorOnPartialValidation() {
