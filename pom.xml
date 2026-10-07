@@ -88,6 +88,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- CVE-2025-67030 - override plexus-utils 3.4.1 in org.sonarsource.scanner.maven:sonar-maven-plugin:jar:5.8.0.7211:test -->
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.6.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
