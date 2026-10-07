@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

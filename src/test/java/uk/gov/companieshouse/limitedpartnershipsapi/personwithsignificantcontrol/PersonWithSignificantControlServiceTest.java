@@ -20,10 +20,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.NatureOfControlType;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.PersonWithSignificantControlValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.PersonWithSignificantControlValidatorStrategy;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.PersonWithSignificantControlValidatorStrategy;
 
 import java.util.ArrayList;
 import java.util.List;

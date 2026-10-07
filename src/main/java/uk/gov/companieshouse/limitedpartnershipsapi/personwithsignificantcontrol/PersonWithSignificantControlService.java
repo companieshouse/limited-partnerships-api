@@ -12,10 +12,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.PersonWithSignificantControlValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.NationalityUtils;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -177,7 +177,7 @@ public class PersonWithSignificantControlService {
         );
 
         ApiLogger.infoContext(requestId, String.format("Person with significant control deleted with id: %s", personWithSignificantControlId));
-        
+
         // if there are no more persons with significant control, update the partnership to reflect this
         if (repository.countByTransactionId(transaction.getId()) == 0) {
             partnershipService.clearHasPersonWithSignificantControl(transaction, requestId);
