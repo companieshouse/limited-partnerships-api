@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
@@ -45,7 +46,9 @@ import java.util.stream.Stream;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -83,7 +86,7 @@ class PartnershipControllerValidationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper objectMapper;
 
     @MockitoBean
     private PartnershipRepository repository;
@@ -137,6 +140,57 @@ class PartnershipControllerValidationTest {
                             .requestAttr("transaction", transaction)
                             .content(body))
                     .andExpect(status().isCreated());
+        }
+
+        @Test
+        void shouldTrimWhitespaceFromStringValuesInRequestBody() throws Exception {
+            mocks();
+            transaction.getResources().clear();
+
+            String body = """
+                    {
+                      "data": {
+                        "partnership_name": "  test name  ",
+                        "name_ending": "Limited Partnership",
+                        "partnership_type": "LP",
+                        "email": " test@example.com\\t"
+                      }
+                    }
+                    """;
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isCreated());
+
+            ArgumentCaptor<PartnershipDao> captor = ArgumentCaptor.forClass(PartnershipDao.class);
+            verify(repository).insert(captor.capture());
+            assertEquals("test name", captor.getValue().getData().getPartnershipName());
+            assertEquals("test@example.com", captor.getValue().getData().getEmail());
+        }
+
+        @Test
+        void shouldReturnBadRequestErrorIfPartnershipNameIsOnlyWhitespace() throws Exception {
+            String body = """
+                    {
+                      "data": {
+                        "partnership_name": "   ",
+                        "name_ending": "Limited Partnership",
+                        "partnership_type": "LP"
+                      }
+                    }
+                    """;
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
         }
 
         @Test
