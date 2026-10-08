@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.config.JacksonConfig;
+import uk.gov.companieshouse.limitedpartnershipsapi.config.TrimmingRequestBodyAdvice;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
@@ -65,7 +66,8 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
     PartnershipPatchMapperImpl.class,
         CostsService.class,
         GlobalExceptionHandler.class,
-        JacksonConfig.class
+        JacksonConfig.class,
+        TrimmingRequestBodyAdvice.class
 })
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
@@ -129,6 +131,30 @@ class PartnershipControllerValidationTest {
             partnershipDto.setData(dto);
 
             String body = objectMapper.writeValueAsString(partnershipDto);
+
+            mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .headers(httpHeaders)
+                            .requestAttr("transaction", transaction)
+                            .content(body))
+                    .andExpect(status().isCreated());
+        }
+
+        @Test
+        void shouldReturn201WhenStringAndEnumValuesHaveSurroundingWhitespace() throws Exception {
+            mocks();
+            transaction.getResources().clear();
+
+            String body = """
+                    {
+                        "data": {
+                            "partnership_name": "   Test name ",
+                            "name_ending": "   Limited Partnership  ",
+                            "partnership_type": "  LP "
+                        }
+                    }
+                    """;
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
