@@ -20,18 +20,19 @@ import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dao.PersonWithSignificantControlDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.IndividualPersonValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.OtherRegistrablePersonValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.PersonWithSignificantControlValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.ProtectedIndividualPersonValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.RelevantLegalEntityValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.UnknownTypeValidatorStrategy;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.natureofcontrol.NatureOfControlFirmValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.natureofcontrol.NatureOfControlIndividualValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.natureofcontrol.NatureOfControlValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.IndividualPersonValidatorStrategy;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.OtherRegistrablePersonValidatorStrategy;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.PersonWithSignificantControlValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.RelevantLegalEntityValidatorStrategy;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.UnknownTypeValidatorStrategy;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlFirmValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlIndividualValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -47,19 +48,20 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL;
 
 @ContextConfiguration(classes = {
-        PersonWithSignificantControlController.class,
-        PersonWithSignificantControlService.class,
-        ValidationStatus.class,
-        PersonWithSignificantControlMapperImpl.class,
-        GlobalExceptionHandler.class,
-        PersonWithSignificantControlValidator.class,
-        IndividualPersonValidatorStrategy.class,
-        RelevantLegalEntityValidatorStrategy.class,
-        OtherRegistrablePersonValidatorStrategy.class,
-        UnknownTypeValidatorStrategy.class,
-        NatureOfControlValidator.class,
-        NatureOfControlIndividualValidator.class,
-        NatureOfControlFirmValidator.class}
+    PersonWithSignificantControlController.class,
+    PersonWithSignificantControlService.class,
+    ValidationStatus.class,
+    PersonWithSignificantControlMapperImpl.class,
+    GlobalExceptionHandler.class,
+    PersonWithSignificantControlValidator.class,
+    IndividualPersonValidatorStrategy.class,
+    RelevantLegalEntityValidatorStrategy.class,
+    OtherRegistrablePersonValidatorStrategy.class,
+    ProtectedIndividualPersonValidatorStrategy.class,
+    UnknownTypeValidatorStrategy.class,
+    NatureOfControlValidator.class,
+    NatureOfControlIndividualValidator.class,
+    NatureOfControlFirmValidator.class}
 )
 @WebMvcTest(controllers = {PersonWithSignificantControlController.class})
 class PersonWithSignificantControlControllerValidationTest {

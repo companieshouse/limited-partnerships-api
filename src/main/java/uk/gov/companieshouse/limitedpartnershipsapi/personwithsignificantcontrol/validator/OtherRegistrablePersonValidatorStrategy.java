@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator;
 
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +10,8 @@ import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.PersonWithSignificantControlDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.enums.PersonWithSignificantControlType;
+import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.natureofcontrol.NatureOfControlValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.natureofcontrol.NatureOfControlValidator;
 
 import java.util.List;
 

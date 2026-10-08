@@ -180,6 +180,19 @@ public class PersonWithSignificantControlBuilder {
         return dto;
     }
 
+    public PersonWithSignificantControlDto protectedIndividualPersonDto() {
+        PersonWithSignificantControlDto dto = new PersonWithSignificantControlDto();
+        dto.setId(PERSON_WITH_SIGNIFICANT_CONTROL_ID);
+
+        PersonWithSignificantControlDataDto dataDto = new PersonWithSignificantControlDataDto();
+        dataDto.setAppointmentId(APPOINTMENT_ID);
+        dataDto.setKind(kind);
+        dataDto.setType(PersonWithSignificantControlType.PROTECTED_INDIVIDUAL_PERSON);
+
+        dto.setData(dataDto);
+        return dto;
+    }
+
     public PersonWithSignificantControlDto relevantLegalEntityDto() {
         PersonWithSignificantControlDto dto = new PersonWithSignificantControlDto();
         dto.setId(PERSON_WITH_SIGNIFICANT_CONTROL_ID);
@@ -266,6 +279,21 @@ public class PersonWithSignificantControlBuilder {
         dataDao.setUsualResidentialAddress(createAddressDao(URA_PREFIX));
         dataDao.setType(PersonWithSignificantControlType.INDIVIDUAL_PERSON);
         dataDao.setNatureOfControlTypes(natureOfControlTypes.stream().map(NatureOfControlType::toString).toList());
+
+        dao.setData(dataDao);
+        return dao;
+    }
+
+    public PersonWithSignificantControlDao protectedIndividualPersonDao() {
+        PersonWithSignificantControlDao dao = new PersonWithSignificantControlDao();
+        dao.setId(PERSON_WITH_SIGNIFICANT_CONTROL_ID);
+        dao.setTransactionId(TransactionBuilder.TRANSACTION_ID);
+
+        PersonWithSignificantControlDataDao dataDao = new PersonWithSignificantControlDataDao();
+        dataDao.setAppointmentId(APPOINTMENT_ID);
+        dataDao.setKind(kind);
+        dataDao.setEtag(ETAG);
+        dataDao.setType(PersonWithSignificantControlType.PROTECTED_INDIVIDUAL_PERSON);
 
         dao.setData(dataDao);
         return dao;

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol.natureofcontrol;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator.natureofcontrol;
 
 import uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.dto.NatureOfControlDto;
 

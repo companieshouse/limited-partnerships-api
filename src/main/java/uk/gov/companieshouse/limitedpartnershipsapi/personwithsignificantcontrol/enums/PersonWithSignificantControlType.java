@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 
 public enum PersonWithSignificantControlType {
     INDIVIDUAL_PERSON,
+    PROTECTED_INDIVIDUAL_PERSON,
     RELEVANT_LEGAL_ENTITY,
     OTHER_REGISTRABLE_PERSON,
 

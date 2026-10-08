@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.validator.personwithsignificantcontrol;
+package uk.gov.companieshouse.limitedpartnershipsapi.personwithsignificantcontrol.validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,16 +9,19 @@ public class PersonWithSignificantControlValidator {
     private final IndividualPersonValidatorStrategy individualPersonValidatorStrategy;
     private final OtherRegistrablePersonValidatorStrategy otherRegistrablePersonValidatorStrategy;
     private final RelevantLegalEntityValidatorStrategy relevantLegalEntityValidatorStrategy;
+    private final ProtectedIndividualPersonValidatorStrategy protectedIndividualPersonValidatorStrategy;
     private final UnknownTypeValidatorStrategy unknownTypeValidatorStrategy;
 
     @Autowired
     public PersonWithSignificantControlValidator(IndividualPersonValidatorStrategy individualPersonValidatorStrategy,
                                                  OtherRegistrablePersonValidatorStrategy otherRegistrablePersonValidatorStrategy,
                                                  RelevantLegalEntityValidatorStrategy relevantLegalEntityValidatorStrategy,
+                                                 ProtectedIndividualPersonValidatorStrategy protectedIndividualPersonValidatorStrategy,
                                                  UnknownTypeValidatorStrategy unknownTypeValidatorStrategy) {
         this.individualPersonValidatorStrategy = individualPersonValidatorStrategy;
         this.otherRegistrablePersonValidatorStrategy = otherRegistrablePersonValidatorStrategy;
         this.relevantLegalEntityValidatorStrategy = relevantLegalEntityValidatorStrategy;
+        this.protectedIndividualPersonValidatorStrategy = protectedIndividualPersonValidatorStrategy;
         this.unknownTypeValidatorStrategy = unknownTypeValidatorStrategy;
     }
 
@@ -30,6 +33,7 @@ public class PersonWithSignificantControlValidator {
             case INDIVIDUAL_PERSON -> individualPersonValidatorStrategy;
             case OTHER_REGISTRABLE_PERSON -> otherRegistrablePersonValidatorStrategy;
             case RELEVANT_LEGAL_ENTITY -> relevantLegalEntityValidatorStrategy;
+            case PROTECTED_INDIVIDUAL_PERSON -> protectedIndividualPersonValidatorStrategy;
             default -> unknownTypeValidatorStrategy;
         };
     }
