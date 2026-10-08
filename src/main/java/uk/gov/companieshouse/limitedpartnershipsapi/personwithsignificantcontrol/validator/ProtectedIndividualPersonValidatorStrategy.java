@@ -21,6 +21,7 @@ public class ProtectedIndividualPersonValidatorStrategy extends PersonWithSignif
 
 	@Override
 	public void validatePartial(PersonWithSignificantControlDto personWithSignificantControlDto) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
+		// No validation required for Protected Individual Person, so this method is intentionally left empty.
 	}
 
 	@Override
