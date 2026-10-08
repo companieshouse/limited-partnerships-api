@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
@@ -17,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
- * In many of these tests, it's only necessary to test with one of the JsonNullable fields in the Patch class changing
+ * In many of these tests, it's only necessary to test with one of the fields in the Patch class changing
  * as the behaviour should be the same for all of them.
  */
 
@@ -30,13 +29,13 @@ class PartnershipPatchMapperTest {
 
 
     @Autowired
-    private ObjectMapper mapper;
+    private JsonMapper mapper;
 
     @Autowired
     private PartnershipPatchMapper patchMapper;
 
     @Test
-    void testObjectMapperCanHandleJsonNullableFields() throws JsonProcessingException {
+    void testJsonMapperDeserialisesPatchDto() {
         assertEquals("some description", mapper.readValue("{\"partnership_name\":\"some description\"}",
             PartnershipPatchDto.class).getPartnershipName());
         assertNull(mapper.readValue("{\"partnership_name\":null}",
@@ -60,7 +59,7 @@ class PartnershipPatchMapperTest {
                                                        String expectedJurisdiction,
                                                        String expectedPartnershipType,
                                                        String expectedPartnershipNameEnding)
-            throws JsonProcessingException {
+            {
         // Given
         PartnershipPatchDto patchDto = mapper.readValue(incomingJson, PartnershipPatchDto.class);
 
