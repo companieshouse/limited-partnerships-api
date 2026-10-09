@@ -7,7 +7,7 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.20</version>
+        <version>3.0.0</version>
         <relativePath/>
     </parent>
 
@@ -42,8 +42,6 @@
         <sonar.projectKey>uk.gov.companieshouse:limited-partnerships-api</sonar.projectKey>
         <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
-        <sonar.login></sonar.login>
-        <sonar.password></sonar.password>
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/target/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
