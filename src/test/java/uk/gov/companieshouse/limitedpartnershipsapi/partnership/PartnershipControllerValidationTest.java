@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
-import uk.gov.companieshouse.limitedpartnershipsapi.config.JacksonConfig;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
@@ -64,8 +63,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
     PartnershipMapperImpl.class,
     PartnershipPatchMapperImpl.class,
         CostsService.class,
-        GlobalExceptionHandler.class,
-        JacksonConfig.class
+        GlobalExceptionHandler.class
 })
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {
@@ -83,7 +81,7 @@ class PartnershipControllerValidationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper jsonMapper;
 
     @MockitoBean
     private PartnershipRepository repository;
@@ -128,7 +126,7 @@ class PartnershipControllerValidationTest {
             dto.setPartnershipType(PartnershipType.LP);
             partnershipDto.setData(dto);
 
-            String body = objectMapper.writeValueAsString(partnershipDto);
+            String body = jsonMapper.writeValueAsString(partnershipDto);
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -149,7 +147,7 @@ class PartnershipControllerValidationTest {
             dto.setPartnershipType(PartnershipType.LP);
             partnershipDto.setData(dto);
 
-            String body = objectMapper.writeValueAsString(partnershipDto);
+            String body = jsonMapper.writeValueAsString(partnershipDto);
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -169,7 +167,7 @@ class PartnershipControllerValidationTest {
             PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
             partnershipDto.getData().setNameEnding(null);
 
-            String body = objectMapper.writeValueAsString(partnershipDto);
+            String body = jsonMapper.writeValueAsString(partnershipDto);
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -190,7 +188,7 @@ class PartnershipControllerValidationTest {
             partnershipDto.getData().setNameEnding(null);
             partnershipDto.getData().setPartnershipNumber("LP121212");
 
-            String body = objectMapper.writeValueAsString(partnershipDto);
+            String body = jsonMapper.writeValueAsString(partnershipDto);
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -211,7 +209,7 @@ class PartnershipControllerValidationTest {
             partnershipDto.getData().setNameEnding(null);
             partnershipDto.getData().setPartnershipNumber("LP1212");
 
-            String body = objectMapper.writeValueAsString(partnershipDto);
+            String body = jsonMapper.writeValueAsString(partnershipDto);
 
             mockMvc.perform(post(PartnershipControllerValidationTest.POST_URL)
                             .contentType(MediaType.APPLICATION_JSON)
