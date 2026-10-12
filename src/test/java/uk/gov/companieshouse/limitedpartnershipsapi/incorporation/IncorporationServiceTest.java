@@ -8,6 +8,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
@@ -157,7 +158,7 @@ class IncorporationServiceTest {
     }
 
     @Test
-    void testGetIncorporationTypeWithoutSubResourcesIsSuccessful() throws ServiceException {
+    void testGetIncorporationTypeWithoutSubResourcesIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
         when(transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(eq(transaction), any(String.class))).thenReturn(true);
@@ -174,7 +175,7 @@ class IncorporationServiceTest {
     }
 
     @Test
-    void testGetIncorporationTypeWithSubResourcesIsSuccessful() throws ServiceException {
+    void testGetIncorporationTypeWithSubResourcesIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         // given
         IncorporationDao incorporationDao = createLimitedPartnershipIncorporationDao();
         PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();

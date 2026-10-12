@@ -94,7 +94,7 @@ public class IncorporationController {
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
-        } catch (ServiceException se) {
+        } catch (ServiceException | MethodArgumentNotValidException | NoSuchMethodException se) {
             ApiLogger.errorContext(requestId, "Error getting a Limited Partnership Incorporation", se, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -41,13 +41,14 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVAL
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_LIMITED_PARTNER;
 
 @ContextConfiguration(classes = {
-        GeneralPartnerController.class,
-        GeneralPartnerService.class,
-        GeneralPartnerValidator.class,
-        PostTransitionStrategyHandler.class,
-        ValidationStatus.class,
-        GeneralPartnerMapperImpl.class,
-        GlobalExceptionHandler.class}
+    GeneralPartnerController.class,
+    GeneralPartnerService.class,
+    GeneralPartnerValidator.class,
+    PostTransitionStrategyHandler.class,
+    GeneralPartnerValidationStatus.class,
+    ValidationStatus.class,
+    GeneralPartnerMapperImpl.class,
+    GlobalExceptionHandler.class}
 )
 @WebMvcTest(controllers = {GeneralPartnerController.class})
 class GeneralPartnerControllerValidationTest {

@@ -32,11 +32,13 @@ public class LimitedPartnerValidator extends PartnerValidator {
 
     private static final String CLASS_NAME = LimitedPartnerDataDto.class.getName();
 
+    private final ValidationStatus validationStatus;
+
     @Autowired
     public LimitedPartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService
     ) {
-
-        super(validator, validationStatus, companyService);
+        super(validator, companyService);
+        this.validationStatus = validationStatus;
     }
 
     public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto, Transaction transaction, boolean isRemoveOrUpdate) throws ServiceException {

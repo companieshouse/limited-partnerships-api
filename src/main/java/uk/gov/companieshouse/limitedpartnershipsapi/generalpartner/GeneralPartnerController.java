@@ -150,7 +150,7 @@ public class GeneralPartnerController {
         var validationStatus = new ValidationStatusResponse();
         validationStatus.setValid(true);
 
-        var validationErrors = generalPartnerService.validateGeneralPartner(transaction, generalPartnerId);
+        var validationErrors = generalPartnerService.validateStatus(transaction, generalPartnerId);
 
         if (!validationErrors.isEmpty()) {
             ApiLogger.errorContext(requestId, String.format("Validation errors: %s",

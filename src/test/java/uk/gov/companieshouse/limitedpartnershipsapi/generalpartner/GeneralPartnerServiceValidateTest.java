@@ -76,7 +76,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
@@ -93,7 +93,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
@@ -117,7 +117,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
@@ -144,7 +144,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
@@ -170,7 +170,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> results = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
@@ -193,7 +193,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when + then
-        assertThrows(ResourceNotFoundException.class, () -> service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID));
+        assertThrows(ResourceNotFoundException.class, () -> service.validateStatus(transaction, GENERAL_PARTNER_ID));
     }
 
     @Test
@@ -205,7 +205,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> errors = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> errors = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
@@ -224,7 +224,7 @@ class GeneralPartnerServiceValidateTest {
         when(repository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
 
         // when
-        List<ValidationStatusError> errors = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> errors = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());
@@ -245,7 +245,7 @@ class GeneralPartnerServiceValidateTest {
         when(companyProfileApi.getDateOfCreation()).thenReturn(LocalDate.of(2022, 1, 3));
 
         // when
-        List<ValidationStatusError> errors = service.validateGeneralPartner(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> errors = service.validateStatus(transaction, GENERAL_PARTNER_ID);
 
         // then
         verify(repository).findById(generalPartnerDao.getId());

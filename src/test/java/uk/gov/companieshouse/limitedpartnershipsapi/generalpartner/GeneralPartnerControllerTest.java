@@ -156,7 +156,7 @@ class GeneralPartnerControllerTest {
             .build();
 
         txn.setFilingMode(FilingMode.DEFAULT.getDescription());
-        
+
         assertCreatePartnerReturnsSuccess(txn, isAddPartnerPostTransition(txn));
     }
 
@@ -214,7 +214,7 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testGetGeneralPartnersReturnsList() throws ServiceException {
+    void testGetGeneralPartnersReturnsList() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         List<GeneralPartnerDto> generalPartnerDtoList = List.of(new GeneralPartnerDto(), new GeneralPartnerDto());
         when(generalPartnerService.getGeneralPartnerList(transaction)).thenReturn(generalPartnerDtoList);
 

@@ -56,9 +56,7 @@ public class LimitedPartnershipValidationStatus {
 
 		if (!violations.isEmpty()) {
 			violations.forEach(violation ->
-					errorsList.add(validationStatus.createValidationStatusError(
-							violation.getMessage(),
-							violation.getPropertyPath().toString()))
+					errorsList.add(validationStatus.createValidationStatusError(violation.getMessage(), violation.getPropertyPath().toString()))
 			);
 		}
 	}

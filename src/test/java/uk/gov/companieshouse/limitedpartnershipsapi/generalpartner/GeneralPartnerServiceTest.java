@@ -72,6 +72,9 @@ class GeneralPartnerServiceTest {
     @Mock
     private GeneralPartnerValidator generalPartnerValidator;
 
+    @Mock
+    GeneralPartnerValidationStatus generalPartnerValidationStatus;
+
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 
@@ -182,7 +185,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testGetGeneralPartnerList() throws ServiceException {
+    void testGetGeneralPartnerList() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().personDao();
         generalPartnerDao1.setTransactionId(TransactionBuilder.TRANSACTION_ID);
         GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().personDao();
@@ -203,7 +206,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testGetGeneralPartnerList_Empty() throws ServiceException {
+    void testGetGeneralPartnerList_Empty() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId())).thenReturn(new ArrayList<>());
 
         List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);

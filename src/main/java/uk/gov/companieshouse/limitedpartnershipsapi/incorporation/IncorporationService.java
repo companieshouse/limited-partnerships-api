@@ -120,7 +120,7 @@ public class IncorporationService {
 
     public LimitedPartnershipIncorporationDto getIncorporation(Transaction transaction,
                                                                String incorporationId,
-                                                               boolean includeSubResources) throws ServiceException {
+                                                               boolean includeSubResources) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         String submissionUri = getSubmissionUri(transaction.getId(), incorporationId);
         if (!transactionService.isTransactionLinkedToLimitedPartnershipIncorporation(transaction, submissionUri)) {
             throw new ResourceNotFoundException(String.format(

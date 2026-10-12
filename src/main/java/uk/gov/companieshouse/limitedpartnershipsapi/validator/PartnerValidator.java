@@ -23,15 +23,13 @@ import java.util.Set;
 public abstract class PartnerValidator {
 
     protected Validator validator;
-    protected final ValidationStatus validationStatus;
     protected CompanyService companyService;
 
     public static final String NATIONALITY_1_IS_REQUIRED = "Nationality1 is required";
 
     @Autowired
-    protected PartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService) {
+    protected PartnerValidator(Validator validator, CompanyService companyService) {
         this.validator = validator;
-        this.validationStatus = validationStatus;
         this.companyService = companyService;
     }
 

@@ -109,7 +109,7 @@ class PostTransitionPartnerTest {
         generalPartnerPersonDao.getData().setKind(FILING_KIND_GENERAL_PARTNER);
 
         var exception = assertThrows(ServiceException.class, () ->
-                generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId())
+            generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId())
         );
 
         assertEquals(String.format("No strategy found for kind: %s", FILING_KIND_GENERAL_PARTNER), exception.getMessage());
@@ -124,7 +124,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).isEmpty();
         }
@@ -137,7 +137,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setCeaseDate(null);
             generalPartnerPersonDao.getData().setRemoveConfirmationChecked(false);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -154,7 +154,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -303,7 +303,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
             assertThat(result).isEmpty();
         }
@@ -316,7 +316,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setCeaseDate(null);
             generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(false);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -333,7 +333,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerPersonDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -364,7 +364,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.ADD_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
 
             assertThat(result).isEmpty();
         }
@@ -376,7 +376,7 @@ class PostTransitionPartnerTest {
 
             generalPartnerPersonDao.getData().setUsualResidentialAddress(null);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -393,7 +393,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.ADD_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
 
             assertThat(result).isEmpty();
         }
@@ -407,7 +407,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
             generalPartnerLegalEntityDao.getData().setRegisteredCompanyNumber(null);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
 
             assertThat(result).isEmpty();
         }
@@ -421,7 +421,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setLegalEntityRegisterName(null);
             generalPartnerLegalEntityDao.getData().setRegisteredCompanyNumber(null);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, GeneralPartnerBuilder.GENERAL_PARTNER_ID);
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -505,7 +505,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).isEmpty();
         }
@@ -520,7 +520,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
             generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -539,7 +539,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(null);
             generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -558,7 +558,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
             generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(null);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -576,7 +576,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -596,7 +596,7 @@ class PostTransitionPartnerTest {
             generalPartnerPersonDao.getData().setUpdateUsualResidentialAddressRequired(false);
             generalPartnerPersonDao.getData().setUpdateServiceAddressRequired(false);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerPersonDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerPersonDao.getId());
 
             assertThat(result).hasSize(2)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -628,7 +628,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
             ObjectMapper mapper = new ObjectMapper();
             System.out.println(mapper.writeValueAsString(result));
 
@@ -644,7 +644,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(false);
             generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(false);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -662,7 +662,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setRemoveConfirmationChecked(false);
             generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(null);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -679,7 +679,7 @@ class PostTransitionPartnerTest {
 
             mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
             assertThat(result).hasSize(1)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
@@ -703,7 +703,7 @@ class PostTransitionPartnerTest {
             generalPartnerLegalEntityDao.getData().setRegisteredCompanyNumber(null);
             generalPartnerLegalEntityDao.getData().setUpdatePrincipalOfficeAddressRequired(false);
 
-            var result = generalPartnerService.validateGeneralPartner(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
+            var result = generalPartnerService.validateStatus(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
 
             assertThat(result).hasSize(5)
                     .extracting(e -> Map.entry(e.getLocation(), e.getError()))
