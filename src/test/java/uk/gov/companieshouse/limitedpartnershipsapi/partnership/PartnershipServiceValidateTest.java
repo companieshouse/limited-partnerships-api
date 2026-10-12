@@ -56,7 +56,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(0, results.size());
@@ -80,7 +80,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(7, results.size());
@@ -122,7 +122,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(7, results.size());
@@ -159,7 +159,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         checkForError(results, errorMessage, "data.hasPersonWithSignificantControl");
@@ -177,7 +177,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         if (FilingMode.REGISTRATION.equals(filingMode)) {
@@ -200,7 +200,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         if (!FilingMode.REGISTRATION.equals(filingMode)) {
@@ -225,7 +225,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(2, results.size());
@@ -245,7 +245,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(1, results.size());
@@ -268,7 +268,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(0, results.size());
@@ -290,7 +290,7 @@ class PartnershipServiceValidateTest {
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(limitedPartnershipSubmissionDao));
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(1, results.size());

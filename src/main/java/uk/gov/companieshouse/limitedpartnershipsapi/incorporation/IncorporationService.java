@@ -149,7 +149,7 @@ public class IncorporationService {
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         List<ValidationStatusError> errors = new ArrayList<>();
 
-        errors.addAll(partnershipService.validateLimitedPartnership(transaction));
+        errors.addAll(partnershipService.validateStatus(transaction));
         errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
         errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
         errors.addAll(personWithSignificantControlService.validatePersonsWithSignificantControl(transaction));

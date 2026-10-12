@@ -54,16 +54,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.INVALID_CHARACTERS_MESSAGE;
 
 @ContextConfiguration(classes = {
-        PartnershipController.class,
+    PartnershipController.class,
     PartnershipService.class,
-        LimitedPartnershipValidator.class,
-        PostTransitionStrategyHandler.class,
-        Validator.class,
-        ValidationStatus.class,
+    LimitedPartnershipValidator.class,
+    PostTransitionStrategyHandler.class,
+    LimitedPartnershipValidationStatus.class,
+    Validator.class,
+    ValidationStatus.class,
     PartnershipMapperImpl.class,
     PartnershipPatchMapperImpl.class,
-        CostsService.class,
-        GlobalExceptionHandler.class
+    CostsService.class,
+    GlobalExceptionHandler.class
 })
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerValidationTest {

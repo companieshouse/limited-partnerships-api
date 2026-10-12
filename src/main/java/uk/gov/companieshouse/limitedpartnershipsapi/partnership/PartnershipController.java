@@ -142,7 +142,7 @@ public class PartnershipController {
             var validationStatus = new ValidationStatusResponse();
             validationStatus.setValid(true);
 
-            var validationErrors = partnershipService.validateLimitedPartnership(transaction);
+            var validationErrors = partnershipService.validateStatus(transaction);
 
             if (!validationErrors.isEmpty()) {
                 ApiLogger.errorContext(requestId, String.format("Validation errors: %s",

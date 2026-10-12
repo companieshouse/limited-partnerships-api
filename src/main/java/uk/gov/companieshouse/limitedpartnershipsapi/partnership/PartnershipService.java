@@ -39,6 +39,7 @@ public class PartnershipService {
     private final TransactionService transactionService;
     private final LimitedPartnershipValidator limitedPartnershipValidator;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
+    private final LimitedPartnershipValidationStatus limitedPartnershipValidationStatus;
 
     @Autowired
     public PartnershipService(PartnershipMapper mapper,
@@ -46,13 +47,15 @@ public class PartnershipService {
                               PartnershipRepository repository,
                               TransactionService transactionService,
                               LimitedPartnershipValidator limitedPartnershipValidator,
-                              PostTransitionStrategyHandler postTransitionStrategyHandler) {
+                              PostTransitionStrategyHandler postTransitionStrategyHandler,
+                              LimitedPartnershipValidationStatus limitedPartnershipValidationStatus) {
         this.mapper = mapper;
         this.patchMapper = patchMapper;
         this.repository = repository;
         this.transactionService = transactionService;
         this.limitedPartnershipValidator = limitedPartnershipValidator;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
+        this.limitedPartnershipValidationStatus = limitedPartnershipValidationStatus;
     }
 
     public String createLimitedPartnership(Transaction transaction,
@@ -212,7 +215,7 @@ public class PartnershipService {
         return limitedPartnerships.getFirst();
     }
 
-    public List<ValidationStatusError> validateLimitedPartnership(Transaction transaction)
+    public List<ValidationStatusError> validateStatus(Transaction transaction)
             throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
         PartnershipDto partnershipDto = getLimitedPartnership(transaction);
 
@@ -220,7 +223,7 @@ public class PartnershipService {
             return postTransitionStrategyHandler.validateLimitedPartnership(partnershipDto, transaction);
         }
 
-        return limitedPartnershipValidator.validateFull(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()));
+        return limitedPartnershipValidationStatus.validate(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()));
     }
 
     private void checkIfPartnershipIsLinkedToTransaction(Transaction transaction, String submissionId, PartnershipDao partnershipDao) throws ResourceNotFoundException {
