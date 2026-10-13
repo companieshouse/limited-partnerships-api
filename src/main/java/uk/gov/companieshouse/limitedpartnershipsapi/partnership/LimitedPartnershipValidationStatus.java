@@ -33,7 +33,7 @@ public class LimitedPartnershipValidationStatus {
 	public List<ValidationStatusError> validate(PartnershipDto partnershipDto, FilingMode filingMode) {
 		List<ValidationStatusError> errorsList = new ArrayList<>();
 
-		validateDtoANdJourney(partnershipDto, filingMode, errorsList);
+		validateDtoAndJourney(partnershipDto, filingMode, errorsList);
 		checkCommonFields(partnershipDto, filingMode, errorsList);
 		checkPartnershipTypeSpecificFields(partnershipDto, filingMode, errorsList);
 		validateHasPersonWithSignificantControl(partnershipDto, filingMode, errorsList);
@@ -41,7 +41,7 @@ public class LimitedPartnershipValidationStatus {
 		return errorsList;
 	}
 
-	private void validateDtoANdJourney(PartnershipDto partnershipDto, FilingMode filingMode, List<ValidationStatusError> errorsList) {
+	private void validateDtoAndJourney(PartnershipDto partnershipDto, FilingMode filingMode, List<ValidationStatusError> errorsList) {
 		dtoValidation(partnershipDto, errorsList);
 
 		if (filingMode != null) {

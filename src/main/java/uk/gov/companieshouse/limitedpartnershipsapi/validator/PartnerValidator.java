@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.validator;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
@@ -61,12 +60,6 @@ public abstract class PartnerValidator {
 
     protected void checkFieldNotNull(String className, Object value, String fieldName, String errorMessage, BindingResult bindingResult) {
         if (value == null) {
-            addError(className, fieldName, errorMessage, bindingResult);
-        }
-    }
-
-    protected void checkNotPopulated(String className, String value, String fieldName, String errorMessage, BindingResult bindingResult) {
-        if (StringUtils.hasText(value)) {
             addError(className, fieldName, errorMessage, bindingResult);
         }
     }

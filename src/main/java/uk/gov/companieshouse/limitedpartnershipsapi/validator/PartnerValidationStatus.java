@@ -79,7 +79,7 @@ public abstract class PartnerValidationStatus {
 		}
 	}
 
-	protected void handleLegalEntityRegisterNameAndNumberOptionality(String className, PartnerDataDto dataDto, List<ValidationStatusError> errorsList) {
+	protected void handleLegalEntityRegisterNameAndNumberOptionality(PartnerDataDto dataDto, List<ValidationStatusError> errorsList) {
 		var enteredOnRegister = dataDto.getEnteredOnRegister();
 		var registerName = dataDto.getLegalEntityRegisterName();
 		var companyNumber = dataDto.getRegisteredCompanyNumber();
