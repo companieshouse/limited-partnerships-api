@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.partner;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDto;
@@ -18,11 +17,11 @@ import java.util.List;
 @Component
 public class RemoveGeneralPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
 
-    private final GeneralPartnerValidator generalPartnerValidator;
+    private final GeneralPartnerValidationStatus generalPartnerValidator;
     private final RemoveOrUpdatePartner removeOrUpdatePartner;
 
-    RemoveGeneralPartnerLegalEntity(GeneralPartnerValidator generalPartnerValidator, RemoveOrUpdatePartner removeOrUpdatePartner) {
-        this.generalPartnerValidator = generalPartnerValidator;
+    RemoveGeneralPartnerLegalEntity(GeneralPartnerValidationStatus generalPartnerValidationStatus, RemoveOrUpdatePartner removeOrUpdatePartner) {
+        this.generalPartnerValidator = generalPartnerValidationStatus;
         this.removeOrUpdatePartner = removeOrUpdatePartner;
     }
 
@@ -32,8 +31,8 @@ public class RemoveGeneralPartnerLegalEntity implements PostTransitionStrategy<P
     }
 
     @Override
-    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction, true);
+    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
+        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validate((GeneralPartnerDto) partnerDto, transaction, true);
 
         errorsList.addAll(errorsListValidator);
 

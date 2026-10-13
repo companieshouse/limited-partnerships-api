@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.incorporation;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -146,10 +145,10 @@ public class IncorporationService {
     }
 
     public List<ValidationStatusError> validateIncorporation(Transaction transaction)
-            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        throws ServiceException {
         List<ValidationStatusError> errors = new ArrayList<>();
 
-        errors.addAll(partnershipService.validateLimitedPartnership(transaction));
+        errors.addAll(partnershipService.validateStatus(transaction));
         errors.addAll(generalPartnerService.validateGeneralPartners(transaction));
         errors.addAll(limitedPartnerService.validateLimitedPartners(transaction));
         errors.addAll(personWithSignificantControlService.validatePersonsWithSignificantControl(transaction));

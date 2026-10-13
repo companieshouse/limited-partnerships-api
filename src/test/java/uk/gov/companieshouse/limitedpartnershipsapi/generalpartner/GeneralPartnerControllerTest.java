@@ -156,7 +156,7 @@ class GeneralPartnerControllerTest {
             .build();
 
         txn.setFilingMode(FilingMode.DEFAULT.getDescription());
-        
+
         assertCreatePartnerReturnsSuccess(txn, isAddPartnerPostTransition(txn));
     }
 

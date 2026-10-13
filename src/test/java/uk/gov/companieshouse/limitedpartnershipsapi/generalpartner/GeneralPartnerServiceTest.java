@@ -72,6 +72,9 @@ class GeneralPartnerServiceTest {
     @Mock
     private GeneralPartnerValidator generalPartnerValidator;
 
+    @Mock
+    GeneralPartnerValidationStatus generalPartnerValidationStatus;
+
     @Captor
     private ArgumentCaptor<GeneralPartnerDao> submissionCaptor;
 

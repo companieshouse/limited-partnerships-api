@@ -17,6 +17,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHan
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerService;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.LimitedPartnershipValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipMapperImpl;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipPatchMapperImpl;
@@ -38,15 +39,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode.REGISTRATION;
 
 @ContextConfiguration(classes = {
-        IncorporationController.class,
-        CostsService.class,
+    IncorporationController.class,
+    CostsService.class,
     PartnershipService.class,
     PartnershipMapperImpl.class,
     PartnershipPatchMapperImpl.class,
-        LimitedPartnershipValidator.class,
-        ValidationStatus.class,
-        PostTransitionStrategyHandler.class,
-        GlobalExceptionHandler.class})
+    LimitedPartnershipValidator.class,
+    LimitedPartnershipValidationStatus.class,
+    ValidationStatus.class,
+    PostTransitionStrategyHandler.class,
+    GlobalExceptionHandler.class})
 @WebMvcTest(controllers = {IncorporationController.class})
 class IncorporationControllerUpdateTest {
     private static final String TRANSACTION_ID = TransactionBuilder.TRANSACTION_ID;

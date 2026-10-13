@@ -5,7 +5,7 @@ import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDto;
@@ -17,10 +17,10 @@ import java.util.List;
 @Component
 public class AddGeneralPartnerPerson implements PostTransitionStrategy<PartnerDto> {
 
-    private final GeneralPartnerValidator generalPartnerValidator;
+    private final GeneralPartnerValidationStatus generalPartnerValidationStatus;
 
-    public AddGeneralPartnerPerson(GeneralPartnerValidator generalPartnerValidator) {
-        this.generalPartnerValidator = generalPartnerValidator;
+    public AddGeneralPartnerPerson(GeneralPartnerValidationStatus generalPartnerValidationStatus) {
+        this.generalPartnerValidationStatus = generalPartnerValidationStatus;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class AddGeneralPartnerPerson implements PostTransitionStrategy<PartnerDt
 
     @Override
     public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsListValidator = generalPartnerValidator.validateFull((GeneralPartnerDto) partnerDto, transaction, false);
+        List<ValidationStatusError> errorsListValidator = generalPartnerValidationStatus.validate((GeneralPartnerDto) partnerDto, transaction, false);
 
         errorsList.addAll(errorsListValidator);
     }

@@ -68,6 +68,9 @@ class LimitedPartnerServiceTest {
     @Mock
     private LimitedPartnerValidator limitedPartnerValidator;
 
+    @Mock
+    private LimitedPartnerValidationStatus limitedPartnerValidationStatus;
+
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 

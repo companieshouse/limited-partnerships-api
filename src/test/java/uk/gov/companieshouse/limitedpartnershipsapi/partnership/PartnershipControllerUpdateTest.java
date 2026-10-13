@@ -39,15 +39,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ContextConfiguration(classes = {
-        PartnershipController.class,
+    PartnershipController.class,
     PartnershipService.class,
-        LimitedPartnershipValidator.class,
-        ValidationStatus.class,
+    LimitedPartnershipValidator.class,
+    LimitedPartnershipValidationStatus.class,
+    ValidationStatus.class,
     PartnershipMapperImpl.class,
     PartnershipPatchMapperImpl.class,
-        CostsService.class,
-        PostTransitionStrategyHandler.class,
-        GlobalExceptionHandler.class
+    CostsService.class,
+    PostTransitionStrategyHandler.class,
+    GlobalExceptionHandler.class
 })
 @WebMvcTest(controllers = {PartnershipController.class})
 class PartnershipControllerUpdateTest {

@@ -41,18 +41,21 @@ public class GeneralPartnerService {
     private final GeneralPartnerValidator generalPartnerValidator;
     private final TransactionService transactionService;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
+    private final GeneralPartnerValidationStatus generalPartnerValidationStatus;
 
     public GeneralPartnerService(GeneralPartnerRepository repository,
                                  GeneralPartnerMapper mapper,
                                  GeneralPartnerValidator generalPartnerValidator,
                                  TransactionService transactionService,
-                                 PostTransitionStrategyHandler postTransitionStrategyHandler
+                                 PostTransitionStrategyHandler postTransitionStrategyHandler,
+                                 GeneralPartnerValidationStatus generalPartnerValidationStatus
     ) {
         this.repository = repository;
         this.mapper = mapper;
         this.generalPartnerValidator = generalPartnerValidator;
         this.transactionService = transactionService;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
+        this.generalPartnerValidationStatus = generalPartnerValidationStatus;
     }
 
     public String createGeneralPartner(Transaction transaction, GeneralPartnerDto generalPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -191,15 +194,15 @@ public class GeneralPartnerService {
         return mapper.daoToDto(generalPartnerDao);
     }
 
-    public List<ValidationStatusError> validateGeneralPartner(Transaction transaction, String generalPartnerId)
-            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    public List<ValidationStatusError> validateStatus(Transaction transaction, String generalPartnerId)
+        throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
         if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 
-        return generalPartnerValidator.validateFull(dto, transaction, false);
+        return generalPartnerValidationStatus.validate(dto, transaction, false);
     }
 
     public List<ValidationStatusError> validateGeneralPartners(Transaction transaction) throws ServiceException {
@@ -215,7 +218,7 @@ public class GeneralPartnerService {
         }
 
         for (GeneralPartnerDto partner : generalPartners) {
-            errors.addAll(generalPartnerValidator.validateFull(partner, transaction, false));
+            errors.addAll(generalPartnerValidationStatus.validate(partner, transaction, false));
         }
 
         return errors;
@@ -226,7 +229,7 @@ public class GeneralPartnerService {
                 .map(mapper::daoToDto).toList();
 
         for (GeneralPartnerDto generalPartnerDto : generalPartnerDtos) {
-            boolean isCompleted = generalPartnerValidator.validateFull(generalPartnerDto, transaction, false).isEmpty();
+            boolean isCompleted = generalPartnerValidationStatus.validate(generalPartnerDto, transaction, false).isEmpty();
             generalPartnerDto.getData().setCompleted(isCompleted);
         }
 

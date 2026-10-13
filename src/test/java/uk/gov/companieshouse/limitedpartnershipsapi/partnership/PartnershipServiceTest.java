@@ -75,6 +75,9 @@ class PartnershipServiceTest {
     @Mock
     private LimitedPartnershipValidator limitedPartnershipValidator;
 
+    @Mock
+    private LimitedPartnershipValidationStatus limitedPartnershipValidationStatus;
+
     @Captor
     private ArgumentCaptor<PartnershipDao> submissionCaptor;
 
@@ -328,10 +331,10 @@ class PartnershipServiceTest {
         when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(true);
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
         when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
-        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(new ArrayList<>());
+        when(limitedPartnershipValidationStatus.validate(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(new ArrayList<>());
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(0, results.size());
@@ -351,10 +354,10 @@ class PartnershipServiceTest {
         var error2 = new ValidationStatusError("Invalid data format", "there", null, null);
         errorsList.add(error1);
         errorsList.add(error2);
-        when(limitedPartnershipValidator.validateFull(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(errorsList);
+        when(limitedPartnershipValidationStatus.validate(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(errorsList);
 
         // when
-        List<ValidationStatusError> results = service.validateLimitedPartnership(transaction);
+        List<ValidationStatusError> results = service.validateStatus(transaction);
 
         // then
         assertEquals(2, results.size());
@@ -363,7 +366,7 @@ class PartnershipServiceTest {
 
     @Test
     void giveSubmissionIdAndTransactionIdDoNotMatch_whenValidateStatus_ThenResourceNotFoundExceptionThrown() {
-        assertThrows(ResourceNotFoundException.class, () -> service.validateLimitedPartnership(transaction));
+        assertThrows(ResourceNotFoundException.class, () -> service.validateStatus(transaction));
     }
 
     @Nested

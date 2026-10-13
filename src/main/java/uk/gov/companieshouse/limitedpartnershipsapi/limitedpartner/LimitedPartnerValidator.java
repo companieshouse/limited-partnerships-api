@@ -8,7 +8,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
@@ -21,10 +20,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.PartnerValidator;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -33,33 +30,9 @@ public class LimitedPartnerValidator extends PartnerValidator {
     private static final String CLASS_NAME = LimitedPartnerDataDto.class.getName();
 
     @Autowired
-    public LimitedPartnerValidator(Validator validator, ValidationStatus validationStatus, CompanyService companyService
+    public LimitedPartnerValidator(Validator validator, CompanyService companyService
     ) {
-
-        super(validator, validationStatus, companyService);
-    }
-
-    public List<ValidationStatusError> validateFull(LimitedPartnerDto limitedPartnerDto, Transaction transaction, boolean isRemoveOrUpdate) throws ServiceException {
-        List<ValidationStatusError> errorsList = new ArrayList<>();
-
-        checkFieldConstraints(limitedPartnerDto, transaction, errorsList);
-
-        if (isRemoveOrUpdate) {
-            return errorsList;
-        }
-
-        var dataDto = limitedPartnerDto.getData();
-        if (dataDto.isLegalEntity()) {
-            if (dataDto.getPrincipalOfficeAddress() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Principal office address is required", PartnerDataDto.PRINCIPAL_OFFICE_ADDRESS_FIELD));
-            }
-        } else {
-            if (dataDto.getUsualResidentialAddress() == null) {
-                errorsList.add(validationStatus.createValidationStatusError("Usual residential address is required", PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD));
-            }
-        }
-
-        return errorsList;
+        super(validator, companyService);
     }
 
     public void validatePartial(LimitedPartnerDto limitedPartnerDto, Transaction transaction) throws NoSuchMethodException, MethodArgumentNotValidException, ServiceException {
@@ -186,23 +159,6 @@ public class LimitedPartnerValidator extends PartnerValidator {
         if (bindingResult.hasErrors()) {
             var methodParameter = new MethodParameter(LimitedPartnerDataDto.class.getConstructor(), -1);
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
-        }
-    }
-
-    private void checkFieldConstraints(LimitedPartnerDto limitedPartnerDto, Transaction transaction, List<ValidationStatusError> errorsList)
-            throws ServiceException {
-        try {
-            if (PartnerKind.isUpdateLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
-                validateUpdate(limitedPartnerDto, transaction);
-            } else if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
-                validateRemove(limitedPartnerDto, transaction);
-            } else {
-                validatePartial(limitedPartnerDto, transaction);
-            }
-        } catch (MethodArgumentNotValidException e) {
-            validationStatus.convertFieldErrorsToValidationStatusErrors(e.getBindingResult(), errorsList);
-        } catch (NoSuchMethodException e) {
-            throw new ServiceException(e.getMessage());
         }
     }
 }
