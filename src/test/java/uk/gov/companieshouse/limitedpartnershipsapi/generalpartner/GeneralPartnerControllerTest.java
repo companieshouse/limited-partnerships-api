@@ -214,7 +214,7 @@ class GeneralPartnerControllerTest {
     }
 
     @Test
-    void testGetGeneralPartnersReturnsList() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testGetGeneralPartnersReturnsList() throws ServiceException {
         List<GeneralPartnerDto> generalPartnerDtoList = List.of(new GeneralPartnerDto(), new GeneralPartnerDto());
         when(generalPartnerService.getGeneralPartnerList(transaction)).thenReturn(generalPartnerDtoList);
 

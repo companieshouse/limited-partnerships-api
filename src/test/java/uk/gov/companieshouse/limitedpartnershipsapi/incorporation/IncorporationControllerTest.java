@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
@@ -73,7 +72,7 @@ class IncorporationControllerTest {
     }
 
     @Test
-    void testGetIncorporationIsSuccessful() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testGetIncorporationIsSuccessful() throws ServiceException {
         // given
         LimitedPartnershipIncorporationDto limitedPartnershipIncorporationDto = new LimitedPartnershipIncorporationDto();
 
@@ -95,7 +94,7 @@ class IncorporationControllerTest {
     }
 
     @Test
-    void testNotFoundReturnedWhenGetIncorporationFailsToFindResource() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testNotFoundReturnedWhenGetIncorporationFailsToFindResource() throws ServiceException {
         // given
         when(transaction.getId()).thenReturn(TRANSACTION_ID);
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenThrow(new ResourceNotFoundException("error"));
@@ -113,7 +112,7 @@ class IncorporationControllerTest {
     }
 
     @Test
-    void testInternalServerErrorReturnedWhenGetIncorporationFailsWithServiceException() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testInternalServerErrorReturnedWhenGetIncorporationFailsWithServiceException() throws ServiceException {
         // given
         when(incorporationService.getIncorporation(transaction, SUBMISSION_ID, true)).thenThrow(new ServiceException("error"));
 

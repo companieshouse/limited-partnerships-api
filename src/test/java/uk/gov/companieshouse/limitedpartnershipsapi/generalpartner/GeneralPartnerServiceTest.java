@@ -185,7 +185,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testGetGeneralPartnerList() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testGetGeneralPartnerList() throws ServiceException {
         GeneralPartnerDao generalPartnerDao1 = new GeneralPartnerBuilder().personDao();
         generalPartnerDao1.setTransactionId(TransactionBuilder.TRANSACTION_ID);
         GeneralPartnerDao generalPartnerDao2 = new GeneralPartnerBuilder().personDao();
@@ -206,7 +206,7 @@ class GeneralPartnerServiceTest {
     }
 
     @Test
-    void testGetGeneralPartnerList_Empty() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void testGetGeneralPartnerList_Empty() throws ServiceException {
         when(repository.findAllByTransactionIdOrderByUpdatedAtDesc(transaction.getId())).thenReturn(new ArrayList<>());
 
         List<GeneralPartnerDto> generalPartnerDtoList = generalPartnerService.getGeneralPartnerList(transaction);
