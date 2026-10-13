@@ -47,6 +47,7 @@ public class LimitedPartnerService {
     private final PartnershipService partnershipService;
     private final CompanyService companyService;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
+    private final LimitedPartnerValidationStatus limitedPartnerValidationStatus;
 
     public LimitedPartnerService(LimitedPartnerRepository repository,
                                  LimitedPartnerMapper mapper,
@@ -54,7 +55,8 @@ public class LimitedPartnerService {
                                  TransactionService transactionService,
                                  PartnershipService partnershipService,
                                  CompanyService companyService,
-                                 PostTransitionStrategyHandler postTransitionStrategyHandler
+                                 PostTransitionStrategyHandler postTransitionStrategyHandler,
+                                 LimitedPartnerValidationStatus limitedPartnerValidationStatus
     ) {
         this.repository = repository;
         this.mapper = mapper;
@@ -63,6 +65,7 @@ public class LimitedPartnerService {
         this.partnershipService = partnershipService;
         this.companyService = companyService;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
+        this.limitedPartnerValidationStatus = limitedPartnerValidationStatus;
     }
 
     public String createLimitedPartner(Transaction transaction, LimitedPartnerDto limitedPartnerDto, String requestId, String userId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
@@ -214,7 +217,7 @@ public class LimitedPartnerService {
                 .toList();
 
         for (LimitedPartnerDto limitedPartnerDto : limitedPartnerDtos) {
-            boolean isCompleted = limitedPartnerValidator.validateFull(limitedPartnerDto, transaction, false).isEmpty();
+            boolean isCompleted = limitedPartnerValidationStatus.validate(limitedPartnerDto, transaction, false).isEmpty();
             limitedPartnerDto.getData().setCompleted(isCompleted);
         }
 
@@ -245,14 +248,14 @@ public class LimitedPartnerService {
     }
 
     public List<ValidationStatusError> validateLimitedPartner(Transaction transaction, String limitedPartnerId)
-            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        throws ServiceException {
         LimitedPartnerDto dto = getLimitedPartner(transaction, limitedPartnerId);
 
         if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
             return postTransitionStrategyHandler.validatePartner(dto, transaction);
         }
 
-        return limitedPartnerValidator.validateFull(dto, transaction, false);
+        return limitedPartnerValidationStatus.validate(dto, transaction, false);
     }
 
     public List<ValidationStatusError> validateLimitedPartners(Transaction transaction) throws ServiceException {
@@ -268,7 +271,7 @@ public class LimitedPartnerService {
         }
 
         for (LimitedPartnerDto partner : limitedPartners) {
-            errors.addAll(limitedPartnerValidator.validateFull(partner, transaction, false));
+            errors.addAll(limitedPartnerValidationStatus.validate(partner, transaction, false));
         }
 
         return errors;

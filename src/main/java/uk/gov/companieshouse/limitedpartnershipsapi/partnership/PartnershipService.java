@@ -216,7 +216,7 @@ public class PartnershipService {
     }
 
     public List<ValidationStatusError> validateStatus(Transaction transaction)
-            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        throws ServiceException {
         PartnershipDto partnershipDto = getLimitedPartnership(transaction);
 
         if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {

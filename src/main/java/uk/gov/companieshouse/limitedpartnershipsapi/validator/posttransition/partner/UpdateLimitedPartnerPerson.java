@@ -5,7 +5,7 @@ import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDto;
@@ -17,11 +17,11 @@ import java.util.List;
 @Component
 public class UpdateLimitedPartnerPerson implements PostTransitionStrategy<PartnerDto> {
 
-    private final LimitedPartnerValidator limitedPartnerValidator;
+    private final LimitedPartnerValidationStatus limitedPartnerValidationStatus;
     private final RemoveOrUpdatePartner removeOrUpdatePartner;
 
-    public UpdateLimitedPartnerPerson(LimitedPartnerValidator limitedPartnerValidator, RemoveOrUpdatePartner removeOrUpdatePartner) {
-        this.limitedPartnerValidator = limitedPartnerValidator;
+    public UpdateLimitedPartnerPerson(LimitedPartnerValidationStatus limitedPartnerValidationStatus, RemoveOrUpdatePartner removeOrUpdatePartner) {
+        this.limitedPartnerValidationStatus = limitedPartnerValidationStatus;
         this.removeOrUpdatePartner = removeOrUpdatePartner;
     }
 
@@ -32,7 +32,7 @@ public class UpdateLimitedPartnerPerson implements PostTransitionStrategy<Partne
 
     @Override
     public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
-        List<ValidationStatusError> errorsListValidator = limitedPartnerValidator.validateFull((LimitedPartnerDto) partnerDto, transaction, true);
+        List<ValidationStatusError> errorsListValidator = limitedPartnerValidationStatus.validate((LimitedPartnerDto) partnerDto, transaction, true);
 
         errorsList.addAll(errorsListValidator);
 

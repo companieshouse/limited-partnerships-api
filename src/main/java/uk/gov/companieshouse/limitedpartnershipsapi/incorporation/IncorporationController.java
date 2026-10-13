@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -94,7 +93,7 @@ public class IncorporationController {
         } catch (ResourceNotFoundException e) {
             ApiLogger.errorContext(requestId, e.getMessage(), e, logMap);
             return ResponseEntity.notFound().build();
-        } catch (ServiceException | MethodArgumentNotValidException | NoSuchMethodException se) {
+        } catch (ServiceException se) {
             ApiLogger.errorContext(requestId, "Error getting a Limited Partnership Incorporation", se, logMap);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -104,7 +103,7 @@ public class IncorporationController {
     public ResponseEntity<ValidationStatusResponse> getValidationStatus(
             @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
             @PathVariable(URL_PARAM_INCORPORATION_ID) String incorporationId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
         var logMap = new HashMap<String, Object>();
         logMap.put(URL_PARAM_TRANSACTION_ID, transaction.getId());
         logMap.put(URL_PARAM_INCORPORATION_ID, incorporationId);

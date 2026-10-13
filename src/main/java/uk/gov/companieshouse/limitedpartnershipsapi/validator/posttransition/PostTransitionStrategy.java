@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition;
 
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -12,7 +11,7 @@ import java.util.List;
 public interface PostTransitionStrategy<T> {
     String getKind();
 
-    void validate(T dto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException;
+    void validate(T dto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException;
 
     Cost getCost(Cost cost);
 }

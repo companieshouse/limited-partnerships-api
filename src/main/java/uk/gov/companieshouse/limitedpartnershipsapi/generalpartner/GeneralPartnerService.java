@@ -195,7 +195,7 @@ public class GeneralPartnerService {
     }
 
     public List<ValidationStatusError> validateStatus(Transaction transaction, String generalPartnerId)
-            throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        throws ServiceException {
         GeneralPartnerDto dto = getGeneralPartner(transaction, generalPartnerId);
 
         if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {

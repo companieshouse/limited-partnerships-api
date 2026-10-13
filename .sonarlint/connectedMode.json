@@ -1,0 +1,4 @@
+{
+    "sonarQubeUri": "https://sonarqube.companieshouse.gov.uk",
+    "projectKey": "uk.gov.companieshouse:limited-partnerships-api"
+}

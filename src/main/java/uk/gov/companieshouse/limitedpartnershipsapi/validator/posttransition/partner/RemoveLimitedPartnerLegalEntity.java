@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.validator.posttransition.partner;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDto;
@@ -18,11 +17,11 @@ import java.util.List;
 @Component
 public class RemoveLimitedPartnerLegalEntity implements PostTransitionStrategy<PartnerDto> {
 
-    private final LimitedPartnerValidator limitedPartnerValidator;
+    private final LimitedPartnerValidationStatus limitedPartnerValidationStatus;
     private final RemoveOrUpdatePartner removeOrUpdatePartner;
 
-    RemoveLimitedPartnerLegalEntity(LimitedPartnerValidator limitedPartnerValidator, RemoveOrUpdatePartner removeOrUpdatePartner) {
-        this.limitedPartnerValidator = limitedPartnerValidator;
+    RemoveLimitedPartnerLegalEntity(LimitedPartnerValidationStatus limitedPartnerValidationStatus, RemoveOrUpdatePartner removeOrUpdatePartner) {
+        this.limitedPartnerValidationStatus = limitedPartnerValidationStatus;
         this.removeOrUpdatePartner = removeOrUpdatePartner;
     }
 
@@ -32,8 +31,8 @@ public class RemoveLimitedPartnerLegalEntity implements PostTransitionStrategy<P
     }
 
     @Override
-    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        List<ValidationStatusError> errorsListValidator = limitedPartnerValidator.validateFull((LimitedPartnerDto) partnerDto, transaction, true);
+    public void validate(PartnerDto partnerDto, List<ValidationStatusError> errorsList, ValidationStatus validationStatus, Transaction transaction) throws ServiceException {
+        List<ValidationStatusError> errorsListValidator = limitedPartnerValidationStatus.validate((LimitedPartnerDto) partnerDto, transaction, true);
 
         errorsList.addAll(errorsListValidator);
 

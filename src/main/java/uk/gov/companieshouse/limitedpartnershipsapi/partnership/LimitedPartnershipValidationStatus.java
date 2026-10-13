@@ -4,9 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
@@ -32,7 +30,7 @@ public class LimitedPartnershipValidationStatus {
 		this.validationStatus = validationStatus;
 	}
 
-	public List<ValidationStatusError> validate(PartnershipDto partnershipDto, FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+	public List<ValidationStatusError> validate(PartnershipDto partnershipDto, FilingMode filingMode) {
 		List<ValidationStatusError> errorsList = new ArrayList<>();
 
 		validateDtoANdJourney(partnershipDto, filingMode, errorsList);
@@ -91,12 +89,12 @@ public class LimitedPartnershipValidationStatus {
 					"data.registeredOfficeAddress"));
 		}
 
-		if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && filingMode.equals(FilingMode.REGISTRATION)) {
+		if (dataDto.getPrincipalPlaceOfBusinessAddress() == null && filingMode != null && filingMode.equals(FilingMode.REGISTRATION)) {
 			errorsList.add(validationStatus.createValidationStatusError("Principal place of business address is required",
 					"data.principalPlaceOfBusinessAddress"));
 		}
 
-		if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && filingMode.equals(FilingMode.REGISTRATION)) {
+		if ((dataDto.getLawfulPurposeStatementChecked() == null || dataDto.getLawfulPurposeStatementChecked() == Boolean.FALSE) && filingMode != null && filingMode.equals(FilingMode.REGISTRATION)) {
 			errorsList.add(validationStatus.createValidationStatusError("Lawful purpose statement checked is required",
 					"data.lawfulPurposeStatementChecked"));
 		}
@@ -115,11 +113,11 @@ public class LimitedPartnershipValidationStatus {
 				errorsList.add(validationStatus.createValidationStatusError("SIC codes are not required", "data.sicCodes"));
 			}
 		} else {
-			if (dataDto.getTerm() == null && filingMode.equals(FilingMode.REGISTRATION)) {
+			if (dataDto.getTerm() == null && filingMode != null && filingMode.equals(FilingMode.REGISTRATION)) {
 				errorsList.add(validationStatus.createValidationStatusError("Term is required", "data.term"));
 			}
 
-			if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && filingMode.equals(FilingMode.REGISTRATION)) {
+			if ((dataDto.getSicCodes() == null || dataDto.getSicCodes().isEmpty()) && filingMode != null && filingMode.equals(FilingMode.REGISTRATION)) {
 				errorsList.add(validationStatus.createValidationStatusError("SIC codes are required", "data.sicCodes"));
 			}
 		}
