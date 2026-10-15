@@ -80,6 +80,9 @@ class LimitedPartnerControllerTest {
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
 
+        // Keep DTO kind consistent with transaction kind used by create logic.
+        limitedPartnerDto.getData().setKind(txn.getKind());
+
         var response = limitedPartnerController.createLimitedPartner(
                 txn,
                 limitedPartnerDto,
