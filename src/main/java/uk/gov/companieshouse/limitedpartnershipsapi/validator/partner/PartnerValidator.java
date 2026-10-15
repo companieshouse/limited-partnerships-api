@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.limitedpartnershipsapi.validator;
+package uk.gov.companieshouse.limitedpartnershipsapi.validator.partner;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -36,15 +36,6 @@ public abstract class PartnerValidator {
         bindingResult.addError(new FieldError(className, fieldName, defaultMessage));
     }
 
-    protected void checkNotNullLegalEntity(String className,
-                                           PartnerDataDto partnerDataDto,
-                                           BindingResult bindingResult) {
-        checkFieldNotNull(className, partnerDataDto.getLegalEntityName(), PartnerDataDto.LEGAL_ENTITY_NAME_FIELD, "Legal Entity Name is required", bindingResult);
-        checkFieldNotNull(className, partnerDataDto.getLegalForm(), PartnerDataDto.LEGAL_FORM_FIELD, "Legal Form is required", bindingResult);
-        checkFieldNotNull(className, partnerDataDto.getGoverningLaw(), PartnerDataDto.GOVERNING_LAW_FIELD, "Governing Law is required", bindingResult);
-        checkFieldNotNull(className, partnerDataDto.getLegalEntityRegistrationLocation(), PartnerDataDto.LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD, "Legal Entity Registration Location is required", bindingResult);
-    }
-
     protected void checkNotNullPerson(String className,
                                       PartnerDataDto partnerDataDto,
                                       BindingResult bindingResult) {
@@ -58,23 +49,6 @@ public abstract class PartnerValidator {
         checkFieldNotNull(className, partnerDataDto.getSurname(), PartnerDataDto.SURNAME_FIELD, "Surname is required", bindingResult);
     }
 
-    protected void checkFieldNotNull(String className, Object value, String fieldName, String errorMessage, BindingResult bindingResult) {
-        if (value == null) {
-            addError(className, fieldName, errorMessage, bindingResult);
-        }
-    }
-
-    protected void dtoValidation(String className, PartnerDto partnerDto, BindingResult bindingResult) {
-        Set<ConstraintViolation<PartnerDto>> violations = validator.validate(
-                partnerDto);
-
-        if (!violations.isEmpty()) {
-            violations.forEach(violation ->
-                    addError(className, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
-            );
-        }
-    }
-
     protected void isSecondNationalityDifferent(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
         String nationality1 = partnerDataDto.getNationality1();
         String nationality2 = partnerDataDto.getNationality2();
@@ -82,6 +56,15 @@ public abstract class PartnerValidator {
         if (nationality1 != null && nationality1.equals(nationality2)) {
             addError(className, PartnerDataDto.NATIONALITY2_FIELD, "Second nationality must be different from the first", bindingResult);
         }
+    }
+
+    protected void checkNotNullLegalEntity(String className,
+                                           PartnerDataDto partnerDataDto,
+                                           BindingResult bindingResult) {
+        checkFieldNotNull(className, partnerDataDto.getLegalEntityName(), PartnerDataDto.LEGAL_ENTITY_NAME_FIELD, "Legal Entity Name is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getLegalForm(), PartnerDataDto.LEGAL_FORM_FIELD, "Legal Form is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getGoverningLaw(), PartnerDataDto.GOVERNING_LAW_FIELD, "Governing Law is required", bindingResult);
+        checkFieldNotNull(className, partnerDataDto.getLegalEntityRegistrationLocation(), PartnerDataDto.LEGAL_ENTITY_REGISTRATION_LOCATION_FIELD, "Legal Entity Registration Location is required", bindingResult);
     }
 
     protected void handleLegalEntityRegisterNameAndNumberOptionality(String className, PartnerDataDto dataDto, BindingResult bindingResult) {
@@ -148,6 +131,23 @@ public abstract class PartnerValidator {
             if (dateOfUpdate.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError(className, "data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
             }
+        }
+    }
+
+    protected void checkFieldNotNull(String className, Object value, String fieldName, String errorMessage, BindingResult bindingResult) {
+        if (value == null) {
+            addError(className, fieldName, errorMessage, bindingResult);
+        }
+    }
+
+    protected void dtoValidation(String className, PartnerDto partnerDto, BindingResult bindingResult) {
+        Set<ConstraintViolation<PartnerDto>> violations = validator.validate(
+            partnerDto);
+
+        if (!violations.isEmpty()) {
+            violations.forEach(violation ->
+                addError(className, violation.getPropertyPath().toString(), violation.getMessage(), bindingResult)
+            );
         }
     }
 }

@@ -58,15 +58,6 @@ public abstract class PersonWithSignificantControlValidatorStrategy {
         }
     }
 
-    /**
-     * Checks if the given value is populated and adds an error to the binding result if so.
-     */
-    protected void checkNotPopulated(String value, String fieldName, String errorMessage, BindingResult bindingResult) {
-        if (StringUtils.hasText(value)) {
-            addError(fieldName, errorMessage, bindingResult);
-        }
-    }
-
     protected void validatePartialRleOrOrp(PersonWithSignificantControlDto personWithSignificantControlDto, PersonWithSignificantControlType expectedType, Validator validator, BindingResult bindingResult) {
         performAnnotationValidation(personWithSignificantControlDto, validator, bindingResult);
         checkPersonWithSignificantControlTypeUnchanged(personWithSignificantControlDto.getData(), expectedType, bindingResult);

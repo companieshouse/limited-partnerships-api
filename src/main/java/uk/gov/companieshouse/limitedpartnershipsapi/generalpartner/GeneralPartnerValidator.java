@@ -15,7 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.PartnerValidator;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.partner.PartnerValidator;
 
 @Component
 public class GeneralPartnerValidator extends PartnerValidator {
@@ -65,7 +65,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
 
         dtoValidation(CLASS_NAME, generalPartnerDto, bindingResult);
 
-        if (!PartnerKind.isLegalEntityKind(generalPartnerDto.getData().getKind())) {
+        if (PartnerKind.isPersonKind(generalPartnerDto.getData().getKind())) {
             checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
         }
 

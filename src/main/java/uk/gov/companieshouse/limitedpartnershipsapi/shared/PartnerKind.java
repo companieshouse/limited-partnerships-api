@@ -73,6 +73,15 @@ public enum PartnerKind {
             UPDATE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription()
     );
 
+    public static final Set<String> PERSON_KINDS = Set.of(
+        ADD_GENERAL_PARTNER_PERSON.getDescription(),
+        ADD_LIMITED_PARTNER_PERSON.getDescription(),
+        REMOVE_GENERAL_PARTNER_PERSON.getDescription(),
+        REMOVE_LIMITED_PARTNER_PERSON.getDescription(),
+        UPDATE_GENERAL_PARTNER_PERSON.getDescription(),
+        UPDATE_LIMITED_PARTNER_PERSON.getDescription()
+    );
+
     PartnerKind(String description) {
         this.description = description;
     }
@@ -122,6 +131,10 @@ public enum PartnerKind {
 
     public static boolean isLegalEntityKind(String kind) {
         return kind != null && LEGAL_ENTITY_KINDS.contains(kind);
+    }
+
+    public static boolean isPersonKind(String kind) {
+        return kind != null && PERSON_KINDS.contains(kind);
     }
 
     public static boolean isUpdatePartnerPersonKind(String kind) {

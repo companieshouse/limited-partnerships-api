@@ -95,7 +95,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndCustomChecksFail(PartnershipType type) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         limitedPartnershipSubmissionDao.getData().setEmail(null);
@@ -137,7 +137,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorWhen(PartnershipType partnershipType) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorWhen(PartnershipType partnershipType) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(partnershipType);
 
@@ -168,7 +168,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = FilingMode.class, names = {"UNKNOWN", "DEFAULT"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldOnlyValidateHasPscWhenFilingModeIsRegistration(FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldOnlyValidateHasPscWhenFilingModeIsRegistration(FilingMode filingMode) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
         transaction.setFilingMode(filingMode.getDescription());
@@ -191,7 +191,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = FilingMode.class, names = {"UNKNOWN", "DEFAULT"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorWhenHasPscNotNullAndIsNotRegistration(FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorWhenHasPscNotNullAndIsNotRegistration(FilingMode filingMode) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(SLP);
         transaction.setFilingMode(filingMode.getDescription());
@@ -214,7 +214,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType type) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
@@ -235,7 +235,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorWhenPartnershipNameEndingIsMissingForARegistration(PartnershipType type) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
@@ -254,7 +254,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnNoErrorsWhenPartnershipDetailsForATransitionAreCorrect(PartnershipType type) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
@@ -276,7 +276,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorWhenCompanyNumberForATransitionIsIncorrect(PartnershipType type) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
