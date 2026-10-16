@@ -86,9 +86,7 @@ public class PartnershipService {
         // Create the Resource to be added to the Transaction (includes various links to the resource)
         var limitedPartnershipResource = transactionService.createLimitedPartnershipTransactionResource(transaction, submissionUri, kind);
 
-        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
-            addCostLink(partnershipDto, limitedPartnershipResource, submissionUri);
-        }
+        addPostTransitionCostLink(partnershipDto, transaction, limitedPartnershipResource, submissionUri);
 
         executeWithTransactionalRollback(
             requestId,
@@ -103,10 +101,12 @@ public class PartnershipService {
         return insertedLimitedPartnership.getId();
     }
 
-    private void addCostLink(PartnershipDto partnershipDto, Resource limitedPartnershipResource, String submissionUri) throws ServiceException {
-        Cost cost = postTransitionStrategyHandler.getCost(partnershipDto);
-        if (cost != null) {
-            limitedPartnershipResource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
+    private void addPostTransitionCostLink(PartnershipDto partnershipDto, Transaction transaction, Resource limitedPartnershipResource, String submissionUri) throws ServiceException {
+        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
+            Cost cost = postTransitionStrategyHandler.getCost(partnershipDto);
+            if (cost != null) {
+                limitedPartnershipResource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
+            }
         }
     }
 
