@@ -7,6 +7,7 @@ import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -20,9 +21,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipServi
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -80,4 +83,49 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 		assertThat(sentSubmission.getUpdatedBy()).isEqualTo(USER_ID);
 	}
 
+	@Test
+	void shouldUpdateTheDaoWithDateOfUpdate() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException, ApiErrorResponseException, URIValidationException {
+		mockTransactionServicePatchRequest(transaction);
+		mockCompanyServiceGetRequest();
+
+		PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID).buildDao();
+
+		PartnershipPatchDto limitedPartnershipPatchDto = new PartnershipPatchDto();
+		limitedPartnershipPatchDto.setDateOfUpdate(LocalDate.of(2026, 6, 1));
+
+		when(partnershipRepository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDao));
+
+		partnershipService.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+		verify(partnershipRepository).save(submissionCaptor.capture());
+
+		PartnershipDao sentSubmission = submissionCaptor.getValue();
+
+		assertThat(sentSubmission.getData().getDateOfUpdate()).isEqualTo(LocalDate.of(2026, 6, 1));
+	}
+
+	@Test
+	void shouldFailToUpdateTheDaoIfDateOfUpdateBeforeCompanyIncorporation() throws ApiErrorResponseException, URIValidationException {
+		mockTransactionServicePatchRequest(transaction);
+		mockCompanyServiceGetRequest();
+
+		PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID).buildDao();
+
+		PartnershipPatchDto limitedPartnershipPatchDto = new PartnershipPatchDto();
+		limitedPartnershipPatchDto.setDateOfUpdate(LocalDate.of(2022, 6, 1));
+
+		when(partnershipRepository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDao));
+
+		assertThatThrownBy(() -> partnershipService.updateLimitedPartnership(transaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID))
+				.isInstanceOfSatisfying(MethodArgumentNotValidException.class, exception -> {
+					assertThat(exception.getBindingResult().getErrorCount()).isEqualTo(1);
+					assertThat(exception.getBindingResult().getAllErrors())
+							.extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+							.containsExactlyInAnyOrder(
+									"Limited partnership date of update cannot be before the incorporation date");
+				});
+	}
+
+	// Additional tests can be added here to cover other update scenarios, such as invalid input, missing fields, etc.
+	// Missing validation have to be added to the service to ensure that the update is valid before saving to the repository, like checking address against jurisdiction, etc.
 }
