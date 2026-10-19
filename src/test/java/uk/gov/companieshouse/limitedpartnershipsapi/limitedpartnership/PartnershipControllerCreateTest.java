@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,7 +34,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,7 +43,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 @ContextConfiguration(classes = {
         PartnershipController.class,
         GlobalExceptionHandler.class})
-@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @WebMvcTest(controllers = PartnershipController.class)
 class PartnershipControllerCreateTest {
 
@@ -101,8 +98,7 @@ class PartnershipControllerCreateTest {
                         .content(body))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HttpHeaders.LOCATION, String.format(URL_GET_PARTNERSHIP, TRANSACTION_ID, SUBMISSION_ID)))
-                .andExpect(jsonPath("$.id").value(SUBMISSION_ID))
-                .andDo(document("partnership-create/success"));
+                .andExpect(jsonPath("$.id").value(SUBMISSION_ID));
 
         ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
         ArgumentCaptor<PartnershipDto> partnershipDtoCaptor = ArgumentCaptor.forClass(PartnershipDto.class);
@@ -132,8 +128,7 @@ class PartnershipControllerCreateTest {
                         .headers(httpHeaders)
                         .requestAttr("transaction", transaction)
                         .content(body))
-                .andExpect(status().isInternalServerError())
-                .andDo(document("partnership-create/internal-server-error"));
+                .andExpect(status().isInternalServerError());
 
         verify(partnershipService).createLimitedPartnership(eq(transaction), any(PartnershipDto.class), eq(REQUEST_ID), eq(USER_ID));
     }
@@ -164,8 +159,7 @@ class PartnershipControllerCreateTest {
                 .andExpect(jsonPath("$.errors.length()").value(3))
                 .andExpect(jsonPath("$.errors['data.partnershipName']").value("Limited partnership name must not be null"))
                 .andExpect(jsonPath("$.errors['data.nameEnding']").value("Name ending is required"))
-                .andExpect(jsonPath("$.errors['data.partnershipType']").value("Partnership type must not be null"))
-                .andDo(document("partnership-create/bad-request"));
+                .andExpect(jsonPath("$.errors['data.partnershipType']").value("Partnership type must not be null"));
 
         verify(partnershipService).createLimitedPartnership(eq(transaction), any(PartnershipDto.class), eq(REQUEST_ID), eq(USER_ID));
     }

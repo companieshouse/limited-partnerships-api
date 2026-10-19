@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import jakarta.validation.Validation;
 import org.springframework.http.HttpHeaders;
@@ -43,7 +42,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {
         PartnershipController.class,
         GlobalExceptionHandler.class})
-@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @WebMvcTest(controllers = PartnershipController.class)
 class PartnershipControllerUpdateTest {
 
@@ -99,8 +96,7 @@ class PartnershipControllerUpdateTest {
         patchDto.setPartnershipName("Test Partnership Updated");
 
         patchRequest(patchDto)
-                .andExpect(status().isOk())
-                .andDo(document("partnership-update/success"));
+                .andExpect(status().isOk());
 
         PartnershipPatchDto sentDto = captureUpdate();
         assertThat(sentDto.getPartnershipName()).isEqualTo("Test Partnership Updated");
@@ -125,8 +121,7 @@ class PartnershipControllerUpdateTest {
 
         patchRequest(patchDto)
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors.*").value(hasItem("Sic code must be 5 numeric characters")))
-                .andDo(document("partnership-update/bad-request-invalid-body"));
+                .andExpect(jsonPath("$.errors.*").value(hasItem("Sic code must be 5 numeric characters")));
 
         verifyNoInteractions(partnershipService);
     }
@@ -153,8 +148,7 @@ class PartnershipControllerUpdateTest {
         patchRequest(patchDto)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors['data.dateOfUpdate']")
-                        .value("Limited partnership date of update cannot be before the incorporation date"))
-                .andDo(document("partnership-update/bad-request-date-of-update"));
+                        .value("Limited partnership date of update cannot be before the incorporation date"));
 
         captureUpdate();
     }
@@ -169,8 +163,7 @@ class PartnershipControllerUpdateTest {
                 .updateLimitedPartnership(eq(transaction), eq(SUBMISSION_ID), any(PartnershipPatchDto.class), eq(REQUEST_ID), eq(USER_ID));
 
         patchRequest(patchDto)
-                .andExpect(status().isNotFound())
-                .andDo(document("partnership-update/not-found"));
+                .andExpect(status().isNotFound());
 
         captureUpdate();
     }
@@ -185,8 +178,7 @@ class PartnershipControllerUpdateTest {
                 .updateLimitedPartnership(eq(transaction), eq(SUBMISSION_ID), any(PartnershipPatchDto.class), eq(REQUEST_ID), eq(USER_ID));
 
         patchRequest(patchDto)
-                .andExpect(status().isInternalServerError())
-                .andDo(document("partnership-update/internal-server-error"));
+                .andExpect(status().isInternalServerError());
 
         captureUpdate();
     }

@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartnership;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,7 +23,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 import java.nio.charset.StandardCharsets;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {
         PartnershipController.class,
         GlobalExceptionHandler.class})
-@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @WebMvcTest(controllers = PartnershipController.class)
 class PartnershipControllerCostsTest {
 
@@ -75,8 +72,7 @@ class PartnershipControllerCostsTest {
         getRequest()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].description").value("Register a limited partnership"))
-                .andDo(document("partnership-costs/success"));
+                .andExpect(jsonPath("$[0].description").value("Register a limited partnership"));
     }
 
     @Test
@@ -84,8 +80,7 @@ class PartnershipControllerCostsTest {
         when(costsService.getPostTransitionLimitedPartnershipCost(transaction)).thenThrow(new ServiceException("TEST"));
 
         getRequest()
-                .andExpect(status().isInternalServerError())
-                .andDo(document("partnership-costs/internal-server-error"));
+                .andExpect(status().isInternalServerError());
     }
 
     private ResultActions getRequest() throws Exception {

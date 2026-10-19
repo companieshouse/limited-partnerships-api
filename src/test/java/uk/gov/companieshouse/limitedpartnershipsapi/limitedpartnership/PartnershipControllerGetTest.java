@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartnership;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,7 +23,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 import java.nio.charset.StandardCharsets;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {
         PartnershipController.class,
         GlobalExceptionHandler.class})
-@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @WebMvcTest(controllers = PartnershipController.class)
 class PartnershipControllerGetTest {
 
@@ -74,8 +71,7 @@ class PartnershipControllerGetTest {
 
         getRequest(BASE_URL)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.partnership_name").value(partnershipDto.getData().getPartnershipName()))
-                .andDo(document("partnership-get/success"));
+                .andExpect(jsonPath("$.data.partnership_name").value(partnershipDto.getData().getPartnershipName()));
     }
 
     @Test
@@ -84,8 +80,7 @@ class PartnershipControllerGetTest {
                 .thenThrow(new ResourceNotFoundException("Limited Partnership with id " + SUBMISSION_ID + " not found"));
 
         getRequest(BASE_URL)
-                .andExpect(status().isNotFound())
-                .andDo(document("partnership-get/not-found"));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -94,8 +89,7 @@ class PartnershipControllerGetTest {
                 .thenThrow(new IllegalStateException("TEST"));
 
         getRequest(BASE_URL)
-                .andExpect(status().isInternalServerError())
-                .andDo(document("partnership-get/internal-server-error"));
+                .andExpect(status().isInternalServerError());
     }
 
     private ResultActions getRequest(String url) throws Exception {

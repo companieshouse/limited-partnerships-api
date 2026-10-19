@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartnership;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {
         PartnershipController.class,
         GlobalExceptionHandler.class})
-@AutoConfigureRestDocs(outputDir = "target/generated-snippets")
 @WebMvcTest(controllers = PartnershipController.class)
 class PartnershipControllerValidationStatusTest {
 
@@ -74,8 +71,7 @@ class PartnershipControllerValidationStatusTest {
         getRequest()
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.is_valid").value(true))
-                .andExpect(jsonPath("$.errors").doesNotExist())
-                .andDo(document("partnership-validation-status/success"));
+                .andExpect(jsonPath("$.errors").doesNotExist());
     }
 
     @Test
@@ -91,8 +87,7 @@ class PartnershipControllerValidationStatusTest {
                 .andExpect(jsonPath("$.errors[0].error").value("Partnership type must not be null"))
                 .andExpect(jsonPath("$.errors[0].location").value("data.partnershipType"))
                 .andExpect(jsonPath("$.errors[1].error").value("Email must not be null"))
-                .andExpect(jsonPath("$.errors[1].location").value("data.email"))
-                .andDo(document("partnership-validation-status/not-valid"));
+                .andExpect(jsonPath("$.errors[1].location").value("data.email"));
     }
 
     @Test
@@ -100,8 +95,7 @@ class PartnershipControllerValidationStatusTest {
         when(partnershipService.validateStatus(transaction)).thenThrow(new ResourceNotFoundException("error"));
 
         getRequest()
-                .andExpect(status().isNotFound())
-                .andDo(document("partnership-validation-status/not-found"));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -109,8 +103,7 @@ class PartnershipControllerValidationStatusTest {
         when(partnershipService.validateStatus(transaction)).thenThrow(new ServiceException("TEST"));
 
         getRequest()
-                .andExpect(status().isInternalServerError())
-                .andDo(document("partnership-validation-status/internal-server-error"));
+                .andExpect(status().isInternalServerError());
     }
 
     private ResultActions getRequest() throws Exception {
