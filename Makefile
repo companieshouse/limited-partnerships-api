@@ -49,6 +49,12 @@ dist: clean build package
 sonar:
 	mvn sonar:sonar
 
+.PHONY: docs
+docs:
+	mvn test
+	bash scripts/generate-docs.sh
+	open target/generated-docs/index.html
+
 .PHONY: sonar-pr-analysis
 sonar-pr-analysis:
 	mvn sonar:sonar -P sonar-pr-analysis
