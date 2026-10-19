@@ -6,33 +6,33 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import tools.jackson.databind.json.JsonMapper;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
+import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipController;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -70,8 +70,13 @@ class PartnershipControllerCreateTest {
     @MockitoBean
     private CostsService costsService;
 
+    private LimitedPartnershipValidator limitedPartnershipValidator;
+
     @BeforeEach
     void setUp() {
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        limitedPartnershipValidator = new LimitedPartnershipValidator(validator, mock(CompanyService.class));
+
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", REQUEST_ID);
@@ -135,19 +140,19 @@ class PartnershipControllerCreateTest {
 
     @Test
     void shouldReturnBadRequestWithErrorsWhenPartnershipIsInvalid() throws Exception {
-        PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
+        PartnershipDto partnershipDto = new PartnershipBuilder()
+                .withNameEnding(null)
+                .withPartnershipType(null)
+                .buildDto();
+        partnershipDto.getData().setPartnershipName(null);
         String body = jsonMapper.writeValueAsString(partnershipDto);
 
-        BindingResult bindingResult = new BeanPropertyBindingResult(partnershipDto, "partnershipDto");
-        bindingResult.addError(new FieldError("partnershipDto", "data.partnershipName", "Limited partnership name must not be null"));
-        bindingResult.addError(new FieldError("partnershipDto", "data.nameEnding", "Name ending is required"));
-        bindingResult.addError(new FieldError("partnershipDto", "data.partnershipType", "Partnership type must not be null"));
-
-        Method method = PartnershipController.class.getMethod(
-                "createPartnership", Transaction.class, PartnershipDto.class, String.class, String.class);
-
         when(partnershipService.createLimitedPartnership(eq(transaction), any(PartnershipDto.class), eq(REQUEST_ID), eq(USER_ID)))
-                .thenThrow(new MethodArgumentNotValidException(new MethodParameter(method, 1), bindingResult));
+                .thenAnswer(invocation -> {
+                    PartnershipDto dto = invocation.getArgument(1);
+                    limitedPartnershipValidator.validatePartial(dto, FilingMode.fromDescription(transaction.getFilingMode()));
+                    return SUBMISSION_ID;
+                });
 
         mockMvc.perform(post(POST_URL)
                         .contentType(MediaType.APPLICATION_JSON)

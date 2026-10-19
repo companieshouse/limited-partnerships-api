@@ -6,30 +6,29 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.core.MethodParameter;
+import jakarta.validation.Validation;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import tools.jackson.databind.json.JsonMapper;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.TransactionBuilder;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.GlobalExceptionHandler;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.LimitedPartnershipValidator;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipController;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
@@ -38,9 +37,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -74,8 +76,15 @@ class PartnershipControllerUpdateTest {
     @MockitoBean
     private CostsService costsService;
 
+    private CompanyService companyService;
+    private LimitedPartnershipValidator limitedPartnershipValidator;
+
     @BeforeEach
     void setUp() {
+        companyService = mock(CompanyService.class);
+        limitedPartnershipValidator = new LimitedPartnershipValidator(
+                Validation.buildDefaultValidatorFactory().getValidator(), companyService);
+
         httpHeaders = new HttpHeaders();
         httpHeaders.add("ERIC-Access-Token", "passthrough");
         httpHeaders.add("X-Request-Id", REQUEST_ID);
@@ -127,15 +136,18 @@ class PartnershipControllerUpdateTest {
         PartnershipPatchDto patchDto = new PartnershipPatchDto();
         patchDto.setDateOfUpdate(LocalDate.of(2022, 6, 1));
 
-        BindingResult bindingResult = new BeanPropertyBindingResult(patchDto, "partnershipPatchDto");
-        bindingResult.addError(new FieldError("partnershipPatchDto", "data.dateOfUpdate",
-                "Limited partnership date of update cannot be before the incorporation date"));
+        CompanyProfileApi companyProfileApi = new CompanyProfileApi();
+        companyProfileApi.setDateOfCreation(LocalDate.of(2023, 1, 1));
+        when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(companyProfileApi);
 
-        Method method = PartnershipController.class.getMethod("updatePartnership",
-                Transaction.class, String.class, PartnershipPatchDto.class, String.class, String.class);
-
-        doThrow(new MethodArgumentNotValidException(new MethodParameter(method, 2), bindingResult))
-                .when(partnershipService)
+        doAnswer(invocation -> {
+            PartnershipPatchDto sentPatchDto = invocation.getArgument(2);
+            PartnershipDto partnershipDto = new PartnershipBuilder()
+                    .withDateOfUpdate(sentPatchDto.getDateOfUpdate())
+                    .buildDto();
+            limitedPartnershipValidator.validateUpdate(partnershipDto, transaction);
+            return null;
+        }).when(partnershipService)
                 .updateLimitedPartnership(eq(transaction), eq(SUBMISSION_ID), any(PartnershipPatchDto.class), eq(REQUEST_ID), eq(USER_ID));
 
         patchRequest(patchDto)
@@ -203,6 +215,12 @@ class PartnershipControllerUpdateTest {
         return patchDtoCaptor.getValue();
     }
 }
+
+
+
+
+
+
 
 
 
