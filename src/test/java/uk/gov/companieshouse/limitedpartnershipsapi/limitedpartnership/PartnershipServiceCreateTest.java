@@ -83,7 +83,7 @@ class PartnershipServiceCreateTest extends AbstractPartnershipServiceTestSupport
 	}
 
 	@Test
-	void shouldFailCreatePartnershipIfTransactionHasExistingPartnership() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException, ApiErrorResponseException, URIValidationException {
+	void shouldFailCreatePartnershipIfTransactionHasExistingPartnership() throws ApiErrorResponseException, URIValidationException {
 		mockTransactionServicePatchRequest(transaction);
 
 		when(partnershipRepository.insert(any(PartnershipDao.class))).thenAnswer(invocation -> invocation.getArgument(0));
