@@ -81,7 +81,7 @@ class PartnershipControllerCreateTest {
     }
 
     @Test
-    void shouldCreatePartnershipFromController() throws Exception {
+    void shouldCreatePartnership() throws Exception {
         PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
         String body = jsonMapper.writeValueAsString(partnershipDto);
 
@@ -165,6 +165,10 @@ class PartnershipControllerCreateTest {
         verify(partnershipService).createLimitedPartnership(eq(transaction), any(PartnershipDto.class), eq(REQUEST_ID), eq(USER_ID));
     }
 }
+
+
+
+
 
 
 
