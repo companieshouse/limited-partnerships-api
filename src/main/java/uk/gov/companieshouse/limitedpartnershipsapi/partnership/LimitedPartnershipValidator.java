@@ -15,6 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 
@@ -55,6 +56,8 @@ public class LimitedPartnershipValidator {
 
         dtoValidation(partnershipDto, bindingResult);
 
+        validateTermAndSicCode(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()), bindingResult);
+
         validateDateOfUpdate(transaction, partnershipDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
@@ -70,6 +73,20 @@ public class LimitedPartnershipValidator {
 
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
+            }
+        }
+    }
+
+    private void validateTermAndSicCode(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
+        if (!filingMode.equals(FilingMode.TRANSITION) && (PartnershipType.PFLP.equals(partnershipDto.getData().getPartnershipType())
+            || PartnershipType.SPFLP.equals(partnershipDto.getData().getPartnershipType()))) {
+
+            if (partnershipDto.getData().getTerm() != null) {
+                addError("data.term", "Term is only applicable for non private limited partnerships", bindingResult);
+            }
+
+            if (filingMode.equals(FilingMode.REGISTRATION) && partnershipDto.getData().getSicCodes() != null && !partnershipDto.getData().getSicCodes().isEmpty()) {
+                addError("data.sicCodes", "SIC codes are only applicable for non private limited partnerships", bindingResult);
             }
         }
     }
