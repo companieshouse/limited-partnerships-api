@@ -16,8 +16,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
-import uk.gov.companieshouse.limitedpartnershipsapi.validator.PartnerValidationStatus;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
+import uk.gov.companieshouse.limitedpartnershipsapi.validator.partner.PartnerValidationStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

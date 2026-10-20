@@ -73,6 +73,7 @@ public class TransactionBuilder {
         transaction.setCompanyName("Test Partnership");
         transaction.setCompanyNumber(COMPANY_NUMBER);
         transaction.setFilingMode(filingMode.getDescription());
+        transaction.setKind(kind);
         transaction.setDescription(description);
 
         TransactionLinks transactionLinks = new TransactionLinks();

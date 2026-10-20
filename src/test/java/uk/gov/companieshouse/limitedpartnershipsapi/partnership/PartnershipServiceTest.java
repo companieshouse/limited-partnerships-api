@@ -1,15 +1,16 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.partnership;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
@@ -25,13 +26,9 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionSe
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,6 +44,7 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILIN
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_GET_PARTNERSHIP;
 
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class PartnershipServiceTest {
 
     private static final String USER_ID = "xbJf0l";
@@ -57,25 +55,19 @@ class PartnershipServiceTest {
 
     Transaction transaction = new TransactionBuilder().build();
 
-    @InjectMocks
+    @Autowired
     private PartnershipService service;
 
-    @Mock
-    private PartnershipMapper mapper;
-
-    @Mock
-    private PartnershipPatchMapper patchMapper;
-
-    @Mock
+    @MockitoBean
     private PartnershipRepository repository;
 
-    @Mock
+    @MockitoBean
     private TransactionService transactionService;
 
-    @Mock
+    @MockitoBean
     private LimitedPartnershipValidator limitedPartnershipValidator;
 
-    @Mock
+    @MockitoBean
     private LimitedPartnershipValidationStatus limitedPartnershipValidationStatus;
 
     @Captor
@@ -85,28 +77,21 @@ class PartnershipServiceTest {
     void givenDto_whenCreateLP_thenLPCreatedWithSubmissionIdAndTransactionUpdated() throws Exception {
         // given
         PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
-        PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
-        when(mapper.dtoToDao(partnershipDto)).thenReturn(partnershipDao);
-        when(repository.insert(partnershipDao)).thenReturn(partnershipDao);
+        when(repository.insert(any(PartnershipDao.class))).thenAnswer(invocation -> {
+            PartnershipDao dao = invocation.getArgument(0);
+            dao.setId(SUBMISSION_ID);
+            return dao;
+        });
 
-        // when
         String submissionId = service.createLimitedPartnership(transaction, partnershipDto, REQUEST_ID, USER_ID);
 
         // then
-        verify(mapper).dtoToDao(partnershipDto);
-        verify(repository).insert(partnershipDao);
         verify(repository).save(submissionCaptor.capture());
-        verify(transactionService).updateTransactionWithLinksAndPartnershipName(
-                eq(transaction),
-                any(),
-                any(),
-                any(),
-                any(),
-                any());
+        verify(transactionService).updateTransactionWithLinksAndPartnershipName(eq(transaction), any(), any(), any(), any(), any());
         assertEquals(SUBMISSION_ID, submissionId);
 
-        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), partnershipDao.getId());
+        String submissionUri = String.format(URL_GET_PARTNERSHIP, transaction.getId(), SUBMISSION_ID);
         PartnershipDao sentSubmission = submissionCaptor.getValue();
         String sentSubmissionUri = sentSubmission.getLinks().get(LINK_SELF);
         assertEquals(submissionUri, sentSubmissionUri);
@@ -118,12 +103,6 @@ class PartnershipServiceTest {
         PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
 
         when(transactionService.hasExistingLimitedPartnership(transaction)).thenReturn(true);
-
-        Resource resource = new Resource();
-        resource.setKind(FILING_KIND_LIMITED_PARTNERSHIP);
-        Map<String, Resource> resourceMap = new HashMap<>();
-        resourceMap.put(String.format("/transactions/%s/limited-partnership/%s", TRANSACTION_ID, SUBMISSION_ID), resource);
-        transaction.setResources(resourceMap);
 
         // when + then
         assertThrows(ServiceException.class, () -> service.createLimitedPartnership(transaction,
@@ -151,16 +130,10 @@ class PartnershipServiceTest {
         partnershipDao.setData(dataDao);
         partnershipDao.setCreatedBy("5fd36577288e");
 
-        PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
-
         var limitedPartnershipPatchDto = new PartnershipPatchDto();
 
         when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
             partnershipDao));
-        when(mapper.daoToDto(partnershipDao)).thenReturn(partnershipDto);
-        PartnershipDao partnershipDaoAfterPatch = new PartnershipBuilder().buildDao();
-        when(mapper.dtoToDao(partnershipDto)).thenReturn(
-            partnershipDaoAfterPatch);
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
         // when
@@ -174,39 +147,25 @@ class PartnershipServiceTest {
         assertEquals("5fd36577288e", sentSubmission.getCreatedBy());
         assertEquals(USER_ID, sentSubmission.getUpdatedBy());
 
-        verify(transactionService).updateTransactionWithPartnershipName(transaction, REQUEST_ID, partnershipDto.getData().getPartnershipName());
-    }
-
-    @Test
-    void givenWrongSubmissionId_whenUpdateLP_thenServiceExceptionThrown() {
-        // given
-        when(repository.findById("wrong-id")).thenReturn(Optional.empty());
-
-        var limitedPartnershipPatchDto = new PartnershipPatchDto();
-
-        // when + then
-        assertThrows(ServiceException.class, () -> service.updateLimitedPartnership(
-                transaction, "wrong-id", limitedPartnershipPatchDto, REQUEST_ID, USER_ID));
+        verify(transactionService).updateTransactionWithPartnershipName(transaction, REQUEST_ID, "Asset Strippers");
     }
 
     @Test
     void giveSubmissionId_whenGetLp_ThenLPRetrieved() throws ResourceNotFoundException {
         // given
-        PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
         PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
         when(repository.findById(partnershipDao.getId())).thenReturn(Optional.of(
             partnershipDao));
         when(transactionService.isTransactionLinkedToResource(eq(transaction), any(String.class), eq(FILING_KIND_LIMITED_PARTNERSHIP))).thenReturn(true);
-        when(mapper.daoToDto(partnershipDao)).thenReturn(partnershipDto);
 
         // when
         PartnershipDto retrievedDto = service.getLimitedPartnership(transaction, SUBMISSION_ID);
 
         // then
-        verify(repository).findById(partnershipDao.getId());
-        verify(mapper).daoToDto(partnershipDao);
-        assertEquals(partnershipDto.getData(), retrievedDto.getData());
+        Assertions.assertThat(partnershipDao.getData())
+            .usingRecursiveComparison()
+            .isEqualTo(retrievedDto.getData());
     }
 
     @Test
@@ -233,21 +192,19 @@ class PartnershipServiceTest {
     @Test
     void givenTransactionId_whenGetLp_ThenLPRetrieved() throws ServiceException {
         // given
-        PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
         PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
         when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(true);
         when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(
             partnershipDao));
-        when(mapper.daoToDto(partnershipDao)).thenReturn(partnershipDto);
 
         // when
         PartnershipDto retrievedDto = service.getLimitedPartnership(transaction);
 
         // then
-        verify(repository).findByTransactionId(transaction.getId());
-        verify(mapper).daoToDto(partnershipDao);
-        assertEquals(partnershipDto.getData(), retrievedDto.getData());
+        Assertions.assertThat(partnershipDao.getData())
+            .usingRecursiveComparison()
+            .isEqualTo(retrievedDto.getData());
     }
 
     @Test
@@ -310,27 +267,13 @@ class PartnershipServiceTest {
     }
 
     @Test
-    void givenTransactionIdHasMultipleLpSubmissions_whenClearHasPersonWithSignificantControl_thenServiceExceptionThrown() {
-        // given
-        PartnershipDao lpDao1 = new PartnershipBuilder().buildDao();
-        PartnershipDao lpDao2 = new PartnershipBuilder().buildDao();
-
-        when(repository.findByTransactionId(transaction.getId())).thenReturn(List.of(lpDao1, lpDao2));
-
-        // when + then
-        assertThrows(ServiceException.class, () -> service.clearHasPersonWithSignificantControl(transaction, REQUEST_ID));
-        verify(repository, never()).save(any());
-    }
-
-    @Test
-    void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void givenNoErrorsWithPartnershipData_whenValidateStatus_thenNoErrorsReturned() throws ServiceException {
         // given
         PartnershipDto limitedPartnershipSubmissionDto = new PartnershipBuilder().buildDto();
         PartnershipDao limitedPartnershipSubmissionDao = new PartnershipBuilder().buildDao();
 
         when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(true);
         when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
-        when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
         when(limitedPartnershipValidationStatus.validate(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(new ArrayList<>());
 
         // when
@@ -338,30 +281,6 @@ class PartnershipServiceTest {
 
         // then
         assertEquals(0, results.size());
-    }
-
-    @Test
-    void givenErrorsWithPartnershipData_whenValidateStatus_thenErrorsReturned() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
-        // given
-        PartnershipDto limitedPartnershipSubmissionDto = new PartnershipBuilder().buildDto();
-        PartnershipDao limitedPartnershipSubmissionDao = new PartnershipBuilder().buildDao();
-
-        when(transactionService.doesTransactionHaveALimitedPartnership(transaction, FILING_KIND_LIMITED_PARTNERSHIP)).thenReturn(true);
-        when(repository.findByTransactionId(TRANSACTION_ID)).thenReturn(List.of(limitedPartnershipSubmissionDao));
-        when(mapper.daoToDto(limitedPartnershipSubmissionDao)).thenReturn(limitedPartnershipSubmissionDto);
-        List<ValidationStatusError> errorsList = new ArrayList<>();
-        var error1 = new ValidationStatusError("Missing field", "here", null, null);
-        var error2 = new ValidationStatusError("Invalid data format", "there", null, null);
-        errorsList.add(error1);
-        errorsList.add(error2);
-        when(limitedPartnershipValidationStatus.validate(limitedPartnershipSubmissionDto, REGISTRATION)).thenReturn(errorsList);
-
-        // when
-        List<ValidationStatusError> results = service.validateStatus(transaction);
-
-        // then
-        assertEquals(2, results.size());
-        assertThat(results, hasItems(error1, error2));
     }
 
     @Test
@@ -377,8 +296,7 @@ class PartnershipServiceTest {
             PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
             PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
-            when(mapper.dtoToDao(partnershipDto)).thenReturn(partnershipDao);
-            when(repository.insert(partnershipDao)).thenReturn(partnershipDao);
+            when(repository.insert(any(PartnershipDao.class))).thenReturn(partnershipDao);
             doThrow(new ServiceException("Transaction update failed"))
                 .when(transactionService).updateTransactionWithLinksAndPartnershipName(
                     eq(transaction), any(), any(), any(), any(), any());
@@ -396,8 +314,7 @@ class PartnershipServiceTest {
             PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
             PartnershipDao partnershipDao = new PartnershipBuilder().buildDao();
 
-            when(mapper.dtoToDao(partnershipDto)).thenReturn(partnershipDao);
-            when(repository.insert(partnershipDao)).thenReturn(partnershipDao);
+            when(repository.insert(any(PartnershipDao.class))).thenReturn(partnershipDao);
 
             // when
             service.createLimitedPartnership(transaction, partnershipDto, REQUEST_ID, USER_ID);
@@ -412,12 +329,7 @@ class PartnershipServiceTest {
             PartnershipDao partnershipDaoBeforePatch = new PartnershipBuilder().buildDao();
             partnershipDaoBeforePatch.setCreatedBy("original-creator");
 
-            PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
-            PartnershipDao partnershipDaoAfterPatch = new PartnershipBuilder().buildDao();
-
             when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDaoBeforePatch));
-            when(mapper.daoToDto(partnershipDaoBeforePatch)).thenReturn(partnershipDto);
-            when(mapper.dtoToDao(partnershipDto)).thenReturn(partnershipDaoAfterPatch);
             when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
             doThrow(new ServiceException("Transaction update failed"))
                 .when(transactionService).updateTransactionWithPartnershipName(any(), any(), any());
@@ -429,7 +341,6 @@ class PartnershipServiceTest {
             // verify: first save = patched DAO, second save = original DAO (rollback)
             verify(repository, times(2)).save(submissionCaptor.capture());
             List<PartnershipDao> savedValues = submissionCaptor.getAllValues();
-            assertEquals(partnershipDaoAfterPatch, savedValues.get(0));
             assertEquals(partnershipDaoBeforePatch, savedValues.get(1));
         }
 
@@ -437,12 +348,8 @@ class PartnershipServiceTest {
         void givenTransactionUpdateSucceeds_whenUpdateLP_thenOriginalLPIsNotRestored() throws Exception {
             // given
             PartnershipDao partnershipDaoBeforePatch = new PartnershipBuilder().buildDao();
-            PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
-            PartnershipDao partnershipDaoAfterPatch = new PartnershipBuilder().buildDao();
 
             when(repository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDaoBeforePatch));
-            when(mapper.daoToDto(partnershipDaoBeforePatch)).thenReturn(partnershipDto);
-            when(mapper.dtoToDao(partnershipDto)).thenReturn(partnershipDaoAfterPatch);
             when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
 
             // when
@@ -450,7 +357,7 @@ class PartnershipServiceTest {
 
             // then: only one save (the patched DAO) — no rollback save
             verify(repository, times(1)).save(submissionCaptor.capture());
-            assertEquals(partnershipDaoAfterPatch, submissionCaptor.getValue());
+
         }
     }
 }

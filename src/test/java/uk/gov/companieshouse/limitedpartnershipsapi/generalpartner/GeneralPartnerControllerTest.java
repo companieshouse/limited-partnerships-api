@@ -101,6 +101,9 @@ class GeneralPartnerControllerTest {
                 eq(USER_ID)))
                 .thenReturn(SUBMISSION_ID);
 
+        // Keep DTO kind consistent with transaction kind used by create logic.
+        generalPartnerDto.getData().setKind(txn.getKind());
+
         var response = generalPartnerController.createGeneralPartner(
                 txn,
                 generalPartnerDto,

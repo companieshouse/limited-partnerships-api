@@ -310,7 +310,7 @@ class PartnershipServiceUpdateTest {
                 PartnershipDao sentSubmission = submissionCaptor.getValue();
 
                 assertEquals(sentSubmission.getData().getSicCodes().size(), sicCodes.size());
-                assertEquals(sicCodes.getFirst().toString(), sentSubmission.getData().getSicCodes().getFirst().toString());
+                assertEquals(sicCodes.getFirst(), sentSubmission.getData().getSicCodes().getFirst());
             }
 
             @Test

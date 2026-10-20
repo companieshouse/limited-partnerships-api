@@ -17,6 +17,7 @@ import java.util.List;
 
 public class PartnershipBuilder {
     public static final String SUBMISSION_ID = "098aad0e-f45e-48aa-b320-dc4d3d76d0c0";
+    private String id = SUBMISSION_ID;
 
     private static final String PARTNERSHIP_NAME = "Test Partnership";
     private static final String PARTNERSHIP_NUMBER = "LP123456";
@@ -41,6 +42,11 @@ public class PartnershipBuilder {
     private AddressDto principalPalceOfBusinessAddressDto = null;
     private AddressDao registeredOfficeAddressDao = null;
     private AddressDao principalPalceOfBusinessAddressDao = null;
+
+    public PartnershipBuilder withId(String id) {
+        this.id = id;
+        return this;
+    }
 
     private void createAddressDto() {
         AddressDto roaDto = new AddressDto();
@@ -194,7 +200,7 @@ public class PartnershipBuilder {
 
     public PartnershipDao buildDao() {
         PartnershipDao dao = new PartnershipDao();
-        dao.setId(SUBMISSION_ID);
+        dao.setId(id);
 
         DataDao dataDao = new DataDao();
 

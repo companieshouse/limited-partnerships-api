@@ -7,7 +7,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -68,7 +67,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnNoErrorsWhenGeneralPartnerDataIsValid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnNoErrorsWhenGeneralPartnerDataIsValid() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
         generalPartnerDao.setTransactionId(TRANSACTION_ID);
@@ -84,7 +83,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorsWhenGeneralPartnerDataIsInvalidAndJavaBeanChecksFail() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenGeneralPartnerDataIsInvalidAndJavaBeanChecksFail() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
         generalPartnerDao.getData().setDateOfBirth(LocalDate.of(3000, 10, 3));
@@ -105,7 +104,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorsWhenGeneralPartnerPersonDataIsInvalidAndCustomChecksFail() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenGeneralPartnerPersonDataIsInvalidAndCustomChecksFail() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = createPersonDao();
         generalPartnerDao.getData().setDateOfBirth(null);
@@ -133,7 +132,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorsWhenGeneralPartnerLegalEntityDataIsInvalidAndCustomChecksFail() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenGeneralPartnerLegalEntityDataIsInvalidAndCustomChecksFail() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setGoverningLaw(null);
@@ -159,7 +158,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorsWhenGeneralPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenGeneralPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setEnteredOnRegister(true);
@@ -197,7 +196,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorWhenNotDisqualifiedStatementCheckedIsNull() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorWhenNotDisqualifiedStatementCheckedIsNull() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = createPersonDao();
         generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
@@ -216,7 +215,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorWhenNotDisqualifiedStatementCheckedIsNullLegalEntity() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorWhenNotDisqualifiedStatementCheckedIsNullLegalEntity() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = createLegalEntityDao();
         generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
@@ -235,7 +234,7 @@ class GeneralPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldNotReturnErrorWhenNotDisqualifiedStatementCheckedIsNullForATransitionFiling() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldNotReturnErrorWhenNotDisqualifiedStatementCheckedIsNullForATransitionFiling() throws ServiceException {
         // given
         GeneralPartnerDao generalPartnerDao = createPersonDao();
         generalPartnerDao.getData().setNotDisqualifiedStatementChecked(null);
