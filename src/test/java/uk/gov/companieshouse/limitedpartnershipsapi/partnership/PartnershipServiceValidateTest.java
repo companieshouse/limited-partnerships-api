@@ -7,7 +7,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.PartnershipBuilder;
@@ -48,7 +47,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnNoErrorsWhenPartnershipDataIsValid(PartnershipType type) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);
@@ -64,7 +63,7 @@ class PartnershipServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"UNKNOWN"}, mode = EnumSource.Mode.EXCLUDE)
-    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenPartnershipDataIsInvalidAndJavaBeanChecksFail(PartnershipType type) throws ServiceException {
         // given
         PartnershipDao limitedPartnershipSubmissionDao = createDao(type);
         setupPartnershipTypeSpecificFields(limitedPartnershipSubmissionDao, type);

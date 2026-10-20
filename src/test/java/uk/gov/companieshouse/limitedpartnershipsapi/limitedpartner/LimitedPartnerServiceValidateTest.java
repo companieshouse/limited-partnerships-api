@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
@@ -78,7 +77,7 @@ class LimitedPartnerServiceValidateTest {
     private CompanyProfileApi companyProfileApi;
 
     @Test
-    void shouldReturnNoErrorsWhenLimitedPartnerDataIsValid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnNoErrorsWhenLimitedPartnerDataIsValid() throws ServiceException {
         // given
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
         limitedPartnerDao.setTransactionId(transaction.getId());
@@ -94,7 +93,7 @@ class LimitedPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorsWhenLimitedPartnerDataIsInvalidAndJavaBeanChecksFail() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenLimitedPartnerDataIsInvalidAndJavaBeanChecksFail() throws ServiceException {
         // given
         LimitedPartnerDao limitedPartnerDao = createPersonDao();
         limitedPartnerDao.getData().setDateOfBirth(LocalDate.of(3000, 10, 3));
@@ -118,7 +117,7 @@ class LimitedPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorsWhenLimitedPartnerPersonDataIsInvalidAndCustomChecksFail() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenLimitedPartnerPersonDataIsInvalidAndCustomChecksFail() throws ServiceException {
         // given
         LimitedPartnerDao limitedPartnerDao = createPersonDao();
         limitedPartnerDao.getData().setDateOfBirth(null);
@@ -145,7 +144,7 @@ class LimitedPartnerServiceValidateTest {
     }
 
     @Test
-    void shouldReturnErrorsWhenLimitedPartnerCapitalContributionValuesAreInvalid() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenLimitedPartnerCapitalContributionValuesAreInvalid() throws ServiceException {
 
         // given
         LimitedPartnerDao limitedPartnerDao = createPersonDao();
@@ -168,7 +167,7 @@ class LimitedPartnerServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
-    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException {
         var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
         // given
         LimitedPartnerDao limitedPartnerDao = createLegalEntityDao();
@@ -206,7 +205,7 @@ class LimitedPartnerServiceValidateTest {
 
     @ParameterizedTest
     @EnumSource(value = PartnershipType.class, names = {"LP", "PFLP", "SLP", "SPFLP"})
-    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenLimitedPartnerLegalEntityDataIsInvalidAndJavaBeanAndCustomChecksFail(PartnershipType partnershipType) throws ServiceException {
         var shouldHaveContribution = partnershipType != PartnershipType.PFLP && partnershipType != PartnershipType.SPFLP;
         // given
         mocks();
@@ -267,7 +266,7 @@ class LimitedPartnerServiceValidateTest {
 
     @ParameterizedTest
     @MethodSource("shouldNotAddContributionTestCases")
-    void shouldReturnErrorsWhenTryingToAddContributionForPrivateFundTypes(PartnershipType partnershipType, LimitedPartnerDao limitedPartnerDao) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+    void shouldReturnErrorsWhenTryingToAddContributionForPrivateFundTypes(PartnershipType partnershipType, LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         // given
 
         limitedPartnerDao.getData().setPartnershipType(partnershipType);
