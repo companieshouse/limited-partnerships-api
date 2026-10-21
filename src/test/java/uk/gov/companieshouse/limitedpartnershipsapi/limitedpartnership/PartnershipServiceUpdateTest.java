@@ -146,6 +146,8 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 			return Stream.of(
 					Arguments.of(PartnershipType.PFLP, FilingMode.REGISTRATION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
 					Arguments.of(PartnershipType.SPFLP, FilingMode.REGISTRATION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
+					Arguments.of(PartnershipType.PFLP, FilingMode.TRANSITION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
+					Arguments.of(PartnershipType.SPFLP, FilingMode.TRANSITION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
 					Arguments.of(PartnershipType.PFLP, FilingMode.POST_TRANSITION, List.of(TERM_ERROR)),
 					Arguments.of(PartnershipType.SPFLP, FilingMode.POST_TRANSITION, List.of(TERM_ERROR))
 			);
@@ -176,11 +178,8 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 
 		@ParameterizedTest(name = "{0} in {1} mode should be updated")
 		@CsvSource({
-				"PFLP, TRANSITION",
-				"SPFLP, TRANSITION",
 				"LP, REGISTRATION",
 				"SLP, REGISTRATION",
-				"LP, TRANSITION",
 				"LP, POST_TRANSITION",
 				"SLP, POST_TRANSITION"
 		})
