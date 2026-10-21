@@ -140,7 +140,7 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 	class TermUpdateTests {
 
 		private static final String TERM_NON_PRIVATE_ERROR = "Term is only applicable for non private limited partnerships";
-		private static final String TERM_ERROR = "Term is only applicable";
+		private static final String TERM_ERROR = "Term is not applicable";
 
 		static Stream<Arguments> termFailureScenarios() {
 			return Stream.of(
@@ -209,7 +209,7 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 	class SicCodesUpdateTests {
 
 		private static final String SIC_CODES_NON_PRIVATE_ERROR = "SIC codes are only applicable for non private limited partnerships";
-		private static final String SIC_CODES_ERROR = "SIC codes are only applicable";
+		private static final String SIC_CODES_ERROR = "SIC codes are not applicable";
 
 		static Stream<Arguments> sicCodesFailureScenarios() {
 			return Stream.of(

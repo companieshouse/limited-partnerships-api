@@ -237,7 +237,7 @@ class PartnershipControllerUpdateTest {
     class TermTests {
 
         private static final String TERM_NON_PRIVATE_ERROR = "Term is only applicable for non private limited partnerships";
-        private static final String TERM_ERROR = "Term is only applicable";
+        private static final String TERM_ERROR = "Term is not applicable";
 
         @ParameterizedTest(name = "{0} in {1} mode should be updated")
         @CsvSource({
@@ -306,7 +306,7 @@ class PartnershipControllerUpdateTest {
     class SicCodesTests {
 
         private static final String SIC_CODES_NON_PRIVATE_ERROR = "SIC codes are only applicable for non private limited partnerships";
-        private static final String SIC_CODES_ERROR = "SIC codes are only applicable";
+        private static final String SIC_CODES_ERROR = "SIC codes are not applicable";
 
         @ParameterizedTest(name = "{0} in {1} mode should be updated")
         @CsvSource({

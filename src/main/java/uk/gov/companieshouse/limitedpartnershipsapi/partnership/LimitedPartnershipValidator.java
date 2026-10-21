@@ -56,8 +56,9 @@ public class LimitedPartnershipValidator {
 
         dtoValidation(partnershipDto, bindingResult);
 
-        validateTerm(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()), bindingResult);
-        validateSicCodes(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()), bindingResult);
+        FilingMode filingMode = FilingMode.fromDescription(transaction.getFilingMode());
+        validateTerm(partnershipDto, filingMode, bindingResult);
+        validateSicCodes(partnershipDto, filingMode, bindingResult);
 
         validateDateOfUpdate(transaction, partnershipDto, bindingResult);
 
@@ -84,7 +85,7 @@ public class LimitedPartnershipValidator {
         }
 
         if (FilingMode.TRANSITION.equals(filingMode)) {
-            addError("data.term", "Term is only applicable", bindingResult);
+            addError("data.term", "Term is not applicable", bindingResult);
             return;
         }
 
@@ -105,7 +106,7 @@ public class LimitedPartnershipValidator {
         }
 
         if (FilingMode.TRANSITION.equals(filingMode) || FilingMode.POST_TRANSITION.equals(filingMode)) {
-            addError("data.sicCodes", "SIC codes are only applicable", bindingResult);
+            addError("data.sicCodes", "SIC codes are not applicable", bindingResult);
             return;
         }
 
