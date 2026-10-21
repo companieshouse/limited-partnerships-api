@@ -1,12 +1,15 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartnership;
 
+import jakarta.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import jakarta.validation.Validation;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,12 +29,16 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipContr
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -170,7 +177,7 @@ class PartnershipControllerUpdateTest {
 
         patchRequest(patchDto)
                 .andExpect(status().isNotFound())
-                .andDo(document("partnership-update/not-found"));
+            .andDo(document("partnership-update/partnership-not-found"));
 
         captureUpdate();
     }
@@ -190,6 +197,7 @@ class PartnershipControllerUpdateTest {
 
         captureUpdate();
     }
+
 
     private ResultActions patchRequest(PartnershipPatchDto patchDto) throws Exception {
         return mockMvc.perform(patch(PATCH_URL)
@@ -213,6 +221,101 @@ class PartnershipControllerUpdateTest {
 
         assertThat(transactionCaptor.getValue()).isSameAs(transaction);
         return patchDtoCaptor.getValue();
+    }
+
+    /**
+     * Term and SIC codes rules enforced by {@link LimitedPartnershipValidator#validateUpdate}.
+     * Term and SIC codes are not applicable to private limited partnerships (PFLP and SPFLP):
+     * <ul>
+     *     <li>registration: both the term and the SIC codes are rejected</li>
+     *     <li>post-transition: only the term is rejected</li>
+     *     <li>transition: neither is rejected</li>
+     * </ul>
+     * Non private limited partnerships can always set both.
+     */
+    @Nested
+    class TermAndSicCodes {
+
+        private static final String TERM_ERROR = "Term is only applicable for non private limited partnerships";
+        private static final String SIC_CODES_ERROR = "SIC codes are only applicable for non private limited partnerships";
+
+        @ParameterizedTest(name = "{0} in {1} mode should be updated")
+        @CsvSource({
+            "LP, REGISTRATION",
+            "SLP, REGISTRATION",
+            "LP, POST_TRANSITION",
+            "SLP, POST_TRANSITION"
+        })
+        void shouldUpdateTermAndSicCodesWhenApplicable(PartnershipType partnershipType, FilingMode filingMode) throws Exception {
+            transaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
+
+            PartnershipPatchDto patchDto = termAndSicCodesPatchDto();
+
+            mockServiceToValidateUpdate(partnershipType);
+
+            patchRequest(patchDto)
+                .andExpect(status().isOk())
+                .andDo(document(documentName("success", partnershipType, filingMode)));
+
+            PartnershipPatchDto sentDto = captureUpdate();
+            assertThat(sentDto.getTerm()).isEqualTo(Term.BY_AGREEMENT);
+            assertThat(sentDto.getSicCodes()).containsExactly("12345");
+        }
+
+        @ParameterizedTest(name = "{0} in {1} mode should return bad request, SIC codes error: {2}")
+        @CsvSource({
+            "PFLP, REGISTRATION, true",
+            "SPFLP, REGISTRATION, true",
+            "PFLP, TRANSITION, true",
+            "SPFLP, TRANSITION, true",
+            "PFLP, POST_TRANSITION, false",
+            "SPFLP, POST_TRANSITION, false"
+        })
+        void shouldReturnBadRequestWhenTermAndSicCodesAreNotApplicable(PartnershipType partnershipType, FilingMode filingMode, boolean expectSicCodesError) throws Exception {
+            transaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
+
+            PartnershipPatchDto patchDto = termAndSicCodesPatchDto();
+
+            mockServiceToValidateUpdate(partnershipType);
+
+            ResultActions resultActions = patchRequest(patchDto)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.length()").value(expectSicCodesError ? 2 : 1))
+                .andExpect(jsonPath("$.errors['data.term']").value(TERM_ERROR))
+                .andDo(document(documentName("bad-request", partnershipType, filingMode)));
+
+            if (expectSicCodesError) {
+                resultActions.andExpect(jsonPath("$.errors['data.sicCodes']").value(SIC_CODES_ERROR));
+            }
+
+            captureUpdate();
+        }
+
+        private void mockServiceToValidateUpdate(PartnershipType partnershipType) throws Exception {
+            doAnswer(invocation -> {
+                PartnershipPatchDto sentPatchDto = invocation.getArgument(2);
+                PartnershipDto partnershipDto = new PartnershipBuilder()
+                    .withPartnershipType(partnershipType)
+                    .withTerm(sentPatchDto.getTerm())
+                    .withSicCodes(sentPatchDto.getSicCodes())
+                    .buildDto();
+                limitedPartnershipValidator.validateUpdate(partnershipDto, transaction);
+                return null;
+            }).when(partnershipService)
+                .updateLimitedPartnership(eq(transaction), eq(SUBMISSION_ID), any(PartnershipPatchDto.class), eq(REQUEST_ID), eq(USER_ID));
+        }
+
+        private PartnershipPatchDto termAndSicCodesPatchDto() {
+            PartnershipPatchDto patchDto = new PartnershipPatchDto();
+            patchDto.setTerm(Term.BY_AGREEMENT);
+            patchDto.setSicCodes(List.of("12345"));
+            return patchDto;
+        }
+
+        private String documentName(String scenario, PartnershipType partnershipType, FilingMode filingMode) {
+            return "partnership-update/term-and-sic-codes/" + scenario + "/"
+                + partnershipType + "-" + filingMode.name().toLowerCase(Locale.ROOT).replace('_', '-');
+        }
     }
 }
 

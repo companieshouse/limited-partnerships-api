@@ -78,14 +78,14 @@ public class LimitedPartnershipValidator {
     }
 
     private void validateTermAndSicCode(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
-        if (!filingMode.equals(FilingMode.TRANSITION) && (PartnershipType.PFLP.equals(partnershipDto.getData().getPartnershipType())
+        if (filingMode.equals(FilingMode.TRANSITION) || (PartnershipType.PFLP.equals(partnershipDto.getData().getPartnershipType())
             || PartnershipType.SPFLP.equals(partnershipDto.getData().getPartnershipType()))) {
 
             if (partnershipDto.getData().getTerm() != null) {
                 addError("data.term", "Term is only applicable for non private limited partnerships", bindingResult);
             }
 
-            if (filingMode.equals(FilingMode.REGISTRATION) && partnershipDto.getData().getSicCodes() != null && !partnershipDto.getData().getSicCodes().isEmpty()) {
+            if ((filingMode.equals(FilingMode.REGISTRATION) || filingMode.equals(FilingMode.TRANSITION)) && partnershipDto.getData().getSicCodes() != null && !partnershipDto.getData().getSicCodes().isEmpty()) {
                 addError("data.sicCodes", "SIC codes are only applicable for non private limited partnerships", bindingResult);
             }
         }
