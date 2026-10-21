@@ -56,7 +56,8 @@ public class LimitedPartnershipValidator {
 
         dtoValidation(partnershipDto, bindingResult);
 
-        validateTermAndSicCode(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()), bindingResult);
+        validateTerm(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()), bindingResult);
+        validateSicCodes(partnershipDto, FilingMode.fromDescription(transaction.getFilingMode()), bindingResult);
 
         validateDateOfUpdate(transaction, partnershipDto, bindingResult);
 
@@ -77,17 +78,43 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    private void validateTermAndSicCode(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
-        if (filingMode.equals(FilingMode.TRANSITION) || (PartnershipType.PFLP.equals(partnershipDto.getData().getPartnershipType())
-            || PartnershipType.SPFLP.equals(partnershipDto.getData().getPartnershipType()))) {
+    private void validateTerm(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
+        if (partnershipDto.getData().getTerm() == null) {
+            return;
+        }
 
-            if (partnershipDto.getData().getTerm() != null) {
-                addError("data.term", "Term is only applicable for non private limited partnerships", bindingResult);
-            }
+        if (FilingMode.TRANSITION.equals(filingMode)) {
+            addError("data.term", "Term is only applicable", bindingResult);
+            return;
+        }
 
-            if ((filingMode.equals(FilingMode.REGISTRATION) || filingMode.equals(FilingMode.TRANSITION)) && partnershipDto.getData().getSicCodes() != null && !partnershipDto.getData().getSicCodes().isEmpty()) {
-                addError("data.sicCodes", "SIC codes are only applicable for non private limited partnerships", bindingResult);
-            }
+        var partnershipType = partnershipDto.getData().getPartnershipType();
+        var privateLimitedPartnership = PartnershipType.PFLP.equals(partnershipType)
+            || PartnershipType.SPFLP.equals(partnershipType);
+
+        if (privateLimitedPartnership && (FilingMode.REGISTRATION.equals(filingMode) || FilingMode.POST_TRANSITION.equals(filingMode))) {
+            addError("data.term", "Term is only applicable for non private limited partnerships", bindingResult);
+        }
+    }
+
+    private void validateSicCodes(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
+        var sicCodes = partnershipDto.getData().getSicCodes();
+
+        if (sicCodes == null || sicCodes.isEmpty()) {
+            return;
+        }
+
+        if (FilingMode.TRANSITION.equals(filingMode) || FilingMode.POST_TRANSITION.equals(filingMode)) {
+            addError("data.sicCodes", "SIC codes are only applicable", bindingResult);
+            return;
+        }
+
+        var partnershipType = partnershipDto.getData().getPartnershipType();
+        var privateLimitedPartnership = PartnershipType.PFLP.equals(partnershipType)
+            || PartnershipType.SPFLP.equals(partnershipType);
+
+        if (privateLimitedPartnership && FilingMode.REGISTRATION.equals(filingMode)) {
+            addError("data.sicCodes", "SIC codes are only applicable for non private limited partnerships", bindingResult);
         }
     }
 

@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.restdocs.test.autoconfigure.AutoConfigureRestDocs;
@@ -39,6 +41,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -224,20 +227,17 @@ class PartnershipControllerUpdateTest {
     }
 
     /**
-     * Term and SIC codes rules enforced by {@link LimitedPartnershipValidator#validateUpdate}.
-     * Term and SIC codes are not applicable to private limited partnerships (PFLP and SPFLP):
+     * Term rules enforced by {@link LimitedPartnershipValidator#validateUpdate}:
      * <ul>
-     *     <li>registration: both the term and the SIC codes are rejected</li>
-     *     <li>post-transition: only the term is rejected</li>
-     *     <li>transition: neither is rejected</li>
+     *     <li>registration and post-transition: rejected for private limited partnerships (PFLP and SPFLP)</li>
+     *     <li>transition: always rejected</li>
      * </ul>
-     * Non private limited partnerships can always set both.
      */
     @Nested
-    class TermAndSicCodes {
+    class TermTests {
 
-        private static final String TERM_ERROR = "Term is only applicable for non private limited partnerships";
-        private static final String SIC_CODES_ERROR = "SIC codes are only applicable for non private limited partnerships";
+        private static final String TERM_NON_PRIVATE_ERROR = "Term is only applicable for non private limited partnerships";
+        private static final String TERM_ERROR = "Term is only applicable";
 
         @ParameterizedTest(name = "{0} in {1} mode should be updated")
         @CsvSource({
@@ -246,76 +246,141 @@ class PartnershipControllerUpdateTest {
             "LP, POST_TRANSITION",
             "SLP, POST_TRANSITION"
         })
-        void shouldUpdateTermAndSicCodesWhenApplicable(PartnershipType partnershipType, FilingMode filingMode) throws Exception {
+        void shouldUpdateTermWhenApplicable(PartnershipType partnershipType, FilingMode filingMode) throws Exception {
             transaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
 
-            PartnershipPatchDto patchDto = termAndSicCodesPatchDto();
+            PartnershipPatchDto patchDto = new PartnershipPatchDto();
+            patchDto.setTerm(Term.BY_AGREEMENT);
 
             mockServiceToValidateUpdate(partnershipType);
 
             patchRequest(patchDto)
                 .andExpect(status().isOk())
-                .andDo(document(documentName("success", partnershipType, filingMode)));
+                .andDo(document(documentName("term", "success", partnershipType, filingMode)));
 
             PartnershipPatchDto sentDto = captureUpdate();
             assertThat(sentDto.getTerm()).isEqualTo(Term.BY_AGREEMENT);
-            assertThat(sentDto.getSicCodes()).containsExactly("12345");
         }
 
-        @ParameterizedTest(name = "{0} in {1} mode should return bad request, SIC codes error: {2}")
-        @CsvSource({
-            "PFLP, REGISTRATION, true",
-            "SPFLP, REGISTRATION, true",
-            "PFLP, TRANSITION, true",
-            "SPFLP, TRANSITION, true",
-            "PFLP, POST_TRANSITION, false",
-            "SPFLP, POST_TRANSITION, false"
-        })
-        void shouldReturnBadRequestWhenTermAndSicCodesAreNotApplicable(PartnershipType partnershipType, FilingMode filingMode, boolean expectSicCodesError) throws Exception {
+        static Stream<Arguments> termFailureScenarios() {
+            return Stream.of(
+                Arguments.of(PartnershipType.PFLP, FilingMode.REGISTRATION, TERM_NON_PRIVATE_ERROR),
+                Arguments.of(PartnershipType.SPFLP, FilingMode.REGISTRATION, TERM_NON_PRIVATE_ERROR),
+                Arguments.of(PartnershipType.PFLP, FilingMode.TRANSITION, TERM_ERROR),
+                Arguments.of(PartnershipType.SPFLP, FilingMode.TRANSITION, TERM_ERROR),
+                Arguments.of(PartnershipType.LP, FilingMode.TRANSITION, TERM_ERROR),
+                Arguments.of(PartnershipType.SLP, FilingMode.TRANSITION, TERM_ERROR),
+                Arguments.of(PartnershipType.PFLP, FilingMode.POST_TRANSITION, TERM_NON_PRIVATE_ERROR),
+                Arguments.of(PartnershipType.SPFLP, FilingMode.POST_TRANSITION, TERM_NON_PRIVATE_ERROR)
+            );
+        }
+
+        @ParameterizedTest(name = "{0} in {1} mode should return bad request: {2}")
+        @MethodSource("termFailureScenarios")
+        void shouldReturnBadRequestWhenTermIsNotApplicable(PartnershipType partnershipType, FilingMode filingMode, String expectedError) throws Exception {
             transaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
 
-            PartnershipPatchDto patchDto = termAndSicCodesPatchDto();
+            PartnershipPatchDto patchDto = new PartnershipPatchDto();
+            patchDto.setTerm(Term.BY_AGREEMENT);
 
             mockServiceToValidateUpdate(partnershipType);
 
-            ResultActions resultActions = patchRequest(patchDto)
+            patchRequest(patchDto)
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errors.length()").value(expectSicCodesError ? 2 : 1))
-                .andExpect(jsonPath("$.errors['data.term']").value(TERM_ERROR))
-                .andDo(document(documentName("bad-request", partnershipType, filingMode)));
-
-            if (expectSicCodesError) {
-                resultActions.andExpect(jsonPath("$.errors['data.sicCodes']").value(SIC_CODES_ERROR));
-            }
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors['data.term']").value(expectedError))
+                .andDo(document(documentName("term", "bad-request", partnershipType, filingMode)));
 
             captureUpdate();
         }
+    }
 
-        private void mockServiceToValidateUpdate(PartnershipType partnershipType) throws Exception {
-            doAnswer(invocation -> {
-                PartnershipPatchDto sentPatchDto = invocation.getArgument(2);
-                PartnershipDto partnershipDto = new PartnershipBuilder()
-                    .withPartnershipType(partnershipType)
-                    .withTerm(sentPatchDto.getTerm())
-                    .withSicCodes(sentPatchDto.getSicCodes())
-                    .buildDto();
-                limitedPartnershipValidator.validateUpdate(partnershipDto, transaction);
-                return null;
-            }).when(partnershipService)
-                .updateLimitedPartnership(eq(transaction), eq(SUBMISSION_ID), any(PartnershipPatchDto.class), eq(REQUEST_ID), eq(USER_ID));
-        }
+    /**
+     * SIC codes rules enforced by {@link LimitedPartnershipValidator#validateUpdate}:
+     * <ul>
+     *     <li>registration: rejected for private limited partnerships (PFLP and SPFLP)</li>
+     *     <li>transition and post-transition: always rejected</li>
+     * </ul>
+     */
+    @Nested
+    class SicCodesTests {
 
-        private PartnershipPatchDto termAndSicCodesPatchDto() {
+        private static final String SIC_CODES_NON_PRIVATE_ERROR = "SIC codes are only applicable for non private limited partnerships";
+        private static final String SIC_CODES_ERROR = "SIC codes are only applicable";
+
+        @ParameterizedTest(name = "{0} in {1} mode should be updated")
+        @CsvSource({
+            "LP, REGISTRATION",
+            "SLP, REGISTRATION"
+        })
+        void shouldUpdateSicCodesWhenApplicable(PartnershipType partnershipType, FilingMode filingMode) throws Exception {
+            transaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
+
             PartnershipPatchDto patchDto = new PartnershipPatchDto();
-            patchDto.setTerm(Term.BY_AGREEMENT);
             patchDto.setSicCodes(List.of("12345"));
-            return patchDto;
+
+            mockServiceToValidateUpdate(partnershipType);
+
+            patchRequest(patchDto)
+                .andExpect(status().isOk())
+                .andDo(document(documentName("sic-codes", "success", partnershipType, filingMode)));
+
+            PartnershipPatchDto sentDto = captureUpdate();
+            assertThat(sentDto.getSicCodes()).containsExactly("12345");
         }
 
-        private String documentName(String scenario, PartnershipType partnershipType, FilingMode filingMode) {
-            return "partnership-update/term-and-sic-codes/" + scenario + "/"
-                + partnershipType + "-" + filingMode.name().toLowerCase(Locale.ROOT).replace('_', '-');
+        static Stream<Arguments> sicCodesFailureScenarios() {
+            return Stream.of(
+                Arguments.of(PartnershipType.PFLP, FilingMode.REGISTRATION, SIC_CODES_NON_PRIVATE_ERROR),
+                Arguments.of(PartnershipType.SPFLP, FilingMode.REGISTRATION, SIC_CODES_NON_PRIVATE_ERROR),
+                Arguments.of(PartnershipType.PFLP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+                Arguments.of(PartnershipType.SPFLP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+                Arguments.of(PartnershipType.LP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+                Arguments.of(PartnershipType.SLP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+                Arguments.of(PartnershipType.PFLP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR),
+                Arguments.of(PartnershipType.SPFLP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR),
+                Arguments.of(PartnershipType.LP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR),
+                Arguments.of(PartnershipType.SLP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR)
+            );
         }
+
+        @ParameterizedTest(name = "{0} in {1} mode should return bad request: {2}")
+        @MethodSource("sicCodesFailureScenarios")
+        void shouldReturnBadRequestWhenSicCodesAreNotApplicable(PartnershipType partnershipType, FilingMode filingMode, String expectedError) throws Exception {
+            transaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
+
+            PartnershipPatchDto patchDto = new PartnershipPatchDto();
+            patchDto.setSicCodes(List.of("12345"));
+
+            mockServiceToValidateUpdate(partnershipType);
+
+            patchRequest(patchDto)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.length()").value(1))
+                .andExpect(jsonPath("$.errors['data.sicCodes']").value(expectedError))
+                .andDo(document(documentName("sic-codes", "bad-request", partnershipType, filingMode)));
+
+            captureUpdate();
+        }
+    }
+
+    private void mockServiceToValidateUpdate(PartnershipType partnershipType) throws Exception {
+        doAnswer(invocation -> {
+            PartnershipPatchDto sentPatchDto = invocation.getArgument(2);
+            PartnershipDto partnershipDto = new PartnershipBuilder()
+                .withPartnershipType(partnershipType)
+                .withTerm(sentPatchDto.getTerm())
+                .withSicCodes(sentPatchDto.getSicCodes())
+                .buildDto();
+            limitedPartnershipValidator.validateUpdate(partnershipDto, transaction);
+            return null;
+        }).when(partnershipService)
+            .updateLimitedPartnership(eq(transaction), eq(SUBMISSION_ID), any(PartnershipPatchDto.class), eq(REQUEST_ID), eq(USER_ID));
+    }
+
+    private String documentName(String group, String scenario, PartnershipType partnershipType, FilingMode filingMode) {
+        return "partnership-update/" + group + "/" + scenario + "/"
+            + partnershipType + "-" + filingMode.name().toLowerCase(Locale.ROOT).replace('_', '-');
     }
 }
 

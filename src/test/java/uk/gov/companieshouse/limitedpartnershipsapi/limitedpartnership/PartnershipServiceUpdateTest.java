@@ -137,42 +137,44 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 	}
 
 	@Nested
-	class TermAndSicCodesUpdateTests {
+	class TermUpdateTests {
 
-		private static final String TERM_ERROR = "Term is only applicable for non private limited partnerships";
-		private static final String SIC_CODES_ERROR = "SIC codes are only applicable for non private limited partnerships";
+		private static final String TERM_NON_PRIVATE_ERROR = "Term is only applicable for non private limited partnerships";
+		private static final String TERM_ERROR = "Term is only applicable";
 
-		static Stream<Arguments> termAndSicCodesFailureScenarios() {
+		static Stream<Arguments> termFailureScenarios() {
 			return Stream.of(
-					Arguments.of(PartnershipType.PFLP, FilingMode.REGISTRATION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
-					Arguments.of(PartnershipType.SPFLP, FilingMode.REGISTRATION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
-					Arguments.of(PartnershipType.PFLP, FilingMode.TRANSITION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
-					Arguments.of(PartnershipType.SPFLP, FilingMode.TRANSITION, List.of(TERM_ERROR, SIC_CODES_ERROR)),
-					Arguments.of(PartnershipType.PFLP, FilingMode.POST_TRANSITION, List.of(TERM_ERROR)),
-					Arguments.of(PartnershipType.SPFLP, FilingMode.POST_TRANSITION, List.of(TERM_ERROR))
+					Arguments.of(PartnershipType.PFLP, FilingMode.REGISTRATION, TERM_NON_PRIVATE_ERROR),
+					Arguments.of(PartnershipType.SPFLP, FilingMode.REGISTRATION, TERM_NON_PRIVATE_ERROR),
+					Arguments.of(PartnershipType.PFLP, FilingMode.TRANSITION, TERM_ERROR),
+					Arguments.of(PartnershipType.SPFLP, FilingMode.TRANSITION, TERM_ERROR),
+					Arguments.of(PartnershipType.LP, FilingMode.TRANSITION, TERM_ERROR),
+					Arguments.of(PartnershipType.SLP, FilingMode.TRANSITION, TERM_ERROR),
+					Arguments.of(PartnershipType.PFLP, FilingMode.POST_TRANSITION, TERM_NON_PRIVATE_ERROR),
+					Arguments.of(PartnershipType.SPFLP, FilingMode.POST_TRANSITION, TERM_NON_PRIVATE_ERROR)
 			);
 		}
 
-		@ParameterizedTest(name = "{0} in {1} mode should fail with {2}")
-		@MethodSource("termAndSicCodesFailureScenarios")
-		void shouldFailToUpdateTheTermAndSicCodesIfThePartnershipIsPrivate(PartnershipType partnershipType, FilingMode filingMode, List<String> expectedErrors) throws ApiErrorResponseException, URIValidationException {
+		@ParameterizedTest(name = "{0} in {1} mode should fail with: {2}")
+		@MethodSource("termFailureScenarios")
+		void shouldFailToUpdateTheTermWhenNotApplicable(PartnershipType partnershipType, FilingMode filingMode, String expectedError) throws ApiErrorResponseException, URIValidationException {
 			Transaction testTransaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
 			mockTransactionServicePatchRequest(testTransaction);
 
-			PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID).withPartnershipType(partnershipType).buildDao();
+			PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID)
+					.withPartnershipType(partnershipType).withTerm(null).withSicCodes(null).buildDao();
 
 			PartnershipPatchDto limitedPartnershipPatchDto = new PartnershipPatchDto();
 			limitedPartnershipPatchDto.setTerm(Term.BY_AGREEMENT);
-			limitedPartnershipPatchDto.setSicCodes(List.of("12345"));
 
 			when(partnershipRepository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDao));
 
 			assertThatThrownBy(() -> partnershipService.updateLimitedPartnership(testTransaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID))
 					.isInstanceOfSatisfying(MethodArgumentNotValidException.class, exception -> {
-						assertThat(exception.getBindingResult().getErrorCount()).isEqualTo(expectedErrors.size());
+						assertThat(exception.getBindingResult().getErrorCount()).isEqualTo(1);
 						assertThat(exception.getBindingResult().getAllErrors())
 								.extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-								.containsExactlyInAnyOrderElementsOf(expectedErrors);
+								.containsExactly(expectedError);
 					});
 		}
 
@@ -183,15 +185,15 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 				"LP, POST_TRANSITION",
 				"SLP, POST_TRANSITION"
 		})
-		void shouldUpdateTheTermAndSicCodesWhenNotRestricted(PartnershipType partnershipType, FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException, ApiErrorResponseException, URIValidationException {
+		void shouldUpdateTheTermWhenApplicable(PartnershipType partnershipType, FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException, ApiErrorResponseException, URIValidationException {
 			Transaction testTransaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
 			mockTransactionServicePatchRequest(testTransaction);
 
-			PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID).withPartnershipType(partnershipType).buildDao();
+			PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID)
+					.withPartnershipType(partnershipType).withTerm(null).withSicCodes(null).buildDao();
 
 			PartnershipPatchDto limitedPartnershipPatchDto = new PartnershipPatchDto();
 			limitedPartnershipPatchDto.setTerm(Term.BY_AGREEMENT);
-			limitedPartnershipPatchDto.setSicCodes(List.of("12345"));
 
 			when(partnershipRepository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDao));
 
@@ -200,6 +202,74 @@ class PartnershipServiceUpdateTest extends AbstractPartnershipServiceTestSupport
 			verify(partnershipRepository).save(submissionCaptor.capture());
 
 			assertThat(submissionCaptor.getValue().getData().getTerm()).isEqualTo(Term.BY_AGREEMENT);
+		}
+	}
+
+	@Nested
+	class SicCodesUpdateTests {
+
+		private static final String SIC_CODES_NON_PRIVATE_ERROR = "SIC codes are only applicable for non private limited partnerships";
+		private static final String SIC_CODES_ERROR = "SIC codes are only applicable";
+
+		static Stream<Arguments> sicCodesFailureScenarios() {
+			return Stream.of(
+					Arguments.of(PartnershipType.PFLP, FilingMode.REGISTRATION, SIC_CODES_NON_PRIVATE_ERROR),
+					Arguments.of(PartnershipType.SPFLP, FilingMode.REGISTRATION, SIC_CODES_NON_PRIVATE_ERROR),
+					Arguments.of(PartnershipType.PFLP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+					Arguments.of(PartnershipType.SPFLP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+					Arguments.of(PartnershipType.LP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+					Arguments.of(PartnershipType.SLP, FilingMode.TRANSITION, SIC_CODES_ERROR),
+					Arguments.of(PartnershipType.PFLP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR),
+					Arguments.of(PartnershipType.SPFLP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR),
+					Arguments.of(PartnershipType.LP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR),
+					Arguments.of(PartnershipType.SLP, FilingMode.POST_TRANSITION, SIC_CODES_ERROR)
+			);
+		}
+
+		@ParameterizedTest(name = "{0} in {1} mode should fail with: {2}")
+		@MethodSource("sicCodesFailureScenarios")
+		void shouldFailToUpdateTheSicCodesWhenNotApplicable(PartnershipType partnershipType, FilingMode filingMode, String expectedError) throws ApiErrorResponseException, URIValidationException {
+			Transaction testTransaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
+			mockTransactionServicePatchRequest(testTransaction);
+
+			PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID)
+					.withPartnershipType(partnershipType).withTerm(null).withSicCodes(null).buildDao();
+
+			PartnershipPatchDto limitedPartnershipPatchDto = new PartnershipPatchDto();
+			limitedPartnershipPatchDto.setSicCodes(List.of("12345"));
+
+			when(partnershipRepository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDao));
+
+			assertThatThrownBy(() -> partnershipService.updateLimitedPartnership(testTransaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID))
+					.isInstanceOfSatisfying(MethodArgumentNotValidException.class, exception -> {
+						assertThat(exception.getBindingResult().getErrorCount()).isEqualTo(1);
+						assertThat(exception.getBindingResult().getAllErrors())
+								.extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+								.containsExactly(expectedError);
+					});
+		}
+
+		@ParameterizedTest(name = "{0} in {1} mode should be updated")
+		@CsvSource({
+				"LP, REGISTRATION",
+				"SLP, REGISTRATION"
+		})
+		void shouldUpdateTheSicCodesWhenApplicable(PartnershipType partnershipType, FilingMode filingMode) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException, ApiErrorResponseException, URIValidationException {
+			Transaction testTransaction = new TransactionBuilder().withIncorporationKind(filingMode).build();
+			mockTransactionServicePatchRequest(testTransaction);
+
+			PartnershipDao partnershipDao = new PartnershipBuilder().withId(PartnershipBuilder.SUBMISSION_ID)
+					.withPartnershipType(partnershipType).withTerm(null).withSicCodes(null).buildDao();
+
+			PartnershipPatchDto limitedPartnershipPatchDto = new PartnershipPatchDto();
+			limitedPartnershipPatchDto.setSicCodes(List.of("12345"));
+
+			when(partnershipRepository.findById(SUBMISSION_ID)).thenReturn(Optional.of(partnershipDao));
+
+			partnershipService.updateLimitedPartnership(testTransaction, SUBMISSION_ID, limitedPartnershipPatchDto, REQUEST_ID, USER_ID);
+
+			verify(partnershipRepository).save(submissionCaptor.capture());
+
 			assertThat(submissionCaptor.getValue().getData().getSicCodes()).containsExactly("12345");
 		}
 	}
