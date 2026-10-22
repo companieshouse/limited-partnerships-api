@@ -15,6 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 
@@ -55,6 +56,10 @@ public class LimitedPartnershipValidator {
 
         dtoValidation(partnershipDto, bindingResult);
 
+        FilingMode filingMode = FilingMode.fromDescription(transaction.getFilingMode());
+        validateTerm(partnershipDto, filingMode, bindingResult);
+        validateSicCodes(partnershipDto, filingMode, bindingResult);
+
         validateDateOfUpdate(transaction, partnershipDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
@@ -71,6 +76,46 @@ public class LimitedPartnershipValidator {
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
             }
+        }
+    }
+
+    private void validateTerm(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
+        if (partnershipDto.getData().getTerm() == null) {
+            return;
+        }
+
+        if (FilingMode.TRANSITION.equals(filingMode)) {
+            addError("data.term", "Term is not applicable", bindingResult);
+            return;
+        }
+
+        var partnershipType = partnershipDto.getData().getPartnershipType();
+        var privateLimitedPartnership = PartnershipType.PFLP.equals(partnershipType)
+            || PartnershipType.SPFLP.equals(partnershipType);
+
+        if (privateLimitedPartnership && (FilingMode.REGISTRATION.equals(filingMode) || FilingMode.POST_TRANSITION.equals(filingMode))) {
+            addError("data.term", "Term is only applicable for non private limited partnerships", bindingResult);
+        }
+    }
+
+    private void validateSicCodes(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
+        var sicCodes = partnershipDto.getData().getSicCodes();
+
+        if (sicCodes == null || sicCodes.isEmpty()) {
+            return;
+        }
+
+        if (FilingMode.TRANSITION.equals(filingMode) || FilingMode.POST_TRANSITION.equals(filingMode)) {
+            addError("data.sicCodes", "SIC codes are not applicable", bindingResult);
+            return;
+        }
+
+        var partnershipType = partnershipDto.getData().getPartnershipType();
+        var privateLimitedPartnership = PartnershipType.PFLP.equals(partnershipType)
+            || PartnershipType.SPFLP.equals(partnershipType);
+
+        if (privateLimitedPartnership && FilingMode.REGISTRATION.equals(filingMode)) {
+            addError("data.sicCodes", "SIC codes are only applicable for non private limited partnerships", bindingResult);
         }
     }
 

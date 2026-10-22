@@ -22,7 +22,7 @@ public class PartnershipBuilder {
     private static final String PARTNERSHIP_NAME = "Test Partnership";
     private static final String PARTNERSHIP_NUMBER = "LP123456";
     private static final String EMAIL = "test@test.com";
-    private static final Jurisdiction JURISDICTION = Jurisdiction.ENGLAND_AND_WALES;
+    private Jurisdiction jurisdiction = Jurisdiction.ENGLAND_AND_WALES;
     private static final String PREMISES = "33";
     private static final String ADDRESS_LINE_1 = "Acacia Avenue";
     private static final String LOCALITY = "Birmingham";
@@ -145,6 +145,11 @@ public class PartnershipBuilder {
         return this;
     }
 
+    public PartnershipBuilder withJurisdiction(Jurisdiction jurisdiction) {
+        this.jurisdiction = jurisdiction;
+        return this;
+    }
+
     public PartnershipBuilder withTerm(Term term) {
         this.term = term;
         return this;
@@ -185,7 +190,7 @@ public class PartnershipBuilder {
         dataDto.setPartnershipType(partnershipType);
         dataDto.setPartnershipNumber(PARTNERSHIP_NUMBER);
         dataDto.setEmail(EMAIL);
-        dataDto.setJurisdiction(JURISDICTION);
+        dataDto.setJurisdiction(jurisdiction);
         dataDto.setTerm(term);
         dataDto.setSicCodes(sicCodes);
         dataDto.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
@@ -210,7 +215,7 @@ public class PartnershipBuilder {
         dataDao.setPartnershipType(partnershipType);
         dataDao.setPartnershipNumber(PARTNERSHIP_NUMBER);
         dataDao.setEmail(EMAIL);
-        dataDao.setJurisdiction(JURISDICTION.getApiKey());
+        dataDao.setJurisdiction(jurisdiction.getApiKey());
         dataDao.setTerm(term);
         dataDao.setSicCodes(sicCodes);
         dataDao.setLawfulPurposeStatementChecked(lawfulPurposeStatementChecked);
