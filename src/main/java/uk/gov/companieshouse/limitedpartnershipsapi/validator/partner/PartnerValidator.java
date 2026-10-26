@@ -135,7 +135,7 @@ public abstract class PartnerValidator {
         }
     }
 
-    protected void validateUsualResidentialAddress(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
+    protected void validateUsualResidentialAddressCountry(String className, PartnerDataDto partnerDataDto, BindingResult bindingResult) {
         if (partnerDataDto.getUsualResidentialAddress() != null && partnerDataDto.getUsualResidentialAddress().getCountry().equals(Country.UNITED_KINGDOM.getDescription())) {
             addError(className, PartnerDataDto.USUAL_RESIDENTIAL_ADDRESS_FIELD, "Usual residential address country cannot be United Kingdom", bindingResult);
         }
