@@ -153,6 +153,8 @@ public class LimitedPartnerService {
 
         handleUpdateAddressRequiredOptionality(kind, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
+        handleCapitalContributionsOptionality(transaction, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+
         var limitedPartnerDaoAfterPatch = mapper.dtoToDao(limitedPartnerDto);
 
         // Need to ensure we don't lose the meta-data already set on the Mongo document (but lost when DAO is mapped to a DTO)
@@ -191,6 +193,22 @@ public class LimitedPartnerService {
         if (Boolean.FALSE.equals(limitedPartnerChangesDataDto.getUpdatePrincipalOfficeAddressRequired()) &&
                 data.getPrincipalOfficeAddress() != null) {
             data.setPrincipalOfficeAddress(null);
+        }
+    }
+
+    private void handleCapitalContributionsOptionality(Transaction transaction, LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto data) {
+        if (!FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
+            return;
+        }
+
+        if (limitedPartnerChangesDataDto.getContributionCurrencyValue() == null) {
+            data.setContributionCurrencyValue(null);
+        }
+        if (limitedPartnerChangesDataDto.getContributionCurrencyType() == null) {
+            data.setContributionCurrencyType(null);
+        }
+        if (limitedPartnerChangesDataDto.getContributionSubTypes() == null) {
+            data.setContributionSubTypes(null);
         }
     }
 

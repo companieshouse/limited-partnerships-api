@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -31,6 +32,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -364,6 +366,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDao.getData().setContributionSubTypes(null);
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        limitedPartnerDataDto.setContributionCurrencyType(Currency.GBP);
 
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
@@ -377,6 +380,7 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
         assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
         assertNull(sentSubmission.getData().getContributionCurrencyValue());
+        assertNull(sentSubmission.getData().getContributionSubTypes());
     }
 
     @Test
@@ -386,6 +390,7 @@ class LimitedPartnerServiceUpdateTest {
         limitedPartnerDao.getData().setContributionCurrencyType(null);
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        limitedPartnerDataDto.setContributionSubTypes(List.of(ContributionSubTypes.SHARES));
 
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
 
@@ -400,6 +405,56 @@ class LimitedPartnerServiceUpdateTest {
         assertThat(sentSubmission.getData().getContributionSubTypes()).contains(ContributionSubTypes.SHARES);
         assertNull(sentSubmission.getData().getContributionCurrencyValue());
         assertNull(sentSubmission.getData().getContributionCurrencyType());
+    }
+
+    @Test
+    void shouldClearContributionsWhenFilingModeIsTransition() throws Exception {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+        assertNotNull(limitedPartnerDao.getData().getContributionCurrencyValue());
+        assertNotNull(limitedPartnerDao.getData().getContributionCurrencyType());
+        assertNotNull(limitedPartnerDao.getData().getContributionSubTypes());
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+        assertNull(sentSubmission.getData().getContributionCurrencyValue());
+        assertNull(sentSubmission.getData().getContributionCurrencyType());
+        assertNull(sentSubmission.getData().getContributionSubTypes());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = FilingMode.class, mode = EnumSource.Mode.EXCLUDE, names = "TRANSITION")
+    void shouldNotClearContributionsWhenFilingModeIsNotTransition(FilingMode filingMode) throws Exception {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+        var existingData = limitedPartnerDao.getData();
+        String existingCurrencyValue = existingData.getContributionCurrencyValue();
+        Currency existingCurrencyType = existingData.getContributionCurrencyType();
+        var existingSubTypes = existingData.getContributionSubTypes();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+
+        transaction.setFilingMode(filingMode.getDescription());
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+        assertEquals(existingCurrencyValue, sentSubmission.getData().getContributionCurrencyValue());
+        assertEquals(existingCurrencyType, sentSubmission.getData().getContributionCurrencyType());
+        assertEquals(existingSubTypes, sentSubmission.getData().getContributionSubTypes());
     }
 
     @Nested
