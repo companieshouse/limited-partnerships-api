@@ -89,6 +89,7 @@ public class GeneralPartnerValidator extends PartnerValidator {
             checkNotNullName(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
             checkFieldNotNull(CLASS_NAME, generalPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
+            validateUsualResidentialAddress(CLASS_NAME, generalPartnerDto.getData(), bindingResult);
         }
 
         validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, bindingResult);
