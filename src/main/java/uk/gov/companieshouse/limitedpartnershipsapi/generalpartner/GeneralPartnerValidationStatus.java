@@ -80,6 +80,7 @@ public class GeneralPartnerValidationStatus extends PartnerValidationStatus {
 		} else if (generalPartnerDataDto.getForename() != null || generalPartnerDataDto.getSurname() != null) {
 			checkNotNullPerson(generalPartnerDataDto, errorsList);
 			isSecondNationalityDifferent(generalPartnerDataDto, errorsList);
+			validateUsualResidentialAddressCountry(generalPartnerDataDto, errorsList);
 		} else {
 			errorsList.add(validationStatus.createValidationStatusError("Some fields are missing", ""));
 		}
@@ -107,6 +108,7 @@ public class GeneralPartnerValidationStatus extends PartnerValidationStatus {
 			checkNotNullName(generalPartnerDto.getData(), errorsList);
 			checkFieldNotNull(generalPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, errorsList);
 			isSecondNationalityDifferent(generalPartnerDto.getData(), errorsList);
+			validateUsualResidentialAddressCountry(generalPartnerDto.getData(), errorsList);
 		}
 
 		validateDateEffectiveFrom(CLASS_NAME, transaction, generalPartnerDto, errorsList);

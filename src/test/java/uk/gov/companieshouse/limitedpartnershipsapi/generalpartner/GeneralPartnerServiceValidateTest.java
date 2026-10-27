@@ -3,6 +3,8 @@ package uk.gov.companieshouse.limitedpartnershipsapi.generalpartner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,9 +19,11 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao.GeneralPartnerDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dao.GeneralPartnerDataDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDataDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 
@@ -51,6 +55,9 @@ class GeneralPartnerServiceValidateTest {
 
     @Autowired
     private GeneralPartnerService service;
+
+    @MockitoBean
+    private PartnershipService partnershipService;
 
     @MockitoBean
     private GeneralPartnerRepository repository;
@@ -249,6 +256,32 @@ class GeneralPartnerServiceValidateTest {
         // then
         verify(repository).findById(generalPartnerDao.getId());
         assertThat(errors).isEmpty();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PartnerKind.class, names = {"UPDATE_GENERAL_PARTNER_PERSON", "ADD_GENERAL_PARTNER_PERSON"})
+    void shouldReturnErrorWhenGeneralPartnerUsualResidentialAddressCountryIsInvalid(PartnerKind partnerKind) throws ServiceException {
+        // given
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().withGeneralPartnerKind(partnerKind.getDescription()).personDao();
+        generalPartnerDao.setId(GENERAL_PARTNER_ID);
+        Transaction transaction = new TransactionBuilder().withKindAndUri(
+                partnerKind.getDescription(),
+                URL_GET_GENERAL_PARTNER,
+                GENERAL_PARTNER_ID
+        ).build();
+
+        generalPartnerDao.getData().getUsualResidentialAddress().setCountry(Country.UNITED_KINGDOM.getDescription());
+
+        // when
+        when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
+        List<ValidationStatusError> results = service.validateStatus(transaction, GENERAL_PARTNER_ID);
+
+        // then
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Usual residential address country cannot be United Kingdom", "data.usualResidentialAddress.country")
+                );
     }
 
     private GeneralPartnerDao createPersonDao() {
