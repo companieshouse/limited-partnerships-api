@@ -324,11 +324,6 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Private fund partnerships cannot have a contribution currency type", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD));
     }
 
-    private static final List<String> CONTRIBUTION_FIELDS = List.of(
-            LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD,
-            LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD,
-            LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD);
-
     private LimitedPartnerDao createTransitionDao(boolean isLegalEntity) throws ServiceException {
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
         when(companyService.getCompanyProfile(any())).thenReturn(companyProfileApi);
