@@ -172,7 +172,7 @@ class LimitedPartnerServiceValidateTest {
         // given
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().withLimitedPartnerKind(partnerKind.getDescription()).personDao();
         limitedPartnerDao.setId(LIMITED_PARTNER_ID);
-        Transaction transaction = new TransactionBuilder().withKindAndUri(
+        Transaction transactionWithPartnerKind = new TransactionBuilder().withKindAndUri(
                 partnerKind.getDescription(),
                 URL_GET_LIMITED_PARTNER,
                 LIMITED_PARTNER_ID
@@ -182,7 +182,7 @@ class LimitedPartnerServiceValidateTest {
 
         // when
         when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateLimitedPartner(transactionWithPartnerKind, LIMITED_PARTNER_ID);
 
         // then
         assertThat(results)

@@ -264,7 +264,7 @@ class GeneralPartnerServiceValidateTest {
         // given
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().withGeneralPartnerKind(partnerKind.getDescription()).personDao();
         generalPartnerDao.setId(GENERAL_PARTNER_ID);
-        Transaction transaction = new TransactionBuilder().withKindAndUri(
+        Transaction transactionWithPartnerKind = new TransactionBuilder().withKindAndUri(
                 partnerKind.getDescription(),
                 URL_GET_GENERAL_PARTNER,
                 GENERAL_PARTNER_ID
@@ -274,7 +274,7 @@ class GeneralPartnerServiceValidateTest {
 
         // when
         when(repository.findById(GENERAL_PARTNER_ID)).thenReturn(Optional.of(generalPartnerDao));
-        List<ValidationStatusError> results = service.validateStatus(transaction, GENERAL_PARTNER_ID);
+        List<ValidationStatusError> results = service.validateStatus(transactionWithPartnerKind, GENERAL_PARTNER_ID);
 
         // then
         assertThat(results)
