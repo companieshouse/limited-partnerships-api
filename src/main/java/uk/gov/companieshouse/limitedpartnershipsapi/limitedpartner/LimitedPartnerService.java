@@ -141,6 +141,9 @@ public class LimitedPartnerService {
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
+        // Clear omitted contributions before validating so the validator sees what will be saved
+        handleCapitalContributionsOptionality(transaction, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+
         if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
             limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
         } else {
@@ -152,8 +155,6 @@ public class LimitedPartnerService {
         NationalityUtils.handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         handleUpdateAddressRequiredOptionality(kind, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
-
-        handleCapitalContributionsOptionality(transaction, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
         var limitedPartnerDaoAfterPatch = mapper.dtoToDao(limitedPartnerDto);
 

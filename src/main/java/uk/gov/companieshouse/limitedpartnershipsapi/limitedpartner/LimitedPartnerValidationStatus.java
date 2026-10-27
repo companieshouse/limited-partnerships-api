@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner;
 
 import jakarta.validation.Validator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -95,7 +96,12 @@ public class LimitedPartnerValidationStatus extends PartnerValidationStatus {
 	}
 
 	private void validateCapitalContributions(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, List<ValidationStatusError> errorsList) {
-		if (!FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
+		boolean isRegistration = FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode());
+		// Capital contributions are optional on transition, but if any are given then all are required
+		boolean isTransitionWithContributions = FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode())
+				&& hasAnyContribution(limitedPartnerDataDto);
+
+		if (!isRegistration && !isTransitionWithContributions) {
 			return;
 		}
 
@@ -111,6 +117,13 @@ public class LimitedPartnerValidationStatus extends PartnerValidationStatus {
 		} else {
 			validateStandardPartnershipContributions(contributionCurrencyValue, contributionCurrencyType, hasContributionSubTypes, errorsList);
 		}
+	}
+
+	private boolean hasAnyContribution(LimitedPartnerDataDto limitedPartnerDataDto) {
+		List<ContributionSubTypes> contributionSubTypes = limitedPartnerDataDto.getContributionSubTypes();
+		return StringUtils.isNotBlank(limitedPartnerDataDto.getContributionCurrencyValue())
+				|| limitedPartnerDataDto.getContributionCurrencyType() != null
+				|| (contributionSubTypes != null && !contributionSubTypes.isEmpty());
 	}
 
 	private void validatePrivateFundPartnershipContributions(String contributionCurrencyValue, Currency contributionCurrencyType, boolean hasContributionSubTypes, List<ValidationStatusError> errorsList) {

@@ -449,6 +449,166 @@ class LimitedPartnerServiceCreateTest {
         assertEquals("Some fields are missing", Objects.requireNonNull(exception.getBindingResult().getFieldError("")).getDefaultMessage());
     }
 
+    @Nested
+    class TransitionCapitalContributions {
+
+        @ParameterizedTest
+        @CsvSource({
+                "LP, true", "LP, false",
+                "SLP, true", "SLP, false",
+                "PFLP, true", "PFLP, false",
+                "SPFLP, true", "SPFLP, false"
+        })
+        void shouldCreateLimitedPartnerWhenNoContributionsProvided(PartnershipType partnershipType, boolean isLegalEntity) throws Exception {
+            LimitedPartnerDto dto = transitionDto(partnershipType, isLegalEntity);
+            dto.getData().setContributionCurrencyValue(null);
+            dto.getData().setContributionCurrencyType(null);
+            dto.getData().setContributionSubTypes(null);
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "LP, true", "LP, false",
+                "SLP, true", "SLP, false",
+                "PFLP, true", "PFLP, false",
+                "SPFLP, true", "SPFLP, false"
+        })
+        void shouldCreateLimitedPartnerWhenContributionSubTypesIsEmpty(PartnershipType partnershipType, boolean isLegalEntity) throws Exception {
+            LimitedPartnerDto dto = transitionDto(partnershipType, isLegalEntity);
+            dto.getData().setContributionCurrencyValue(null);
+            dto.getData().setContributionCurrencyType(null);
+            dto.getData().setContributionSubTypes(new ArrayList<>());
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "LP, true", "LP, false",
+                "SLP, true", "SLP, false"
+        })
+        void shouldCreateLimitedPartnerWhenAllContributionsProvided(PartnershipType partnershipType, boolean isLegalEntity) throws Exception {
+            LimitedPartnerDto dto = transitionDto(partnershipType, isLegalEntity);
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "LP, contribution_currency_value, true",
+                "LP, contribution_currency_type, true",
+                "LP, contribution_sub_types, true",
+                "LP, contribution_currency_value, false",
+                "LP, contribution_currency_type, false",
+                "LP, contribution_sub_types, false",
+                "SLP, contribution_currency_value, true",
+                "SLP, contribution_currency_type, true",
+                "SLP, contribution_sub_types, true",
+                "SLP, contribution_currency_value, false",
+                "SLP, contribution_currency_type, false",
+                "SLP, contribution_sub_types, false"
+        })
+        void shouldFailWhenOnlySomeContributionsProvided(PartnershipType partnershipType, String providedField, boolean isLegalEntity) throws Exception {
+            LimitedPartnerDto dto = transitionDto(partnershipType, isLegalEntity);
+            keepOnlyContributionField(dto, providedField);
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            var bindingResult = exception.getBindingResult();
+            assertNull(bindingResult.getFieldError(providedField));
+            assertEquals(2, bindingResult.getFieldErrorCount());
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "PFLP, true", "PFLP, false",
+                "SPFLP, true", "SPFLP, false"
+        })
+        void shouldFailWhenPrivateFundPartnershipHasAllContributions(PartnershipType partnershipType, boolean isLegalEntity) throws Exception {
+            LimitedPartnerDto dto = transitionDto(partnershipType, isLegalEntity);
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            var bindingResult = exception.getBindingResult();
+            assertEquals(3, bindingResult.getFieldErrorCount());
+            assertEquals("Private fund partnerships cannot have a contribution currency value",
+                    Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)).getDefaultMessage());
+            assertEquals("Private fund partnerships cannot have a contribution currency type",
+                    Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)).getDefaultMessage());
+            assertEquals("Private fund partnerships cannot have a contribution",
+                    Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)).getDefaultMessage());
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "PFLP, contribution_currency_value, true",
+                "PFLP, contribution_currency_type, true",
+                "PFLP, contribution_sub_types, true",
+                "PFLP, contribution_currency_value, false",
+                "PFLP, contribution_currency_type, false",
+                "PFLP, contribution_sub_types, false",
+                "SPFLP, contribution_currency_value, true",
+                "SPFLP, contribution_currency_type, true",
+                "SPFLP, contribution_sub_types, true",
+                "SPFLP, contribution_currency_value, false",
+                "SPFLP, contribution_currency_type, false",
+                "SPFLP, contribution_sub_types, false"
+        })
+        void shouldFailWhenPrivateFundPartnershipHasAnyContribution(PartnershipType partnershipType, String providedField, boolean isLegalEntity) throws Exception {
+            LimitedPartnerDto dto = transitionDto(partnershipType, isLegalEntity);
+            keepOnlyContributionField(dto, providedField);
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID)
+            );
+
+            var bindingResult = exception.getBindingResult();
+            assertEquals(1, bindingResult.getFieldErrorCount());
+            assertThat(Objects.requireNonNull(bindingResult.getFieldError(providedField)).getDefaultMessage())
+                    .startsWith("Private fund partnerships cannot have a contribution");
+        }
+
+        private void keepOnlyContributionField(LimitedPartnerDto dto, String providedField) {
+            var data = dto.getData();
+            if (!providedField.equals(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)) {
+                data.setContributionCurrencyValue(null);
+            }
+            if (!providedField.equals(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)) {
+                data.setContributionCurrencyType(null);
+            }
+            if (!providedField.equals(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)) {
+                data.setContributionSubTypes(null);
+            }
+        }
+
+        private LimitedPartnerDto transitionDto(PartnershipType partnershipType, boolean isLegalEntity) throws ServiceException {
+            transaction.setFilingMode(TRANSITION.getDescription());
+
+            LimitedPartnerDto dto = isLegalEntity ? new LimitedPartnerBuilder().legalEntityDto() : new LimitedPartnerBuilder().personDto();
+            dto.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
+            LimitedPartnerDao dao = isLegalEntity ? new LimitedPartnerBuilder().legalEntityDao() : new LimitedPartnerBuilder().personDao();
+
+            when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+            when(companyService.getCompanyProfile(transaction.getCompanyNumber())).thenReturn(Mockito.mock(CompanyProfileApi.class));
+            mockLimitedPartnershipService(partnershipType);
+
+            return dto;
+        }
+    }
+
     private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
         when(repository.insert((LimitedPartnerDao) any())).thenReturn(limitedPartnerDao);
         when(repository.save(any())).thenReturn(limitedPartnerDao);
@@ -465,8 +625,12 @@ class LimitedPartnerServiceCreateTest {
     }
 
     private void mockLimitedPartnershipService() throws ServiceException {
+        mockLimitedPartnershipService(PartnershipType.SLP);
+    }
+
+    private void mockLimitedPartnershipService(PartnershipType partnershipType) throws ServiceException {
         PartnershipDto partnershipDto = new PartnershipBuilder().buildDto();
-        partnershipDto.getData().setPartnershipType(PartnershipType.SLP);
+        partnershipDto.getData().setPartnershipType(partnershipType);
 
         when(partnershipService.getLimitedPartnership(transaction)).thenReturn(partnershipDto);
     }
