@@ -58,9 +58,8 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     }
 
     public boolean hasAnyContribution() {
-        List<ContributionSubTypes> contributionSubTypes = this.getContributionSubTypes();
-        return StringUtils.isNotBlank(this.getContributionCurrencyValue())
-                || this.getContributionCurrencyType() != null
+        return StringUtils.isNotBlank(contributionCurrencyValue)
+                || contributionCurrencyType != null
                 || (contributionSubTypes != null && !contributionSubTypes.isEmpty());
     }
 }
