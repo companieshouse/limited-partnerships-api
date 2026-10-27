@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.ContributionSubTypes;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDataDto;
@@ -54,5 +55,12 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
 
     public void setContributionSubTypes(List<ContributionSubTypes> contributionSubTypes) {
         this.contributionSubTypes = contributionSubTypes;
+    }
+
+    public boolean hasAnyContribution() {
+        List<ContributionSubTypes> contributionSubTypes = this.getContributionSubTypes();
+        return StringUtils.isNotBlank(this.getContributionCurrencyValue())
+                || this.getContributionCurrencyType() != null
+                || (contributionSubTypes != null && !contributionSubTypes.isEmpty());
     }
 }
