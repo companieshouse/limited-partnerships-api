@@ -146,6 +146,7 @@ public class LimitedPartnerValidator extends PartnerValidator {
             checkNotNullName(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
             checkFieldNotNull(CLASS_NAME, limitedPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, bindingResult);
             isSecondNationalityDifferent(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
+            validateUsualResidentialAddressCountry(CLASS_NAME, limitedPartnerDto.getData(), bindingResult);
         }
 
         validateDateEffectiveFrom(CLASS_NAME, transaction, limitedPartnerDto, bindingResult);

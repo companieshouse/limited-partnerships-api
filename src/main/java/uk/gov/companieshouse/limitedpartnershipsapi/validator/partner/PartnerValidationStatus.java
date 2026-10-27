@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.PartnerDataDto;
@@ -126,6 +127,12 @@ public abstract class PartnerValidationStatus {
 			if (dateOfUpdate.isBefore(companyProfileApi.getDateOfCreation())) {
 				errorsList.add(validationStatus.createValidationStatusError("Limited partnership date of update cannot be before the incorporation date", "data.dateOfUpdate"));
 			}
+		}
+	}
+
+	protected void validateUsualResidentialAddressCountry(PartnerDataDto partnerDataDto, List<ValidationStatusError> errorsList) {
+		if (partnerDataDto.getUsualResidentialAddress() != null && Objects.equals(Country.UNITED_KINGDOM.getDescription(), partnerDataDto.getUsualResidentialAddress().getCountry())) {
+			errorsList.add(validationStatus.createValidationStatusError("Usual residential address country cannot be United Kingdom", "data.usualResidentialAddress.country"));
 		}
 	}
 
