@@ -255,7 +255,7 @@ class LimitedPartnerServiceValidateTest {
 
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
-        assertThat(results).extracting(ValidationStatusError::getLocation).doesNotContainAnyElementsOf(CONTRIBUTION_FIELDS);
+        assertThat(results).isEmpty();
     }
 
     @ParameterizedTest
@@ -267,7 +267,7 @@ class LimitedPartnerServiceValidateTest {
 
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
-        assertThat(results).extracting(ValidationStatusError::getLocation).doesNotContainAnyElementsOf(CONTRIBUTION_FIELDS);
+        assertThat(results).isEmpty();
     }
 
     @ParameterizedTest
@@ -303,7 +303,7 @@ class LimitedPartnerServiceValidateTest {
 
         List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
 
-        assertThat(results).extracting(ValidationStatusError::getLocation).doesNotContainAnyElementsOf(CONTRIBUTION_FIELDS);
+        assertThat(results).isEmpty();
     }
 
     @ParameterizedTest
