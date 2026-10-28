@@ -81,9 +81,6 @@ class LimitedPartnerServiceUpdateTest {
     private TransactionService transactionService;
 
     @Captor
-    private ArgumentCaptor<Transaction> transactionCaptor;
-
-    @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
 
     @Test
@@ -236,6 +233,45 @@ class LimitedPartnerServiceUpdateTest {
         assertNull(sentSubmission.getData().getLegalEntityRegisterName());
         assertNull(sentSubmission.getData().getRegisteredCompanyNumber());
         assertFalse(sentSubmission.getData().getEnteredOnRegister());
+    }
+
+    @Test
+    void shouldFailUpdateIfUsualResidentialAddressCountryIsUnitedKingdom() {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
+        limitedPartnerDataDto.setDateEffectiveFrom(null);
+        limitedPartnerDataDto.getUsualResidentialAddress().setCountry(Country.UNITED_KINGDOM.getDescription());
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID)
+        );
+
+        assertEquals("Usual residential address country cannot be United Kingdom", Objects.requireNonNull(exception.getBindingResult().getFieldError("usual_residential_address")).getDefaultMessage());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Country.class, names = {"ENGLAND", "SCOTLAND", "WALES", "NORTHERN_IRELAND", "FRANCE", "GERMANY", "SPAIN", "ITALY"})
+    void shouldAllowUpdateIfUsualResidentialAddressCountryIsNotUnitedKingdom(Country country) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
+
+        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
+        limitedPartnerDataDto.setDateEffectiveFrom(null);
+        limitedPartnerDataDto.getUsualResidentialAddress().setCountry(country.getDescription());
+
+        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(country.getDescription(), sentSubmission.getData().getUsualResidentialAddress().getCountry());
     }
 
     @ParameterizedTest

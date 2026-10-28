@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -125,6 +126,45 @@ class GeneralPartnerServiceUpdateTest {
         );
 
         assertEquals("Second nationality must be different from the first", Objects.requireNonNull(exception.getBindingResult().getFieldError("nationality2")).getDefaultMessage());
+    }
+
+    @Test
+    void shouldFailUpdateIfUsualResidentialAddressCountryIsUnitedKingdom() {
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().personDto().getData();
+        generalPartnerDataDto.setDateEffectiveFrom(null);
+        generalPartnerDataDto.getUsualResidentialAddress().setCountry(Country.UNITED_KINGDOM.getDescription());
+
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID)
+        );
+
+        assertEquals("Usual residential address country cannot be United Kingdom", Objects.requireNonNull(exception.getBindingResult().getFieldError("usual_residential_address")).getDefaultMessage());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Country.class, names = {"ENGLAND", "SCOTLAND", "WALES", "NORTHERN_IRELAND", "FRANCE", "GERMANY", "SPAIN", "ITALY"})
+    void shouldAllowUpdateIfUsualResidentialAddressCountryIsNotUnitedKingdom(Country country) throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().personDao();
+
+        GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().personDto().getData();
+        generalPartnerDataDto.setDateEffectiveFrom(null);
+        generalPartnerDataDto.getUsualResidentialAddress().setCountry(country.getDescription());
+
+        when(generalPartnerRepository.findById(generalPartnerDao.getId())).thenReturn(Optional.of(generalPartnerDao));
+        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+        service.updateGeneralPartner(transaction, GENERAL_PARTNER_ID, generalPartnerDataDto, REQUEST_ID, USER_ID);
+
+        verify(generalPartnerRepository).save(submissionCaptor.capture());
+
+        GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+
+        assertEquals(country.getDescription(), sentSubmission.getData().getUsualResidentialAddress().getCountry());
     }
 
     @Test
@@ -332,7 +372,7 @@ class GeneralPartnerServiceUpdateTest {
     }
 
     @Test
-    void testGeneralUpdateLimitedPartnerLinkFails() {
+    void testGeneralUpdateGeneralPartnerLinkFails() {
         GeneralPartnerDao generalPartnerDao = new GeneralPartnerBuilder().legalEntityDao();
 
         GeneralPartnerDataDto generalPartnerDataDto = new GeneralPartnerBuilder().legalEntityDto().getData();

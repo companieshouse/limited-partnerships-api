@@ -317,6 +317,18 @@ class GeneralPartnerControllerUpdateTest {
         private static final String JSON_SA_MISSING_LOCALITY = "{\"service_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"England\"}}";
         private static final String JSON_SA_MISSING_COUNTRY = "{\"service_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
 
+        // usual residential address
+        private static final String JSON_URA_POSTCODE_EMPTY = "{\"usual_residential_address\":{\"postal_code\":\"\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+        private static final String JSON_URA_POSTCODE_NOT_CORRECT = "{\"usual_residential_address\":{\"postal_code\":\"1ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+        private static final String JSON_URA_ADDRESS_LINE_1_TOO_SHORT = "{\"usual_residential_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+
+        private static final String JSON_URA_MISSING_POSTCODE = "{\"usual_residential_address\":{\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+        private static final String JSON_URA_MISSING_PREMISES = "{\"usual_residential_address\":{\"postal_code\":\"ST6 3LJ\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+        private static final String JSON_URA_MISSING_ADDRESS_LINE_1 = "{\"usual_residential_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\",\"country\":\"England\"}}";
+        private static final String JSON_URA_MISSING_LOCALITY = "{\"usual_residential_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"country\":\"England\"}}";
+        private static final String JSON_URA_MISSING_COUNTRY = "{\"usual_residential_address\":{\"postal_code\":\"ST6 3LJ\",\"premises\":\"2\",\"address_line_1\":\"DUNCALF STREET\",\"address_line_2\":\"\",\"locality\":\"STOKE-ON-TRENT\"}}";
+
+
         @ParameterizedTest
         @ValueSource(strings = {
                 JSON_POA_UK,
@@ -360,7 +372,10 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_POA_ADDRESS_LINE_1_TOO_SHORT + "$ data.principalOfficeAddress.addressLine1 $ Address line 1 must be greater than 1",
                 JSON_SA_POSTCODE_EMPTY + "$ data.serviceAddress.postalCode $ Postcode must not be null",
                 JSON_SA_POSTCODE_NOT_CORRECT + "$ data.serviceAddress.postalCode $ Invalid postcode format",
-                JSON_SA_ADDRESS_LINE_1_TOO_SHORT + "$ data.serviceAddress.addressLine1 $ Address line 1 must be greater than 1"
+                JSON_SA_ADDRESS_LINE_1_TOO_SHORT + "$ data.serviceAddress.addressLine1 $ Address line 1 must be greater than 1",
+                JSON_URA_POSTCODE_EMPTY + "$ data.usualResidentialAddress.postalCode $ Postcode must not be null",
+                JSON_URA_POSTCODE_NOT_CORRECT + "$ data.usualResidentialAddress.postalCode $ Invalid postcode format",
+                JSON_URA_ADDRESS_LINE_1_TOO_SHORT + "$ data.usualResidentialAddress.addressLine1 $ Address line 1 must be greater than 1"
         }, delimiter = '$')
         void shouldReturn400IfFieldIncorrect(String body, String field, String errorMessage) throws Exception {
             mocks();
@@ -386,7 +401,12 @@ class GeneralPartnerControllerUpdateTest {
                 JSON_SA_MISSING_PREMISES + "$ data.serviceAddress.premises $ Property name or number must not be null",
                 JSON_SA_MISSING_ADDRESS_LINE_1 + "$ data.serviceAddress.addressLine1 $ Address line 1 must not be null",
                 JSON_SA_MISSING_LOCALITY + "$ data.serviceAddress.locality $ Town or city must not be null",
-                JSON_SA_MISSING_COUNTRY + "$ data.serviceAddress.country $ Country must not be null"
+                JSON_SA_MISSING_COUNTRY + "$ data.serviceAddress.country $ Country must not be null",
+                JSON_URA_MISSING_POSTCODE + "$ data.usualResidentialAddress.postalCode $ Postcode must not be null",
+                JSON_URA_MISSING_PREMISES + "$ data.usualResidentialAddress.premises $ Property name or number must not be null",
+                JSON_URA_MISSING_ADDRESS_LINE_1 + "$ data.usualResidentialAddress.addressLine1 $ Address line 1 must not be null",
+                JSON_URA_MISSING_LOCALITY + "$ data.usualResidentialAddress.locality $ Town or city must not be null",
+                JSON_URA_MISSING_COUNTRY + "$ data.usualResidentialAddress.country $ Country must not be null"
         }, delimiter = '$')
         void shouldReturn400IfRequiredFieldIsMissing(String body, String field, String errorMessage) throws Exception {
             mocks();

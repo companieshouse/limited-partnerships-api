@@ -77,6 +77,7 @@ public class LimitedPartnerValidationStatus extends PartnerValidationStatus {
 			checkNotNullPerson(limitedPartnerDataDto, errorsList);
 			isSecondNationalityDifferent(limitedPartnerDataDto, errorsList);
 			validateCapitalContributions(limitedPartnerDataDto, transaction, errorsList);
+			validateUsualResidentialAddressCountry(limitedPartnerDataDto, errorsList);
 		} else {
 			errorsList.add(validationStatus.createValidationStatusError("Some fields are missing", ""));
 		}
@@ -165,6 +166,7 @@ public class LimitedPartnerValidationStatus extends PartnerValidationStatus {
 			checkNotNullName(limitedPartnerDto.getData(), errorsList);
 			checkFieldNotNull(limitedPartnerDto.getData().getNationality1(), PartnerDataDto.NATIONALITY1_FIELD, NATIONALITY_1_IS_REQUIRED, errorsList);
 			isSecondNationalityDifferent(limitedPartnerDto.getData(), errorsList);
+			validateUsualResidentialAddressCountry(limitedPartnerDto.getData(), errorsList);
 		}
 
 		validateDateEffectiveFrom(CLASS_NAME, transaction, limitedPartnerDto, errorsList);

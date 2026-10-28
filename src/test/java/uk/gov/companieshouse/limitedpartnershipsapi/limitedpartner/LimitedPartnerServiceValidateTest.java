@@ -32,6 +32,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Partnershi
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 
@@ -165,6 +166,32 @@ class LimitedPartnerServiceValidateTest {
                         tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
                         tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
                         tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)
+                );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = PartnerKind.class, names = {"UPDATE_LIMITED_PARTNER_PERSON", "ADD_LIMITED_PARTNER_PERSON"})
+    void shouldReturnErrorWhenLimitedPartnerUsualResidentialAddressCountryIsInvalid(PartnerKind partnerKind) throws ServiceException {
+        // given
+        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().withLimitedPartnerKind(partnerKind.getDescription()).personDao();
+        limitedPartnerDao.setId(LIMITED_PARTNER_ID);
+        Transaction transactionWithPartnerKind = new TransactionBuilder().withKindAndUri(
+                partnerKind.getDescription(),
+                URL_GET_LIMITED_PARTNER,
+                LIMITED_PARTNER_ID
+        ).build();
+
+        limitedPartnerDao.getData().getUsualResidentialAddress().setCountry(Country.UNITED_KINGDOM.getDescription());
+
+        // when
+        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+        List<ValidationStatusError> results = service.validateLimitedPartner(transactionWithPartnerKind, LIMITED_PARTNER_ID);
+
+        // then
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .containsExactlyInAnyOrder(
+                        tuple("Usual residential address country cannot be United Kingdom", "data.usualResidentialAddress.country")
                 );
     }
 
