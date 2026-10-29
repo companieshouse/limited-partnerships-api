@@ -33,7 +33,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -44,9 +43,6 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_G
 
 @SpringBootTest
 class PostTransitionPartnerTest {
-
-    @Autowired
-    private CostsService costsService;
 
     @Autowired
     private GeneralPartnerService generalPartnerService;
@@ -163,16 +159,6 @@ class PostTransitionPartnerTest {
                             Map.entry("data.ceaseDate", "Partner cease date cannot be before the date of birth")
                     );
         }
-
-        @Test
-        void shouldReturn200AndNoFeeForKindROA() throws Exception {
-
-            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
-
-            var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerPersonDao.getId());
-
-            assertNull(result);
-        }
     }
 
     @Nested
@@ -223,16 +209,6 @@ class PostTransitionPartnerTest {
                             Map.entry("data.ceaseDate", "Partner cease date cannot be before the date of birth")
                     );
         }
-
-        @Test
-        void shouldReturn200AndNoFeeForKind() throws Exception {
-
-            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
-
-            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerPersonDao.getId());
-
-            assertNull(result);
-        }
     }
 
     @Nested
@@ -282,16 +258,6 @@ class PostTransitionPartnerTest {
                             Map.entry("data.ceaseDate", "Partner cease date cannot be before the incorporation date")
                     );
         }
-
-        @Test
-        void shouldReturn200AndNoFeeForKind() throws Exception {
-
-            mocks(PartnerKind.REMOVE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
-
-            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
-
-            assertNull(result);
-        }
     }
 
     @Nested
@@ -340,16 +306,6 @@ class PostTransitionPartnerTest {
                     .containsExactlyInAnyOrder(
                             Map.entry("data.ceaseDate", "Partner cease date cannot be before the incorporation date")
                     );
-        }
-
-        @Test
-        void shouldReturn200AndNoFeeForKindROA() throws Exception {
-
-            mocks(PartnerKind.REMOVE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
-
-            var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
-
-            assertNull(result);
         }
     }
 
@@ -605,16 +561,6 @@ class PostTransitionPartnerTest {
                             Map.entry("nationality1", "Nationality1 is required")
                     );
         }
-
-        @Test
-        void shouldReturn200AndNoFeeForKindROA() throws Exception {
-
-            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
-
-            var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerPersonDao.getId());
-
-            assertNull(result);
-        }
     }
 
     // -- Update General Partner Legal Entity
@@ -715,16 +661,6 @@ class PostTransitionPartnerTest {
                             Map.entry("entered_on_register", "Entered on register is required")
                     );
         }
-
-        @Test
-        void shouldReturn200AndNoFeeForKindUpdateGeneralPartnerLegalEntity() throws Exception {
-
-            mocks(PartnerKind.UPDATE_GENERAL_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
-
-            var result = costsService.getPostTransitionGeneralPartnerCost(transactionGeneralPartner, generalPartnerLegalEntityDao.getId());
-
-            assertNull(result);
-        }
     }
 
     // -- Update Limited Partner Person --
@@ -812,16 +748,6 @@ class PostTransitionPartnerTest {
                             Map.entry("nationality1", "Nationality1 is required")
                     );
         }
-
-        @Test
-        void shouldReturn200AndNoFeeForKind() throws Exception {
-
-            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_PERSON, generalPartnerPersonDao, limitedPartnerPersonDao);
-
-            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerPersonDao.getId());
-
-            assertNull(result);
-        }
     }
 
     // -- Update Limited Partner Legal Entity --
@@ -888,16 +814,6 @@ class PostTransitionPartnerTest {
                     .containsExactlyInAnyOrder(
                             Map.entry("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date")
                     );
-        }
-
-        @Test
-        void shouldReturn200AndNoFeeForKind() throws Exception {
-
-            mocks(PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY, generalPartnerLegalEntityDao, limitedPartnerLegalEntityDao);
-
-            var result = costsService.getPostTransitionLimitedPartnerCost(transactionLimitedPartner, limitedPartnerLegalEntityDao.getId());
-
-            assertNull(result);
         }
     }
 

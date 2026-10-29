@@ -180,7 +180,7 @@ class LimitedPartnerServiceTest {
             when(repository.insert(limitedPartnerDao)).thenReturn(limitedPartnerDao);
 
             doThrow(new ServiceException("Transaction update failed"))
-                    .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any(), any());
+                    .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any());
 
             assertThatThrownBy(() -> limitedPartnerService.createLimitedPartner(transaction, limitedPartnerDto, REQUEST_ID, USER_ID))
                     .isInstanceOf(ServiceException.class)

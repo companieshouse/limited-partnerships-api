@@ -6,12 +6,8 @@ import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
-import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.GeneralPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.IncorporationRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.incorporation.dao.IncorporationDao;
-import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.LimitedPartnerService;
-import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
@@ -24,21 +20,15 @@ public class CostsService {
 
     private final IncorporationRepository incorporationRepository;
     private final PartnershipService partnershipService;
-    private final GeneralPartnerService generalPartnerService;
-    private final LimitedPartnerService limitedPartnerService;
     private final PostTransitionStrategyHandler postTransitionStrategyHandler;
 
     public CostsService(
         IncorporationRepository incorporationRepository,
         PartnershipService partnershipService,
-            GeneralPartnerService generalPartnerService,
-            LimitedPartnerService limitedPartnerService,
             PostTransitionStrategyHandler postTransitionStrategyHandler) {
         this.incorporationRepository = incorporationRepository;
         this.partnershipService = partnershipService;
-        this.generalPartnerService = generalPartnerService;
         this.postTransitionStrategyHandler = postTransitionStrategyHandler;
-        this.limitedPartnerService = limitedPartnerService;
     }
 
     @Value("${LP_REGISTRATION_COST}")
@@ -83,17 +73,5 @@ public class CostsService {
         PartnershipDto partnershipDto = partnershipService.getLimitedPartnership(transaction);
 
         return postTransitionStrategyHandler.getCost(partnershipDto);
-    }
-
-    public Cost getPostTransitionGeneralPartnerCost(Transaction transaction, String generalPartnerId) throws ServiceException {
-        GeneralPartnerDto generalPartnerDto = generalPartnerService.getGeneralPartner(transaction, generalPartnerId);
-
-        return postTransitionStrategyHandler.getCost(generalPartnerDto);
-    }
-
-    public Cost getPostTransitionLimitedPartnerCost(Transaction transaction, String limitedPartnerId) throws ServiceException {
-        LimitedPartnerDto limitedPartnerDto = limitedPartnerService.getLimitedPartner(transaction, limitedPartnerId);
-
-        return postTransitionStrategyHandler.getCost(limitedPartnerDto);
     }
 }

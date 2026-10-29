@@ -99,7 +99,7 @@ public class LimitedPartnerService {
         executeWithTransactionalRollback(
             requestId,
             insertedSubmission.getId(),
-            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, null),
+            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind),
             INSERTION,
             () -> repository.deleteById(insertedSubmission.getId())
         );

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
-import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.sdk.ApiClientService;
@@ -24,9 +23,7 @@ import java.util.Optional;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode.TRANSITION;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.COSTS_URI_SUFFIX;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNERSHIP;
-import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_COSTS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_RESOURCE;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.LINK_VALIDATION_STATUS;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.TRANSACTIONS_PRIVATE_API_URI_PREFIX;
@@ -123,12 +120,8 @@ public class TransactionService {
     }
 
     public void updateTransactionWithLinksForResource(
-            String requestId, Transaction transaction, String submissionUri, String kind, Cost cost) throws ServiceException {
+            String requestId, Transaction transaction, String submissionUri, String kind) throws ServiceException {
         final var resource = createResourceAndAddLinks(transaction, submissionUri, kind);
-
-        if (cost != null) {
-            resource.getLinks().put(LINK_COSTS, submissionUri + COSTS_URI_SUFFIX);
-        }
 
         transaction.setResources(Collections.singletonMap(submissionUri, resource));
         updateTransaction(transaction, requestId);
