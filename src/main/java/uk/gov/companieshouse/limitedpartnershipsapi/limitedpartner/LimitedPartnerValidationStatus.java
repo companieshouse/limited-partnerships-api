@@ -96,7 +96,12 @@ public class LimitedPartnerValidationStatus extends PartnerValidationStatus {
 	}
 
 	private void validateCapitalContributions(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, List<ValidationStatusError> errorsList) {
-		if (!FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
+		boolean isRegistration = FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode());
+		// Capital contributions are optional on transition, but if any are given then all are required
+		boolean isTransitionWithContributions = FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode())
+				&& limitedPartnerDataDto.hasAnyContribution();
+
+		if (!isRegistration && !isTransitionWithContributions) {
 			return;
 		}
 

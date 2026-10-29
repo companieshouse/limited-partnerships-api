@@ -141,6 +141,9 @@ public class LimitedPartnerService {
 
         mapper.update(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
+        // Clear omitted contributions before validating so the validator sees what will be saved
+        handleCapitalContributionsOptionality(transaction, limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+
         if (PartnerKind.isRemoveLimitedPartnerKind(limitedPartnerDto.getData().getKind())) {
             limitedPartnerValidator.validateRemove(limitedPartnerDto, transaction);
         } else {
@@ -191,6 +194,28 @@ public class LimitedPartnerService {
         if (Boolean.FALSE.equals(limitedPartnerChangesDataDto.getUpdatePrincipalOfficeAddressRequired()) &&
                 data.getPrincipalOfficeAddress() != null) {
             data.setPrincipalOfficeAddress(null);
+        }
+    }
+
+    private void handleCapitalContributionsOptionality(Transaction transaction, LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto data) {
+        if (!FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
+            return;
+        }
+
+        // return early if all name fields are null, to avoid wiping existing data if not receiving data from the capital contribution page (e.g. only address data is being updated)
+        if (limitedPartnerChangesDataDto.getForename() == null && limitedPartnerChangesDataDto.getSurname() == null
+                && limitedPartnerChangesDataDto.getLegalEntityName() == null) {
+           return;
+        }
+
+        if (limitedPartnerChangesDataDto.getContributionCurrencyValue() == null) {
+            data.setContributionCurrencyValue(null);
+        }
+        if (limitedPartnerChangesDataDto.getContributionCurrencyType() == null) {
+            data.setContributionCurrencyType(null);
+        }
+        if (limitedPartnerChangesDataDto.getContributionSubTypes() == null) {
+            data.setContributionSubTypes(null);
         }
     }
 

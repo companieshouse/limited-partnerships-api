@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +30,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dao.AddressDao;
@@ -265,6 +268,97 @@ class LimitedPartnerServiceValidateTest {
         assertThat(results)
                 .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
                 .containsExactlyInAnyOrder(expectedErrors.toArray(new Tuple[0]));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldReturnNoContributionErrorsWhenTransitionAndNoContributionsProvided(boolean isLegalEntity) throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = createTransitionDao(isLegalEntity);
+        limitedPartnerDao.getData().setContributionCurrencyValue(null);
+        limitedPartnerDao.getData().setContributionCurrencyType(null);
+        limitedPartnerDao.getData().setContributionSubTypes(null);
+
+        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        assertThat(results).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldReturnNoContributionErrorsWhenTransitionAndAllContributionsProvided(boolean isLegalEntity) throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = createTransitionDao(isLegalEntity);
+
+        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        assertThat(results).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldReturnContributionErrorsWhenTransitionAndOnlySomeContributionsProvided(boolean isLegalEntity) throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = createTransitionDao(isLegalEntity);
+        limitedPartnerDao.getData().setContributionCurrencyType(null);
+        limitedPartnerDao.getData().setContributionSubTypes(null);
+
+        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .contains(
+                        tuple("Contribution currency type is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD),
+                        tuple("At least one contribution type must be selected", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD))
+                .doesNotContain(
+                        tuple("Contribution currency value is required", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"PFLP, true", "PFLP, false", "SPFLP, true", "SPFLP, false"})
+    void shouldReturnNoContributionErrorsWhenTransitionPrivateFundAndNoContributionsProvided(PartnershipType partnershipType, boolean isLegalEntity) throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = createTransitionDao(isLegalEntity);
+        limitedPartnerDao.getData().setPartnershipType(partnershipType);
+        limitedPartnerDao.getData().setContributionCurrencyValue(null);
+        limitedPartnerDao.getData().setContributionCurrencyType(null);
+        limitedPartnerDao.getData().setContributionSubTypes(null);
+
+        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        assertThat(results).isEmpty();
+    }
+
+    @ParameterizedTest
+    @CsvSource({"PFLP, true", "PFLP, false", "SPFLP, true", "SPFLP, false"})
+    void shouldReturnErrorsWhenTransitionPrivateFundAndContributionsProvided(PartnershipType partnershipType, boolean isLegalEntity) throws ServiceException {
+        LimitedPartnerDao limitedPartnerDao = createTransitionDao(isLegalEntity);
+        limitedPartnerDao.getData().setPartnershipType(partnershipType);
+
+        when(repository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+
+        List<ValidationStatusError> results = service.validateLimitedPartner(transaction, LIMITED_PARTNER_ID);
+
+        assertThat(results)
+                .extracting(ValidationStatusError::getError, ValidationStatusError::getLocation)
+                .contains(
+                        tuple("Private fund partnerships cannot have a contribution", LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD),
+                        tuple("Private fund partnerships cannot have a contribution currency value", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD),
+                        tuple("Private fund partnerships cannot have a contribution currency type", LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD));
+    }
+
+    private LimitedPartnerDao createTransitionDao(boolean isLegalEntity) throws ServiceException {
+        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+        when(companyService.getCompanyProfile(any())).thenReturn(companyProfileApi);
+
+        LimitedPartnerDao limitedPartnerDao = isLegalEntity ? new LimitedPartnerBuilder().legalEntityDao() : new LimitedPartnerBuilder().personDao();
+        limitedPartnerDao.setTransactionId(transaction.getId());
+        limitedPartnerDao.getData().setDateEffectiveFrom(LocalDate.now().minusDays(1));
+        return limitedPartnerDao;
     }
 
     @Test

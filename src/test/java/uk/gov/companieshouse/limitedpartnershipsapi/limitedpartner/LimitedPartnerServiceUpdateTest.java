@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +26,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.Contrib
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.enums.Currency;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Nationality;
@@ -32,6 +34,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.dto.AddressDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,6 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.FILING_KIND_LIMITED_PARTNER;
@@ -75,9 +79,6 @@ class LimitedPartnerServiceUpdateTest {
 
     @MockitoBean
     private TransactionService transactionService;
-
-    @Captor
-    private ArgumentCaptor<Transaction> transactionCaptor;
 
     @Captor
     private ArgumentCaptor<LimitedPartnerDao> submissionCaptor;
@@ -171,7 +172,6 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
-        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(Nationality.NEW_ZEALANDER);
 
@@ -195,7 +195,6 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().personDto().getData();
-        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setNationality1(Nationality.AMERICAN);
         limitedPartnerDataDto.setNationality2(null);
 
@@ -336,7 +335,6 @@ class LimitedPartnerServiceUpdateTest {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().legalEntityDao();
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerBuilder().legalEntityDto().getData();
-        limitedPartnerDataDto.setContributionSubTypes(null);
         limitedPartnerDataDto.setLegalEntityRegistrationLocation(Country.ENGLAND);
 
         transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
@@ -397,37 +395,156 @@ class LimitedPartnerServiceUpdateTest {
         );
     }
 
-    @Test
-    void shouldValidateContributionsWhenOnlyCurrencyTypeIsPresent() throws Exception {
-        LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
-        limitedPartnerDao.getData().setContributionCurrencyValue(null);
-        limitedPartnerDao.getData().setContributionSubTypes(null);
+    @Nested
+    class TransitionCapitalContributions {
 
-        LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
+        @ParameterizedTest
+        @CsvSource({
+                "LP, forename", "LP, surname", "LP, legal_entity_name",
+                "SLP, forename", "SLP, surname", "SLP, legal_entity_name",
+                "PFLP, forename", "PFLP, surname", "PFLP, legal_entity_name",
+                "SPFLP, forename", "SPFLP, surname", "SPFLP, legal_entity_name"
+        })
+        void shouldClearContributionsBeforeValidationWhenNameProvidedWithoutContributions(PartnershipType partnershipType, String nameField) throws Exception {
+            LimitedPartnerDao limitedPartnerDao = transitionDao(partnershipType, nameField.equals("legal_entity_name"));
+            assertNotNull(limitedPartnerDao.getData().getContributionCurrencyValue());
+            assertNotNull(limitedPartnerDao.getData().getContributionCurrencyType());
+            assertNotNull(limitedPartnerDao.getData().getContributionSubTypes());
 
-        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+            service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changesWithName(nameField), REQUEST_ID, USER_ID);
 
-        when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
-        when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+            verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
-        service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, limitedPartnerDataDto, REQUEST_ID, USER_ID);
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertNull(sentSubmission.getData().getContributionCurrencyValue());
+            assertNull(sentSubmission.getData().getContributionCurrencyType());
+            assertNull(sentSubmission.getData().getContributionSubTypes());
+        }
 
-        verify(limitedPartnerRepository).save(submissionCaptor.capture());
+        @ParameterizedTest
+        @CsvSource({"LP, true", "LP, false", "SLP, true", "SLP, false"})
+        void shouldNotClearContributionsWhenNoNameFieldsProvided(PartnershipType partnershipType, boolean isLegalEntity) throws Exception {
+            LimitedPartnerDao limitedPartnerDao = transitionDao(partnershipType, isLegalEntity);
+            var existingData = limitedPartnerDao.getData();
+            String existingCurrencyValue = existingData.getContributionCurrencyValue();
+            Currency existingCurrencyType = existingData.getContributionCurrencyType();
+            var existingSubTypes = existingData.getContributionSubTypes();
 
-        LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
-        assertEquals(Currency.GBP, sentSubmission.getData().getContributionCurrencyType());
-        assertNull(sentSubmission.getData().getContributionCurrencyValue());
+            // e.g. an address-only update
+            LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
+            AddressDto address = new AddressDto();
+            address.setPremises("1");
+            address.setAddressLine1("New Street");
+            address.setLocality("Cardiff");
+            address.setCountry(Country.WALES.getDescription());
+            address.setPostalCode("CF1 1AA");
+            if (isLegalEntity) {
+                changes.setPrincipalOfficeAddress(address);
+            } else {
+                changes.setUsualResidentialAddress(address);
+            }
+
+            service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID);
+
+            verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(existingCurrencyValue, sentSubmission.getData().getContributionCurrencyValue());
+            assertEquals(existingCurrencyType, sentSubmission.getData().getContributionCurrencyType());
+            assertEquals(existingSubTypes, sentSubmission.getData().getContributionSubTypes());
+        }
+
+        @Test
+        void shouldUpdateWhenAllContributionsProvided() throws Exception {
+            transitionDao(PartnershipType.LP, false);
+
+            LimitedPartnerDataDto changes = changesWithName("forename");
+            changes.setContributionCurrencyValue("500.00");
+            changes.setContributionCurrencyType(Currency.EUR);
+            changes.setContributionSubTypes(List.of(ContributionSubTypes.MONEY));
+
+            service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID);
+
+            verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals("500.00", sentSubmission.getData().getContributionCurrencyValue());
+            assertEquals(Currency.EUR, sentSubmission.getData().getContributionCurrencyType());
+            assertEquals(List.of(ContributionSubTypes.MONEY), sentSubmission.getData().getContributionSubTypes());
+        }
+
+        @Test
+        void shouldFailAndNotSaveWhenOnlySomeContributionsProvided() {
+            transitionDao(PartnershipType.LP, false);
+
+            LimitedPartnerDataDto changes = changesWithName("forename");
+            changes.setContributionCurrencyValue("500.00");
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID)
+            );
+
+            var bindingResult = exception.getBindingResult();
+            assertNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD));
+            assertEquals("Contribution currency type is required", Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)).getDefaultMessage());
+            assertEquals("At least one contribution type must be selected", Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)).getDefaultMessage());
+            verify(limitedPartnerRepository, never()).save(any());
+        }
+
+        @Test
+        void shouldFailAndNotSaveWhenPrivateFundPartnershipHasContribution() {
+            transitionDao(PartnershipType.PFLP, false);
+
+            LimitedPartnerDataDto changes = changesWithName("forename");
+            changes.setContributionCurrencyValue("500.00");
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                    service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID)
+            );
+
+            var bindingResult = exception.getBindingResult();
+            assertEquals(1, bindingResult.getFieldErrorCount());
+            assertEquals("Private fund partnerships cannot have a contribution currency value",
+                    Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)).getDefaultMessage());
+            verify(limitedPartnerRepository, never()).save(any());
+        }
+
+        private LimitedPartnerDataDto changesWithName(String nameField) {
+            LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
+            switch (nameField) {
+                case "forename" -> changes.setForename("Jack");
+                case "surname" -> changes.setSurname("Jones");
+                case "legal_entity_name" -> changes.setLegalEntityName("My company ltd");
+                default -> throw new IllegalArgumentException(nameField);
+            }
+            return changes;
+        }
+
+        private LimitedPartnerDao transitionDao(PartnershipType partnershipType, boolean isLegalEntity) {
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+
+            LimitedPartnerDao limitedPartnerDao = isLegalEntity ? new LimitedPartnerBuilder().legalEntityDao() : new LimitedPartnerBuilder().personDao();
+            limitedPartnerDao.getData().setPartnershipType(partnershipType);
+
+            when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+
+            return limitedPartnerDao;
+        }
     }
 
-    @Test
-    void shouldValidateContributionsWhenOnlySubTypesArePresent() throws Exception {
+    @ParameterizedTest
+    @EnumSource(value = FilingMode.class, mode = EnumSource.Mode.EXCLUDE, names = "TRANSITION")
+    void shouldNotClearContributionsWhenFilingModeIsNotTransition(FilingMode filingMode) throws Exception {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
-        limitedPartnerDao.getData().setContributionCurrencyValue(null);
-        limitedPartnerDao.getData().setContributionCurrencyType(null);
+        var existingData = limitedPartnerDao.getData();
+        String existingCurrencyValue = existingData.getContributionCurrencyValue();
+        Currency existingCurrencyType = existingData.getContributionCurrencyType();
+        var existingSubTypes = existingData.getContributionSubTypes();
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
 
-        transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+        transaction.setFilingMode(filingMode.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
@@ -437,9 +554,9 @@ class LimitedPartnerServiceUpdateTest {
         verify(limitedPartnerRepository).save(submissionCaptor.capture());
 
         LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
-        assertThat(sentSubmission.getData().getContributionSubTypes()).contains(ContributionSubTypes.SHARES);
-        assertNull(sentSubmission.getData().getContributionCurrencyValue());
-        assertNull(sentSubmission.getData().getContributionCurrencyType());
+        assertEquals(existingCurrencyValue, sentSubmission.getData().getContributionCurrencyValue());
+        assertEquals(existingCurrencyType, sentSubmission.getData().getContributionCurrencyType());
+        assertEquals(existingSubTypes, sentSubmission.getData().getContributionSubTypes());
     }
 
     @Nested

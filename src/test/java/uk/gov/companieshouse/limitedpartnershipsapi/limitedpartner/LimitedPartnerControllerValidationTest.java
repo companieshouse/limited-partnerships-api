@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.companieshouse.api.interceptor.TransactionInterceptor;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.limitedpartnershipsapi.builder.LimitedPartnerBuilder;
@@ -23,6 +24,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipServi
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
+import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
@@ -328,6 +330,89 @@ class LimitedPartnerControllerValidationTest {
                     .andExpect(status().isNotFound());
         }
 
+    }
+
+    @Nested
+    class ValidatePartnerTransitionCapitalContributions {
+
+        @ParameterizedTest
+        @CsvSource({
+                "LP, true", "LP, false",
+                "SLP, true", "SLP, false",
+                "PFLP, true", "PFLP, false",
+                "SPFLP, true", "SPFLP, false"
+        })
+        void shouldReturnValidWhenNoContributionsProvided(PartnershipType partnershipType, boolean isPerson) throws Exception {
+            LimitedPartnerDao limitedPartnerDao = transitionDao(partnershipType, isPerson);
+            limitedPartnerDao.getData().setContributionCurrencyValue(null);
+            limitedPartnerDao.getData().setContributionCurrencyType(null);
+            limitedPartnerDao.getData().setContributionSubTypes(null);
+
+            performValidationStatus()
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @ParameterizedTest
+        @CsvSource({"LP, true", "LP, false", "SLP, true", "SLP, false"})
+        void shouldReturnValidWhenAllContributionsProvided(PartnershipType partnershipType, boolean isPerson) throws Exception {
+            transitionDao(partnershipType, isPerson);
+
+            performValidationStatus()
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("true"));
+        }
+
+        @ParameterizedTest
+        @CsvSource({"LP, true", "LP, false", "SLP, true", "SLP, false"})
+        void shouldReturnErrorsWhenOnlySomeContributionsProvided(PartnershipType partnershipType, boolean isPerson) throws Exception {
+            LimitedPartnerDao limitedPartnerDao = transitionDao(partnershipType, isPerson);
+            limitedPartnerDao.getData().setContributionCurrencyType(null);
+            limitedPartnerDao.getData().setContributionSubTypes(null);
+
+            performValidationStatus()
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "contribution_currency_type"), hasEntry("error", "Contribution currency type is required")),
+                            allOf(hasEntry("location", "contribution_sub_types"), hasEntry("error", "At least one contribution type must be selected"))
+                    )));
+        }
+
+        @ParameterizedTest
+        @CsvSource({"PFLP, true", "PFLP, false", "SPFLP, true", "SPFLP, false"})
+        void shouldReturnErrorsWhenPrivateFundPartnershipHasContributions(PartnershipType partnershipType, boolean isPerson) throws Exception {
+            transitionDao(partnershipType, isPerson);
+
+            performValidationStatus()
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("is_valid").value("false"))
+                    .andExpect(jsonPath("$.['errors']").value(containsInAnyOrder(
+                            allOf(hasEntry("location", "contribution_currency_value"), hasEntry("error", "Private fund partnerships cannot have a contribution currency value")),
+                            allOf(hasEntry("location", "contribution_currency_type"), hasEntry("error", "Private fund partnerships cannot have a contribution currency type")),
+                            allOf(hasEntry("location", "contribution_sub_types"), hasEntry("error", "Private fund partnerships cannot have a contribution"))
+                    )));
+        }
+
+        private LimitedPartnerDao transitionDao(PartnershipType partnershipType, boolean isPerson) throws ServiceException {
+            transaction.setFilingMode(FilingMode.TRANSITION.getDescription());
+
+            LimitedPartnerDao limitedPartnerDao = isPerson ? new LimitedPartnerBuilder().personDao() : new LimitedPartnerBuilder().legalEntityDao();
+            limitedPartnerDao.getData().setPartnershipType(partnershipType);
+
+            mocks(limitedPartnerDao);
+
+            return limitedPartnerDao;
+        }
+
+        private ResultActions performValidationStatus() throws Exception {
+            return mockMvc.perform(get(VALIDATE_STATUS_URL)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .headers(httpHeaders)
+                    .requestAttr("transaction", transaction)
+                    .content(""));
+        }
     }
 
     private void mocks(LimitedPartnerDao limitedPartnerDao) throws ServiceException {
