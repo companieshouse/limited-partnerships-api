@@ -142,7 +142,7 @@ class PersonWithSignificantControlServiceTest {
         verify(mapper, times(1)).dtoToDao(dto);
         verify(repository, times(1)).insert(dao);
         verify(repository, times(1)).save(pscDaoArgumentCaptor.capture());
-        verify(transactionService, times(1)).updateTransactionWithLinksForResource(REQUEST_ID, TRANSACTION, submissionUri, dao.getData().getKind(), null);
+        verify(transactionService, times(1)).updateTransactionWithLinksForResource(REQUEST_ID, TRANSACTION, submissionUri, dao.getData().getKind());
 
         PersonWithSignificantControlDao sentSubmission = pscDaoArgumentCaptor.getValue();
         assertEquals(USER_ID, sentSubmission.getCreatedBy());
@@ -430,7 +430,7 @@ class PersonWithSignificantControlServiceTest {
             when(mapper.dtoToDao(dto)).thenReturn(dao);
             when(repository.insert(dao)).thenReturn(dao);
             doThrow(new ServiceException("Transaction update failed"))
-                    .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any(), any());
+                    .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any());
 
             assertThatThrownBy(() -> personWithSignificantControlService.createPersonWithSignificantControl(TRANSACTION, dto, REQUEST_ID, USER_ID))
                     .isInstanceOf(ServiceException.class)

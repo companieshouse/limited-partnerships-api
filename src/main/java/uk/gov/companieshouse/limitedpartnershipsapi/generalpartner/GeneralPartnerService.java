@@ -3,7 +3,6 @@ package uk.gov.companieshouse.limitedpartnershipsapi.generalpartner;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import uk.gov.companieshouse.GenerateEtagUtil;
-import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.exception.ResourceNotFoundException;
@@ -74,17 +73,11 @@ public class GeneralPartnerService {
 
         String kind = requireNonNullElse(insertedSubmission.getData().getKind(), FILING_KIND_LIMITED_PARTNERSHIP);
 
-        Cost cost = null;
-        if (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode())) {
-            cost = postTransitionStrategyHandler.getCost(generalPartnerDto);
-        }
-
         final String insertedId = insertedSubmission.getId();
-        final Cost finalCost = cost;
         executeWithTransactionalRollback(
             requestId,
             insertedId,
-            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind, finalCost),
+            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, submissionUri, kind),
             INSERTION,
             () -> repository.deleteById(insertedId));
 

@@ -234,7 +234,7 @@ class GeneralPartnerServiceTest {
             when(mapper.dtoToDao(dto)).thenReturn(dao);
             when(repository.insert(dao)).thenReturn(dao);
             doThrow(new ServiceException("Transaction update failed"))
-                .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any(), any());
+                .when(transactionService).updateTransactionWithLinksForResource(any(), any(), any(), any());
 
             // when + then
             assertThrows(ServiceException.class,

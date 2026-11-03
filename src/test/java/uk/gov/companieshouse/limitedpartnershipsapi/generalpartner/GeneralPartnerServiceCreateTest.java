@@ -110,7 +110,7 @@ class GeneralPartnerServiceCreateTest {
             createGeneralPartner(incoporationKind);
 
             verify(transactionService).updateTransactionWithLinksForResource(
-                    eq(REQUEST_ID), eq(transaction), any(), any(), any());
+                    eq(REQUEST_ID), eq(transaction), any(), any());
 
             Map<String, Resource> transactionResources = transaction.getResources();
             assertEquals(1, transactionResources.size());

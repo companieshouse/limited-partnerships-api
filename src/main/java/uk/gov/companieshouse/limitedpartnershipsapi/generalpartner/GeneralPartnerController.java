@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -26,12 +25,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPa
 import uk.gov.companieshouse.limitedpartnershipsapi.generalpartner.dto.GeneralPartnerSubmissionCreatedResponseDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.PartnerKind;
-import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CostsService;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.TransactionService;
 import uk.gov.companieshouse.limitedpartnershipsapi.utils.ApiLogger;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,17 +45,14 @@ import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.URL_R
 public class GeneralPartnerController {
 
     private final GeneralPartnerService generalPartnerService;
-    private final CostsService costsService;
     private final TransactionService transactionService;
 
     @Autowired
     public GeneralPartnerController(
             TransactionService transactionService,
-            GeneralPartnerService generalPartnerService,
-            CostsService costsService) {
+            GeneralPartnerService generalPartnerService) {
         this.transactionService = transactionService;
         this.generalPartnerService = generalPartnerService;
-        this.costsService = costsService;
     }
 
     @GetMapping("/general-partner/{" + URL_PARAM_GENERAL_PARTNER_ID + "}")
@@ -160,21 +154,6 @@ public class GeneralPartnerController {
         }
 
         return ResponseEntity.ok().body(validationStatus);
-    }
-
-    @GetMapping("/{" + URL_PARAM_GENERAL_PARTNER_ID + "}/costs")
-    public ResponseEntity<List<Cost>> getCosts(
-            @RequestAttribute(TRANSACTION_KEY) Transaction transaction,
-            @PathVariable(URL_PARAM_GENERAL_PARTNER_ID) String generalPartnerId,
-            @RequestHeader(value = ERIC_REQUEST_ID_KEY) String requestId) throws ServiceException {
-
-        var logMap = new HashMap<String, Object>();
-        logMap.put(TRANSACTION_KEY, transaction.getId());
-        ApiLogger.infoContext(requestId, String.format("Calling CostsService to retrieve costs for General Partner: %s", generalPartnerId), logMap);
-
-        Cost cost = costsService.getPostTransitionGeneralPartnerCost(transaction, generalPartnerId);
-
-        return ResponseEntity.ok(Collections.singletonList(cost));
     }
 
     @GetMapping("/general-partners")

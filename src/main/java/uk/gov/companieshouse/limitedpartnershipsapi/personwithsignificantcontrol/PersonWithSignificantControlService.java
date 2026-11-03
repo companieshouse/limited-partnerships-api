@@ -99,7 +99,7 @@ public class PersonWithSignificantControlService {
         executeWithTransactionalRollback(
             requestId,
             insertedResource.getId(),
-            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, resourceUri, kind, null),
+            () -> transactionService.updateTransactionWithLinksForResource(requestId, transaction, resourceUri, kind),
             INSERTION,
             () -> repository.deleteById(insertedResource.getId())
         );
