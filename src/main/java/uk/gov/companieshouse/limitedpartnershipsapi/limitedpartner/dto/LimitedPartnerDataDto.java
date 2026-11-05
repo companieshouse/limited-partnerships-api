@@ -33,6 +33,9 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
     @EnumValid(message = "Capital contribution type must be valid")
     private List<ContributionSubTypes> contributionSubTypes;
 
+    @JsonProperty("update_capital_contribution_required")
+    private Boolean updateCapitalContributionRequired;
+
     public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
     }
@@ -61,5 +64,13 @@ public class LimitedPartnerDataDto extends PartnerDataDto {
         return StringUtils.isNotBlank(contributionCurrencyValue)
                 || contributionCurrencyType != null
                 || (contributionSubTypes != null && !contributionSubTypes.isEmpty());
+    }
+
+    public Boolean getUpdateCapitalContributionRequired() {
+        return updateCapitalContributionRequired;
+    }
+
+    public void setUpdateCapitalContributionRequired(Boolean value) {
+        this.updateCapitalContributionRequired = value;
     }
 }

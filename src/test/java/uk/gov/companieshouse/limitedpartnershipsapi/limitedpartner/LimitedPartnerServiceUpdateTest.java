@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -535,9 +536,11 @@ class LimitedPartnerServiceUpdateTest {
 
     @Nested
     class PostTransitionCapitalContributions {
-        @Test
-        void shouldUpdateWhenAllContributionsProvided() throws Exception {
-            postTransitionDao(PartnershipType.LP, false);
+        @ParameterizedTest
+        @ValueSource(booleans = {true, false})
+        void shouldUpdateWhenAllContributionsProvided(boolean isLegalEntity) throws Exception {
+            var dao = postTransitionDao(PartnershipType.LP, isLegalEntity);
+            clearExistingContributions(dao);
 
             LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
             changes.setContributionCurrencyValue("500.00");
@@ -554,9 +557,11 @@ class LimitedPartnerServiceUpdateTest {
             assertEquals(List.of(ContributionSubTypes.MONEY), sentSubmission.getData().getContributionSubTypes());
         }
 
-        @Test
-        void shouldFailAndNotSaveWhenOnlySomeContributionsProvided() {
-            postTransitionDao(PartnershipType.LP, false);
+        @ParameterizedTest
+        @ValueSource(booleans = {true, false})
+        void shouldFailAndNotSaveWhenOnlySomeContributionsProvided(boolean isLegalEntity) {
+            var dao = postTransitionDao(PartnershipType.LP, isLegalEntity);
+            clearExistingContributions(dao);
 
             LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
             changes.setContributionCurrencyValue("500.00");
@@ -572,9 +577,11 @@ class LimitedPartnerServiceUpdateTest {
             verify(limitedPartnerRepository, never()).save(any());
         }
 
-        @Test
-        void shouldFailAndNotSaveWhenPrivateFundPartnershipHasContribution() {
-            postTransitionDao(PartnershipType.PFLP, false);
+        @ParameterizedTest
+        @ValueSource(booleans = {true, false})
+        void shouldFailAndNotSaveWhenPrivateFundPartnershipHasContribution(boolean isLegalEntity) {
+            var dao = postTransitionDao(PartnershipType.PFLP, isLegalEntity);
+            clearExistingContributions(dao);
 
             LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
             changes.setContributionCurrencyValue("500.00");
@@ -590,7 +597,40 @@ class LimitedPartnerServiceUpdateTest {
             verify(limitedPartnerRepository, never()).save(any());
         }
 
-        private void postTransitionDao(PartnershipType partnershipType, boolean isLegalEntity) {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(booleans = {true, false})
+        void shouldUpdateCapitalContributionRequired(Boolean value) throws Exception {
+            postTransitionDao(PartnershipType.LP, false);
+
+            LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
+            changes.setUpdateCapitalContributionRequired(value);
+
+            service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID);
+
+            verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(value, sentSubmission.getData().getUpdateCapitalContributionRequired());
+
+            if (Boolean.TRUE.equals(value) || value == null) {
+                assertNotNull(sentSubmission.getData().getContributionCurrencyValue());
+                assertNotNull(sentSubmission.getData().getContributionCurrencyType());
+                assertNotNull(sentSubmission.getData().getContributionSubTypes());
+            } else {
+                assertNull(sentSubmission.getData().getContributionCurrencyValue());
+                assertNull(sentSubmission.getData().getContributionCurrencyType());
+                assertNull(sentSubmission.getData().getContributionSubTypes());
+            }
+        }
+
+        private void clearExistingContributions(LimitedPartnerDao dao) {
+            dao.getData().setContributionCurrencyValue(null);
+            dao.getData().setContributionCurrencyType(null);
+            dao.getData().setContributionSubTypes(null);
+        }
+
+        private LimitedPartnerDao postTransitionDao(PartnershipType partnershipType, boolean isLegalEntity) {
             transaction.setFilingMode(FilingMode.POST_TRANSITION.getDescription());
 
             LimitedPartnerDao limitedPartnerDao = isLegalEntity ? new LimitedPartnerBuilder().legalEntityDao() : new LimitedPartnerBuilder().personDao();
@@ -599,6 +639,7 @@ class LimitedPartnerServiceUpdateTest {
 
             when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
             when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+            return limitedPartnerDao;
         }
     }
 

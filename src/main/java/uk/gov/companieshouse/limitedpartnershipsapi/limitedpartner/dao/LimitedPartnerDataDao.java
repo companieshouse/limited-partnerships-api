@@ -20,6 +20,9 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
     @Field("contribution_sub_types")
     private List<ContributionSubTypes> contributionSubTypes;
 
+    @Field("update_capital_contribution_required")
+    private Boolean updateCapitalContributionRequired;
+
     public Currency getContributionCurrencyType() {
         return contributionCurrencyType;
     }
@@ -42,5 +45,13 @@ public class LimitedPartnerDataDao extends PartnerDataDao {
 
     public void setContributionSubTypes(List<ContributionSubTypes> contributionSubTypes) {
         this.contributionSubTypes = contributionSubTypes;
+    }
+
+    public Boolean getUpdateCapitalContributionRequired() {
+        return updateCapitalContributionRequired;
+    }
+
+    public void setUpdateCapitalContributionRequired(Boolean value) {
+        this.updateCapitalContributionRequired = value;
     }
 }
