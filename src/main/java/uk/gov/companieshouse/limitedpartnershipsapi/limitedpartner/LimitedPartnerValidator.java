@@ -80,12 +80,8 @@ public class LimitedPartnerValidator extends PartnerValidator {
     }
 
     private void validateCapitalContributions(LimitedPartnerDataDto limitedPartnerDataDto, Transaction transaction, BindingResult bindingResult) {
-        if (FilingMode.POST_TRANSITION.getDescription().equals(transaction.getFilingMode())) {
-            return;
-        }
-
-        // Capital contributions are optional on transition, but if any are given then all are required
-        if (FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode()) && !limitedPartnerDataDto.hasAnyContribution()) {
+        // Capital contributions are optional on transition and post-transition, but if any are given then all are required
+        if (!FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode()) && !limitedPartnerDataDto.hasAnyContribution()) {
             return;
         }
 

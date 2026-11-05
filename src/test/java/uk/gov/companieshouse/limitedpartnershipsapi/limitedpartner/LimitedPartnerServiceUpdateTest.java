@@ -533,9 +533,77 @@ class LimitedPartnerServiceUpdateTest {
         }
     }
 
-    @ParameterizedTest
-    @EnumSource(value = FilingMode.class, mode = EnumSource.Mode.EXCLUDE, names = "TRANSITION")
-    void shouldNotClearContributionsWhenFilingModeIsNotTransition(FilingMode filingMode) throws Exception {
+    @Nested
+    class PostTransitionCapitalContributions {
+        @Test
+        void shouldUpdateWhenAllContributionsProvided() throws Exception {
+            postTransitionDao(PartnershipType.LP, false);
+
+            LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
+            changes.setContributionCurrencyValue("500.00");
+            changes.setContributionCurrencyType(Currency.EUR);
+            changes.setContributionSubTypes(List.of(ContributionSubTypes.MONEY));
+
+            service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID);
+
+            verify(limitedPartnerRepository).save(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals("500.00", sentSubmission.getData().getContributionCurrencyValue());
+            assertEquals(Currency.EUR, sentSubmission.getData().getContributionCurrencyType());
+            assertEquals(List.of(ContributionSubTypes.MONEY), sentSubmission.getData().getContributionSubTypes());
+        }
+
+        @Test
+        void shouldFailAndNotSaveWhenOnlySomeContributionsProvided() {
+            postTransitionDao(PartnershipType.LP, false);
+
+            LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
+            changes.setContributionCurrencyValue("500.00");
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID)
+            );
+
+            var bindingResult = exception.getBindingResult();
+            assertNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD));
+            assertEquals("Contribution currency type is required", Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_TYPE_FIELD)).getDefaultMessage());
+            assertEquals("At least one contribution type must be selected", Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_SUB_TYPES_FIELD)).getDefaultMessage());
+            verify(limitedPartnerRepository, never()).save(any());
+        }
+
+        @Test
+        void shouldFailAndNotSaveWhenPrivateFundPartnershipHasContribution() {
+            postTransitionDao(PartnershipType.PFLP, false);
+
+            LimitedPartnerDataDto changes = new LimitedPartnerDataDto();
+            changes.setContributionCurrencyValue("500.00");
+
+            MethodArgumentNotValidException exception = assertThrows(MethodArgumentNotValidException.class, () ->
+                service.updateLimitedPartner(transaction, LIMITED_PARTNER_ID, changes, REQUEST_ID, USER_ID)
+            );
+
+            var bindingResult = exception.getBindingResult();
+            assertEquals(1, bindingResult.getFieldErrorCount());
+            assertEquals("Private fund partnerships cannot have a contribution currency value",
+                Objects.requireNonNull(bindingResult.getFieldError(LimitedPartnerDataDto.CONTRIBUTION_CURRENCY_VALUE_FIELD)).getDefaultMessage());
+            verify(limitedPartnerRepository, never()).save(any());
+        }
+
+        private void postTransitionDao(PartnershipType partnershipType, boolean isLegalEntity) {
+            transaction.setFilingMode(FilingMode.POST_TRANSITION.getDescription());
+
+            LimitedPartnerDao limitedPartnerDao = isLegalEntity ? new LimitedPartnerBuilder().legalEntityDao() : new LimitedPartnerBuilder().personDao();
+            limitedPartnerDao.getData().setPartnershipType(partnershipType);
+            limitedPartnerDao.getData().setKind(isLegalEntity ? PartnerKind.UPDATE_LIMITED_PARTNER_LEGAL_ENTITY.getDescription() : PartnerKind.UPDATE_LIMITED_PARTNER_PERSON.getDescription());
+
+            when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
+            when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);
+        }
+    }
+
+    @Test
+    void shouldNotClearContributionsWhenFilingModeIsNotTransition() throws Exception {
         LimitedPartnerDao limitedPartnerDao = new LimitedPartnerBuilder().personDao();
         var existingData = limitedPartnerDao.getData();
         String existingCurrencyValue = existingData.getContributionCurrencyValue();
@@ -543,8 +611,6 @@ class LimitedPartnerServiceUpdateTest {
         var existingSubTypes = existingData.getContributionSubTypes();
 
         LimitedPartnerDataDto limitedPartnerDataDto = new LimitedPartnerDataDto();
-
-        transaction.setFilingMode(filingMode.getDescription());
 
         when(limitedPartnerRepository.findById(limitedPartnerDao.getId())).thenReturn(Optional.of(limitedPartnerDao));
         when(transactionService.isTransactionLinkedToResource(any(), any(), any())).thenReturn(true);

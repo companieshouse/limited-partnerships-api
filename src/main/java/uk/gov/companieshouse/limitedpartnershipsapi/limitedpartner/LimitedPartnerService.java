@@ -198,12 +198,12 @@ public class LimitedPartnerService {
     }
 
     private void handleCapitalContributionsOptionality(Transaction transaction, LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto data) {
-        if (!FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode())) {
+        if (FilingMode.REGISTRATION.getDescription().equals(transaction.getFilingMode())) {
             return;
         }
 
         // return early if all name fields are null, to avoid wiping existing data if not receiving data from the capital contribution page (e.g. only address data is being updated)
-        if (limitedPartnerChangesDataDto.getForename() == null && limitedPartnerChangesDataDto.getSurname() == null
+        if (FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode()) && limitedPartnerChangesDataDto.getForename() == null && limitedPartnerChangesDataDto.getSurname() == null
                 && limitedPartnerChangesDataDto.getLegalEntityName() == null) {
            return;
         }
