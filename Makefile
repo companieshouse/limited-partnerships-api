@@ -51,7 +51,7 @@ sonar:
 
 .PHONY: docs
 docs:
-	mvn test
+	mvn clean test
 	bash scripts/generate-docs.sh
 	open target/generated-docs/index.html
 
