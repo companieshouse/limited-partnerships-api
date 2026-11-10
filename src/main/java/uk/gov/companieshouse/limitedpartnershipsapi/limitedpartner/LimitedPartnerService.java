@@ -211,7 +211,7 @@ public class LimitedPartnerService {
         }
 
         if (FilingMode.TRANSITION.getDescription().equals(transaction.getFilingMode()) ||
-            (FilingMode.POST_TRANSITION.getDescription().equals(transaction.getFilingMode()) &&
+            (FilingMode.DEFAULT.getDescription().equals(transaction.getFilingMode()) &&
                 Boolean.FALSE.equals(limitedPartnerChangesDataDto.getUpdateCapitalContributionRequired()))) {
             if (limitedPartnerChangesDataDto.getContributionCurrencyValue() == null) {
                 data.setContributionCurrencyValue(null);

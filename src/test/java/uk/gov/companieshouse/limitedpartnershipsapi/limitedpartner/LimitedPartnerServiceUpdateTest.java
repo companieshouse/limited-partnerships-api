@@ -631,7 +631,7 @@ class LimitedPartnerServiceUpdateTest {
         }
 
         private LimitedPartnerDao postTransitionDao(PartnershipType partnershipType, boolean isLegalEntity) {
-            transaction.setFilingMode(FilingMode.POST_TRANSITION.getDescription());
+            transaction.setFilingMode(FilingMode.DEFAULT.getDescription());
 
             LimitedPartnerDao limitedPartnerDao = isLegalEntity ? new LimitedPartnerBuilder().legalEntityDao() : new LimitedPartnerBuilder().personDao();
             limitedPartnerDao.getData().setPartnershipType(partnershipType);
