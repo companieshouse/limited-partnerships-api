@@ -124,7 +124,7 @@ public class GeneralPartnerService {
             generalPartnerValidator.validateUpdate(generalPartnerDto, transaction);
         }
 
-        handleEnteredOnRegisterOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
+        handleEnteredOnRegisterOptionality(generalPartnerDto.getData());
 
         NationalityUtils.handleSecondNationalityOptionality(generalPartnerChangesDataDto, generalPartnerDto.getData());
 
@@ -141,9 +141,9 @@ public class GeneralPartnerService {
         repository.save(generalPartnerDaoAfterPatch);
     }
 
-    private static void handleEnteredOnRegisterOptionality(GeneralPartnerDataDto generalPartnerChangesDataDto, GeneralPartnerDataDto generalPartnerExistingDataDto) {
-        boolean isLegalEntityAndNotRegistered = generalPartnerChangesDataDto.isLegalEntity()
-                && Boolean.FALSE.equals(generalPartnerChangesDataDto.getEnteredOnRegister());
+    private static void handleEnteredOnRegisterOptionality(GeneralPartnerDataDto generalPartnerExistingDataDto) {
+        boolean isLegalEntityAndNotRegistered = generalPartnerExistingDataDto.isLegalEntity()
+                && Boolean.FALSE.equals(generalPartnerExistingDataDto.getEnteredOnRegister());
 
         if (isLegalEntityAndNotRegistered) {
             generalPartnerExistingDataDto.setLegalEntityRegisterName(null);
