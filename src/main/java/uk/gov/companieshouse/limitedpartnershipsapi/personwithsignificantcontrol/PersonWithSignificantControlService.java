@@ -90,6 +90,8 @@ public class PersonWithSignificantControlService {
         var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
         validator.validatePartial(personWithSignificantControlDto);
 
+        handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlDto.getData());
+
         PersonWithSignificantControlDao dao = mapper.dtoToDao(personWithSignificantControlDto);
         PersonWithSignificantControlDao insertedResource = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String resourceUri = linkAndSaveDao(transaction, insertedResource.getId(), dao);

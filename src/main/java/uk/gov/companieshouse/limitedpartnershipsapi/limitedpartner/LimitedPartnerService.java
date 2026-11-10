@@ -88,6 +88,8 @@ public class LimitedPartnerService {
             limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
         }
 
+        handleEnteredOnRegisterOptionality(limitedPartnerDto.getData());
+
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         dao.getData().setPartnershipType(partnershipType);
 

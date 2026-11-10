@@ -67,6 +67,8 @@ public class GeneralPartnerService {
             generalPartnerValidator.validatePartial(generalPartnerDto, transaction);
         }
 
+        handleEnteredOnRegisterOptionality(generalPartnerDto.getData());
+
         GeneralPartnerDao dao = mapper.dtoToDao(generalPartnerDto);
         GeneralPartnerDao insertedSubmission = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String submissionUri = linkAndSaveDao(transaction, insertedSubmission.getId(), dao);
