@@ -90,6 +90,8 @@ public class PersonWithSignificantControlService {
         var validator = personWithSignificantControlValidator.getValidatorByType(personWithSignificantControlDto.getData().getType());
         validator.validatePartial(personWithSignificantControlDto);
 
+        handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlDto.getData());
+
         PersonWithSignificantControlDao dao = mapper.dtoToDao(personWithSignificantControlDto);
         PersonWithSignificantControlDao insertedResource = insertDaoWithMetadata(requestId, transaction, userId, dao);
         String resourceUri = linkAndSaveDao(transaction, insertedResource.getId(), dao);
@@ -119,7 +121,7 @@ public class PersonWithSignificantControlService {
 
         validator.validatePartial(dto);
 
-        handleLegalEntityRegistrationLocationOptionality(personWithSignificantControlChangesDataDto, dto.getData());
+        handleLegalEntityRegistrationLocationOptionality(dto.getData());
         NationalityUtils.handleSecondNationalityOptionality(personWithSignificantControlChangesDataDto, dto.getData());
         handlePersonOptionalFields(personWithSignificantControlChangesDataDto, dto.getData());
 
@@ -132,12 +134,12 @@ public class PersonWithSignificantControlService {
         repository.save(daoAfterPatch);
     }
 
-    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto changesDataDto, PersonWithSignificantControlDataDto existingDataDto) {
-        if (!PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY.equals(changesDataDto.getType())) {
+    private void handleLegalEntityRegistrationLocationOptionality(PersonWithSignificantControlDataDto existingDataDto) {
+        if (!PersonWithSignificantControlType.RELEVANT_LEGAL_ENTITY.equals(existingDataDto.getType())) {
             return;
         }
 
-        if (Boolean.FALSE.equals(changesDataDto.getEnteredOnRegister())) {
+        if (Boolean.FALSE.equals(existingDataDto.getEnteredOnRegister())) {
             existingDataDto.setLegalEntityRegistrationLocation(null);
             existingDataDto.setLegalEntityRegisterName(null);
             existingDataDto.setRegisteredCompanyNumber(null);

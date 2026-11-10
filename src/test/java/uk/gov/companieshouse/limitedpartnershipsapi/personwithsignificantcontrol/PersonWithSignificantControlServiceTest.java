@@ -32,6 +32,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -148,6 +149,48 @@ class PersonWithSignificantControlServiceTest {
         assertEquals(USER_ID, sentSubmission.getCreatedBy());
         assertEquals(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL, sentSubmission.getData().getKind());
         assertEquals(PSC_ID, submissionId);
+
+        // Assert self link
+        String expectedUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
+        assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+    }
+
+    @Test
+    void testCreatePersonWithSignificantControlReturnsSuccessWhenEnteredOnRegisterFalseAndOptionalFieldsNull() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+        var submissionUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);
+        PersonWithSignificantControlDto dto = new PersonWithSignificantControlBuilder().relevantLegalEntityDto();
+        PersonWithSignificantControlDao dao = new PersonWithSignificantControlBuilder().relevantLegalEntityDao();
+
+        dto.getData().setEnteredOnRegister(false);
+        dao.getData().setEnteredOnRegister(false);
+
+        when(personWithSignificantControlValidator.getValidatorByType(any(PersonWithSignificantControlType.class))).thenReturn(personWithSignificantControlValidatorStrategy);
+        when(mapper.dtoToDao(dto)).thenAnswer(invocation -> {
+            var mappedDto = invocation.getArgument(0, PersonWithSignificantControlDto.class);
+            dao.getData().setEnteredOnRegister(mappedDto.getData().getEnteredOnRegister());
+            dao.getData().setLegalEntityRegistrationLocation(mappedDto.getData().getLegalEntityRegistrationLocation());
+            dao.getData().setLegalEntityRegisterName(mappedDto.getData().getLegalEntityRegisterName());
+            dao.getData().setRegisteredCompanyNumber(mappedDto.getData().getRegisteredCompanyNumber());
+            return dao;
+        });
+        when(repository.insert(dao)).thenReturn(dao);
+
+        String submissionId = personWithSignificantControlService.createPersonWithSignificantControl(TRANSACTION, dto, REQUEST_ID, USER_ID);
+
+        verify(mapper, times(1)).dtoToDao(dto);
+        verify(repository, times(1)).insert(dao);
+        verify(repository, times(1)).save(pscDaoArgumentCaptor.capture());
+        verify(transactionService, times(1)).updateTransactionWithLinksForResource(REQUEST_ID, TRANSACTION, submissionUri, dao.getData().getKind());
+
+        PersonWithSignificantControlDao sentSubmission = pscDaoArgumentCaptor.getValue();
+        assertEquals(USER_ID, sentSubmission.getCreatedBy());
+        assertEquals(FILING_KIND_PERSON_WITH_SIGNIFICANT_CONTROL, sentSubmission.getData().getKind());
+        assertEquals(PSC_ID, submissionId);
+
+        assertFalse(sentSubmission.getData().getEnteredOnRegister());
+        assertNull(sentSubmission.getData().getLegalEntityRegistrationLocation());
+        assertNull(sentSubmission.getData().getLegalEntityRegisterName());
+        assertNull(sentSubmission.getData().getRegisteredCompanyNumber());
 
         // Assert self link
         String expectedUri = String.format(URL_GET_PERSON_WITH_SIGNIFICANT_CONTROL, TRANSACTION.getId(), PSC_ID);

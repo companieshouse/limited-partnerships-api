@@ -88,6 +88,8 @@ public class LimitedPartnerService {
             limitedPartnerValidator.validatePartial(limitedPartnerDto, transaction);
         }
 
+        handleEnteredOnRegisterOptionality(limitedPartnerDto.getData());
+
         LimitedPartnerDao dao = mapper.dtoToDao(limitedPartnerDto);
         dao.getData().setPartnershipType(partnershipType);
 
@@ -150,7 +152,7 @@ public class LimitedPartnerService {
             limitedPartnerValidator.validateUpdate(limitedPartnerDto, transaction);
         }
 
-        handleEnteredOnRegisterOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
+        handleEnteredOnRegisterOptionality(limitedPartnerDto.getData());
 
         NationalityUtils.handleSecondNationalityOptionality(limitedPartnerChangesDataDto, limitedPartnerDto.getData());
 
@@ -167,9 +169,9 @@ public class LimitedPartnerService {
         repository.save(limitedPartnerDaoAfterPatch);
     }
 
-    private static void handleEnteredOnRegisterOptionality(LimitedPartnerDataDto limitedPartnerChangesDataDto, LimitedPartnerDataDto limitedPartnerExistingDataDto) {
-        boolean isLegalEntityAndNotRegistered = limitedPartnerChangesDataDto.isLegalEntity()
-                && Boolean.FALSE.equals(limitedPartnerChangesDataDto.getEnteredOnRegister());
+    private static void handleEnteredOnRegisterOptionality(LimitedPartnerDataDto limitedPartnerExistingDataDto) {
+        boolean isLegalEntityAndNotRegistered = limitedPartnerExistingDataDto.isLegalEntity()
+                && Boolean.FALSE.equals(limitedPartnerExistingDataDto.getEnteredOnRegister());
 
         if (isLegalEntityAndNotRegistered) {
             limitedPartnerExistingDataDto.setLegalEntityRegisterName(null);

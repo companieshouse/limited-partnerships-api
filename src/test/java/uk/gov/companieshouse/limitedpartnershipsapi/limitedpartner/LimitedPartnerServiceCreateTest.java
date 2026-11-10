@@ -46,6 +46,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -146,6 +147,35 @@ class LimitedPartnerServiceCreateTest {
                             .hasSize(1)
                             .isNotNull()
                             .containsKeys(LINK_RESOURCE));
+        }
+
+        @Test
+        void shouldCreateALimitedPartnerLegalEntityWithEnteredOnRegisterFalseAndOptionalFieldsNull() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            LimitedPartnerDto dto = new LimitedPartnerBuilder().legalEntityDto();
+            LimitedPartnerDao dao = new LimitedPartnerBuilder().legalEntityDao();
+
+            dto.getData().setEnteredOnRegister(false);
+            dao.getData().setEnteredOnRegister(false);
+
+            when(repository.insert((LimitedPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+            mockLimitedPartnershipService();
+
+            String submissionId = service.createLimitedPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            verify(repository).insert(submissionCaptor.capture());
+
+            LimitedPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(USER_ID, sentSubmission.getCreatedBy());
+            assertEquals(FILING_KIND_LIMITED_PARTNER, sentSubmission.getData().getKind());
+            assertEquals(LIMITED_PARTNER_ID, submissionId);
+
+            assertFalse(sentSubmission.getData().getEnteredOnRegister());
+            assertNull(sentSubmission.getData().getLegalEntityRegisterName());
+            assertNull(sentSubmission.getData().getRegisteredCompanyNumber());
+
+            String expectedUri = String.format(URL_GET_LIMITED_PARTNER, transaction.getId(), LIMITED_PARTNER_ID);
+            assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
         }
 
         @Test

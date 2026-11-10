@@ -36,6 +36,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,6 +97,34 @@ class GeneralPartnerServiceCreateTest {
             assertEquals(USER_ID, sentSubmission.getCreatedBy());
             assertEquals(FILING_KIND_GENERAL_PARTNER, sentSubmission.getData().getKind());
             assertEquals(GENERAL_PARTNER_ID, submissionId);
+
+            String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), GENERAL_PARTNER_ID);
+            assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
+        }
+
+        @Test
+        void shouldCreateAGeneralPartnerLegalEntityWithEnteredOnRegisterFalseAndOptionalFieldsNull() throws ServiceException, MethodArgumentNotValidException, NoSuchMethodException {
+            GeneralPartnerDto dto = new GeneralPartnerBuilder().legalEntityDto();
+            GeneralPartnerDao dao = new GeneralPartnerBuilder().legalEntityDao();
+
+            dto.getData().setEnteredOnRegister(false);
+            dao.getData().setEnteredOnRegister(false);
+
+            when(repository.insert((GeneralPartnerDao) any())).thenReturn(dao);
+            when(repository.save(dao)).thenReturn(dao);
+
+            String submissionId = service.createGeneralPartner(transaction, dto, REQUEST_ID, USER_ID);
+
+            verify(repository).insert(submissionCaptor.capture());
+
+            GeneralPartnerDao sentSubmission = submissionCaptor.getValue();
+            assertEquals(USER_ID, sentSubmission.getCreatedBy());
+            assertEquals(FILING_KIND_GENERAL_PARTNER, sentSubmission.getData().getKind());
+            assertEquals(GENERAL_PARTNER_ID, submissionId);
+
+            assertFalse(sentSubmission.getData().getEnteredOnRegister());
+            assertNull(sentSubmission.getData().getLegalEntityRegisterName());
+            assertNull(sentSubmission.getData().getRegisteredCompanyNumber());
 
             String expectedUri = String.format(URL_GET_GENERAL_PARTNER, transaction.getId(), GENERAL_PARTNER_ID);
             assertEquals(expectedUri, sentSubmission.getLinks().get("self"));
