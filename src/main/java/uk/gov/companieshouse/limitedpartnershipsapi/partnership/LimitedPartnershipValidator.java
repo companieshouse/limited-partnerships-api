@@ -15,6 +15,7 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
@@ -22,7 +23,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyServic
 import java.time.LocalDate;
 import java.util.Set;
 
-import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction.ENGLAND_AND_WALES;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.WELSH_NAME_ENDINGS;
 
 @Component
@@ -84,11 +84,11 @@ public class LimitedPartnershipValidator {
     }
 
     private void validateJurisdiction(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
-        if (FilingMode.REGISTRATION.equals(filingMode) && partnershipDto.getData().getJurisdiction() != null) {
-            if (WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())
-                    && !partnershipDto.getData().getJurisdiction().equals(ENGLAND_AND_WALES.getApiKey())) {
-                addError("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction.", bindingResult);
-            }
+        if (FilingMode.REGISTRATION.equals(filingMode)
+                && partnershipDto.getData().getJurisdiction() != null
+                && WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())
+                && !partnershipDto.getData().getJurisdiction().equals(Jurisdiction.ENGLAND_AND_WALES.getApiKey())) {
+            addError("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction.", bindingResult);
         }
     }
 
