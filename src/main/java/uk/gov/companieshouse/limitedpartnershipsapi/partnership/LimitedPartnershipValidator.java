@@ -15,8 +15,6 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
-import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
-import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
@@ -88,13 +86,13 @@ public class LimitedPartnershipValidator {
 
     private void validateJurisdiction(PartnershipDto partnershipDto, BindingResult bindingResult) {
         if (partnershipDto.getData().getJurisdiction() != null) {
-            List<String> WELSH_NAME_ENDINGS = List.of(
+            List<String> welshNameEndings = List.of(
                     PARTNERIAETH_CYFYNGEDIG.getDescription(),
                     PC.getDescription(),
                     P_DOT_C_DOT.getDescription()
             );
 
-            if (WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())
+            if (welshNameEndings.contains(partnershipDto.getData().getNameEnding())
                     && !partnershipDto.getData().getJurisdiction().equals(ENGLAND_AND_WALES.getApiKey())) {
                 addError("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction.", bindingResult);
             }
