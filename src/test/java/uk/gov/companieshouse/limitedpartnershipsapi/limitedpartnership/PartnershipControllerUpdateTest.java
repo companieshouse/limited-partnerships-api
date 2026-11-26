@@ -31,6 +31,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipContr
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipPatchDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
@@ -165,6 +167,32 @@ class PartnershipControllerUpdateTest {
                 .andExpect(jsonPath("$.errors['data.dateOfUpdate']")
                         .value("Limited partnership date of update cannot be before the incorporation date"))
                 .andDo(document("partnership-update/bad-request-date-of-update"));
+
+        captureUpdate();
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenWelshNameEndingWithNonWelshJurisdiction() throws Exception {
+        PartnershipPatchDto patchDto = new PartnershipPatchDto();
+        patchDto.setNameEnding(PartnershipNameEnding.PARTNERIAETH_CYFYNGEDIG);
+        patchDto.setJurisdiction(Jurisdiction.NORTHERN_IRELAND);
+
+        doAnswer(invocation -> {
+            PartnershipPatchDto sentPatchDto = invocation.getArgument(2);
+            PartnershipDto partnershipDto = new PartnershipBuilder()
+                    .withNameEnding(sentPatchDto.getNameEnding())
+                    .withJurisdiction(sentPatchDto.getJurisdiction())
+                    .buildDto();
+            limitedPartnershipValidator.validateUpdate(partnershipDto, transaction);
+            return null;
+        }).when(partnershipService)
+                .updateLimitedPartnership(eq(transaction), eq(SUBMISSION_ID), any(PartnershipPatchDto.class), eq(REQUEST_ID), eq(USER_ID));
+
+        patchRequest(patchDto)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.['data.jurisdiction']")
+                        .value("Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction."))
+                .andDo(document("partnership-update/bad-request-invalid-body"));
 
         captureUpdate();
     }

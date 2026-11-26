@@ -15,12 +15,18 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction.ENGLAND_AND_WALES;
+import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding.*;
 
 @Component
 public class LimitedPartnershipValidator {
@@ -61,6 +67,7 @@ public class LimitedPartnershipValidator {
         validateSicCodes(partnershipDto, filingMode, bindingResult);
 
         validateDateOfUpdate(transaction, partnershipDto, bindingResult);
+        validateJurisdiction(partnershipDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
@@ -75,6 +82,21 @@ public class LimitedPartnershipValidator {
 
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
+            }
+        }
+    }
+
+    private void validateJurisdiction(PartnershipDto partnershipDto, BindingResult bindingResult) {
+        if (partnershipDto.getData().getJurisdiction() != null) {
+            List<String> WELSH_NAME_ENDINGS = List.of(
+                    PARTNERIAETH_CYFYNGEDIG.getDescription(),
+                    PC.getDescription(),
+                    P_DOT_C_DOT.getDescription()
+            );
+
+            if (WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())
+                    && !partnershipDto.getData().getJurisdiction().equals(ENGLAND_AND_WALES.getApiKey())) {
+                addError("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction.", bindingResult);
             }
         }
     }

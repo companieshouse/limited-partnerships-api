@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Jurisdiction {
     ENGLAND_AND_WALES("england-wales"),
@@ -17,6 +18,7 @@ public enum Jurisdiction {
         this.apiKey = apiKey;
     }
 
+    @JsonValue
     public String getApiKey() {
         return apiKey;
     }
