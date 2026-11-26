@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.limitedpartnershipsapi.utils;
 
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.Country;
 
@@ -82,6 +83,12 @@ public class Constants {
                     Stream.of(Country.UNITED_KINGDOM.getDescription()),
                     UK_COUNTRIES.stream()
             ).toList()
+    );
+
+    public static final List<String> WELSH_NAME_ENDINGS = List.of(
+            PartnershipNameEnding.PARTNERIAETH_CYFYNGEDIG.getDescription(),
+            PartnershipNameEnding.PC.getDescription(),
+            PartnershipNameEnding.P_DOT_C_DOT.getDescription()
     );
 
     public static final List<String> UK_POSTCODE_LETTERS_NOT_MAINLAND = List.of("JE", "GY", "IM");

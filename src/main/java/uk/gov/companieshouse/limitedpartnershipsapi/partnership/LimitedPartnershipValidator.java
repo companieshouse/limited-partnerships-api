@@ -20,11 +20,10 @@ import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction.ENGLAND_AND_WALES;
-import static uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding.*;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.WELSH_NAME_ENDINGS;
 
 @Component
 public class LimitedPartnershipValidator {
@@ -63,9 +62,9 @@ public class LimitedPartnershipValidator {
         FilingMode filingMode = FilingMode.fromDescription(transaction.getFilingMode());
         validateTerm(partnershipDto, filingMode, bindingResult);
         validateSicCodes(partnershipDto, filingMode, bindingResult);
+        validateJurisdiction(partnershipDto, filingMode, bindingResult);
 
         validateDateOfUpdate(transaction, partnershipDto, bindingResult);
-        validateJurisdiction(partnershipDto, bindingResult);
 
         if (bindingResult.hasErrors()) {
             throw new MethodArgumentNotValidException(methodParameter, bindingResult);
@@ -84,15 +83,9 @@ public class LimitedPartnershipValidator {
         }
     }
 
-    private void validateJurisdiction(PartnershipDto partnershipDto, BindingResult bindingResult) {
-        if (partnershipDto.getData().getJurisdiction() != null) {
-            List<String> welshNameEndings = List.of(
-                    PARTNERIAETH_CYFYNGEDIG.getDescription(),
-                    PC.getDescription(),
-                    P_DOT_C_DOT.getDescription()
-            );
-
-            if (welshNameEndings.contains(partnershipDto.getData().getNameEnding())
+    private void validateJurisdiction(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
+        if (FilingMode.REGISTRATION.equals(filingMode) && partnershipDto.getData().getJurisdiction() != null) {
+            if (WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())
                     && !partnershipDto.getData().getJurisdiction().equals(ENGLAND_AND_WALES.getApiKey())) {
                 addError("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction.", bindingResult);
             }
