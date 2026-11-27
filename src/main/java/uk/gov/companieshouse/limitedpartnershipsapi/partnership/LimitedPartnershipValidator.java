@@ -88,7 +88,7 @@ public class LimitedPartnershipValidator {
                 && partnershipDto.getData().getJurisdiction() != null
                 && !partnershipDto.getData().getJurisdiction().equals(Jurisdiction.ENGLAND_AND_WALES.getApiKey())
                 && WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())) {
-            addError("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction.", bindingResult);
+            addError("data.jurisdiction", "Welsh name endings can only be used by England and Wales partnerships", bindingResult);
         }
     }
 
