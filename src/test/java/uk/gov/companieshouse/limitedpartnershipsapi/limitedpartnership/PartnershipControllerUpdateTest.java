@@ -191,7 +191,7 @@ class PartnershipControllerUpdateTest {
         patchRequest(patchDto)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.['data.jurisdiction']")
-                        .value("Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction."))
+                        .value("Welsh name endings can only be used by England and Wales partnerships"))
                 .andDo(document("partnership-update/bad-request-invalid-body"));
 
         captureUpdate();

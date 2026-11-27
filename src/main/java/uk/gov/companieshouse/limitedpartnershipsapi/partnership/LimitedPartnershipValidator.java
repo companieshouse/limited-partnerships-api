@@ -86,8 +86,8 @@ public class LimitedPartnershipValidator {
     private void validateJurisdiction(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
         if (FilingMode.REGISTRATION.equals(filingMode)
                 && partnershipDto.getData().getJurisdiction() != null
-                && WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())
-                && !partnershipDto.getData().getJurisdiction().equals(Jurisdiction.ENGLAND_AND_WALES.getApiKey())) {
+                && !partnershipDto.getData().getJurisdiction().equals(Jurisdiction.ENGLAND_AND_WALES.getApiKey())
+                && WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())) {
             addError("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction.", bindingResult);
         }
     }

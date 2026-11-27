@@ -95,7 +95,7 @@ class PartnershipServiceValidateStatusTest extends AbstractPartnershipServiceTes
         assertThat(errors)
                 .extracting(error -> Map.entry(error.getLocation(), error.getError()))
                 .contains(
-                        Map.entry("data.jurisdiction", "Northern Ireland partnerships cannot use a Welsh name ending. Change the name ending or select a different jurisdiction."));
+                        Map.entry("data.jurisdiction", "Welsh name endings can only be used by England and Wales partnerships"));
     }
 
     @Test
