@@ -67,11 +67,9 @@ public class LimitedPartnershipValidationStatus {
 		if (FilingMode.REGISTRATION.equals(filingMode)) {
 			if (dataDto.getNameEnding() == null) {
 				errorsList.add(validationStatus.createValidationStatusError("Name ending is required", "data.nameEnding"));
-			} else if (dataDto.getJurisdiction() != null) {
-				if (WELSH_NAME_ENDINGS.contains(dataDto.getNameEnding()) && !dataDto.getJurisdiction().equals(Jurisdiction.ENGLAND_AND_WALES.getApiKey())) {
-					errorsList.add(validationStatus.createValidationStatusError("Welsh name endings can only be used by England and Wales partnerships",
-							"data.jurisdiction"));
-				}
+			} else if (WELSH_NAME_ENDINGS.contains(dataDto.getNameEnding()) && !Jurisdiction.ENGLAND_AND_WALES.getApiKey().equals(dataDto.getJurisdiction())) {
+				errorsList.add(validationStatus.createValidationStatusError("Welsh name endings can only be used by England and Wales partnerships",
+						"data.jurisdiction"));
 			}
 		} else {
 			if (dataDto.getPartnershipNumber() == null) {
