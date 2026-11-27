@@ -15,12 +15,15 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.limitedpartner.dto.LimitedPartnerDataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.service.CompanyService;
 
 import java.time.LocalDate;
 import java.util.Set;
+
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.WELSH_NAME_ENDINGS;
 
 @Component
 public class LimitedPartnershipValidator {
@@ -59,6 +62,7 @@ public class LimitedPartnershipValidator {
         FilingMode filingMode = FilingMode.fromDescription(transaction.getFilingMode());
         validateTerm(partnershipDto, filingMode, bindingResult);
         validateSicCodes(partnershipDto, filingMode, bindingResult);
+        validateJurisdiction(partnershipDto, filingMode, bindingResult);
 
         validateDateOfUpdate(transaction, partnershipDto, bindingResult);
 
@@ -76,6 +80,15 @@ public class LimitedPartnershipValidator {
             if (dateEffectiveFrom.isBefore(companyProfileApi.getDateOfCreation())) {
                 addError("data.dateOfUpdate", "Limited partnership date of update cannot be before the incorporation date", bindingResult);
             }
+        }
+    }
+
+    private void validateJurisdiction(PartnershipDto partnershipDto, FilingMode filingMode, BindingResult bindingResult) {
+        if (FilingMode.REGISTRATION.equals(filingMode)
+                && partnershipDto.getData().getJurisdiction() != null
+                && !partnershipDto.getData().getJurisdiction().equals(Jurisdiction.ENGLAND_AND_WALES.getApiKey())
+                && WELSH_NAME_ENDINGS.contains(partnershipDto.getData().getNameEnding())) {
+            addError("data.jurisdiction", "Welsh name endings can only be used by England and Wales partnerships", bindingResult);
         }
     }
 

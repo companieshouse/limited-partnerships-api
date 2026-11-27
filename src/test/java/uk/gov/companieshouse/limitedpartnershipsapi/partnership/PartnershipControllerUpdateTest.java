@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -190,6 +192,38 @@ class PartnershipControllerUpdateTest {
         mocks();
 
         String body = "{ \"partnership_name\" : \"Test name\", \"name_ending\" : \"PP\" }";
+
+        mockMvc.perform(patch(PARTNERSHIP_PATCH_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Partneriaeth Cyfyngedig", "PC", "P.C."})
+    void UpdateJurisdictionShouldReturn200IfUsingEnglandWalesJurisdictionAndWelshNameEnding(String ending) throws Exception {
+        mocks();
+
+        String body = "{ \"name_ending\" : \"" + ending + "\", \"jurisdiction\" : \"england-wales\" }";
+
+        mockMvc.perform(patch(PARTNERSHIP_PATCH_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .headers(httpHeaders)
+                        .requestAttr("transaction", transaction)
+                        .content(body))
+                .andExpect(status().isOk());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Partneriaeth Cyfyngedig", "PC", "P.C."})
+    void UpdateJurisdictionShouldReturn400IfUsingIrishJurisdictionAndWelshNameEnding(String ending) throws Exception {
+        mocks();
+
+        String body = "{ \"name_ending\" : \"" + ending + "\", \"jurisdiction\" : \"northern-ireland\" }";
 
         mockMvc.perform(patch(PARTNERSHIP_PATCH_URL)
                         .contentType(MediaType.APPLICATION_JSON)

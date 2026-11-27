@@ -2,6 +2,7 @@ package uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum PartnershipNameEnding {
     LIMITED_PARTNERSHIP("Limited Partnership"),
@@ -21,6 +22,7 @@ public enum PartnershipNameEnding {
         this.description = description;
     }
 
+    @JsonValue
     public String getDescription() {
         return description;
     }

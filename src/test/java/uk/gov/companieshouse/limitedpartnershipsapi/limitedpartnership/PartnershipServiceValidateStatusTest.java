@@ -15,6 +15,8 @@ import uk.gov.companieshouse.limitedpartnershipsapi.exception.ServiceException;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipRepository;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.PartnershipService;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dao.PartnershipDao;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipNameEnding;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Term;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
@@ -78,6 +80,22 @@ class PartnershipServiceValidateStatusTest extends AbstractPartnershipServiceTes
                         Map.entry("data.registeredOfficeAddress", "Registered office address is required"),
                         Map.entry("data.principalPlaceOfBusinessAddress", "Principal place of business address is required"),
                         Map.entry("data.lawfulPurposeStatementChecked", "Lawful purpose statement checked is required"));
+    }
+
+    @Test
+    void shouldReturnJurisdictionErrorWhenRegistrationPartnershipHasWelshNameEndingAndNonEnglandWalesJurisdiction() throws ServiceException {
+        PartnershipDao partnershipDao = validRegistrationDao();
+        partnershipDao.getData().setNameEnding(PartnershipNameEnding.PARTNERIAETH_CYFYNGEDIG.getDescription());
+        partnershipDao.getData().setJurisdiction(Jurisdiction.NORTHERN_IRELAND.getApiKey());
+
+        when(partnershipRepository.findByTransactionId(transaction.getId())).thenReturn(List.of(partnershipDao));
+
+        List<ValidationStatusError> errors = partnershipService.validateStatus(transaction);
+
+        assertThat(errors)
+                .extracting(error -> Map.entry(error.getLocation(), error.getError()))
+                .contains(
+                        Map.entry("data.jurisdiction", "Welsh name endings can only be used by England and Wales partnerships"));
     }
 
     @Test

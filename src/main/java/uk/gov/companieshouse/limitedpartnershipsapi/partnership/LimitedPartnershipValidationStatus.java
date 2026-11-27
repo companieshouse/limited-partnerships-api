@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.DataDto;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.dto.PartnershipDto;
+import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.Jurisdiction;
 import uk.gov.companieshouse.limitedpartnershipsapi.partnership.enums.PartnershipType;
 import uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode;
 import uk.gov.companieshouse.limitedpartnershipsapi.validator.ValidationStatus;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 import static uk.gov.companieshouse.limitedpartnershipsapi.shared.FilingMode.REGISTRATION;
 import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.SCOTTISH_PARTNERSHIP_TYPES;
+import static uk.gov.companieshouse.limitedpartnershipsapi.utils.Constants.WELSH_NAME_ENDINGS;
 
 @Component
 public class LimitedPartnershipValidationStatus {
@@ -65,6 +67,9 @@ public class LimitedPartnershipValidationStatus {
 		if (FilingMode.REGISTRATION.equals(filingMode)) {
 			if (dataDto.getNameEnding() == null) {
 				errorsList.add(validationStatus.createValidationStatusError("Name ending is required", "data.nameEnding"));
+			} else if (WELSH_NAME_ENDINGS.contains(dataDto.getNameEnding()) && !Jurisdiction.ENGLAND_AND_WALES.getApiKey().equals(dataDto.getJurisdiction())) {
+				errorsList.add(validationStatus.createValidationStatusError("Welsh name endings can only be used by England and Wales partnerships",
+						"data.jurisdiction"));
 			}
 		} else {
 			if (dataDto.getPartnershipNumber() == null) {
